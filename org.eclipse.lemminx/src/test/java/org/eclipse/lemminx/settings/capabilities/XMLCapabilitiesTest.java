@@ -71,7 +71,7 @@ public class XMLCapabilitiesTest extends AbstractCacheBasedTest {
 
 		textDocument = new TextDocumentClientCapabilities();
 		workspace = new WorkspaceClientCapabilities();
-		manager = new XMLCapabilityManager(languageClient, textDocumentService);
+		manager = new XMLCapabilityManager(languageClient, textDocumentService, null);
 		clientCapabilities = new ClientCapabilities();
 		capabilityIDs = null;
 

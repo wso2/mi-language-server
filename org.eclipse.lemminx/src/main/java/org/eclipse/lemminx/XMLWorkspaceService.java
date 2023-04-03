@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 
+import org.eclipse.lemminx.commons.WorkspaceFolders;
 import org.eclipse.lemminx.services.extensions.commands.IXMLCommandService;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
@@ -38,12 +39,14 @@ import org.eclipse.lsp4j.services.WorkspaceService;
 public class XMLWorkspaceService implements WorkspaceService, IXMLCommandService {
 
 	private final XMLLanguageServer xmlLanguageServer;
+	private final WorkspaceFolders workspaceFolders;
 
 	private final Map<String, IDelegateCommandHandler> commands;
 
 	public XMLWorkspaceService(XMLLanguageServer xmlLanguageServer) {
 		this.xmlLanguageServer = xmlLanguageServer;
 		this.commands = new HashMap<>();
+		this.workspaceFolders = WorkspaceFolders.getInstance();
 	}
 
 	@Override
@@ -80,6 +83,8 @@ public class XMLWorkspaceService implements WorkspaceService, IXMLCommandService
 	public void didChangeWorkspaceFolders(DidChangeWorkspaceFoldersParams params) {
 		xmlLanguageServer.getXMLLanguageService().getWorkspaceServiceParticipants()
 				.forEach(participant -> participant.didChangeWorkspaceFolders(params));
+
+//		workspaceFolders.didChangeWorkspaceFolders(params);
 	}
 
 	@Override

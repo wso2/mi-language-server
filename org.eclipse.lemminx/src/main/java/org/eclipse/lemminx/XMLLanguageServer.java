@@ -265,7 +265,7 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 
 	public void setClient(LanguageClient languageClient) {
 		this.languageClient = (XMLLanguageClientAPI) languageClient;
-		capabilityManager = new XMLCapabilityManager(this.languageClient, xmlTextDocumentService);
+		capabilityManager = new XMLCapabilityManager(this.languageClient, xmlTextDocumentService, xmlWorkspaceService);
 		telemetryManager = new TelemetryManager(languageClient);
 	}
 
