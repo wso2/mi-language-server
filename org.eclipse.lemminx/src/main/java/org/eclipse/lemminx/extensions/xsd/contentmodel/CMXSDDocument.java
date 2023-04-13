@@ -78,9 +78,9 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 
 	private static final Logger LOGGER = Logger.getLogger(CMXSDDocument.class.getName());
 
-	private final XSModel model;
+	public final XSModel model;
 
-	private final Map<XSElementDeclaration, CMXSDElementDeclaration> elementMappings;
+	public final Map<XSElementDeclaration, CMXSDElementDeclaration> elementMappings;
 
 	private Collection<CMElementDeclaration> elements;
 
@@ -191,7 +191,7 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 		return declaration;
 	}
 
-	private CMElementDeclaration findElementDeclaration(String tag, String namespace) {
+	public CMElementDeclaration findElementDeclaration(String tag, String namespace) {
 		for (CMElementDeclaration cmElement : getElements()) {
 			if (cmElement.getLocalName().equals(tag)) {
 				return cmElement;
@@ -200,7 +200,7 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 		return null;
 	}
 
-	CMElementDeclaration getXSDElement(XSElementDeclaration elementDeclaration) {
+	public CMElementDeclaration getXSDElement(XSElementDeclaration elementDeclaration) {
 		CMXSDElementDeclaration element = elementMappings.get(elementDeclaration);
 		if (element == null) {
 			element = new CMXSDElementDeclaration(this, elementDeclaration);
@@ -209,7 +209,7 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 		return element;
 	}
 
-	static Collection<String> getEnumerationValues(XSSimpleTypeDefinition typeDefinition) {
+	public static Collection<String> getEnumerationValues(XSSimpleTypeDefinition typeDefinition) {
 		if (typeDefinition != null) {
 			if (isBooleanType(typeDefinition)) {
 				return StringUtils.TRUE_FALSE_ARRAY;
@@ -233,14 +233,14 @@ public class CMXSDDocument implements CMDocument, XSElementDeclHelper {
 		return Collections.emptyList();
 	}
 
-	static boolean isBooleanType(XSSimpleTypeDefinition typeDefinition) {
+	public static boolean isBooleanType(XSSimpleTypeDefinition typeDefinition) {
 		if (typeDefinition instanceof XSSimpleType) {
 			return ((XSSimpleType) typeDefinition).getPrimitiveKind() == XSSimpleType.PRIMITIVE_BOOLEAN;
 		}
 		return false;
 	}
 
-	static XSObjectList getEnumerationAnnotations(XSSimpleTypeDefinition simpleTypeDefinition, String value) {
+	public static XSObjectList getEnumerationAnnotations(XSSimpleTypeDefinition simpleTypeDefinition, String value) {
 		if (simpleTypeDefinition instanceof XSSimpleTypeDecl) {
 			XSSimpleTypeDecl simpleTypeDecl = (XSSimpleTypeDecl) simpleTypeDefinition;
 			XSObjectList multiFacets = simpleTypeDecl.getMultiValueFacets();

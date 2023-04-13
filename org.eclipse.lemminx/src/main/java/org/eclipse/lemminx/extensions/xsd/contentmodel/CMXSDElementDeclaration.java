@@ -63,9 +63,9 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 
 	private static final short PC_UNKWOWN = -1;
 
-	private final CMXSDDocument document;
+	final CMXSDDocument document;
 
-	private final XSElementDeclaration elementDeclaration;
+	final XSElementDeclaration elementDeclaration;
 
 	private Collection<CMAttributeDeclaration> attributes;
 
@@ -122,7 +122,7 @@ public class CMXSDElementDeclaration implements CMElementDeclaration {
 		}
 	}
 
-	private void collectAttributesDeclaration(XSComplexTypeDefinition typeDefinition,
+	public void collectAttributesDeclaration(XSComplexTypeDefinition typeDefinition,
 			Collection<CMAttributeDeclaration> attributes) {
 		XSObjectList list = typeDefinition.getAttributeUses();
 		if (list != null) {

@@ -46,17 +46,17 @@ import org.eclipse.lemminx.utils.URIUtils;
  */
 public class ContentModelManager {
 
-	private final Map<String, CMDocument> cmDocumentCache;
+	public final Map<String, CMDocument> cmDocumentCache;
 
-	private final URIResolverExtensionManager resolverManager;
-	private final List<ContentModelProvider> modelProviders;
+	public final URIResolverExtensionManager resolverManager;
+	public final List<ContentModelProvider> modelProviders;
 
-	private final XMLCacheResolverExtension cacheResolverExtension;
-	private final XMLCatalogResolverExtension catalogResolverExtension;
-	private final XMLFileAssociationResolverExtension fileAssociationResolver;
-	private final LSPXMLGrammarPool grammarPool;
+	public final XMLCacheResolverExtension cacheResolverExtension;
+	public final XMLCatalogResolverExtension catalogResolverExtension;
+	public final XMLFileAssociationResolverExtension fileAssociationResolver;
+	public final LSPXMLGrammarPool grammarPool;
 
-	private boolean resolveExternalEntities;
+	public boolean resolveExternalEntities;
 
 	public ContentModelManager(URIResolverExtensionManager resolverManager) {
 		this.resolverManager = resolverManager;

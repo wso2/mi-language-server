@@ -35,8 +35,8 @@ import org.eclipse.lsp4j.MarkupKind;
  */
 public class CMXSDAttributeDeclaration implements CMAttributeDeclaration {
 
-	private final CMXSDElementDeclaration cmElement;
-	private final XSAttributeUse attributeUse;
+	final CMXSDElementDeclaration cmElement;
+	final XSAttributeUse attributeUse;
 
 	private Map<String, String> valuesDocumentation;
 
