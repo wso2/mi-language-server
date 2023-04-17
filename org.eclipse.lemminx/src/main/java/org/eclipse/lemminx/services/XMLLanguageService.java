@@ -18,9 +18,13 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.customservice.AutoCloseTagResponse;
+import org.eclipse.lemminx.customservice.syntaxmodel.SyntaxTreeResponse;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationRootSettings;
@@ -33,6 +37,7 @@ import org.eclipse.lemminx.settings.XMLCodeLensSettings;
 import org.eclipse.lemminx.settings.XMLCompletionSettings;
 import org.eclipse.lemminx.settings.XMLFoldingSettings;
 import org.eclipse.lemminx.settings.XMLSymbolSettings;
+import org.eclipse.lemminx.customservice.syntaxmodel.SyntaxTree;
 import org.eclipse.lemminx.utils.XMLPositionUtility;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionContext;
@@ -318,6 +323,18 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 
 	public Position getMatchingTagPosition(DOMDocument xmlDocument, Position position, CancelChecker cancelChecker) {
 		return XMLPositionUtility.getMatchingTagPosition(xmlDocument, position);
+	}
+
+	public SyntaxTreeResponse getSyntaxTree(DOMDocument xmlDocument) {
+		SyntaxTree syntaxTree = SyntaxTree.getSyntaxTree(xmlDocument);
+
+		GsonBuilder builder = new GsonBuilder();
+		builder.serializeNulls();
+		Gson gson = builder.create();
+		JsonElement nextNode = gson.toJsonTree(syntaxTree);
+
+		return new SyntaxTreeResponse(nextNode, xmlDocument.getDocumentURI());
+
 	}
 
 	/**
