@@ -24,6 +24,9 @@ import com.google.gson.JsonElement;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.customservice.AutoCloseTagResponse;
+import org.eclipse.lemminx.customservice.LogMediatorSnippetRequest;
+import org.eclipse.lemminx.customservice.SnippetCompletionRequest;
+import org.eclipse.lemminx.customservice.SnippetCompletionResponse;
 import org.eclipse.lemminx.customservice.syntaxmodel.SyntaxTreeResponse;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMParser;
@@ -335,6 +338,15 @@ public class XMLLanguageService extends XMLExtensionsRegistry implements IXMLFul
 
 		return new SyntaxTreeResponse(nextNode, xmlDocument.getDocumentURI());
 
+	}
+
+	public SnippetCompletionResponse getSnippetCompletion(SnippetCompletionRequest param) {
+		try {
+			LogMediatorSnippetRequest p = (LogMediatorSnippetRequest) param;
+			return p.getLogMediator();
+		} catch (ClassCastException e) {
+			return null;
+		}
 	}
 
 	/**

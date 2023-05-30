@@ -36,6 +36,9 @@ public interface XMLLanguageServerAPI {
 
 	@JsonRequest
 	CompletableFuture<SyntaxTreeResponse> getSynapseSyntaxTree(TextDocumentIdentifier param);
+
+	@JsonRequest
+	CompletableFuture<SnippetCompletionResponse> getSnippetCompletion(LogMediatorSnippetRequest param);
 }
 
 

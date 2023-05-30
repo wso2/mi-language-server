@@ -32,6 +32,9 @@ import org.eclipse.lemminx.commons.ModelTextDocument;
 import org.eclipse.lemminx.commons.ParentProcessWatcher.ProcessLanguageServer;
 import org.eclipse.lemminx.customservice.ActionableNotification;
 import org.eclipse.lemminx.customservice.AutoCloseTagResponse;
+import org.eclipse.lemminx.customservice.LogMediatorSnippetRequest;
+import org.eclipse.lemminx.customservice.SnippetCompletionRequest;
+import org.eclipse.lemminx.customservice.SnippetCompletionResponse;
 import org.eclipse.lemminx.customservice.XMLLanguageClientAPI;
 import org.eclipse.lemminx.customservice.XMLLanguageServerAPI;
 import org.eclipse.lemminx.customservice.syntaxmodel.SyntaxTreeResponse;
@@ -308,6 +311,12 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 		return xmlTextDocumentService.computeDOMAsync(param, (xmlDocument, cancelChecker) -> {
 			return getXMLLanguageService().getSyntaxTree(xmlDocument);
 		});
+	}
+
+	@Override
+	public CompletableFuture<SnippetCompletionResponse> getSnippetCompletion(LogMediatorSnippetRequest param) {
+		SnippetCompletionResponse reply = getXMLLanguageService().getSnippetCompletion(param);
+		return CompletableFuture.supplyAsync(() -> reply);
 	}
 
 	@Override
