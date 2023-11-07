@@ -1,40 +1,13 @@
 XML Language Server (LemMinX)
 ===========================
-[![Maven](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Frepo.eclipse.org%2Fcontent%2Frepositories%2Flemminx-releases%2Forg%2Feclipse%2Flemminx%2Forg.eclipse.lemminx%2Fmaven-metadata.xml&style=for-the-badge&logo=apachemaven&logoColor=white&color=informational)](https://repo.eclipse.org/content/repositories/lemminx-releases/org/eclipse/lemminx/org.eclipse.lemminx/)
-[![Eclipse Site](https://img.shields.io/badge/Eclipse%20Site-lemminx-informational?logo=eclipse&style=for-the-badge)](https://download.eclipse.org/lemminx/releases/)
-[![Build Status](https://img.shields.io/jenkins/tests?jobUrl=https%3A%2F%2Fci.eclipse.org%2Flemminx%2Fjob%2Flemminx%2Fjob%2Fmain%2F&style=for-the-badge&logo=jenkins&logoColor=white)](https://ci.eclipse.org/lemminx/job/lemminx/job/main/)
-[![CodeQL Status](https://img.shields.io/github/actions/workflow/status/eclipse/lemminx/codeql-analysis.yml?style=for-the-badge&label=codeql&logo=githubactions&logoColor=white)](https://github.com/eclipse/lemminx/actions/workflows/codeql-analysis.yml?query=branch%3Amain)
-[![LICENSE](https://img.shields.io/github/license/eclipse/lemminx?style=for-the-badge&color=informational)](https://github.com/eclipse/lemminx/blob/main/LICENSE)
+This repository is forked from [Eclipse LemMinX](https://github.com/eclipse/lemminx)
 
 **LemMinX** is a XML language specific implementation of the [Language Server Protocol](https://github.com/Microsoft/language-server-protocol)
 and can be used with any editor that supports the protocol, to offer good support for the **XML Language**. The server is based on:
 
  * [Eclipse LSP4J](https://github.com/eclipse/lsp4j), the Java binding for the Language Server Protocol.
  * Xerces to manage XML Schema validation, completion and hover
-
-Features
---------------
-
-* [textDocument/codeAction](https://microsoft.github.io/language-server-protocol/specification#textDocument_codeAction).
-* [textDocument/completion](https://microsoft.github.io/language-server-protocol/specification#textDocument_completion).
-* [textDocument/documentHighlight](https://microsoft.github.io/language-server-protocol/specification#textDocument_documentHighlight).
-* [textDocument/documentLink](https://microsoft.github.io/language-server-protocol/specification#textDocument_documentLink).
-* [textDocument/documentSymbol](https://microsoft.github.io/language-server-protocol/specification#textDocument_documentSymbol).
-* [textDocument/foldingRanges](https://microsoft.github.io/language-server-protocol/specification#textDocument_foldingRange).
-* [textDocument/formatting](https://microsoft.github.io/language-server-protocol/specification#textDocument_formatting).
-* [textDocument/hover](https://microsoft.github.io/language-server-protocol/specification#textDocument_hover).
-* [textDocument/rangeFormatting](https://microsoft.github.io/language-server-protocol/specification#textDocument_rangeFormatting)
-* [textDocument/rename](https://microsoft.github.io/language-server-protocol/specification#textDocument_rename).
-
-See screenshots in the [Features docs](./docs/Features.md).
-
-See the [changelog](CHANGELOG.md) for the latest release.
-
-
-Demo
---------------
-
-![XML Language Server Demo](docs/images/XMLLanguageServerDemo.gif)
+ * Generates syntax tree for Synapse XML configurations.
 
 Get started
 --------------
@@ -93,73 +66,6 @@ OS specific instructions:
     - This needs to be done recursively, for all classes that it has member variables of, including `enum`s
     - Settings are all deserialized, so whenever a setting is added, make sure to register the classes
   - Manually test the binary and check the logs for reflection errors/NPEs
-
-Maven coordinates:
-------------------
-
-Here are the Maven coordinates for lemminx (replace the `X.Y.Z` version with the [latest release](https://repo.eclipse.org/content/repositories/lemminx-releases)):
-```xml
-<dependency>
-    <groupId>org.eclipse.lemminx</groupId>
-    <artifactId>org.eclipse.lemminx</artifactId>
-    <version>X.Y.Z</version>
-    <!-- classifier:uber includes all dependencies -->
-    <classifier>uber</classifier>
-</dependency>
-```
-
-for Gradle:
-```
-compile(group: 'org.lemminx', name: 'org.eclipse.lemminx', version: 'X.Y.Z', classifier: 'uber')
-```
-
-You will have to reference the Maven repository hosting the dependency you need. E.g. for Maven, add this repository to your pom.xml or settings.xml :
-```xml
-<repository>
-  <id>lemminx-releases</id>
-  <url>https://repo.eclipse.org/content/repositories/lemminx-releases/</url>
-  <snapshots>
-    <enabled>false</enabled>
-  </snapshots>
-  <releases>
-    <enabled>true</enabled>
-  </releases>
-</repository>
-```
-
-And if you want to consume the SNAPSHOT builds instead:
-```xml
-<repository>
-  <id>lemminx-snapshots</id>
-  <url>https://repo.eclipse.org/content/repositories/lemminx-snapshots/</url>
-  <releases>
-    <enabled>false</enabled>
-  </releases>
-  <snapshots>
-    <enabled>true</enabled>
-  </snapshots>
-</repository>
-```
-
-Verify 3rd Party Libraries
-----------------------------
-
-_Currently generating the IP Log report requires a Java Runtime Environment (JRE) >= 11._
-
-Run `./mvnw clean verify -Pverify-iplog` to generate a report for the 3rd party libraries used by this project. See the [Eclipse Project Handbook](https://www.eclipse.org/projects/handbook/#ip-license-tool) for further details.
-
-
-Clients
--------
-
-Here are some clients consuming this XML Language Server:
-
- * Eclipse IDE with [Wild Web Developer](https://github.com/eclipse/wildwebdeveloper) and [m2e](https://www.eclipse.org/m2e/)
- * VSCode with [vscode-xml](https://github.com/redhat-developer/vscode-xml)
- * Theia with [theia-xml](https://github.com/theia-ide/theia-xml-extension)
- * [Spring Tools 4](https://github.com/spring-projects/sts4) - re-using the XML parser for Spring-specific analysis and content-assist
- * Vim/Neovim with [coc-xml](https://github.com/fannheyward/coc-xml)
- * Emacs with [lsp-mode](https://github.com/emacs-lsp/lsp-mode)
 
 
 Extensions
