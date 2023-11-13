@@ -37,6 +37,7 @@ import org.eclipse.lemminx.customservice.SnippetCompletionRequest;
 import org.eclipse.lemminx.customservice.SnippetCompletionResponse;
 import org.eclipse.lemminx.customservice.XMLLanguageClientAPI;
 import org.eclipse.lemminx.customservice.XMLLanguageServerAPI;
+import org.eclipse.lemminx.customservice.syntaxmodel.SyntaxTreeGenerator;
 import org.eclipse.lemminx.customservice.syntaxmodel.SyntaxTreeResponse;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
@@ -308,8 +309,10 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 
 	@Override
 	public CompletableFuture<SyntaxTreeResponse> getSynapseSyntaxTree(TextDocumentIdentifier param) {
+
 		return xmlTextDocumentService.computeDOMAsync(param, (xmlDocument, cancelChecker) -> {
-			return getXMLLanguageService().getSyntaxTree(xmlDocument);
+			SyntaxTreeGenerator generator = new SyntaxTreeGenerator();
+			return generator.getSyntaxTree(xmlDocument);
 		});
 	}
 
