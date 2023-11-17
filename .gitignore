@@ -1,24 +1,45 @@
-# Compiled class file
-*.class
+build/
+.out/
+bin/
+.bin/
+target/
 
-# Log file
-*.log
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
 
-# BlueJ files
-*.ctxt
+/gradle.properties
+/archive/
+/META-INF
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+.classpath
+.project
+.settings
 
-# Package Files #
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
+.idea/
+*.iml
+*.iws
+*.ipr
+.idea_modules/
+**/out/
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+*.tmp
+*.bak
+*.swp
+*~
+
+.gradle
+
+.DS_Store*
+.AppleDouble
+.LSOverride
+
+.directory
+.Trash*
+
+**/adhoctest/
