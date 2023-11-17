@@ -40,7 +40,7 @@ import org.eclipse.lemminx.extensions.xerces.xmlmodel.XMLModelAwareParserConfigu
  * </ul>
  *
  */
-class LSPXMLParserConfiguration extends XMLModelAwareParserConfiguration {
+public class LSPXMLParserConfiguration extends XMLModelAwareParserConfiguration {
 
 	/** property identifier: security manager. */
 	private static final String SECURITY_MANAGER = Constants.XERCES_PROPERTY_PREFIX

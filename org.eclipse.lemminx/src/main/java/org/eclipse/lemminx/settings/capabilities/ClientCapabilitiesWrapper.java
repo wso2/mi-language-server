@@ -128,8 +128,16 @@ public class ClientCapabilitiesWrapper {
 				&& capability.getDynamicRegistration().booleanValue();
 	}
 
+	public boolean isDidChangeWorkspaceFoldersSupported() {
+		return v3Supported && getWorkspace().getWorkspaceFolders();
+	}
+
 	public TextDocumentClientCapabilities getTextDocument() {
 		return this.capabilities.getTextDocument();
+	}
+
+	public WorkspaceClientCapabilities getWorkspace() {
+		return this.capabilities.getWorkspace();
 	}
 
 	public ExtendedClientCapabilities getExtendedCapabilities() {

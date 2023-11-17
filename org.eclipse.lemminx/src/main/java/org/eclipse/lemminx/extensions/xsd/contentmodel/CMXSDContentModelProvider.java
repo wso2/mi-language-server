@@ -47,7 +47,7 @@ public class CMXSDContentModelProvider implements ContentModelProvider {
 	private static final String XSI_SCHEMA_LOCATION_BINDING_KIND = "xsi:schemaLocation";
 
 	private static final String XSI_NO_NAMESPACE_SCHEMA_LOCATION_BINDING_KIND = "xsi:noNamespaceSchemaLocation";
-	private final URIResolverExtensionManager resolverExtensionManager;
+	public final URIResolverExtensionManager resolverExtensionManager;
 
 	public CMXSDContentModelProvider(URIResolverExtensionManager resolverExtensionManager) {
 		this.resolverExtensionManager = resolverExtensionManager;

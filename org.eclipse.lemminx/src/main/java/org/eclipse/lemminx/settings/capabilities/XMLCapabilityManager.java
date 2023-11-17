@@ -49,6 +49,8 @@ import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConsta
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_SELECTION_RANGE;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.TEXT_DOCUMENT_TYPEDEFINITION;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.TYPEDEFINITION_ID;
+import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.WORKSPACE_CHANGE_FOLDERS;
+import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.WORKSPACE_CHANGE_FOLDERS_ID;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.WORKSPACE_EXECUTE_COMMAND;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.WORKSPACE_EXECUTE_COMMAND_ID;
 import static org.eclipse.lemminx.settings.capabilities.ServerCapabilitiesConstants.WORKSPACE_WATCHED_FILES;
@@ -61,6 +63,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.lemminx.XMLTextDocumentService;
+import org.eclipse.lemminx.XMLWorkspaceService;
 import org.eclipse.lemminx.client.ExtendedClientCapabilities;
 import org.eclipse.lemminx.settings.XMLCodeLensSettings;
 import org.eclipse.lemminx.settings.XMLFormattingOptions;
@@ -88,12 +91,15 @@ public class XMLCapabilityManager {
 	private final Set<String> registeredCapabilities = new HashSet<>(3);
 	private final LanguageClient languageClient;
 	private final XMLTextDocumentService textDocumentService;
+	private XMLWorkspaceService xmlWorkspaceService;
 
 	private ClientCapabilitiesWrapper clientWrapper;
 
-	public XMLCapabilityManager(LanguageClient languageClient, XMLTextDocumentService textDocumentService) {
+	public XMLCapabilityManager(LanguageClient languageClient, XMLTextDocumentService textDocumentService,
+								XMLWorkspaceService xmlWorkspaceService) {
 		this.languageClient = languageClient;
 		this.textDocumentService = textDocumentService;
+		this.xmlWorkspaceService = xmlWorkspaceService;
 	}
 
 	/**
@@ -187,6 +193,9 @@ public class XMLCapabilityManager {
 		}
 		if (this.getClientCapabilities().isDidChangeWatchedFilesRegistered()) {
 			registerWatchedFiles();
+		}
+		if (this.getClientCapabilities().isDidChangeWorkspaceFoldersSupported()) {
+			registerCapability(WORKSPACE_CHANGE_FOLDERS_ID, WORKSPACE_CHANGE_FOLDERS);
 		}
 
 		syncDynamicCapabilitiesWithPreferences();

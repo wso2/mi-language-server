@@ -5,7 +5,7 @@
 TODO...
 
 ```
-	java -classpath ... org.eclipse.lsp4xml.XMLServerLauncher
+	java -classpath ... org.eclipse.lemminx.XMLServerLauncher
 ```
 
 ## Existing Implementations

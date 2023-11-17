@@ -32,8 +32,12 @@ import org.eclipse.lemminx.commons.ModelTextDocument;
 import org.eclipse.lemminx.commons.ParentProcessWatcher.ProcessLanguageServer;
 import org.eclipse.lemminx.customservice.ActionableNotification;
 import org.eclipse.lemminx.customservice.AutoCloseTagResponse;
+import org.eclipse.lemminx.customservice.LogMediatorSnippetRequest;
+import org.eclipse.lemminx.customservice.SnippetCompletionRequest;
+import org.eclipse.lemminx.customservice.SnippetCompletionResponse;
 import org.eclipse.lemminx.customservice.XMLLanguageClientAPI;
 import org.eclipse.lemminx.customservice.XMLLanguageServerAPI;
+import org.eclipse.lemminx.customservice.syntaxmodel.SyntaxTreeResponse;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationRootSettings;
@@ -69,6 +73,7 @@ import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.SetTraceParams;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.TextDocumentService;
@@ -265,7 +270,7 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 
 	public void setClient(LanguageClient languageClient) {
 		this.languageClient = (XMLLanguageClientAPI) languageClient;
-		capabilityManager = new XMLCapabilityManager(this.languageClient, xmlTextDocumentService);
+		capabilityManager = new XMLCapabilityManager(this.languageClient, xmlTextDocumentService, xmlWorkspaceService);
 		telemetryManager = new TelemetryManager(languageClient);
 	}
 
@@ -299,6 +304,19 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 		return xmlTextDocumentService.computeDOMAsync(params.getTextDocument(), (xmlDocument, cancelChecker) -> {
 			return getXMLLanguageService().getMatchingTagPosition(xmlDocument, params.getPosition(), cancelChecker);
 		});
+	}
+
+	@Override
+	public CompletableFuture<SyntaxTreeResponse> getSynapseSyntaxTree(TextDocumentIdentifier param) {
+		return xmlTextDocumentService.computeDOMAsync(param, (xmlDocument, cancelChecker) -> {
+			return getXMLLanguageService().getSyntaxTree(xmlDocument);
+		});
+	}
+
+	@Override
+	public CompletableFuture<SnippetCompletionResponse> getSnippetCompletion(LogMediatorSnippetRequest param) {
+		SnippetCompletionResponse reply = getXMLLanguageService().getSnippetCompletion(param);
+		return CompletableFuture.supplyAsync(() -> reply);
 	}
 
 	@Override
