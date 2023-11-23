@@ -220,6 +220,7 @@ public class XMLCapabilitiesTest extends AbstractCacheBasedTest {
 
 	private void setAndInitializeCapabilities() {
 		clientCapabilities.setTextDocument(textDocument);
+		workspace.setWorkspaceFolders(Boolean.FALSE);
 		clientCapabilities.setWorkspace(workspace);
 		manager.setClientCapabilities(clientCapabilities, null);
 		manager.initializeCapabilities();
