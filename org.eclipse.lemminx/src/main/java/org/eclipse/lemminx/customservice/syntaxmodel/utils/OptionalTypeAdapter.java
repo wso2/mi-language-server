@@ -21,6 +21,7 @@ package org.eclipse.lemminx.customservice.syntaxmodel.utils;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
@@ -33,16 +34,13 @@ public class OptionalTypeAdapter implements JsonSerializer<Optional<?>>, JsonDes
     @Override
     public JsonElement serialize(Optional<?> src, Type typeOfSrc, JsonSerializationContext context) {
 
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.add(Constant.VALUE, (src.isPresent() && src.get() != null) ? context.serialize(src.get()) : null);
-        return jsonObject;
+        return src.map(context::serialize).orElse(JsonNull.INSTANCE);
     }
 
     @Override
     public Optional<?> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
 
-        JsonObject jsonObject = json.getAsJsonObject();
-        JsonElement value = jsonObject.get(Constant.VALUE);
+        JsonObject value = json.getAsJsonObject();
         if (value == null || value.isJsonNull()) {
             return Optional.empty();
         } else {

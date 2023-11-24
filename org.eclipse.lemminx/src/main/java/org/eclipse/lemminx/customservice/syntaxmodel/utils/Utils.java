@@ -297,4 +297,14 @@ public class Utils {
         return equal;
     }
 
+    public static int parseInt(String number) {
+
+        int value = 0;
+        try {
+            value = Integer.parseInt(number);
+        } catch (NumberFormatException e) {
+            //ignore
+        }
+        return value;
+    }
 }

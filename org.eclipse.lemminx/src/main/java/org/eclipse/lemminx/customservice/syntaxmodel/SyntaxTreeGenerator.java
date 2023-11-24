@@ -24,6 +24,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.syntaxmodel.factory.APIFactory;
 import org.eclipse.lemminx.customservice.syntaxmodel.factory.AbstractFactory;
+import org.eclipse.lemminx.customservice.syntaxmodel.factory.DataServiceConfigFactory;
+import org.eclipse.lemminx.customservice.syntaxmodel.factory.DataSourceConfigFactory;
 import org.eclipse.lemminx.customservice.syntaxmodel.factory.InboundEndpointFactory;
 import org.eclipse.lemminx.customservice.syntaxmodel.factory.LocalEntryFactory;
 import org.eclipse.lemminx.customservice.syntaxmodel.factory.MessageProcessorFactory;
@@ -97,9 +99,9 @@ public class SyntaxTreeGenerator {
             } else if (Constant.WSDL_DESCRIPTION.equalsIgnoreCase(xmlNode.getNodeName())) {
                 factory = new Wsdl20Factory();
             } else if (Constant.DATA.equalsIgnoreCase(xmlNode.getNodeName())) {
-                // TODO: Implement factory for data service configs
+                factory = new DataServiceConfigFactory();
             } else if (Constant.DATA_SOURCE.equalsIgnoreCase(xmlNode.getNodeName())) {
-                // TODO: Implement factory for data source configs
+                factory = new DataSourceConfigFactory();
             }
         }
 
