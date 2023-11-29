@@ -64,7 +64,7 @@ public class CacheFactory extends AbstractMediatorFactory {
         Cache cacheMediator = (Cache) node;
         String timeout = element.getAttribute(Constant.TIMEOUT);
         if (timeout != null) {
-            cacheMediator.setTimeout(Integer.valueOf(timeout));
+            cacheMediator.setTimeout(Utils.parseInt(timeout));
         }
         String collector = element.getAttribute(Constant.COLLECTOR);
         if (collector != null) {
@@ -72,7 +72,7 @@ public class CacheFactory extends AbstractMediatorFactory {
         }
         String maxMessageSize = element.getAttribute(Constant.MAX_MESSAGE_SIZE);
         if (maxMessageSize != null) {
-            cacheMediator.setMaxMessageSize(Integer.valueOf(maxMessageSize));
+            cacheMediator.setMaxMessageSize(Utils.parseInt(maxMessageSize));
         }
         String scope = element.getAttribute(Constant.SCOPE);
         if (scope != null && !scope.isEmpty()) {
@@ -105,6 +105,9 @@ public class CacheFactory extends AbstractMediatorFactory {
         populateCacheProtocolAttributes(cacheProtocol, element);
         List<DOMNode> children = element.getChildren();
         for (DOMNode node : children) {
+            if (!(node instanceof DOMElement)) {
+                continue;
+            }
             String name = node.getNodeName();
             STNode stElement = new STNode();
             stElement.elementNode((DOMElement) node);
@@ -141,7 +144,7 @@ public class CacheFactory extends AbstractMediatorFactory {
         cacheImplementation.elementNode((DOMElement) element);
         String maxSize = element.getAttribute(Constant.MAX_SIZE);
         if (maxSize != null && !maxSize.isEmpty()) {
-            cacheImplementation.setMaxSize(Integer.valueOf(maxSize));
+            cacheImplementation.setMaxSize(Utils.parseInt(maxSize));
         }
         return cacheImplementation;
     }

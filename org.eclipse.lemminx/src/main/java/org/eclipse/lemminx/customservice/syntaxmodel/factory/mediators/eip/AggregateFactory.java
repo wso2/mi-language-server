@@ -53,13 +53,13 @@ public class AggregateFactory extends AbstractMediatorFactory {
                 String name = child.getNodeName();
                 if (name.equalsIgnoreCase(Constant.CORRELATE_ON)) {
                     AggregateCorrelateOn correlateOn = createCorrelateOn(child);
-                    configs.setCorrelateOn(Optional.of(correlateOn));
+                    configs.setCorrelateOn(Optional.ofNullable(correlateOn));
                 } else if (name.equalsIgnoreCase(Constant.COMPLETE_CONDITION)) {
                     AggregateCompleteCondition completeCondition = createCompleteCondition(child);
-                    configs.setCompleteCondition(Optional.of(completeCondition));
+                    configs.setCompleteCondition(Optional.ofNullable(completeCondition));
                 } else if (name.equalsIgnoreCase(Constant.ON_COMPLETE)) {
                     AggregateOnComplete onComplete = createOnComplete(child);
-                    configs.setOnComplete(Optional.of(onComplete));
+                    configs.setOnComplete(Optional.ofNullable(onComplete));
                 }
             }
             aggregate.setCorrelateOnOrCompleteConditionOrOnComplete(configs);
@@ -84,7 +84,7 @@ public class AggregateFactory extends AbstractMediatorFactory {
         completeCondition.elementNode((DOMElement) child);
         String timeout = child.getAttribute(Constant.TIMEOUT);
         if (timeout != null && !timeout.isEmpty()) {
-            completeCondition.setTimeout(Integer.parseInt(timeout));
+            completeCondition.setTimeout(Utils.parseInt(timeout));
         }
 
         List<DOMNode> children = child.getChildren();

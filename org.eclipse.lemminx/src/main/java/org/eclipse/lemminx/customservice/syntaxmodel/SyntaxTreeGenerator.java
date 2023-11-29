@@ -43,30 +43,53 @@ import org.eclipse.lemminx.customservice.syntaxmodel.utils.OptionalTypeAdapter;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 public class SyntaxTreeGenerator {
 
+    private static List<String> componentNames = Arrays.asList(Constant.API, Constant.ENDPOINT, Constant.INBOUND_ENDPOINT,
+            Constant.MESSAGE_PROCESSOR, Constant.LOCAL_ENTRY, Constant.MESSAGE_STORE, Constant.PROXY, Constant.SEQUENCE,
+            Constant.TASK, Constant.TEMPLATE, Constant.WSDL_DEFINITIONS, Constant.WSDL_DESCRIPTION, Constant.DATA,
+            Constant.DATA_SOURCE);
+
     public SyntaxTreeResponse getSyntaxTree(DOMDocument document) {
 
         SyntaxTreeResponse response = new SyntaxTreeResponse(null, document.getDocumentURI());
-        if (document.getChildren().size() >= 2) {
-            DOMElement rootElement = (DOMElement) document.getChild(1);
-            STNode tree = buildTree(rootElement);
-            if (tree != null) {
-                String rootTag = tree.getTag();
-                Gson gson = new GsonBuilder()
-                        .registerTypeHierarchyAdapter(Optional.class, new OptionalTypeAdapter())
-                        .serializeNulls()
-                        .disableHtmlEscaping()
-                        .create();
-                JsonElement nextNode = gson.toJsonTree(tree);
-                JsonObject root = new JsonObject();
-                root.add(rootTag, nextNode);
-                response.setSyntaxTree(root);
-            }
+        DOMElement rootElement = getRootElement(document);
+        STNode tree = buildTree(rootElement);
+        if (tree != null) {
+            String rootTag = tree.getTag();
+            Gson gson = new GsonBuilder()
+                    .registerTypeHierarchyAdapter(Optional.class, new OptionalTypeAdapter())
+                    .serializeNulls()
+                    .disableHtmlEscaping()
+                    .create();
+            JsonElement nextNode = gson.toJsonTree(tree);
+            JsonObject root = new JsonObject();
+            root.add(rootTag, nextNode);
+            response.setSyntaxTree(root);
         }
         return response;
+    }
+
+    private DOMElement getRootElement(DOMDocument document) {
+
+        DOMElement rootElement = null;
+        for (int i = 0; i < document.getChildren().size(); i++) {
+            String elementName = document.getChild(i).getNodeName();
+            if (containsIgnoreCase(componentNames, elementName)) {
+                rootElement = (DOMElement) document.getChild(i);
+                break;
+            }
+        }
+        return rootElement;
+    }
+
+    private boolean containsIgnoreCase(List<String> list, String elementName) {
+
+        return list.stream().anyMatch(s -> s.equalsIgnoreCase(elementName));
     }
 
     private static STNode buildTree(DOMElement xmlNode) {

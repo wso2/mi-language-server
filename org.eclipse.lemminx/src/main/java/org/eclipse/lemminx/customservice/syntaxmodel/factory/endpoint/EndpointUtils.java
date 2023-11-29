@@ -86,9 +86,11 @@ public class EndpointUtils {
         List<Object> elements = new ArrayList<>();
         if (children != null && !children.isEmpty()) {
             for (DOMNode child : children) {
-                STNode content = new STNode();
-                content.elementNode((DOMElement) child);
-                elements.add(content);
+                if (child instanceof DOMElement) {
+                    STNode content = new STNode();
+                    content.elementNode((DOMElement) child);
+                    elements.add(content);
+                }
             }
             timeout.setContent(elements);
         }
@@ -102,6 +104,9 @@ public class EndpointUtils {
         List<DOMNode> children = node.getChildren();
         if (children != null && !children.isEmpty()) {
             for (DOMNode child : children) {
+                if (!(child instanceof DOMElement)) {
+                    continue;
+                }
                 STNode stElement = new STNode();
                 stElement.elementNode((DOMElement) child);
                 String name = child.getNodeName();
@@ -126,6 +131,9 @@ public class EndpointUtils {
         List<DOMNode> children = node.getChildren();
         if (children != null && !children.isEmpty()) {
             for (DOMNode child : children) {
+                if (!(child instanceof DOMElement)) {
+                    continue;
+                }
                 String name = child.getNodeName();
                 STNode stElement = new STNode();
                 stElement.elementNode((DOMElement) child);

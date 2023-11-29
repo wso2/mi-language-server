@@ -58,21 +58,25 @@ public class LogFactory extends AbstractMediatorFactory {
     @Override
     public void populateAttributes(STNode node, DOMElement element) {
 
-        String level = element.getAttribute(Constant.LEVEL);
-        if (level != null && !level.isEmpty()) {
-            ((Log) node).setLevel(LogLevel.valueOf(level));
-        }
-        String separator = element.getAttribute(Constant.SEPARATOR);
-        if (separator != null && !separator.isEmpty()) {
-            ((Log) node).setSeparator(separator);
-        }
-        String category = element.getAttribute(Constant.CATEGORY);
-        if (category != null && !category.isEmpty()) {
-            ((Log) node).setCategory(LogCategory.valueOf(category));
-        }
-        String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
-            ((Log) node).setDescription(description);
+        try {
+            String level = element.getAttribute(Constant.LEVEL);
+            if (level != null && !level.isEmpty()) {
+                ((Log) node).setLevel(LogLevel.valueOf(level));
+            }
+            String separator = element.getAttribute(Constant.SEPARATOR);
+            if (separator != null && !separator.isEmpty()) {
+                ((Log) node).setSeparator(separator);
+            }
+            String category = element.getAttribute(Constant.CATEGORY);
+            if (category != null && !category.isEmpty()) {
+                ((Log) node).setCategory(LogCategory.valueOf(category));
+            }
+            String description = element.getAttribute(Constant.DESCRIPTION);
+            if (description != null && !description.isEmpty()) {
+                ((Log) node).setDescription(description);
+            }
+        } catch (IllegalArgumentException e) {
+            // TODO: Handle exception if needed.
         }
     }
 

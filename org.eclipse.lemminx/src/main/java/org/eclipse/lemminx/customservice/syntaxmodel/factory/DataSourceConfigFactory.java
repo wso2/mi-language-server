@@ -154,9 +154,11 @@ public class DataSourceConfigFactory extends AbstractFactory {
         if (childNodes != null && !childNodes.isEmpty()) {
             List<STNode> contents = new ArrayList<>();
             for (DOMNode child : childNodes) {
-                STNode content = new STNode();
-                content.elementNode((DOMElement) child);
-                contents.add(content);
+                if (child instanceof DOMElement) {
+                    STNode content = new STNode();
+                    content.elementNode((DOMElement) child);
+                    contents.add(content);
+                }
             }
             configuration.setContent(contents.toArray(new STNode[contents.size()]));
         }

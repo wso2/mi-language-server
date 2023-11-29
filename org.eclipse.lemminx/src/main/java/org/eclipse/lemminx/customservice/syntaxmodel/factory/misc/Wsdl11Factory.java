@@ -62,22 +62,22 @@ public class Wsdl11Factory extends AbstractFactory {
                 String name = child.getNodeName();
                 if (name.equalsIgnoreCase(Constant.WSDL_IMPORT)) {
                     TImport tImport = createTImport(child);
-                    anyTopLevelOptionalElement.set_import(Optional.of(tImport));
+                    anyTopLevelOptionalElement.set_import(Optional.ofNullable(tImport));
                 } else if (name.equalsIgnoreCase(Constant.WSDL_TYPES)) {
                     TTypes tTypes = createTTypes(child);
-                    anyTopLevelOptionalElement.setTypes(Optional.of(tTypes));
+                    anyTopLevelOptionalElement.setTypes(Optional.ofNullable(tTypes));
                 } else if (name.equalsIgnoreCase(Constant.WSDL_MESSAGE)) {
                     TMessage tMessage = createTMessage(child);
-                    anyTopLevelOptionalElement.setMessage(Optional.of(tMessage));
+                    anyTopLevelOptionalElement.setMessage(Optional.ofNullable(tMessage));
                 } else if (name.equalsIgnoreCase(Constant.WSDL_PORT_TYPE)) {
                     TPortType tPortType = createTPortType(child);
-                    anyTopLevelOptionalElement.setPortType(Optional.of(tPortType));
+                    anyTopLevelOptionalElement.setPortType(Optional.ofNullable(tPortType));
                 } else if (name.equalsIgnoreCase(Constant.WSDL_BINDING)) {
                     TBinding tBinding = createTBinding(child);
-                    anyTopLevelOptionalElement.setBinding(Optional.of(tBinding));
+                    anyTopLevelOptionalElement.setBinding(Optional.ofNullable(tBinding));
                 } else if (name.equalsIgnoreCase(Constant.WSDL_SERVICE)) {
                     TService tService = createTService(child);
-                    anyTopLevelOptionalElement.setService(Optional.of(tService));
+                    anyTopLevelOptionalElement.setService(Optional.ofNullable(tService));
                 } else if (name.equalsIgnoreCase(Constant.WSDL_DOCUMENTATION)) {
                     TDocumentation tDocumentation = createTDocumentation(child);
                     definitions.setDocumentation(tDocumentation);

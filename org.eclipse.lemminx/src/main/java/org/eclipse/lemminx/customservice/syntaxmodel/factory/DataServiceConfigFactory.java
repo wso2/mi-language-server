@@ -171,23 +171,23 @@ public class DataServiceConfigFactory extends AbstractFactory {
                 QueryElements queryElements = new QueryElements();
                 if (Constant.SQL.equalsIgnoreCase(childName)) {
                     Sql sql = createSql(child);
-                    queryElements.setSql(Optional.of(sql));
+                    queryElements.setSql(Optional.ofNullable(sql));
                 } else if (Constant.EXPRESSION.equalsIgnoreCase(childName)) {
                     Expression expression = createExpression(child);
-                    queryElements.setExpression(Optional.of(expression));
+                    queryElements.setExpression(Optional.ofNullable(expression));
                 } else if (Constant.SPARQL.equalsIgnoreCase(childName)) {
                     Sparql sparql = createSparql(child);
-                    queryElements.setSparql(Optional.of(sparql));
+                    queryElements.setSparql(Optional.ofNullable(sparql));
                 } else if (Constant.PROPERTIES.equalsIgnoreCase(childName)) {
                     QueryProperties properties = createQueryProperties(child);
-                    queryElements.setProperties(Optional.of(properties));
+                    queryElements.setProperties(Optional.ofNullable(properties));
                 } else if (Constant.RESULT.equalsIgnoreCase(childName)) {
                     STNode result = new STNode();
                     result.elementNode((DOMElement) child);
-                    queryElements.setResult(Optional.of(result));
+                    queryElements.setResult(Optional.ofNullable(result));
                 } else if (Constant.PARAM.equalsIgnoreCase(childName)) {
                     Param param = createParam(child);
-                    queryElements.setParam(Optional.of(param));
+                    queryElements.setParam(Optional.ofNullable(param));
                 }
                 elementList.add(queryElements);
             }
@@ -372,7 +372,7 @@ public class DataServiceConfigFactory extends AbstractFactory {
         }
         String ordinal = element.getAttribute(Constant.ORDINAL);
         if (ordinal != null && !ordinal.isEmpty()) {
-            param.setOrdinal(Integer.parseInt(ordinal));
+            param.setOrdinal(Utils.parseInt(ordinal));
         }
         String defaultValue = element.getAttribute(Constant.DEFAULT_VALUE);
         if (defaultValue != null && !defaultValue.isEmpty()) {
@@ -386,19 +386,19 @@ public class DataServiceConfigFactory extends AbstractFactory {
                 ParamElements paramElements = new ParamElements();
                 if (Constant.VALIDATE_CUSTOM.equalsIgnoreCase(childName)) {
                     ParamValidateCustom validateCustom = createParamValidateCustom(child);
-                    paramElements.setValidateCustom(Optional.of(validateCustom));
+                    paramElements.setValidateCustom(Optional.ofNullable(validateCustom));
                 } else if (Constant.VALIDATE_LENGTH.equalsIgnoreCase(childName)) {
                     ParamValidateLength validateLength = createParamValidateLength(child);
-                    paramElements.setValidateLength(Optional.of(validateLength));
+                    paramElements.setValidateLength(Optional.ofNullable(validateLength));
                 } else if (Constant.VALIDATE_PATTERN.equalsIgnoreCase(childName)) {
                     ParamValidatePattern validatePattern = createParamValidatePattern(child);
-                    paramElements.setValidatePattern(Optional.of(validatePattern));
+                    paramElements.setValidatePattern(Optional.ofNullable(validatePattern));
                 } else if (Constant.VALIDATE_LONG_RANGE.equalsIgnoreCase(childName)) {
                     ParamValidateLongRange validateLongRange = createParamValidateLongRange(child);
-                    paramElements.setValidateLongRange(Optional.of(validateLongRange));
+                    paramElements.setValidateLongRange(Optional.ofNullable(validateLongRange));
                 } else if (Constant.VALIDATE_DOUBLE_RANGE.equalsIgnoreCase(childName)) {
                     ParamValidateDoubleRange validateDoubleRange = createParamValidateDoubleRange(child);
-                    paramElements.setValidateDoubleRange(Optional.of(validateDoubleRange));
+                    paramElements.setValidateDoubleRange(Optional.ofNullable(validateDoubleRange));
                 }
             }
             param.setParamElements(elementList.toArray(new ParamElements[elementList.size()]));
@@ -498,10 +498,10 @@ public class DataServiceConfigFactory extends AbstractFactory {
                 if (Constant.DESCRIPTION.equalsIgnoreCase(childName)) {
                     STNode description = new STNode();
                     description.elementNode((DOMElement) child);
-                    operationElements.setDescription(Optional.of(description));
+                    operationElements.setDescription(Optional.ofNullable(description));
                 } else if (Constant.CALL_QUERY.equalsIgnoreCase(childName)) {
                     CallQuery callQuery = createCallQuery(child);
-                    operationElements.setCall_query(Optional.of(callQuery));
+                    operationElements.setCall_query(Optional.ofNullable(callQuery));
                 }
                 elementList.add(operationElements);
             }
@@ -648,7 +648,7 @@ public class DataServiceConfigFactory extends AbstractFactory {
         EventTriggerSubscriptions subscriptions = new EventTriggerSubscriptions();
         subscriptions.elementNode((DOMElement) element);
         DOMNode child = element.getFirstChild();
-        if (child != null) {
+        if (child != null && child instanceof DOMElement) {
             STNode subscription = new STNode();
             subscription.elementNode((DOMElement) child);
             subscriptions.setSubscription(subscription);

@@ -60,7 +60,11 @@ public class DataMapperFactory extends AbstractMediatorFactory {
         }
         String outputType = element.getAttribute(Constant.OUTPUT_TYPE);
         if (outputType != null && !outputType.isEmpty()) {
-            ((Datamapper) node).setOutputType(SchemaType.valueOf(outputType));
+            try {
+                ((Datamapper) node).setOutputType(SchemaType.valueOf(outputType));
+            } catch (IllegalArgumentException e) {
+                // TODO: Handle exception if needed.
+            }
         }
         String xsltStyleSheet = element.getAttribute(Constant.XSLT_STYLE_SHEET);
         if (xsltStyleSheet != null && !xsltStyleSheet.isEmpty()) {

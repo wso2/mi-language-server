@@ -41,6 +41,9 @@ public class ResourceFactory extends AbstractFactory {
 
         if (Objects.nonNull(children)) {
             for (DOMNode node : children) {
+                if (!(node instanceof DOMElement)) {
+                    continue;
+                }
                 STNode sequence = createSequence(node);
                 String name = node.getNodeName();
                 if (name.equalsIgnoreCase(Constant.IN_SEQUENCE)) {
