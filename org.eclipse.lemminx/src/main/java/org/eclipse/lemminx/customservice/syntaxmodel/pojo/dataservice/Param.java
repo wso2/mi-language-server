@@ -1,0 +1,124 @@
+/*
+ * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+package org.eclipse.lemminx.customservice.syntaxmodel.pojo.dataservice;
+
+import org.eclipse.lemminx.customservice.syntaxmodel.pojo.STNode;
+
+public class Param extends STNode {
+
+    ParamElements[] paramElements;
+    String name;
+    String sqlType;
+    String paramType;
+    String type;
+    int ordinal;
+    String defaultValue;
+    boolean optional;
+    String structType;
+
+    public ParamElements[] getParamElements() {
+
+        return paramElements;
+    }
+
+    public void setParamElements(ParamElements[] paramElements) {
+
+        this.paramElements = paramElements;
+    }
+
+    public String getName() {
+
+        return name;
+    }
+
+    public void setName(String name) {
+
+        this.name = name;
+    }
+
+    public String getSqlType() {
+
+        return sqlType;
+    }
+
+    public void setSqlType(String sqlType) {
+
+        this.sqlType = sqlType;
+    }
+
+    public String getParamType() {
+
+        return paramType;
+    }
+
+    public void setParamType(String paramType) {
+
+        this.paramType = paramType;
+    }
+
+    public String getType() {
+
+        return type;
+    }
+
+    public void setType(String type) {
+
+        this.type = type;
+    }
+
+    public int getOrdinal() {
+
+        return ordinal;
+    }
+
+    public void setOrdinal(int ordinal) {
+
+        this.ordinal = ordinal;
+    }
+
+    public String getDefaultValue() {
+
+        return defaultValue;
+    }
+
+    public void setDefaultValue(String defaultValue) {
+
+        this.defaultValue = defaultValue;
+    }
+
+    public boolean isOptional() {
+
+        return optional;
+    }
+
+    public void setOptional(boolean optional) {
+
+        this.optional = optional;
+    }
+
+    public String getStructType() {
+
+        return structType;
+    }
+
+    public void setStructType(String structType) {
+
+        this.structType = structType;
+    }
+}
