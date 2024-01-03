@@ -36,7 +36,7 @@ public class SessionFactory extends AbstractFactory {
         populateAttributes(session, element);
         DOMNode sessionTimeout = element.getFirstChild();
         String timeout = Utils.getInlineString(sessionTimeout.getFirstChild());
-        session.setSessionTimeout(Integer.parseInt(timeout));
+        session.setSessionTimeout(Utils.parseInt(timeout));
         return session;
     }
 

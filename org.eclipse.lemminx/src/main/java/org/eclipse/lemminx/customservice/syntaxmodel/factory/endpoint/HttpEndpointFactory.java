@@ -57,25 +57,25 @@ public class HttpEndpointFactory extends AbstractFactory {
                 String name = node.getNodeName();
                 if (name.equalsIgnoreCase(Constant.ENABLE_SEC)) {
                     EndpointEnableSec enableSec = EndpointUtils.createEnableSec(node);
-                    configs.setEnableSec(Optional.of(enableSec));
+                    configs.setEnableSec(Optional.ofNullable(enableSec));
                 } else if (name.equalsIgnoreCase(Constant.ENABLE_RM)) {
                     EndpointEnableRM enableRM = EndpointUtils.createEnableRM(node);
-                    configs.setEnableRM(Optional.of(enableRM));
+                    configs.setEnableRM(Optional.ofNullable(enableRM));
                 } else if (name.equalsIgnoreCase(Constant.ENABLE_ADDRESSING)) {
                     EndpointEnableAddressing enableAddressing = EndpointUtils.createEnableAddressing(node);
-                    configs.setEnableAddressing(Optional.of(enableAddressing));
+                    configs.setEnableAddressing(Optional.ofNullable(enableAddressing));
                 } else if (name.equalsIgnoreCase(Constant.TIMEOUT)) {
                     EndpointTimeout timeout = EndpointUtils.createTimeout(node);
-                    configs.setTimeout(Optional.of(timeout));
+                    configs.setTimeout(Optional.ofNullable(timeout));
                 } else if (name.equalsIgnoreCase(Constant.SUSPEND_ON_FAILURE)) {
                     EndpointSuspendOnFailure suspendOnFailure = EndpointUtils.createSuspendOnFailure(node);
-                    configs.setSuspendOnFailure(Optional.of(suspendOnFailure));
+                    configs.setSuspendOnFailure(Optional.ofNullable(suspendOnFailure));
                 } else if (name.equalsIgnoreCase(Constant.MARK_FOR_SUSPENSION)) {
                     EndpointMarkForSuspension markForSuspension = EndpointUtils.createMarkForSuspension(node);
-                    configs.setMarkForSuspension(Optional.of(markForSuspension));
+                    configs.setMarkForSuspension(Optional.ofNullable(markForSuspension));
                 } else if (name.equalsIgnoreCase(Constant.AUTHENTICATION)) {
                     EndpointHttpAuthentication authentication = createAuthentication(node);
-                    configs.setAuthentication(Optional.of(authentication));
+                    configs.setAuthentication(Optional.ofNullable(authentication));
                 }
             }
             httpEndpoint.setEnableSecAndEnableRMAndEnableAddressing(configs);

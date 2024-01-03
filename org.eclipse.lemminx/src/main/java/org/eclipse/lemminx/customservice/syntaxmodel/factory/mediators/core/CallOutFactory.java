@@ -51,16 +51,16 @@ public class CallOutFactory extends AbstractMediatorFactory {
                 String name = child.getNodeName();
                 if (name.equalsIgnoreCase(Constant.SOURCE)) {
                     CalloutSource source = createSource(child);
-                    sourceOrTargetOrConfiguration.setSource(Optional.of(source));
+                    sourceOrTargetOrConfiguration.setSource(Optional.ofNullable(source));
                 } else if (name.equalsIgnoreCase(Constant.TARGET)) {
                     CalloutTarget target = createTarget(child);
-                    sourceOrTargetOrConfiguration.setTarget(Optional.of(target));
+                    sourceOrTargetOrConfiguration.setTarget(Optional.ofNullable(target));
                 } else if (name.equalsIgnoreCase(Constant.ENABLE_SEC)) {
                     CalloutEnableSec enableSec = createEnableSec(child);
-                    sourceOrTargetOrConfiguration.setEnableSec(Optional.of(enableSec));
+                    sourceOrTargetOrConfiguration.setEnableSec(Optional.ofNullable(enableSec));
                 } else if (name.equalsIgnoreCase(Constant.CONFIGURATION)) {
                     CalloutConfiguration configuration = createConfiguration(child);
-                    sourceOrTargetOrConfiguration.setConfiguration(Optional.of(configuration));
+                    sourceOrTargetOrConfiguration.setConfiguration(Optional.ofNullable(configuration));
                 }
             }
             callOut.setSourceOrTargetOrConfiguration(sourceOrTargetOrConfiguration);

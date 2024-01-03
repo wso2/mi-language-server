@@ -54,11 +54,11 @@ public class LoadbalanceEndpointFactory extends AbstractFactory {
                 EndpointOrMember endpointOrMember = new EndpointOrMember();
                 if (name.equalsIgnoreCase(Constant.ENDPOINT)) {
                     EndpointLoadbalanceEndpoint endpoint = createEndpoint(child);
-                    endpointOrMember.setEndpoint(Optional.of(endpoint));
+                    endpointOrMember.setEndpoint(Optional.ofNullable(endpoint));
                     endpointOrMembers.add(endpointOrMember);
                 } else if (name.equalsIgnoreCase(Constant.MEMBER)) {
                     EndpointLoadbalanceMember member = createMember(child);
-                    endpointOrMember.setMember(Optional.of(member));
+                    endpointOrMember.setMember(Optional.ofNullable(member));
                     endpointOrMembers.add(endpointOrMember);
                 }
             }

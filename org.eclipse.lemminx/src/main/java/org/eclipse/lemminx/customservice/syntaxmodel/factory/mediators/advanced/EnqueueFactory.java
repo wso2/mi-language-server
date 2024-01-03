@@ -23,6 +23,7 @@ import org.eclipse.lemminx.customservice.syntaxmodel.pojo.STNode;
 import org.eclipse.lemminx.customservice.syntaxmodel.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.syntaxmodel.pojo.mediator.advanced.Enqueue;
 import org.eclipse.lemminx.customservice.syntaxmodel.utils.Constant;
+import org.eclipse.lemminx.customservice.syntaxmodel.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
 
 public class EnqueueFactory extends AbstractMediatorFactory {
@@ -44,7 +45,7 @@ public class EnqueueFactory extends AbstractMediatorFactory {
         Enqueue enqueue = (Enqueue) node;
         String priority = element.getAttribute(Constant.PRIORITY);
         if (priority != null) {
-            enqueue.setPriority(Integer.parseInt(priority));
+            enqueue.setPriority(Utils.parseInt(priority));
         }
         String sequence = element.getAttribute(Constant.SEQUENCE);
         if (sequence != null) {
