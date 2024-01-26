@@ -16,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.lemminx.customservice.syntaxmodel.SyntaxTreeResponse;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
@@ -36,6 +37,9 @@ public interface XMLLanguageServerAPI {
 
 	@JsonRequest
 	CompletableFuture<SyntaxTreeResponse> getSynapseSyntaxTree(TextDocumentIdentifier param);
+
+	@JsonRequest
+	CompletableFuture<PublishDiagnosticsParams> getDiagnostics(TextDocumentIdentifier param);
 
 	@JsonRequest
 	CompletableFuture<SnippetCompletionResponse> getSnippetCompletion(LogMediatorSnippetRequest param);
