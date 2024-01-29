@@ -26,7 +26,7 @@ public class Filter extends Mediator {
 
     List<Mediator> mediatorList;
     FilterThen then;
-    FilterElse _else;
+    FilterElse else_;
     String source;
     String regex;
     String xpath;
@@ -57,14 +57,14 @@ public class Filter extends Mediator {
         this.then = then;
     }
 
-    public FilterElse get_else() {
+    public FilterElse getElse_() {
 
-        return _else;
+        return else_;
     }
 
-    public void set_else(FilterElse _else) {
+    public void setElse_(FilterElse else_) {
 
-        this._else = _else;
+        this.else_ = else_;
     }
 
     public String getSource() {
