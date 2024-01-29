@@ -18,6 +18,9 @@
 
 package org.eclipse.lemminx.customservice.syntaxmodel.utils;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class Constant {
 
     public static final String ON_CACHE_HIT = "onCacheHit";
@@ -381,4 +384,20 @@ public class Constant {
     public static final String REQUEST = "request";
     public static final String DIALECT = "dialect";
     public static final String ENABLE_ODATA = "enableOData";
+    public static final List<String> SYNAPSE_CONFIG_ELEMENTS = Arrays.asList(Constant.API, Constant.ENDPOINT,
+            Constant.INBOUND_ENDPOINT,
+            Constant.MESSAGE_PROCESSOR, Constant.LOCAL_ENTRY, Constant.MESSAGE_STORE, Constant.PROXY, Constant.SEQUENCE,
+            Constant.TASK, Constant.TEMPLATE, Constant.WSDL_DEFINITIONS, Constant.WSDL_DESCRIPTION, Constant.DATA,
+            Constant.DATA_SOURCE);
+    public static final String MAVEN_MULTI_MODULE_PROJECT = "org.wso2.developerstudio.eclipse.mavenmultimodule" +
+            ".project.nature";
+    public static final String PROJECT_DESCRIPTION = "projectDescription";
+    public static final String NATURES = "natures";
+    public static final String SYNAPSE_CONFIG_PATH = "/src/main/synapse-config";
+    public static final String SEQUENCES = "sequences";
+    public static final String PROXY_SERVICES = "proxy-services";
+    public static final String INBOUND_ENDPOINTS = "inbound-endpoints";
+    public static final String ENDPOINTS = "endpoints";
+    public static final String FILE_SEPARATOR = "/";
+    public static final String DOT_PROJECT = ".project";
 }
