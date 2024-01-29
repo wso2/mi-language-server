@@ -19,6 +19,7 @@
 package org.eclipse.lemminx.customservice.syntaxmodel.utils;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.customservice.syntaxmodel.factory.AbstractFactory;
 import org.eclipse.lemminx.customservice.syntaxmodel.factory.endpoint.EndpointFactory;
 import org.eclipse.lemminx.customservice.syntaxmodel.factory.mediators.MediatorFactoryFinder;
@@ -35,9 +36,15 @@ import org.eclipse.lemminx.customservice.syntaxmodel.pojo.misc.evaluators.Not;
 import org.eclipse.lemminx.customservice.syntaxmodel.pojo.misc.evaluators.Or;
 import org.eclipse.lemminx.customservice.syntaxmodel.pojo.misc.targets.Target;
 import org.eclipse.lemminx.dom.DOMAttr;
+import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
+import org.eclipse.lemminx.dom.DOMParser;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -306,5 +313,15 @@ public class Utils {
             //ignore
         }
         return value;
+    }
+
+    public static DOMDocument getDOMDocument(File file) throws IOException {
+
+        Path path = file.toPath();
+        String text = "";
+        text = Files.readString(path);
+        TextDocument document = new TextDocument(text, file.getName());
+        DOMDocument domDocument = DOMParser.getInstance().parse(document, null);
+        return domDocument;
     }
 }

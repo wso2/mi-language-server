@@ -35,10 +35,11 @@ import org.eclipse.lemminx.commons.ParentProcessWatcher.ProcessLanguageServer;
 import org.eclipse.lemminx.customservice.ActionableNotification;
 import org.eclipse.lemminx.customservice.AutoCloseTagResponse;
 import org.eclipse.lemminx.customservice.LogMediatorSnippetRequest;
-import org.eclipse.lemminx.customservice.SnippetCompletionRequest;
 import org.eclipse.lemminx.customservice.SnippetCompletionResponse;
 import org.eclipse.lemminx.customservice.XMLLanguageClientAPI;
 import org.eclipse.lemminx.customservice.XMLLanguageServerAPI;
+import org.eclipse.lemminx.customservice.syntaxmodel.directoryTree.DirectoryMapResponse;
+import org.eclipse.lemminx.customservice.syntaxmodel.directoryTree.DirectoryTreeBuilder;
 import org.eclipse.lemminx.customservice.syntaxmodel.SyntaxTreeGenerator;
 import org.eclipse.lemminx.customservice.syntaxmodel.SyntaxTreeResponse;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -81,7 +82,7 @@ import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.SetTraceParams;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
-import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4j.WorkspaceFolder;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
@@ -341,6 +342,13 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 	public CompletableFuture<SnippetCompletionResponse> getSnippetCompletion(LogMediatorSnippetRequest param) {
 		SnippetCompletionResponse reply = getXMLLanguageService().getSnippetCompletion(param);
 		return CompletableFuture.supplyAsync(() -> reply);
+	}
+
+	@Override
+	public CompletableFuture<DirectoryMapResponse> getSynapseDirectoryTree(WorkspaceFolder param) {
+
+		DirectoryMapResponse response = DirectoryTreeBuilder.buildDirectoryTree(param);
+		return CompletableFuture.supplyAsync(() -> response);
 	}
 
 	@Override
