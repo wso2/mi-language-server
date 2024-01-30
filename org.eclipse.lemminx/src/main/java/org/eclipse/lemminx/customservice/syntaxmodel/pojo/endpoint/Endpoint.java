@@ -43,6 +43,7 @@ public class Endpoint extends STNode {
     String key;
     String template;
     String uri;
+    EndpointType type;
 
     public DefaultEndpoint get_default() {
 
@@ -182,5 +183,15 @@ public class Endpoint extends STNode {
     public void setDescription(String description) {
 
         this.description = description;
+    }
+
+    public EndpointType getType() {
+
+        return type;
+    }
+
+    public void setType(EndpointType type) {
+
+        this.type = type;
     }
 }

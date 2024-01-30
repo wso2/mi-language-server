@@ -47,7 +47,7 @@ public class FilterFactory extends AbstractMediatorFactory {
                 if (child.getNodeName().equalsIgnoreCase(Constant.THEN)) {
                     filter.setThen((FilterThen) createThenElse(child));
                 } else if (child.getNodeName().equalsIgnoreCase(Constant.ELSE)) {
-                    filter.set_else((FilterElse) createThenElse(child));
+                    filter.setElse_((FilterElse) createThenElse(child));
                 } else {
                     filter.addToMediatorList(Utils.createMediator(child));
                 }

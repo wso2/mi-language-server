@@ -23,6 +23,7 @@ import org.eclipse.lemminx.customservice.syntaxmodel.pojo.STNode;
 import org.eclipse.lemminx.customservice.syntaxmodel.pojo.endpoint.DefaultEndpoint;
 import org.eclipse.lemminx.customservice.syntaxmodel.pojo.endpoint.EndpointAddress;
 import org.eclipse.lemminx.customservice.syntaxmodel.pojo.endpoint.EndpointSession;
+import org.eclipse.lemminx.customservice.syntaxmodel.pojo.endpoint.EndpointType;
 import org.eclipse.lemminx.customservice.syntaxmodel.pojo.endpoint.NamedEndpoint;
 import org.eclipse.lemminx.customservice.syntaxmodel.pojo.endpoint.common.EndpointParameter;
 import org.eclipse.lemminx.customservice.syntaxmodel.pojo.endpoint.common.EndpointProperty;
@@ -47,6 +48,7 @@ public class EndpointFactory extends AbstractFactory {
 
         NamedEndpoint endpoint = new NamedEndpoint();
         endpoint.elementNode(element);
+        endpoint.setType(EndpointType.NAMED_ENDPOINT);
         populateAttributes(endpoint, element);
         List<DOMNode> children = element.getChildren();
         List<EndpointProperty> properties = new ArrayList<>();
@@ -58,30 +60,37 @@ public class EndpointFactory extends AbstractFactory {
                     AddressEndpointFactory factory = new AddressEndpointFactory();
                     EndpointAddress address = (EndpointAddress) factory.create((DOMElement) node);
                     endpoint.setAddress(address);
+                    endpoint.setType(EndpointType.ADDRESS_ENDPOINT);
                 } else if (name.equalsIgnoreCase(Constant.DEFAULT)) {
                     DefaultEndpointFactory factory = new DefaultEndpointFactory();
                     DefaultEndpoint defaultEndpoint = (DefaultEndpoint) factory.create((DOMElement) node);
                     endpoint.set_default(defaultEndpoint);
+                    endpoint.setType(EndpointType.DEFAULT_ENDPOINT);
                 } else if (name.equalsIgnoreCase(Constant.FAIL_OVER)) {
                     FailoverEndpointFactory factory = new FailoverEndpointFactory();
                     EndpointFailover failover = (EndpointFailover) factory.create((DOMElement) node);
                     endpoint.setFailover(failover);
+                    endpoint.setType(EndpointType.FAIL_OVER_ENDPOINT);
                 } else if (name.equalsIgnoreCase(Constant.HTTP)) {
                     HttpEndpointFactory factory = new HttpEndpointFactory();
                     EndpointHttp http = (EndpointHttp) factory.create((DOMElement) node);
                     endpoint.setHttp(http);
+                    endpoint.setType(EndpointType.HTTP_ENDPOINT);
                 } else if (name.equalsIgnoreCase(Constant.LOADBALANCE)) {
                     LoadbalanceEndpointFactory factory = new LoadbalanceEndpointFactory();
                     EndpointLoadbalance loadbalance = (EndpointLoadbalance) factory.create((DOMElement) node);
                     endpoint.setLoadbalance(loadbalance);
+                    endpoint.setType(EndpointType.LOAD_BALANCE_ENDPOINT);
                 } else if (name.equalsIgnoreCase(Constant.RECIPIENT_LIST)) {
                     RecipientlistEndpointFactory factory = new RecipientlistEndpointFactory();
                     EndpointRecipientlist recipientlist = (EndpointRecipientlist) factory.create((DOMElement) node);
                     endpoint.setRecipientlist(recipientlist);
+                    endpoint.setType(EndpointType.RECIPIENT_LIST_ENDPOINT);
                 } else if (name.equalsIgnoreCase(Constant.WSDL)) {
                     WSDLEndpointFactory factory = new WSDLEndpointFactory();
                     WSDLEndpoint wsdl = (WSDLEndpoint) factory.create((DOMElement) node);
                     endpoint.setWsdl(wsdl);
+                    endpoint.setType(EndpointType.WSDL_ENDPOINT);
                 } else if (name.equalsIgnoreCase(Constant.SESSION)) {
                     SessionFactory factory = new SessionFactory();
                     EndpointSession session = (EndpointSession) factory.create((DOMElement) node);
