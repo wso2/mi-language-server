@@ -18,6 +18,7 @@
 
 package org.eclipse.lemminx.customservice.syntaxmodel.factory.mediators;
 
+import org.eclipse.lemminx.customservice.syntaxmodel.SyntaxTreeGenerator;
 import org.eclipse.lemminx.customservice.syntaxmodel.factory.mediators.advanced.CacheFactory;
 import org.eclipse.lemminx.customservice.syntaxmodel.factory.mediators.advanced.CloneFactory;
 import org.eclipse.lemminx.customservice.syntaxmodel.factory.mediators.advanced.DBLookupFactory;
@@ -71,10 +72,16 @@ import org.eclipse.lemminx.customservice.syntaxmodel.factory.mediators.transform
 import org.eclipse.lemminx.customservice.syntaxmodel.factory.mediators.transformation.XsltFactory;
 import org.eclipse.lemminx.customservice.syntaxmodel.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.syntaxmodel.utils.Constant;
+import org.eclipse.lemminx.customservice.syntaxmodel.utils.Utils;
+import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -135,11 +142,12 @@ public class MediatorFactoryFinder {
             XsltFactory.class,
             NtlmFactory.class,
             RewriteFactory.class,
-            FilterSequenceFactory.class
+            FilterSequenceFactory.class,
+            ConnectorFactory.class
     };
 
     private final static MediatorFactoryFinder instance = new MediatorFactoryFinder();
-    private static Map<String, AbstractMediatorFactory> factoryMap = new HashMap<String, AbstractMediatorFactory>();
+    private static Map<String, AbstractMediatorFactory> factoryMap = new HashMap<>();
     private static boolean initialized = false;
 
     public static synchronized MediatorFactoryFinder getInstance() {
@@ -171,6 +179,9 @@ public class MediatorFactoryFinder {
 
         if (!node.getNodeName().equalsIgnoreCase(Constant.COMMENT)) {
             String mediatorName = node.getNodeName().toLowerCase();
+            if (isConnector(mediatorName)) {
+                mediatorName = Constant.CONNECTOR;
+            }
             AbstractMediatorFactory factory = factoryMap.get(mediatorName);
             if (factory != null) {
                 Mediator mediator = (Mediator) factory.create((DOMElement) node);
@@ -181,4 +192,44 @@ public class MediatorFactoryFinder {
         return null;
     }
 
+    private Boolean isConnector(String mediator) {
+
+        if (mediator.contains(Constant.DOT)) {
+            String connectorName = mediator.substring(0, mediator.indexOf(Constant.DOT));
+            String workspaceUri = SyntaxTreeGenerator.getWorkspaceUri();
+            if (workspaceUri != null) {
+                String connectorPath = workspaceUri + "/.metadata/.Connectors/";
+                List<File> files = Arrays.asList(new File(connectorPath).listFiles(File::isDirectory));
+                for (File file : files) {
+                    File connectorFile = new File(file.getPath() + "/connector.xml");
+                    try {
+                        DOMDocument connectorDocument = Utils.getDOMDocument(connectorFile);
+                        DOMElement connectorElement = getConnectorElement(connectorDocument);
+                        DOMElement componentElement = (DOMElement) connectorElement.getChild(0);
+                        String name = componentElement.getAttribute(Constant.NAME);
+                        if (connectorName.equals(name)) {
+                            return true;
+                        }
+                    } catch (IOException e) {
+                        log.log(Level.SEVERE, "Error reading connector file", e);
+                    }
+                }
+            }
+            return false;
+        }
+        return false;
+    }
+
+    private DOMElement getConnectorElement(DOMDocument connectorDocument) {
+
+        DOMElement connectorElement = null;
+        for (int i = 0; i < connectorDocument.getChildren().size(); i++) {
+            String elementName = connectorDocument.getChild(i).getNodeName();
+            if (Constant.CONNECTOR.equalsIgnoreCase(elementName)) {
+                connectorElement = (DOMElement) connectorDocument.getChild(i);
+                break;
+            }
+        }
+        return connectorElement;
+    }
 }

@@ -400,4 +400,11 @@ public class Constant {
     public static final String ENDPOINTS = "endpoints";
     public static final String FILE_SEPARATOR = "/";
     public static final String DOT_PROJECT = ".project";
+    public static final String FILE_PREFIX = "file://";
+    public static final String EMPTY_STRING = "";
+    public static final String POM = "pom.xml";
+    public static final String PARENT = "parent";
+    public static final String PROJECT = "project";
+    public static final String CONNECTOR = "connector";
+    public static final String DOT = ".";
 }
