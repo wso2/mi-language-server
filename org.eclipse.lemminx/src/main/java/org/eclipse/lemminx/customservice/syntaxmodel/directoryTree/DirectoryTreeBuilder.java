@@ -48,8 +48,10 @@ public class DirectoryTreeBuilder {
         DirectoryMap directoryMap = new DirectoryMap();
 
         String rootPath = findRootPath(currentPath);
-        DirectoryTreeBuilder.projectPath = rootPath;
-        analyze(projectPath, directoryMap);
+        projectPath = rootPath;
+        if (projectPath != null) {
+            analyze(directoryMap);
+        }
         DirectoryMapResponse directoryMapResponse = new DirectoryMapResponse(directoryMap);
         return directoryMapResponse;
     }
@@ -107,7 +109,7 @@ public class DirectoryTreeBuilder {
         return naturesNode;
     }
 
-    private static void analyze(String projectPath, DirectoryMap directoryMap) {
+    private static void analyze(DirectoryMap directoryMap) {
 
         File folder = new File(projectPath);
         File[] listOfFiles = folder.listFiles(File::isDirectory);
@@ -135,8 +137,11 @@ public class DirectoryTreeBuilder {
                                 subProject.getName(), subProject.getAbsolutePath());
                         return ProjectType.DATA_SERVICE_CONFIGS;
                     } else if (ProjectType.ESB_CONFIGS.value.equalsIgnoreCase(nature)) {
+                        ESBComponent esbComponent = new ESBComponent(ProjectType.ESB_CONFIGS.name(),
+                                subProject.getName(), subProject.getAbsolutePath());
                         analyzeEsbConfigs(subProject.getAbsolutePath() +
-                                Constant.SYNAPSE_CONFIG_PATH, directoryMap);
+                                Constant.SYNAPSE_CONFIG_PATH, esbComponent);
+                        directoryMap.addEsbComponent(esbComponent);
                         return ProjectType.ESB_CONFIGS;
                     } else if (ProjectType.COMPOSITE_EXPORTER.value.equalsIgnoreCase(nature)) {
                         directoryMap.addCompositeExporter(ProjectType.COMPOSITE_EXPORTER.name(), subProject.getName()
@@ -177,7 +182,7 @@ public class DirectoryTreeBuilder {
         return null;
     }
 
-    private static void analyzeEsbConfigs(String configPath, DirectoryMap directoryMap) {
+    private static void analyzeEsbConfigs(String configPath, ESBComponent esbComponent) {
 
         File folder = new File(configPath);
         File[] listOfFiles = folder.listFiles(File::isDirectory);
@@ -186,7 +191,7 @@ public class DirectoryTreeBuilder {
                 try {
                     if (subFolder.isDirectory()) {
                         String type = subFolder.getName();
-                        analyzeByType(directoryMap, subFolder, type);
+                        analyzeByType(esbComponent, subFolder, type);
                     }
                 } catch (SecurityException e) {
                     LOGGER.log(Level.WARNING, "No read access to the file.", e);
@@ -195,7 +200,7 @@ public class DirectoryTreeBuilder {
         }
     }
 
-    private static void analyzeByType(DirectoryMap directoryMap, File folder, String type) {
+    private static void analyzeByType(ESBComponent esbComponent, File folder, String type) {
 
         try {
             File[] listOfFiles = folder.listFiles();
@@ -205,7 +210,7 @@ public class DirectoryTreeBuilder {
                         String name = file.getName();
                         String path = file.getAbsolutePath();
                         SimpleComponent advancedComponent = createEsbComponent(type, name, path);
-                        directoryMap.addEsbComponent(type, advancedComponent);
+                        esbComponent.addEsbConfig(type, advancedComponent);
                     }
                 }
             }

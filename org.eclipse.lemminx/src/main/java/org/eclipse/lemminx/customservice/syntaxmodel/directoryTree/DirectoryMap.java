@@ -25,7 +25,7 @@ import java.util.List;
 
 public class DirectoryMap {
 
-    HashMap<String, List<SimpleComponent>> esbConfigs;
+    List<ESBComponent> esbConfigs;
     List<SimpleComponent> dataServiceConfigs;
     List<SimpleComponent> dataSourceConfigs;
     List<SimpleComponent> mediatorProjects;
@@ -38,16 +38,7 @@ public class DirectoryMap {
 
     public DirectoryMap() {
 
-        this.esbConfigs = new HashMap<>();
-        List<String> esbKeys = new ArrayList<>(Arrays.asList(
-                "api", "endpoints", "inbound-endpoints", "message-processors",
-                "local-entries", "message-stores", "proxy-services", "sequences",
-                "tasks", "templates"
-        ));
-        for (String key : esbKeys) {
-            esbConfigs.put(key, new ArrayList<>());
-        }
-
+        this.esbConfigs = new ArrayList<>();
         this.dataServiceConfigs = new ArrayList<>();
         this.dataSourceConfigs = new ArrayList<>();
         this.mediatorProjects = new ArrayList<>();
@@ -59,15 +50,9 @@ public class DirectoryMap {
         this.kubernetesExporters = new ArrayList<>();
     }
 
-    public void addEsbComponent(String type, SimpleComponent component) {
+    public void addEsbComponent(ESBComponent esbComponent) {
 
-        esbConfigs.get(type).add(component);
-    }
-
-    public void addEsbComponent(String type, String name, String path) {
-
-        AdvancedComponent advancedComponent = new AdvancedComponent(type, name, path);
-        esbConfigs.get(type).add(advancedComponent);
+        esbConfigs.add(esbComponent);
     }
 
     public void addDataServiceConfig(String type, String name, String path) {
@@ -124,7 +109,7 @@ public class DirectoryMap {
         kubernetesExporters.add(component);
     }
 
-    public HashMap<String, List<SimpleComponent>> getEsbConfigs() {
+    public List<ESBComponent> getEsbConfigs() {
 
         return esbConfigs;
     }
