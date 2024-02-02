@@ -324,4 +324,78 @@ public class Utils {
         DOMDocument domDocument = DOMParser.getInstance().parse(document, null);
         return domDocument;
     }
+
+    public static DOMElement getRootElementFromConfigXml(DOMDocument document) {
+
+        DOMElement rootElement = null;
+        for (int i = 0; i < document.getChildren().size(); i++) {
+            String elementName = document.getChild(i).getNodeName();
+            if (containsIgnoreCase(Constant.SYNAPSE_CONFIG_ELEMENTS, elementName)) {
+                rootElement = (DOMElement) document.getChild(i);
+                break;
+            }
+        }
+        return rootElement;
+    }
+
+    public static boolean containsIgnoreCase(List<String> list, String elementName) {
+
+        return list.stream().anyMatch(s -> s.equalsIgnoreCase(elementName));
+    }
+
+    public static String findRootPath(String currentPath) throws IOException {
+
+        if (currentPath.contains(Constant.FILE_PREFIX)) {
+            currentPath = currentPath.substring(7);
+        }
+        String prevFolderPath = currentPath.substring(0, currentPath.lastIndexOf(File.separator));
+        String dotProjectPath = currentPath + Constant.FILE_SEPARATOR + Constant.DOT_PROJECT;
+        File dotProjectFile = new File(dotProjectPath);
+        if (dotProjectFile != null && dotProjectFile.exists()) {
+            DOMDocument projectDOM = Utils.getDOMDocument(dotProjectFile);
+            DOMNode descriptionNode = findDescriptionNode(projectDOM);
+            if (descriptionNode != null) {
+                DOMNode naturesNode = findNaturesNode(descriptionNode);
+                if (naturesNode != null) {
+                    List<DOMNode> children = naturesNode.getChildren();
+                    for (DOMNode child : children) {
+                        String nature = Utils.getInlineString(child.getFirstChild());
+                        if (Constant.MAVEN_MULTI_MODULE_PROJECT.equalsIgnoreCase(nature)) {
+                            return currentPath;
+                        }
+                    }
+                    return findRootPath(prevFolderPath);
+                }
+            }
+        } else {
+            return findRootPath(prevFolderPath);
+        }
+        return null;
+    }
+
+    public static DOMNode findDescriptionNode(DOMDocument projectDOM) {
+
+        DOMNode descriptionNode = null;
+        for (int i = 0; i < projectDOM.getChildren().size(); i++) {
+            String elementName = projectDOM.getChild(i).getNodeName();
+            if (Constant.PROJECT_DESCRIPTION.equalsIgnoreCase(elementName)) {
+                descriptionNode = projectDOM.getChild(i);
+                break;
+            }
+        }
+        return descriptionNode;
+    }
+
+    public static DOMNode findNaturesNode(DOMNode descriptionNode) {
+
+        DOMNode naturesNode = null;
+        for (int i = 0; i < descriptionNode.getChildren().size(); i++) {
+            String elementName = descriptionNode.getChild(i).getNodeName();
+            if (Constant.NATURES.equalsIgnoreCase(elementName)) {
+                naturesNode = descriptionNode.getChild(i);
+                break;
+            }
+        }
+        return naturesNode;
+    }
 }

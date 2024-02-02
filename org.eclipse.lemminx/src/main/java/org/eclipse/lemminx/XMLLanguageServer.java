@@ -38,6 +38,7 @@ import org.eclipse.lemminx.customservice.LogMediatorSnippetRequest;
 import org.eclipse.lemminx.customservice.SnippetCompletionResponse;
 import org.eclipse.lemminx.customservice.XMLLanguageClientAPI;
 import org.eclipse.lemminx.customservice.XMLLanguageServerAPI;
+import org.eclipse.lemminx.customservice.syntaxmodel.SynapseDefinitionProvider;
 import org.eclipse.lemminx.customservice.syntaxmodel.directoryTree.DirectoryMapResponse;
 import org.eclipse.lemminx.customservice.syntaxmodel.directoryTree.DirectoryTreeBuilder;
 import org.eclipse.lemminx.customservice.syntaxmodel.SyntaxTreeGenerator;
@@ -70,10 +71,12 @@ import org.eclipse.lemminx.telemetry.TelemetryManager;
 import org.eclipse.lemminx.utils.FilesUtils;
 import org.eclipse.lemminx.utils.platform.Platform;
 import org.eclipse.lsp4j.Command;
+import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.InitializedParams;
+import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
@@ -349,6 +352,16 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 
 		DirectoryMapResponse response = DirectoryTreeBuilder.buildDirectoryTree(param);
 		return CompletableFuture.supplyAsync(() -> response);
+	}
+
+	@Override
+	public CompletableFuture<Location> definition(
+			DefinitionParams params) {
+
+		return xmlTextDocumentService.computeDOMAsync(params.getTextDocument(), (xmlDocument, cancelChecker) -> {
+			Location location = SynapseDefinitionProvider.definition(xmlDocument, params.getPosition(), cancelChecker);
+			return location;
+		});
 	}
 
 	@Override

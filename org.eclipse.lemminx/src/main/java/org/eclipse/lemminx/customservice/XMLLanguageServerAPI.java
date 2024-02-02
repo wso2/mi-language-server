@@ -12,10 +12,13 @@
  */
 package org.eclipse.lemminx.customservice;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.lemminx.customservice.syntaxmodel.SyntaxTreeResponse;
 import org.eclipse.lemminx.customservice.syntaxmodel.directoryTree.DirectoryMapResponse;
+import org.eclipse.lsp4j.DefinitionParams;
+import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
@@ -45,6 +48,9 @@ public interface XMLLanguageServerAPI {
 
 	@JsonRequest
 	CompletableFuture<DirectoryMapResponse> getSynapseDirectoryTree(WorkspaceFolder param);
+
+	@JsonRequest
+	CompletableFuture<Location> definition(DefinitionParams params);
 
 	@JsonRequest
 	CompletableFuture<SnippetCompletionResponse> getSnippetCompletion(LogMediatorSnippetRequest param);
