@@ -30,7 +30,8 @@ jobs:
     - name: Get version
       id: ls
       run: |
-        file=$(ls org.eclipse.lemminx/target/*SNAPSHOT.jar)
+        filePath=$(ls org.eclipse.lemminx/target/*SNAPSHOT.jar)
+        file=$(basename $filePath)
         fileName=${file%.jar}
         version=$(echo "$fileName" | cut -d'-' -f2-3)
 
