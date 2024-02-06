@@ -17,8 +17,6 @@ import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -36,17 +34,12 @@ import org.eclipse.lemminx.customservice.ActionableNotification;
 import org.eclipse.lemminx.customservice.AutoCloseTagResponse;
 import org.eclipse.lemminx.customservice.LogMediatorSnippetRequest;
 import org.eclipse.lemminx.customservice.SnippetCompletionResponse;
+import org.eclipse.lemminx.customservice.ISynapseLanguageService;
 import org.eclipse.lemminx.customservice.XMLLanguageClientAPI;
 import org.eclipse.lemminx.customservice.XMLLanguageServerAPI;
-import org.eclipse.lemminx.customservice.syntaxmodel.SynapseDefinitionProvider;
-import org.eclipse.lemminx.customservice.syntaxmodel.directoryTree.DirectoryMapResponse;
-import org.eclipse.lemminx.customservice.syntaxmodel.directoryTree.DirectoryTreeBuilder;
-import org.eclipse.lemminx.customservice.syntaxmodel.SyntaxTreeGenerator;
-import org.eclipse.lemminx.customservice.syntaxmodel.SyntaxTreeResponse;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationRootSettings;
-import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.logs.LogHelper;
 import org.eclipse.lemminx.services.IXMLDocumentProvider;
 import org.eclipse.lemminx.services.IXMLNotificationService;
@@ -71,21 +64,16 @@ import org.eclipse.lemminx.telemetry.TelemetryManager;
 import org.eclipse.lemminx.utils.FilesUtils;
 import org.eclipse.lemminx.utils.platform.Platform;
 import org.eclipse.lsp4j.Command;
-import org.eclipse.lsp4j.DefinitionParams;
-import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.InitializedParams;
-import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.SetTraceParams;
-import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
-import org.eclipse.lsp4j.WorkspaceFolder;
+import org.eclipse.lsp4j.jsonrpc.services.JsonDelegate;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
@@ -107,6 +95,7 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 	private Integer parentProcessId;
 	private XMLCapabilityManager capabilityManager;
 	private TelemetryManager telemetryManager;
+	public final SynapseLanguageService synapseLanguageService;
 
 	public XMLLanguageServer() {
 		xmlTextDocumentService = new XMLTextDocumentService(this);
@@ -118,6 +107,7 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 		xmlLanguageService.setCommandService(xmlWorkspaceService);
 		xmlLanguageService.setValidationService(this);
 
+		synapseLanguageService = new SynapseLanguageService(xmlTextDocumentService, this);
 		delayer = Executors.newScheduledThreadPool(1);
 	}
 
@@ -274,6 +264,12 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 		return xmlTextDocumentService;
 	}
 
+	@JsonDelegate
+	public ISynapseLanguageService getSynapseLanguageService() {
+
+		return synapseLanguageService;
+	}
+
 	@Override
 	public WorkspaceService getWorkspaceService() {
 		return xmlWorkspaceService;
@@ -318,50 +314,9 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 	}
 
 	@Override
-	public CompletableFuture<SyntaxTreeResponse> getSynapseSyntaxTree(TextDocumentIdentifier param) {
-
-		return xmlTextDocumentService.computeDOMAsync(param, (xmlDocument, cancelChecker) -> {
-			SyntaxTreeGenerator generator = new SyntaxTreeGenerator();
-			return generator.getSyntaxTree(xmlDocument);
-		});
-	}
-
-	@Override
-	public CompletableFuture<PublishDiagnosticsParams> getDiagnostics(TextDocumentIdentifier param) {
-
-		return xmlTextDocumentService.computeDOMAsync(param, (xmlDocument, cancelChecker) -> {
-			cancelChecker.checkCanceled();
-			SharedSettings sharedSettings = getSharedSettings();
-			XMLValidationSettings validationSettingsForUri = sharedSettings != null
-					? sharedSettings.getValidationSettings().getValidationSettings(xmlDocument.getDocumentURI())
-					: null;
-			List<Diagnostic> diagnostics = getXMLLanguageService().doDiagnostics(xmlDocument, validationSettingsForUri,
-					Collections.emptyMap(), cancelChecker);
-			return new PublishDiagnosticsParams(xmlDocument.getDocumentURI(), diagnostics);
-		});
-	}
-
-	@Override
 	public CompletableFuture<SnippetCompletionResponse> getSnippetCompletion(LogMediatorSnippetRequest param) {
 		SnippetCompletionResponse reply = getXMLLanguageService().getSnippetCompletion(param);
 		return CompletableFuture.supplyAsync(() -> reply);
-	}
-
-	@Override
-	public CompletableFuture<DirectoryMapResponse> getSynapseDirectoryTree(WorkspaceFolder param) {
-
-		DirectoryMapResponse response = DirectoryTreeBuilder.buildDirectoryTree(param);
-		return CompletableFuture.supplyAsync(() -> response);
-	}
-
-	@Override
-	public CompletableFuture<Location> definition(
-			DefinitionParams params) {
-
-		return xmlTextDocumentService.computeDOMAsync(params.getTextDocument(), (xmlDocument, cancelChecker) -> {
-			Location location = SynapseDefinitionProvider.definition(xmlDocument, params.getPosition(), cancelChecker);
-			return location;
-		});
 	}
 
 	@Override
