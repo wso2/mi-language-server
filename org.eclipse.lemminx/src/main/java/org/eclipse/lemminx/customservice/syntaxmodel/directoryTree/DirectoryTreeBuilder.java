@@ -18,20 +18,16 @@
 
 package org.eclipse.lemminx.customservice.syntaxmodel.directoryTree;
 
-import org.eclipse.lemminx.commons.TextDocument;
+import org.eclipse.lemminx.customservice.syntaxmodel.utils.ConfigFinder;
 import org.eclipse.lemminx.customservice.syntaxmodel.utils.Constant;
 import org.eclipse.lemminx.customservice.syntaxmodel.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
-import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lsp4j.WorkspaceFolder;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,69 +40,20 @@ public class DirectoryTreeBuilder {
     public static DirectoryMapResponse buildDirectoryTree(WorkspaceFolder workspaceFolder) {
 
         String currentPath = workspaceFolder.getUri();
-        currentPath = currentPath.substring(7);
         DirectoryMap directoryMap = new DirectoryMap();
 
-        String rootPath = findRootPath(currentPath);
+        String rootPath = null;
+        try {
+            rootPath = Utils.findRootPath(currentPath);
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Error while reading file content", e);
+        }
         projectPath = rootPath;
         if (projectPath != null) {
             analyze(directoryMap);
         }
         DirectoryMapResponse directoryMapResponse = new DirectoryMapResponse(directoryMap);
         return directoryMapResponse;
-    }
-
-    private static String findRootPath(String currentPath) {
-
-        String prevFolderPath = currentPath.substring(0, currentPath.lastIndexOf(File.separator));
-        String dotProjectPath = currentPath + Constant.FILE_SEPARATOR + Constant.DOT_PROJECT;
-        File dotProjectFile = new File(dotProjectPath);
-        if (dotProjectFile != null && dotProjectFile.exists()) {
-            DOMDocument projectDOM = getDOMDocument(dotProjectFile);
-            DOMNode descriptionNode = findDescriptionNode(projectDOM);
-            if (descriptionNode != null) {
-                DOMNode naturesNode = findNaturesNode(descriptionNode);
-                if (naturesNode != null) {
-                    List<DOMNode> children = naturesNode.getChildren();
-                    for (DOMNode child : children) {
-                        String nature = Utils.getInlineString(child.getFirstChild());
-                        if (Constant.MAVEN_MULTI_MODULE_PROJECT.equalsIgnoreCase(nature)) {
-                            return currentPath;
-                        }
-                    }
-                    return findRootPath(prevFolderPath);
-                }
-            }
-        } else {
-            return findRootPath(prevFolderPath);
-        }
-        return null;
-    }
-
-    private static DOMNode findDescriptionNode(DOMDocument projectDOM) {
-
-        DOMNode descriptionNode = null;
-        for (int i = 0; i < projectDOM.getChildren().size(); i++) {
-            String elementName = projectDOM.getChild(i).getNodeName();
-            if (Constant.PROJECT_DESCRIPTION.equalsIgnoreCase(elementName)) {
-                descriptionNode = projectDOM.getChild(i);
-                break;
-            }
-        }
-        return descriptionNode;
-    }
-
-    private static DOMNode findNaturesNode(DOMNode descriptionNode) {
-
-        DOMNode naturesNode = null;
-        for (int i = 0; i < descriptionNode.getChildren().size(); i++) {
-            String elementName = descriptionNode.getChild(i).getNodeName();
-            if (Constant.NATURES.equalsIgnoreCase(elementName)) {
-                naturesNode = descriptionNode.getChild(i);
-                break;
-            }
-        }
-        return naturesNode;
     }
 
     private static void analyze(DirectoryMap directoryMap) {
@@ -124,10 +71,18 @@ public class DirectoryTreeBuilder {
 
         String projectFilePath = subProject.getAbsolutePath() + Constant.FILE_SEPARATOR + Constant.DOT_PROJECT;
         File projectFile = new File(projectFilePath);
-        DOMDocument projectDOM = getDOMDocument(projectFile);
-        DOMNode descriptionNode = findDescriptionNode(projectDOM);
+        if (projectFile == null || !projectFile.exists()) {
+            return null;
+        }
+        DOMDocument projectDOM = null;
+        try {
+            projectDOM = Utils.getDOMDocument(projectFile);
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Error while reading file content", e);
+        }
+        DOMNode descriptionNode = Utils.findDescriptionNode(projectDOM);
         if (descriptionNode != null) {
-            DOMNode naturesNode = findNaturesNode(descriptionNode);
+            DOMNode naturesNode = Utils.findNaturesNode(descriptionNode);
             if (naturesNode != null) {
                 List<DOMNode> children = naturesNode.getChildren();
                 for (DOMNode child : children) {
@@ -232,8 +187,13 @@ public class DirectoryTreeBuilder {
             }
             File file = new File(path);
             if (file.isFile()) {
-                DOMDocument domDocument = getDOMDocument(file);
-                DOMElement rootElement = getRootElement(domDocument);
+                DOMDocument domDocument = null;
+                try {
+                    domDocument = Utils.getDOMDocument(file);
+                } catch (IOException e) {
+                    LOGGER.log(Level.WARNING, "Error while reading file content", e);
+                }
+                DOMElement rootElement = Utils.getRootElementFromConfigXml(domDocument);
                 if (Constant.API.equalsIgnoreCase(type)) {
                     addResources(rootElement, advancedComponent);
                 }
@@ -263,14 +223,24 @@ public class DirectoryTreeBuilder {
         rootElement.getChildren().forEach(child -> {
             if (Constant.ENDPOINT.equalsIgnoreCase(child.getNodeName())) {
                 String endpointName = child.getAttribute(Constant.KEY);
-                String epPath = findEsbComponentPath(endpointName, Constant.ENDPOINTS);
+                String epPath = null;
+                try {
+                    epPath = ConfigFinder.findEsbComponentPath(endpointName, Constant.ENDPOINTS, projectPath);
+                } catch (IOException e) {
+                    LOGGER.log(Level.WARNING, "Error while reading file content", e);
+                }
                 if (epPath != null) {
                     SimpleComponent endpoint = new SimpleComponent(Constant.ENDPOINT, endpointName, epPath);
                     advancedComponent.addEndpoint(endpoint);
                 }
             } else if (Constant.SEQUENCE.equalsIgnoreCase(child.getNodeName())) {
                 String sequenceName = child.getAttribute(Constant.KEY);
-                String seqPath = findEsbComponentPath(sequenceName, Constant.SEQUENCES);
+                String seqPath = null;
+                try {
+                    seqPath = ConfigFinder.findEsbComponentPath(sequenceName, Constant.SEQUENCES, projectPath);
+                } catch (IOException e) {
+                    LOGGER.log(Level.WARNING, "Error while reading file content", e);
+                }
                 if (seqPath != null) {
                     SimpleComponent sequence = new SimpleComponent(Constant.SEQUENCE, sequenceName, seqPath);
                     advancedComponent.addSequence(sequence);
@@ -280,102 +250,4 @@ public class DirectoryTreeBuilder {
             }
         });
     }
-
-    private static DOMDocument getDOMDocument(File file) {
-
-        Path path = file.toPath();
-        String text = "";
-        try {
-            text = Files.readString(path);
-        } catch (IOException e) {
-            LOGGER.log(Level.WARNING, "Error while reading file content", e);
-        }
-        TextDocument document = new TextDocument(text, file.getName());
-        DOMDocument domDocument = DOMParser.getInstance().parse(document, null);
-        return domDocument;
-    }
-
-    private static String findEsbComponentPath(String name, String type) {
-
-        List<String> esbConfigPaths = getEsbConfigPaths();
-        String path = null;
-        for (String esbConfigPath : esbConfigPaths) {
-            String foundPath = searchInEsbConfig(esbConfigPath, name, type);
-            if (foundPath != null) {
-                path = foundPath;
-                break;
-            }
-        }
-        return path;
-    }
-
-    private static String searchInEsbConfig(String esbConfigPath, String name, String type) {
-
-        File folder = new File(esbConfigPath + Constant.FILE_SEPARATOR + type);
-        File[] listOfFiles = folder.listFiles();
-        if (listOfFiles != null) {
-            for (File file : listOfFiles) {
-                if (file.isFile()) {
-                    DOMDocument domDocument = getDOMDocument(file);
-                    if (domDocument != null) {
-                        DOMElement rootElement = getRootElement(domDocument);
-                        if (rootElement != null) {
-                            String rootElementName = rootElement.getAttribute(Constant.NAME);
-                            if (rootElementName.equalsIgnoreCase(name)) {
-                                return file.getAbsolutePath();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    private static List<String> getEsbConfigPaths() {
-
-        File file = new File(projectPath);
-        File[] listOfFiles = file.listFiles(File::isDirectory);
-        List<String> esbConfigPaths = new ArrayList<>();
-        if (listOfFiles != null) {
-            for (File subProject : listOfFiles) {
-                String projectFilePath = subProject.getAbsolutePath() + Constant.FILE_SEPARATOR + Constant.DOT_PROJECT;
-                File projectFile = new File(projectFilePath);
-                DOMDocument projectDOM = getDOMDocument(projectFile);
-                DOMNode descriptionNode = findDescriptionNode(projectDOM);
-                if (descriptionNode != null) {
-                    DOMNode naturesNode = findNaturesNode(descriptionNode);
-                    if (naturesNode != null) {
-                        List<DOMNode> children = naturesNode.getChildren();
-                        for (DOMNode child : children) {
-                            String nature = Utils.getInlineString(child.getFirstChild());
-                            if (ProjectType.ESB_CONFIGS.value.equalsIgnoreCase(nature)) {
-                                esbConfigPaths.add(subProject.getAbsolutePath() + Constant.SYNAPSE_CONFIG_PATH);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return esbConfigPaths;
-    }
-
-    private static DOMElement getRootElement(DOMDocument document) {
-
-        DOMElement rootElement = null;
-        for (int i = 0; i < document.getChildren().size(); i++) {
-            String elementName = document.getChild(i).getNodeName();
-            if (containsIgnoreCase(Constant.SYNAPSE_CONFIG_ELEMENTS, elementName)) {
-                rootElement = (DOMElement) document.getChild(i);
-                break;
-            }
-        }
-        return rootElement;
-    }
-
-    private static boolean containsIgnoreCase(List<String> list, String elementName) {
-
-        return list.stream().anyMatch(s -> s.equalsIgnoreCase(elementName));
-    }
-
 }
