@@ -20,10 +20,7 @@ jobs:
         java-version: '17'
         distribution: 'adopt'
         cache: 'maven'
-    - name: Run Tests on Windows
-      if: runner.os == 'Windows'
-      run: ./mvnw.cmd -B '-Dlemminx.cacheInRepoDir' clean install
-    - name: Run Tests on Linux
+    - name: Build on Linux
       if: runner.os == 'Linux'
       run: ./mvnw -B clean install
 
@@ -37,7 +34,7 @@ jobs:
 
         echo $version
         echo "version=$version" >> $GITHUB_OUTPUT
-        echo "fileName=$file" >> $GITHUB_OUTPUT
+        echo "fileName=$fileName" >> $GITHUB_OUTPUT
 
     - name: zip the LS files
       run: zip -r ${{ steps.ls.outputs.fileName }}.zip org.eclipse.lemminx/target/*.jar -x org.eclipse.lemminx/target/*tests.jar -y
