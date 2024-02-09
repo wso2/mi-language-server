@@ -52,6 +52,6 @@ jobs:
         "draft":false, "name": "Release v${{ steps.ls.outputs.version }}", "prerelease":true}' \
         https://api.github.com/repos/${{ github.repository }}/releases` \
           && id=`echo "$createResponse" | sed -n -e 's/"id":\ \([0-9]\+\),/\1/p' | head -n 1 | sed 's/[[:blank:]]//g'` && \
-          uploadResponse=`curl -X POST -H "Authorization:token ${{ inputs.token }}" -H "Content-Type:application/octet-stream" \
+          uploadResponse=`curl -X POST -H "Authorization:token ${{ secrets.GIT_BOT_TOKEN }}" -H "Content-Type:application/octet-stream" \
           --data-binary @${{ steps.ls.outputs.fileName }}.zip \
           https://uploads.github.com/repos/${{ inputs.repo }}/releases/$id/assets?name=${{ steps.ls.outputs.fileName }}.zip`
