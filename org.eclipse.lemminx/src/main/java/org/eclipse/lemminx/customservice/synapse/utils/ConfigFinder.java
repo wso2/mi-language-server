@@ -18,79 +18,39 @@
 
 package org.eclipse.lemminx.customservice.synapse.utils;
 
-import org.eclipse.lemminx.customservice.synapse.directoryTree.legacyBuilder.utils.ProjectType;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
-import org.eclipse.lemminx.dom.DOMNode;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.file.Path;
 
 public class ConfigFinder {
 
     public static String findEsbComponentPath(String key, String type, String projectPath) throws IOException {
 
+        String foundPath = null;
         if (key != null && !key.isEmpty()) {
-            String resourceFrom = ProjectType.ESB_CONFIGS.value;
+            String resourceFrom;
+            Path configPath;
             if (key.contains(Constant.GOV_REGISTRY_PREFIX) || key.contains(Constant.CONF_REGISTRY_PREFIX)) {
-                resourceFrom = ProjectType.REGISTRY_RESOURCE.value;
+                resourceFrom = "resources" + File.separator + "registry" + File.separator + key.split(":")[0];
                 key = key.substring(key.indexOf(':') + 1);
+                Path possiblePath = Path.of(projectPath, "src", "main", "wso2mi", resourceFrom, key);
+                if (Utils.isFileExists(possiblePath.toString())) {
+                    foundPath = possiblePath.toString();
+                }
+            } else {
+                resourceFrom = "artifacts" + File.separator + type;
+                configPath = Path.of(projectPath, "src", "main", "wso2mi", resourceFrom);
+                foundPath = searchInConfigs(configPath.toString(), key);
             }
-            List<String> configPaths = getConfigPaths(projectPath, resourceFrom);
-            String path = null;
-            for (String configPath : configPaths) {
-                String configPath1 = configPath;
-                if (ProjectType.ESB_CONFIGS.value.equalsIgnoreCase(resourceFrom)) {
-                    configPath1 = configPath + Constant.SYNAPSE_CONFIG_PATH + Constant.FILE_SEPARATOR + type;
-                }
-                String foundPath = searchInConfigs(configPath1, key);
-                if (foundPath != null) {
-                    path = foundPath;
-                    break;
-                }
-                String localEntryPath =
-                        configPath + Constant.SYNAPSE_CONFIG_PATH + Constant.FILE_SEPARATOR + Constant.LOCAL_ENTRIES;
-                foundPath = searchInConfigs(localEntryPath, key);
-                if (foundPath != null) {
-                    path = foundPath;
-                    break;
-                }
-            }
-            return path;
-        }
-        return null;
-    }
-
-    private static List<String> getConfigPaths(String projectPath, String configType) throws IOException {
-
-        File file = new File(projectPath);
-        File[] listOfFiles = file.listFiles(File::isDirectory);
-        List<String> configPaths = new ArrayList<>();
-        if (listOfFiles != null) {
-            for (File subProject : listOfFiles) {
-                String projectFilePath = subProject.getAbsolutePath() + Constant.FILE_SEPARATOR + Constant.DOT_PROJECT;
-                File projectFile = new File(projectFilePath);
-                if (projectFile.exists()) {
-                    DOMDocument projectDOM = Utils.getDOMDocument(projectFile);
-                    DOMNode descriptionNode = Utils.findDescriptionNode(projectDOM);
-                    if (descriptionNode != null) {
-                        DOMNode naturesNode = Utils.findNaturesNode(descriptionNode);
-                        if (naturesNode != null) {
-                            List<DOMNode> children = naturesNode.getChildren();
-                            for (DOMNode child : children) {
-                                String nature = Utils.getInlineString(child.getFirstChild());
-                                if (configType.equalsIgnoreCase(nature)) {
-                                    configPaths.add(subProject.getAbsolutePath());
-                                }
-                            }
-                        }
-                    }
-                }
+            Path localEntryPath = Path.of(projectPath, "src", "main", "wso2mi", "artifacts", "local-entries");
+            if (foundPath == null) {
+                foundPath = searchInConfigs(localEntryPath.toString(), key);
             }
         }
-        return configPaths;
+        return foundPath;
     }
 
     private static String searchInConfigs(String configPath, String key) throws IOException {
@@ -99,17 +59,17 @@ public class ConfigFinder {
         File[] listOfFiles = folder.listFiles();
         if (listOfFiles != null) {
             for (File file : listOfFiles) {
-                if (file.isFile() && isXml(file)) {
+                if (file.isFile() && Utils.isXml(file)) {
                     DOMDocument domDocument = Utils.getDOMDocument(file);
                     if (domDocument != null) {
                         DOMElement rootElement = Utils.getRootElementFromConfigXml(domDocument);
                         if (rootElement != null) {
                             String rootElementName = rootElement.getAttribute(Constant.NAME);
-                            if (key.equalsIgnoreCase(rootElementName)) {
+                            if (key.equals(rootElementName)) {
                                 return file.getAbsolutePath();
                             }
                             String rootElementKey = rootElement.getAttribute(Constant.KEY);
-                            if (key.equalsIgnoreCase(rootElementKey)) {
+                            if (key.equals(rootElementKey)) {
                                 return file.getAbsolutePath();
                             }
                         }
@@ -118,16 +78,5 @@ public class ConfigFinder {
             }
         }
         return null;
-    }
-
-    private static boolean isXml(File file) {
-
-        String filePath = file.getName();
-        int dotIndex = filePath.lastIndexOf(Constant.DOT);
-        if (dotIndex != -1 && dotIndex < filePath.length() - 1) {
-            String extension = filePath.substring(dotIndex + 1);
-            return Constant.XML.equalsIgnoreCase(extension);
-        }
-        return false;
     }
 }

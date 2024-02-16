@@ -108,13 +108,39 @@ public class Utils {
         return list.stream().anyMatch(s -> s.equalsIgnoreCase(elementName));
     }
 
-    public static String findRootPath(String currentPath) throws IOException {
+    public static boolean isLegacyProject(DOMDocument document) {
+
+        String documentPath = document.getDocumentURI();
+        String projectPath = null;
+        try {
+            projectPath = findLegacyProjectRootPath(documentPath);
+        } catch (IOException e) {
+        }
+
+        if(projectPath != null) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    public static String findProjectRootPath(String currentPath,boolean isLegacyProject) throws IOException {
+        if(isLegacyProject) {
+            return findLegacyProjectRootPath(currentPath);
+        } else {
+            return findProjectRootPath(currentPath);
+        }
+    }
+
+    public static String findLegacyProjectRootPath(String currentPath) throws IOException {
 
         if (currentPath.contains(Constant.FILE_PREFIX)) {
             currentPath = currentPath.substring(7);
         }
+        if (currentPath == null || currentPath.isEmpty()) {
+            return null;
+        }
         String prevFolderPath = currentPath.substring(0, currentPath.lastIndexOf(File.separator));
-        String dotProjectPath = currentPath + Constant.FILE_SEPARATOR + Constant.DOT_PROJECT;
+        String dotProjectPath = currentPath + File.separator + Constant.DOT_PROJECT;
         File dotProjectFile = new File(dotProjectPath);
         if (dotProjectFile != null && dotProjectFile.exists()) {
             DOMDocument projectDOM = Utils.getDOMDocument(dotProjectFile);
@@ -129,13 +155,31 @@ public class Utils {
                             return currentPath;
                         }
                     }
-                    return findRootPath(prevFolderPath);
+                    return findLegacyProjectRootPath(prevFolderPath);
                 }
             }
         } else {
-            return findRootPath(prevFolderPath);
+            return findLegacyProjectRootPath(prevFolderPath);
         }
         return null;
+    }
+
+    public static String findProjectRootPath(String currentPath) {
+
+        if (currentPath.contains(Constant.FILE_PREFIX)) {
+            currentPath = currentPath.substring(7);
+        }
+        if (currentPath == null || currentPath.isEmpty()) {
+            return null;
+        }
+        String prevFolderPath = currentPath.substring(0, currentPath.lastIndexOf(File.separator));
+        String pomPath = currentPath + File.separator + Constant.POM;
+        File pomFile = new File(pomPath);
+        if (pomFile != null && pomFile.exists()) {
+            return currentPath;
+        } else {
+            return findProjectRootPath(prevFolderPath);
+        }
     }
 
     public static DOMNode findDescriptionNode(DOMDocument projectDOM) {
@@ -177,6 +221,17 @@ public class Utils {
 
         String fileName = file.getName();
         return fileName.endsWith(".zip");
+    }
+
+    public static boolean isXml(File file) {
+
+        String filePath = file.getName();
+        int dotIndex = filePath.lastIndexOf(Constant.DOT);
+        if (dotIndex != -1 && dotIndex < filePath.length() - 1) {
+            String extension = filePath.substring(dotIndex + 1);
+            return Constant.XML.equalsIgnoreCase(extension);
+        }
+        return false;
     }
 
     public static String removeHyphen(String name) {

@@ -396,7 +396,6 @@ public class Constant {
     public static final String PROXY_SERVICES = "proxy-services";
     public static final String INBOUND_ENDPOINTS = "inbound-endpoints";
     public static final String ENDPOINTS = "endpoints";
-    public static final String FILE_SEPARATOR = "/";
     public static final String DOT_PROJECT = ".project";
     public static final String FILE_PREFIX = "file://";
     public static final String EMPTY_STRING = "";
@@ -415,4 +414,6 @@ public class Constant {
     public static final String KUBERNETES_PROJECT = "kubernetes-project";
     public static final String GOV = "gov";
     public static final String CONF = "conf";
+    public static final String CALL_TEMPLATE = "call-template";
+    public static final String STORE = "store";
 }
