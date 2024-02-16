@@ -16,26 +16,26 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.directoryTree;
+package org.eclipse.lemminx.customservice.synapse.directoryTree.legacyBuilder;
 
-import org.eclipse.lemminx.customservice.synapse.directoryTree.component.ESBComponent;
-import org.eclipse.lemminx.customservice.synapse.directoryTree.component.SimpleComponent;
+import org.eclipse.lemminx.customservice.synapse.directoryTree.node.ESBNode;
+import org.eclipse.lemminx.customservice.synapse.directoryTree.node.Node;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class DirectoryMap {
 
-    List<ESBComponent> esbConfigs;
-    List<SimpleComponent> dataServiceConfigs;
-    List<SimpleComponent> dataSourceConfigs;
-    List<SimpleComponent> mediatorProjects;
-    List<SimpleComponent> registryResources;
-    List<SimpleComponent> javaLibraryProjects;
-    List<SimpleComponent> compositeExporters;
-    List<SimpleComponent> connectorExporters;
-    List<SimpleComponent> dockerExporters;
-    List<SimpleComponent> kubernetesExporters;
+    List<ESBNode> esbConfigs;
+    List<Node> dataServiceConfigs;
+    List<Node> dataSourceConfigs;
+    List<Node> mediatorProjects;
+    List<Node> registryResources;
+    List<Node> javaLibraryProjects;
+    List<Node> compositeExporters;
+    List<Node> connectorExporters;
+    List<Node> dockerExporters;
+    List<Node> kubernetesExporters;
 
     public DirectoryMap() {
 
@@ -51,111 +51,111 @@ public class DirectoryMap {
         this.kubernetesExporters = new ArrayList<>();
     }
 
-    public void addEsbComponent(ESBComponent esbComponent) {
+    public void addEsbComponent(ESBNode esbNode) {
 
-        esbConfigs.add(esbComponent);
+        esbConfigs.add(esbNode);
     }
 
     public void addDataServiceConfig(String type, String name, String path) {
 
-        SimpleComponent component = new SimpleComponent(type, name, path);
+        Node component = new Node(type, name, path);
         dataServiceConfigs.add(component);
     }
 
     public void addDataSourceConfig(String type, String name, String path) {
 
-        SimpleComponent component = new SimpleComponent(type, name, path);
+        Node component = new Node(type, name, path);
         dataSourceConfigs.add(component);
     }
 
     public void addMediatorProject(String type, String name, String path) {
 
-        SimpleComponent component = new SimpleComponent(type, name, path);
+        Node component = new Node(type, name, path);
         mediatorProjects.add(component);
     }
 
     public void addRegistryResource(String type, String name, String path) {
 
-        SimpleComponent component = new SimpleComponent(type, name, path);
+        Node component = new Node(type, name, path);
         registryResources.add(component);
     }
 
     public void addJavaLibraryProject(String type, String name, String path) {
 
-        SimpleComponent component = new SimpleComponent(type, name, path);
+        Node component = new Node(type, name, path);
         javaLibraryProjects.add(component);
     }
 
     public void addCompositeExporter(String type, String name, String path) {
 
-        SimpleComponent component = new SimpleComponent(type, name, path);
+        Node component = new Node(type, name, path);
         compositeExporters.add(component);
     }
 
     public void addConnectorExporter(String type, String name, String path) {
 
-        SimpleComponent component = new SimpleComponent(type, name, path);
+        Node component = new Node(type, name, path);
         connectorExporters.add(component);
     }
 
     public void addDockerExporter(String type, String name, String path) {
 
-        SimpleComponent component = new SimpleComponent(type, name, path);
+        Node component = new Node(type, name, path);
         dockerExporters.add(component);
     }
 
     public void addKubernetesExporter(String type, String name, String path) {
 
-        SimpleComponent component = new SimpleComponent(type, name, path);
+        Node component = new Node(type, name, path);
         kubernetesExporters.add(component);
     }
 
-    public List<ESBComponent> getEsbConfigs() {
+    public List<ESBNode> getEsbConfigs() {
 
         return esbConfigs;
     }
 
-    public List<SimpleComponent> getDataServiceConfigs() {
+    public List<Node> getDataServiceConfigs() {
 
         return dataServiceConfigs;
     }
 
-    public List<SimpleComponent> getDataSourceConfigs() {
+    public List<Node> getDataSourceConfigs() {
 
         return dataSourceConfigs;
     }
 
-    public List<SimpleComponent> getMediatorProjects() {
+    public List<Node> getMediatorProjects() {
 
         return mediatorProjects;
     }
 
-    public List<SimpleComponent> getRegistryResources() {
+    public List<Node> getRegistryResources() {
 
         return registryResources;
     }
 
-    public List<SimpleComponent> getJavaLibraryProjects() {
+    public List<Node> getJavaLibraryProjects() {
 
         return javaLibraryProjects;
     }
 
-    public List<SimpleComponent> getCompositeExporters() {
+    public List<Node> getCompositeExporters() {
 
         return compositeExporters;
     }
 
-    public List<SimpleComponent> getConnectorExporters() {
+    public List<Node> getConnectorExporters() {
 
         return connectorExporters;
     }
 
-    public List<SimpleComponent> getDockerExporters() {
+    public List<Node> getDockerExporters() {
 
         return dockerExporters;
     }
 
-    public List<SimpleComponent> getKubernetesExporters() {
+    public List<Node> getKubernetesExporters() {
 
         return kubernetesExporters;
     }

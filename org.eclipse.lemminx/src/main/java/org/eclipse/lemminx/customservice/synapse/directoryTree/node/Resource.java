@@ -16,16 +16,36 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.directoryTree.component;
+package org.eclipse.lemminx.customservice.synapse.directoryTree.node;
 
-public class APIResource {
+import java.util.ArrayList;
+import java.util.List;
 
-    String methods;
-    String uriTemplate;
+public class Resource {
 
-    public APIResource(String methods, String uriTemplate) {
+    private RegistryResource registry;
+    private List<Node> connectors;
+    private List<Node> metadata;
 
-        this.methods = methods;
-        this.uriTemplate = uriTemplate;
+    public Resource() {
+
+        registry = new RegistryResource();
+        connectors = new ArrayList<>();
+        metadata = new ArrayList<>();
+    }
+
+    public void addConnector(Node connector) {
+
+        connectors.add(connector);
+    }
+
+    public void addMetadata(Node meta) {
+
+        metadata.add(meta);
+    }
+
+    public RegistryResource getRegistry() {
+
+        return registry;
     }
 }

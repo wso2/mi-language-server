@@ -18,7 +18,7 @@
 
 package org.eclipse.lemminx.customservice.synapse.utils;
 
-import org.eclipse.lemminx.customservice.synapse.directoryTree.utils.ProjectType;
+import org.eclipse.lemminx.customservice.synapse.directoryTree.legacyBuilder.utils.ProjectType;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;

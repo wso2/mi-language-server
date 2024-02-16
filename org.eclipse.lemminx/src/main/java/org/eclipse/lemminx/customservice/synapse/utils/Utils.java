@@ -20,7 +20,7 @@ package org.eclipse.lemminx.customservice.synapse.utils;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.eclipse.lemminx.commons.TextDocument;
-import org.eclipse.lemminx.customservice.synapse.directoryTree.utils.ProjectType;
+import org.eclipse.lemminx.customservice.synapse.directoryTree.legacyBuilder.utils.ProjectType;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
@@ -162,5 +162,68 @@ public class Utils {
             }
         }
         return naturesNode;
+    }
+
+    public static boolean isFileExists(String filePath) {
+
+        if (filePath.contains(Constant.FILE_PREFIX)) {
+            filePath = filePath.substring(7);
+        }
+        File file = new File(filePath);
+        return file.exists();
+    }
+
+    public static boolean isZipFile(File file) {
+
+        String fileName = file.getName();
+        return fileName.endsWith(".zip");
+    }
+
+    public static String removeHyphen(String name) {
+
+        String[] parts = name.split("-");
+        StringBuilder result = new StringBuilder(parts[0]);
+
+        for (int i = 1; i < parts.length; i++) {
+            result.append(Character.toUpperCase(parts[i].charAt(0)))
+                    .append(parts[i].substring(1));
+        }
+        return result.toString();
+    }
+
+    public static String pluralToSingular(String name) {
+
+        if (name.endsWith("ies")) {
+            return name.substring(0, name.length() - 3) + "y";
+        } else if (name.endsWith("s")) {
+            return name.substring(0, name.length() - 1);
+        }
+        return name;
+    }
+
+    public static DOMNode getChildNodeByName(DOMNode node, String name) {
+
+        DOMNode foundNode = null;
+        for (int i = 0; i < node.getChildren().size(); i++) {
+            String elementName = node.getChild(i).getNodeName();
+            if (name.equalsIgnoreCase(elementName)) {
+                foundNode = node.getChild(i);
+                break;
+            }
+        }
+        return foundNode;
+    }
+
+    public static String addUnderscoreBetweenWords(String input) {
+
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < input.length(); i++) {
+            char currentChar = input.charAt(i);
+            if (Character.isUpperCase(currentChar) && i > 0) {
+                result.append("_");
+            }
+            result.append(currentChar);
+        }
+        return result.toString();
     }
 }

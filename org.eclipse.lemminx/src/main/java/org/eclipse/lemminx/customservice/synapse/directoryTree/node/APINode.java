@@ -16,21 +16,21 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.directoryTree.component;
+package org.eclipse.lemminx.customservice.synapse.directoryTree.node;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class APIComponent extends AdvancedComponent {
+public class APINode extends AdvancedNode {
 
     private List<APIResource> resources = new ArrayList<>();
 
-    public APIComponent(String type, String name, String path) {
+    public APINode(String type, String name, String path) {
 
         super(type, name, path);
     }
 
-    public APIComponent(SimpleComponent component) {
+    public APINode(Node component) {
 
         super(component);
     }
