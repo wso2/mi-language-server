@@ -93,7 +93,7 @@ public class SyntaxTreeGenerator {
 
     private String getWorkspaceUri(String documentURI) {
 
-        String tempUri = documentURI.substring(0, documentURI.lastIndexOf(Constant.FILE_SEPARATOR));
+        String tempUri = documentURI.substring(0, documentURI.lastIndexOf(File.separator));
         File file = new File(tempUri);
         List<File> files = Arrays.asList(file.listFiles());
         for (File f : files) {

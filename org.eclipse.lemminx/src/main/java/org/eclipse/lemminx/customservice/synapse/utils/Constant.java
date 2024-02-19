@@ -409,4 +409,10 @@ public class Constant {
     public static final String LOCAL_ENTRIES = "local-entries";
     public static final CharSequence GOV_REGISTRY_PREFIX = "gov:";
     public static final CharSequence CONF_REGISTRY_PREFIX = "conf:";
+    public static final String PROJECT_TYPE = "projectType";
+    public static final String INTEGRATION_PROJECT = "integration-project";
+    public static final String DOCKER_PROJECT = "docker-project";
+    public static final String KUBERNETES_PROJECT = "kubernetes-project";
+    public static final String GOV = "gov";
+    public static final String CONF = "conf";
 }

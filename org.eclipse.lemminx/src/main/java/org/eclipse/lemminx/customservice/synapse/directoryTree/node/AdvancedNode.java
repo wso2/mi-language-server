@@ -16,47 +16,47 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.directoryTree.component;
+package org.eclipse.lemminx.customservice.synapse.directoryTree.node;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AdvancedComponent extends SimpleComponent {
+public class AdvancedNode extends Node {
 
-    List<SimpleComponent> sequences;
-    List<SimpleComponent> endpoints;
+    private List<Node> sequences;
+    private List<Node> endpoints;
 
-    public AdvancedComponent(String type, String name, String path) {
+    public AdvancedNode(String type, String name, String path) {
 
         super(type, name, path);
         this.sequences = new ArrayList<>();
         this.endpoints = new ArrayList<>();
     }
 
-    public AdvancedComponent(SimpleComponent component) {
+    public AdvancedNode(Node component) {
 
         super(component.getType(), component.getName(), component.getPath());
         this.sequences = new ArrayList<>();
         this.endpoints = new ArrayList<>();
     }
 
-    public void addEndpoint(SimpleComponent endpoint) {
+    public void addEndpoint(Node endpoint) {
 
         if (!alreadyExists(endpoints, endpoint)) {
             endpoints.add(endpoint);
         }
     }
 
-    public void addSequence(SimpleComponent sequence) {
+    public void addSequence(Node sequence) {
 
         if (!alreadyExists(sequences, sequence)) {
             sequences.add(sequence);
         }
     }
 
-    private Boolean alreadyExists(List<SimpleComponent> components, SimpleComponent component) {
+    private Boolean alreadyExists(List<Node> components, Node component) {
 
-        for (SimpleComponent c : components) {
+        for (Node c : components) {
             if (c.getName().equals(component.getName())) {
                 return true;
             }

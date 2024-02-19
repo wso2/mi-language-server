@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.directoryTree.utils;
+package org.eclipse.lemminx.customservice.synapse.directoryTree.legacyBuilder.utils;
 
 public enum ProjectType {
     ROOT_PROJECT("org.wso2.developerstudio.eclipse.mavenmultimodule.project.nature"),

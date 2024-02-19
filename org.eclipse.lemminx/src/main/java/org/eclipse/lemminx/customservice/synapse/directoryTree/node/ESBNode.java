@@ -16,18 +16,18 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.directoryTree.component;
+package org.eclipse.lemminx.customservice.synapse.directoryTree.node;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-public class ESBComponent extends SimpleComponent {
+public class ESBNode extends Node {
 
-    HashMap<String, List<SimpleComponent>> esbConfigs;
+    private HashMap<String, List<Node>> esbConfigs;
 
-    public ESBComponent(String type, String name, String path) {
+    public ESBNode(String type, String name, String path) {
 
         super(type, name, path);
         this.esbConfigs = new HashMap<>();
@@ -41,7 +41,7 @@ public class ESBComponent extends SimpleComponent {
         }
     }
 
-    public void addEsbConfig(String type, SimpleComponent component) {
+    public void addEsbConfig(String type, Node component) {
 
         esbConfigs.get(type).add(component);
     }

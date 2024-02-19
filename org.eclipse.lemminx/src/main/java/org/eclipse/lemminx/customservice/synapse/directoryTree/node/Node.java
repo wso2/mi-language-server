@@ -16,15 +16,15 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.directoryTree.component;
+package org.eclipse.lemminx.customservice.synapse.directoryTree.node;
 
-public class SimpleComponent {
+public class Node {
 
     String type;
     String name;
     String path;
 
-    public SimpleComponent(String type, String name, String path) {
+    public Node(String type, String name, String path) {
 
         this.type = type;
         this.name = name;
@@ -61,7 +61,7 @@ public class SimpleComponent {
         this.path = path;
     }
 
-    protected Boolean equals(SimpleComponent component) {
+    protected Boolean equals(Node component) {
 
         return this.type.equals(component.type) && this.name.equals(component.name) && this.path.equals(component.path);
     }
