@@ -20,8 +20,10 @@ package org.eclipse.lemminx.customservice.synapse.definition;
 
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.customservice.synapse.utils.ConfigFinder;
+import org.eclipse.lemminx.customservice.synapse.utils.LegacyConfigFinder;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
+import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lsp4j.Location;
@@ -31,12 +33,17 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class SynapseDefinitionProvider {
 
     private static final Logger LOGGER = Logger.getLogger(SynapseDefinitionProvider.class.getName());
+
+    private static List<String> sequenceAttributes = List.of("inSequence", "outSequence", "faultSequence", "sequence"
+            , "onAccept", "onReject", "obligation", "advice", "onError");
+    private static List<String> endpointAttributes = List.of("endpointKey", "targetEndpoint", "endpoint");
 
     public static Location definition(DOMDocument document, Position position, CancelChecker cancelChecker) {
 
@@ -48,19 +55,26 @@ public class SynapseDefinitionProvider {
             LOGGER.log(Level.WARNING, "Error while reading file content", e);
             return null;
         }
-        DOMNode node = document.findNodeAt(offset);
-        String key = null;
-        if (node != null) {
-            key = node.getAttribute(Constant.KEY);
-        }
-        if (key != null) {
+
+        KeyAndTypeHolder keyAndType = getKeyAndType(document, offset);
+        if (!keyAndType.isNull()) {
+            Boolean isLegacyProject = Utils.isLegacyProject(document);
             try {
-                String projectPath = Utils.findRootPath(document.getDocumentURI());
+                String projectPath = Utils.findProjectRootPath(document.getDocumentURI(), isLegacyProject);
                 String path = null;
                 try {
-                    path = ConfigFinder.findEsbComponentPath(key, node.getNodeName().toLowerCase() + "s", projectPath);
+                    if (isLegacyProject) {
+                        path = LegacyConfigFinder.findEsbComponentPath(keyAndType.getKey(), keyAndType.getType(),
+                                projectPath);
+                    } else {
+                        path = ConfigFinder.findEsbComponentPath(keyAndType.getKey(), keyAndType.getType(),
+                                projectPath);
+                    }
                 } catch (IOException e) {
                     LOGGER.log(Level.WARNING, "Error while reading file content", e);
+                }
+                if (path == null) {
+                    return null;
                 }
                 String filePath = Constant.FILE_PREFIX + path;
                 Range range = getDefinitionRange(path);
@@ -71,6 +85,38 @@ public class SynapseDefinitionProvider {
             }
         }
         return null;
+    }
+
+    private static KeyAndTypeHolder getKeyAndType(DOMDocument document, int offset) {
+
+        DOMAttr clickedAttr = document.findAttrAt(offset);
+        if (clickedAttr != null && clickedAttr.getNodeAttrName().getEnd() <= offset) {
+            DOMNode node = document.findNodeAt(offset);
+            String type = null;
+            String key = null;
+            if (Constant.ENDPOINT.equalsIgnoreCase(node.getNodeName()) || Constant.SEQUENCE.equalsIgnoreCase(node.getNodeName())) {
+                type = node.getNodeName().toLowerCase() + "s";
+                key = node.getAttribute(Constant.KEY);
+            } else if (Constant.CALL_TEMPLATE.equalsIgnoreCase(node.getNodeName())) {
+                type = "templates";
+                key = node.getAttribute(Constant.TARGET);
+            } else if (Constant.STORE.equalsIgnoreCase(node.getNodeName())) {
+                type = "message-stores";
+                key = node.getAttribute(Constant.MESSAGE_STORE);
+            } else {
+                DOMAttr attr = document.findAttrAt(offset);
+                if (sequenceAttributes.contains(attr.getNodeName())) {
+                    type = "sequences";
+                    key = attr.getNodeValue();
+                } else if (endpointAttributes.contains(attr.getNodeName())) {
+                    type = "endpoints";
+                    key = attr.getNodeValue();
+                }
+            }
+            KeyAndTypeHolder keyAndTypeHolder = new KeyAndTypeHolder(key, type);
+            return keyAndTypeHolder;
+        }
+        return new KeyAndTypeHolder(null, null);
     }
 
     private static Range getDefinitionRange(String path) {
@@ -87,5 +133,32 @@ public class SynapseDefinitionProvider {
             range = new Range(new Position(0, 0), new Position(0, 1));
         }
         return range;
+    }
+
+    private static class KeyAndTypeHolder {
+
+        private String key;
+        private String type;
+
+        public KeyAndTypeHolder(String key, String type) {
+
+            this.key = key;
+            this.type = type;
+        }
+
+        public String getKey() {
+
+            return key;
+        }
+
+        public String getType() {
+
+            return type;
+        }
+
+        public boolean isNull() {
+
+            return key == null && type == null;
+        }
     }
 }

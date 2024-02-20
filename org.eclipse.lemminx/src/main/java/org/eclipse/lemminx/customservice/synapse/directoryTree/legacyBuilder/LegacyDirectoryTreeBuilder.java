@@ -25,7 +25,7 @@ import org.eclipse.lemminx.customservice.synapse.directoryTree.node.AdvancedNode
 import org.eclipse.lemminx.customservice.synapse.directoryTree.node.ESBNode;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.node.Node;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.legacyBuilder.utils.ProjectType;
-import org.eclipse.lemminx.customservice.synapse.utils.ConfigFinder;
+import org.eclipse.lemminx.customservice.synapse.utils.LegacyConfigFinder;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -51,7 +51,7 @@ public class LegacyDirectoryTreeBuilder {
 
         String rootPath = null;
         try {
-            rootPath = Utils.findRootPath(currentPath);
+            rootPath = Utils.findProjectRootPath(currentPath, Boolean.TRUE);
         } catch (IOException e) {
             LOGGER.log(Level.WARNING, "Error while reading file content", e);
         }
@@ -76,7 +76,7 @@ public class LegacyDirectoryTreeBuilder {
 
     private static ProjectType analyzeByProjectType(File subProject, DirectoryMap directoryMap) {
 
-        String projectFilePath = subProject.getAbsolutePath() + Constant.FILE_SEPARATOR + Constant.DOT_PROJECT;
+        String projectFilePath = subProject.getAbsolutePath() + File.separator + Constant.DOT_PROJECT;
         File projectFile = new File(projectFilePath);
         if (projectFile == null || !projectFile.exists()) {
             return null;
@@ -232,7 +232,7 @@ public class LegacyDirectoryTreeBuilder {
                 String endpointName = child.getAttribute(Constant.KEY);
                 String epPath = null;
                 try {
-                    epPath = ConfigFinder.findEsbComponentPath(endpointName, Constant.ENDPOINTS, projectPath);
+                    epPath = LegacyConfigFinder.findEsbComponentPath(endpointName, Constant.ENDPOINTS, projectPath);
                 } catch (IOException e) {
                     LOGGER.log(Level.WARNING, "Error while reading file content", e);
                 }
@@ -244,7 +244,7 @@ public class LegacyDirectoryTreeBuilder {
                 String sequenceName = child.getAttribute(Constant.KEY);
                 String seqPath = null;
                 try {
-                    seqPath = ConfigFinder.findEsbComponentPath(sequenceName, Constant.SEQUENCES, projectPath);
+                    seqPath = LegacyConfigFinder.findEsbComponentPath(sequenceName, Constant.SEQUENCES, projectPath);
                 } catch (IOException e) {
                     LOGGER.log(Level.WARNING, "Error while reading file content", e);
                 }
