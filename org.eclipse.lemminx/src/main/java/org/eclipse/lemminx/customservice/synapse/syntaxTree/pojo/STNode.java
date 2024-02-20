@@ -18,8 +18,11 @@
 
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo;
 
+import org.eclipse.lemminx.commons.BadLocationException;
+import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
+import org.eclipse.lsp4j.Position;
 
 public class STNode {
 
@@ -41,30 +44,29 @@ public class STNode {
         }
     }
 
-    private Range findRange(DOMNode node) {
+    private Range findRange(DOMElement node) {
 
-        String content = node.getOwnerDocument().getTextDocument().getText();
-        Position startposition = findLineCharPosition(content, node.getStart());
-        Position endposition = findLineCharPosition(content, node.getEnd());
-        return new Range(startposition, endposition);
-    }
+        int startTagOpenOffset = node.getStartTagOpenOffset();
+        int startTagCloseOffset = node.getOffsetBeforeCloseOfStartTag();
+        int endTagOpenOffset = node.getEndTagOpenOffset();
+        int endTagCloseOffset = node.getEndTagCloseOffset();
 
-    private static Position findLineCharPosition(String content, int offset) {
-
-        int line = 0;
-        int character = 0;
-        for (int i = 0; i < offset; i++) {
-            char currentChar = content.charAt(i);
-
-            if (currentChar == '\n') {
-                line++;
-                character = 0;
-            } else {
-                character++;
-            }
+        DOMDocument document = node.getOwnerDocument();
+        Position startTagOpenPosition = null;
+        Position startTagClosePosition = null;
+        Position endTagOpenPosition = null;
+        Position endTagClosePosition = null;
+        try {
+            startTagOpenPosition = document.positionAt(startTagOpenOffset);
+            startTagClosePosition = document.positionAt(startTagCloseOffset);
+            endTagOpenPosition = document.positionAt(endTagOpenOffset);
+            endTagClosePosition = document.positionAt(endTagCloseOffset);
+        } catch (BadLocationException e) {
         }
+        TagRange startTagRange = new TagRange(startTagOpenPosition, startTagClosePosition);
+        TagRange endTagRange = new TagRange(endTagOpenPosition, endTagClosePosition);
 
-        return new Position(line, character);
+        return new Range(startTagRange, endTagRange);
     }
 
     public String getTag() {

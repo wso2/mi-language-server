@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,14 +18,36 @@
 
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo;
 
-public class Position {
+import org.eclipse.lsp4j.Position;
 
-    long line;
-    long character;
+public class TagRange {
 
-    public Position(long line, long character) {
+    private Position start;
+    private Position end;
 
-        this.line = line;
-        this.character = character;
+    public TagRange(Position start, Position end) {
+
+        this.start = start;
+        this.end = end;
+    }
+
+    public Position getStart() {
+
+        return start;
+    }
+
+    public void setStart(Position start) {
+
+        this.start = start;
+    }
+
+    public Position getEnd() {
+
+        return end;
+    }
+
+    public void setEnd(Position end) {
+
+        this.end = end;
     }
 }

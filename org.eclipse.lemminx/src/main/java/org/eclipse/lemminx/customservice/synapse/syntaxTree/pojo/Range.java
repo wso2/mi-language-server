@@ -20,32 +20,32 @@ package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo;
 
 public class Range {
 
-    Position start;
-    Position end;
+    TagRange startTagRange;
+    TagRange endTagRange;
 
-    public Range(Position start, Position end) {
+    public Range(TagRange startTagRange, TagRange endTagRange) {
 
-        this.start = start;
-        this.end = end;
+        this.startTagRange = startTagRange;
+        this.endTagRange = endTagRange;
     }
 
-    public Position getStart() {
+    public TagRange getStartTagRange() {
 
-        return start;
+        return startTagRange;
     }
 
-    public void setStart(Position start) {
+    public void setStartTagRange(TagRange startTagRange) {
 
-        this.start = start;
+        this.startTagRange = startTagRange;
     }
 
-    public Position getEnd() {
+    public TagRange getEndTagRange() {
 
-        return end;
+        return endTagRange;
     }
 
-    public void setEnd(Position end) {
+    public void setEndTagRange(TagRange endTagRange) {
 
-        this.end = end;
+        this.endTagRange = endTagRange;
     }
 }
