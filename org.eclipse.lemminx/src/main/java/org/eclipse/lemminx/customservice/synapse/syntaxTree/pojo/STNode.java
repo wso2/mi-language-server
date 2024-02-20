@@ -34,9 +34,9 @@ public class STNode {
 
     public void elementNode(DOMElement node) {
 
-        this.range = findRange(node);
-        this.tag = node.getTagName();
         this.selfClosed = node.isSelfClosed();
+        this.tag = node.getTagName();
+        this.range = findRange(node);
         DOMNode firstChild = node.getFirstChild();
         if (firstChild != null && firstChild.isText()) {
             this.hasTextNode = firstChild.isText();
@@ -46,10 +46,10 @@ public class STNode {
 
     private Range findRange(DOMElement node) {
 
-        int startTagOpenOffset = node.getStartTagOpenOffset();
-        int startTagCloseOffset = node.getOffsetBeforeCloseOfStartTag();
+        int startTagOpenOffset = node.getStart();
+        int startTagCloseOffset = selfClosed ? node.getEnd() : node.getStartTagCloseOffset() + 1;
         int endTagOpenOffset = node.getEndTagOpenOffset();
-        int endTagCloseOffset = node.getEndTagCloseOffset();
+        int endTagCloseOffset = node.getEnd();
 
         DOMDocument document = node.getOwnerDocument();
         Position startTagOpenPosition = null;
