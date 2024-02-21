@@ -105,6 +105,15 @@ public class LSPXMLEntityManager extends XMLEntityManager {
 			}
 		}
 
+		// 1. Skipping the setting of DTD files as we don't need to validate XSD using DTD (To skip error when trying
+		// to fetch dtd schema from "http://www.w3.org/2001/XMLSchema").
+		//2. return an empty string to avoid breaking syntax validation.
+		if (DOMUtils.isDTD(systemId)) {
+			XMLInputSource in = new XMLInputSource(xmlInputSource.getPublicId(), xmlInputSource.getSystemId(),
+					xmlInputSource.getBaseSystemId(), new StringReader(""), null);
+			return super.setupCurrentEntity(name, in, literal, isExternal);
+		}
+
 		try {
 			return super.setupCurrentEntity(name, xmlInputSource, literal, isExternal);
 		} catch (Exception e) {
