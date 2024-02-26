@@ -19,6 +19,9 @@
 package org.eclipse.lemminx;
 
 import org.eclipse.lemminx.customservice.ISynapseLanguageService;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceFinder;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceParam;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceResponse;
 import org.eclipse.lemminx.customservice.synapse.definition.SynapseDefinitionProvider;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryMapResponse;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryTreeBuilder;
@@ -87,6 +90,15 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         return xmlTextDocumentService.computeDOMAsync(params.getTextDocument(), (xmlDocument, cancelChecker) -> {
             Location location = SynapseDefinitionProvider.definition(xmlDocument, params.getPosition(), cancelChecker);
             return location;
+        });
+    }
+
+    @Override
+    public CompletableFuture<ResourceResponse> availableResources(ResourceParam param) {
+
+        return xmlTextDocumentService.computeDOMAsync(param.documentIdentifier, (xmlDocument, cancelChecker) -> {
+            ResourceResponse response = ResourceFinder.getAvailableResources(xmlDocument, param.resourceType);
+            return response;
         });
     }
 }
