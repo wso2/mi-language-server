@@ -28,6 +28,7 @@ import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceFolder;
+import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
@@ -53,4 +54,7 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<ConnectorHolder> availableConnectors(TextDocumentIdentifier param);
+
+    @JsonNotification
+    void updateConnectors(TextDocumentIdentifier param);
 }

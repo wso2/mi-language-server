@@ -139,6 +139,7 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 		ServerCapabilities nonDynamicServerCapabilities = ServerCapabilitiesInitializer.getNonDynamicServerCapabilities(
 				capabilityManager.getClientCapabilities(), xmlTextDocumentService.isIncrementalSupport());
 
+		synapseLanguageService.init(xmlSettings);
 		return CompletableFuture.completedFuture(new InitializeResult(nonDynamicServerCapabilities));
 	}
 

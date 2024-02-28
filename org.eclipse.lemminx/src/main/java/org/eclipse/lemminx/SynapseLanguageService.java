@@ -18,17 +18,20 @@
 
 package org.eclipse.lemminx;
 
+import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.ISynapseLanguageService;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceFinder;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceResponse;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorLoader;
+import org.eclipse.lemminx.customservice.synapse.connectors.SchemaGenerate;
 import org.eclipse.lemminx.customservice.synapse.definition.SynapseDefinitionProvider;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryMapResponse;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryTreeBuilder;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeGenerator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeResponse;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.MediatorFactoryFinder;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.DefinitionParams;
@@ -38,6 +41,7 @@ import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceFolder;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -46,11 +50,19 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
     private XMLTextDocumentService xmlTextDocumentService;
     private XMLLanguageServer xmlLanguageServer;
+    private static String extensionPath;
 
     public SynapseLanguageService(XMLTextDocumentService xmlTextDocumentService, XMLLanguageServer xmlLanguageServer) {
 
         this.xmlTextDocumentService = xmlTextDocumentService;
         this.xmlLanguageServer = xmlLanguageServer;
+    }
+
+    public void init(Object settings) {
+
+        if (settings != null) {
+            extensionPath = ((JsonObject) settings).get("extensionPath").getAsString();
+        }
     }
 
     @Override
@@ -113,5 +125,26 @@ public class SynapseLanguageService implements ISynapseLanguageService {
             ConnectorHolder availableConnectors = connectorLoader.loadConnector();
             return availableConnectors;
         });
+    }
+
+    @Override
+    public void updateConnectors(TextDocumentIdentifier param) {
+
+        String uri = param.getUri();
+        MediatorFactoryFinder.getInstance().updateConnectors(uri);
+
+        //Generate xsd schema for the available connectors and write it to the schema file.
+        ConnectorLoader connectorLoader = new ConnectorLoader();
+        connectorLoader.updateConnectorLoader(uri);
+        ConnectorHolder holder = connectorLoader.loadConnector();
+        String connectorPath =
+                extensionPath + File.separator + "synapse-schemas" + File.separator +
+                        "mediators" + File.separator + "connectors.xsd";
+        SchemaGenerate.generate(holder, connectorPath);
+    }
+
+    public static String getExtensionPath() {
+
+        return extensionPath;
     }
 }

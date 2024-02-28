@@ -35,7 +35,6 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.ProxyFactory
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.TaskFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.TemplateFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.endpoint.EndpointFactory;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.MediatorFactoryFinder;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.misc.Wsdl11Factory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.misc.Wsdl20Factory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
@@ -65,7 +64,6 @@ public class SyntaxTreeGenerator {
     public SyntaxTreeResponse getSyntaxTree(DOMDocument document) {
 
         setProjectPath(document.getDocumentURI());
-        MediatorFactoryFinder.getInstance().updateConnectors(projectPath);
         SyntaxTreeResponse response = new SyntaxTreeResponse(null, document.getDocumentURI());
         DOMElement rootElement = getRootElement(document);
         STNode tree = buildTree(rootElement);
