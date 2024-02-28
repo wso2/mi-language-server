@@ -416,4 +416,6 @@ public class Constant {
     public static final String CONF = "conf";
     public static final String CALL_TEMPLATE = "call-template";
     public static final String STORE = "store";
+    public static final String DEPENDENCY = "dependency";
+    public static final String COMPONENT = "component";
 }

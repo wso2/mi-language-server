@@ -28,10 +28,17 @@ import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.dom.DOMParser;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class Utils {
 
@@ -111,9 +118,13 @@ public class Utils {
     public static boolean isLegacyProject(DOMDocument document) {
 
         String documentPath = document.getDocumentURI();
+        return isLegacyProject(documentPath);
+    }
+
+    public static boolean isLegacyProject(String path) {
         String projectPath = null;
         try {
-            projectPath = findLegacyProjectRootPath(documentPath);
+            projectPath = findLegacyProjectRootPath(path);
         } catch (IOException e) {
         }
 
@@ -234,6 +245,52 @@ public class Utils {
         return false;
     }
 
+    public static void extractZip(File zip, File extractTo) throws IOException {
+
+        byte[] buffer = new byte[1024];
+        ZipInputStream zis = new ZipInputStream(new FileInputStream(zip));
+        ZipEntry zipEntry = zis.getNextEntry();
+        while (zipEntry != null) {
+            File newFile = newFile(extractTo, zipEntry);
+            if (zipEntry.isDirectory()) {
+                if (!newFile.isDirectory() && !newFile.mkdirs()) {
+                    throw new IOException("Failed to create directory " + newFile);
+                }
+            } else {
+                File parent = newFile.getParentFile();
+                if (!parent.isDirectory() && !parent.mkdirs()) {
+                    throw new IOException("Failed to create directory " + parent);
+                }
+
+                FileOutputStream fos = new FileOutputStream(newFile);
+                int len;
+                while ((len = zis.read(buffer)) > 0) {
+                    fos.write(buffer, 0, len);
+                }
+                fos.close();
+            }
+            zipEntry = zis.getNextEntry();
+        }
+
+        zis.closeEntry();
+        zis.close();
+
+    }
+
+    public static File newFile(File destinationDir, ZipEntry zipEntry) throws IOException {
+
+        File destFile = new File(destinationDir, zipEntry.getName());
+
+        String destDirPath = destinationDir.getCanonicalPath();
+        String destFilePath = destFile.getCanonicalPath();
+
+        if (!destFilePath.startsWith(destDirPath + File.separator)) {
+            throw new IOException("Entry is outside of the target dir: " + zipEntry.getName());
+        }
+
+        return destFile;
+    }
+
     public static String removeHyphen(String name) {
 
         String[] parts = name.split("-");
@@ -280,5 +337,28 @@ public class Utils {
             result.append(currentChar);
         }
         return result.toString();
+    }
+
+    public static String getHash(String input) {
+
+        MessageDigest md = null;
+        String hash = null;
+        try {
+            md = MessageDigest.getInstance("MD5");
+            byte[] messageDigest = md.digest(input.getBytes());
+            hash = convertToHex(messageDigest);
+        } catch (NoSuchAlgorithmException e) {
+        }
+        return hash;
+    }
+
+    private static String convertToHex(final byte[] messageDigest) {
+
+        BigInteger bigint = new BigInteger(1, messageDigest);
+        String hexText = bigint.toString(16);
+        while (hexText.length() < 32) {
+            hexText = "0".concat(hexText);
+        }
+        return hexText;
     }
 }

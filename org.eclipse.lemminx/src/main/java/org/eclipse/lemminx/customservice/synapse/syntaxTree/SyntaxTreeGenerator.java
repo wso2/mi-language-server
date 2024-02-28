@@ -35,6 +35,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.ProxyFactory
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.TaskFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.TemplateFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.endpoint.EndpointFactory;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.MediatorFactoryFinder;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.misc.Wsdl11Factory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.misc.Wsdl20Factory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
@@ -44,7 +45,6 @@ import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -56,7 +56,7 @@ public class SyntaxTreeGenerator {
 
     private static final Logger LOGGER = Logger.getLogger(SyntaxTreeGenerator.class.getName());
 
-    private static String workspaceUri;
+    private static String projectPath;
     private static List<String> componentNames = Arrays.asList(Constant.API, Constant.ENDPOINT, Constant.INBOUND_ENDPOINT,
             Constant.MESSAGE_PROCESSOR, Constant.LOCAL_ENTRY, Constant.MESSAGE_STORE, Constant.PROXY, Constant.SEQUENCE,
             Constant.TASK, Constant.TEMPLATE, Constant.WSDL_DEFINITIONS, Constant.WSDL_DESCRIPTION, Constant.DATA,
@@ -64,7 +64,8 @@ public class SyntaxTreeGenerator {
 
     public SyntaxTreeResponse getSyntaxTree(DOMDocument document) {
 
-        setWorkspaceUri(document.getDocumentURI());
+        setProjectPath(document.getDocumentURI());
+        MediatorFactoryFinder.getInstance().updateConnectors(projectPath);
         SyntaxTreeResponse response = new SyntaxTreeResponse(null, document.getDocumentURI());
         DOMElement rootElement = getRootElement(document);
         STNode tree = buildTree(rootElement);
@@ -83,60 +84,17 @@ public class SyntaxTreeGenerator {
         return response;
     }
 
-    private void setWorkspaceUri(String documentURI) {
+    private void setProjectPath(String documentURI) {
 
         if (documentURI != null) {
             String tempUri = documentURI.replace(Constant.FILE_PREFIX, Constant.EMPTY_STRING);
-            workspaceUri = getWorkspaceUri(tempUri);
-        }
-    }
-
-    private String getWorkspaceUri(String documentURI) {
-
-        String tempUri = documentURI.substring(0, documentURI.lastIndexOf(File.separator));
-        File file = new File(tempUri);
-        List<File> files = Arrays.asList(file.listFiles());
-        for (File f : files) {
-            if (f.isFile() && f.getName().equals(Constant.POM)) {
-                try {
-                    DOMDocument pomDocument = Utils.getDOMDocument(f);
-                    if (isWorkspacePom(pomDocument)) {
-                        return tempUri;
-                    }
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, "File could not be accessed.", e);
-                }
+            Boolean isLegacy = Utils.isLegacyProject(tempUri);
+            try {
+                projectPath = Utils.findProjectRootPath(tempUri, isLegacy);
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, "Error occurred while finding the project root path.", e);
             }
         }
-        return getWorkspaceUri(tempUri);
-    }
-
-    private boolean isWorkspacePom(DOMDocument pomDocument) {
-
-        DOMElement projectElement = getProjectElement(pomDocument);
-        if (projectElement != null) {
-            for (int i = 0; i < projectElement.getChildren().size(); i++) {
-                String elementName = projectElement.getChild(i).getNodeName();
-                if (Constant.PARENT.equalsIgnoreCase(elementName)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return false;
-    }
-
-    private DOMElement getProjectElement(DOMDocument pomDocument) {
-
-        DOMElement projectElement = null;
-        for (int i = 0; i < pomDocument.getChildren().size(); i++) {
-            String elementName = pomDocument.getChild(i).getNodeName();
-            if (Constant.PROJECT.equalsIgnoreCase(elementName)) {
-                projectElement = (DOMElement) pomDocument.getChild(i);
-                break;
-            }
-        }
-        return projectElement;
     }
 
     private DOMElement getRootElement(DOMDocument document) {
@@ -194,8 +152,8 @@ public class SyntaxTreeGenerator {
         return root;
     }
 
-    public static String getWorkspaceUri() {
+    public static String getProjectPath() {
 
-        return workspaceUri;
+        return projectPath;
     }
 }
