@@ -158,6 +158,7 @@ public class MediatorFactoryFinder {
     private MediatorFactoryFinder() {
 
         connectorLoader = new ConnectorLoader();
+        connectorHolder = new ConnectorHolder();
     }
 
     private static void loadMediatorFactories() {
