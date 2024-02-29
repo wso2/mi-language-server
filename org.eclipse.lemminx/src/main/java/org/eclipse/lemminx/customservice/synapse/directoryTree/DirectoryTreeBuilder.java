@@ -36,8 +36,10 @@ import org.eclipse.lsp4j.WorkspaceFolder;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URLDecoder;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -58,16 +60,23 @@ public class DirectoryTreeBuilder {
         if (DirectoryTreeUtils.isLegacyProject(projectFolder)) {
             return LegacyDirectoryTreeBuilder.buildDirectoryTree(projectFolder);
         }
-        projectPath = projectFolder.getUri().substring(7);
+        try {
+            String encodedPath = projectFolder.getUri().substring(7);
+            projectPath = URLDecoder.decode(encodedPath, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.log(Level.SEVERE, "Could not decode the file path.", e);
+        }
         Tree directoryTree = null;
-        String projectType = DirectoryTreeUtils.getProjectType(projectPath);
-        if (Constant.INTEGRATION_PROJECT.equalsIgnoreCase(projectType)) {
-            directoryTree = new IntegrationDirectoryTree(projectPath, projectType);
-            analyzeIntegrationProject((IntegrationDirectoryTree) directoryTree);
-        } else if (Constant.DOCKER_PROJECT.equalsIgnoreCase(projectType) || Constant.KUBERNETES_PROJECT.
-                equalsIgnoreCase(projectType)) {
-            directoryTree = new DistributionDirectoryTree(projectPath, projectType);
-            analyzeDistributionProject((DistributionDirectoryTree) directoryTree);
+        if (projectPath != null) {
+            String projectType = DirectoryTreeUtils.getProjectType(projectPath);
+            if (Constant.INTEGRATION_PROJECT.equalsIgnoreCase(projectType)) {
+                directoryTree = new IntegrationDirectoryTree(projectPath, projectType);
+                analyzeIntegrationProject((IntegrationDirectoryTree) directoryTree);
+            } else if (Constant.DOCKER_PROJECT.equalsIgnoreCase(projectType) || Constant.KUBERNETES_PROJECT.
+                    equalsIgnoreCase(projectType)) {
+                directoryTree = new DistributionDirectoryTree(projectPath, projectType);
+                analyzeDistributionProject((DistributionDirectoryTree) directoryTree);
+            }
         }
 
         DirectoryMapResponse directoryMapResponse = new DirectoryMapResponse(directoryTree);
