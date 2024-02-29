@@ -172,22 +172,19 @@ public class DirectoryTreeBuilder {
 
     private static void analyzeRegistryByType(IntegrationDirectoryTree directoryTree, String type) {
 
-        String govRegistryPath = projectPath + File.separator + Constant.SRC + File.separator +
+        String registryPath = projectPath + File.separator + Constant.SRC + File.separator +
                 MAIN + File.separator + WSO2MI + File.separator + RESOURCES +
-                File.separator + "registry" + File.separator + type;
-        File folder = new File(govRegistryPath);
-        File[] listOfFiles = folder.listFiles();
-        if (listOfFiles != null) {
-            for (File file : listOfFiles) {
-                if (file.isFile() && !file.isHidden()) {
-                    String name = file.getName();
-                    String path = file.getAbsolutePath();
-                    Node resource = new Node(Constant.REGISTRY + ":" + type, name, path);
-                    if (Constant.GOV.equalsIgnoreCase(type)) {
-                        directoryTree.getResources().getRegistry().addGov(resource);
-                    } else if (Constant.CONF.equalsIgnoreCase(type)) {
-                        directoryTree.getResources().getRegistry().addConf(resource);
-                    }
+                File.separator + Constant.REGISTRY + File.separator + type;
+        File folder = new File(registryPath);
+        if (folder != null && folder.exists()) {
+            if (!folder.isHidden()) {
+                String folderName = folder.getName();
+                FolderNode registryFolderNode = new FolderNode(folderName, registryPath);
+                traverseFolder(registryFolderNode);
+                if (Constant.GOV.equalsIgnoreCase(type)) {
+                    directoryTree.getResources().getRegistry().setGov(registryFolderNode);
+                } else if (Constant.CONF.equalsIgnoreCase(type)) {
+                    directoryTree.getResources().getRegistry().setConf(registryFolderNode);
                 }
             }
         }
