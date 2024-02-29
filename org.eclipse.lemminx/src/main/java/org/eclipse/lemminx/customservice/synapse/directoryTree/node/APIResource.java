@@ -22,10 +22,12 @@ public class APIResource {
 
     String methods;
     String uriTemplate;
+    String urlMapping;
 
-    public APIResource(String methods, String uriTemplate) {
+    public APIResource(String methods, String uriTemplate, String urlMapping) {
 
         this.methods = methods;
         this.uriTemplate = uriTemplate;
+        this.urlMapping = urlMapping;
     }
 }

@@ -219,7 +219,8 @@ public class LegacyDirectoryTreeBuilder {
             if (Constant.RESOURCE.equalsIgnoreCase(name)) {
                 String methods = child.getAttribute(Constant.METHODS);
                 String uriTemplate = child.getAttribute(Constant.URI_TEMPLATE);
-                APIResource resource = new APIResource(methods, uriTemplate);
+                String urlMapping = child.getAttribute(Constant.URL_MAPPING);
+                APIResource resource = new APIResource(methods, uriTemplate, urlMapping);
                 ((APINode) advancedNode).addResource(resource);
             }
         }
