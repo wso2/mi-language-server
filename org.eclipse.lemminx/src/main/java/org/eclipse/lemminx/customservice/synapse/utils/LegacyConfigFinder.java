@@ -71,7 +71,7 @@ public class LegacyConfigFinder {
         return null;
     }
 
-    private static List<String> getConfigPaths(String projectPath, String configType) throws IOException {
+    public static List<String> getConfigPaths(String projectPath, String configType) throws IOException {
 
         File file = new File(projectPath);
         File[] listOfFiles = file.listFiles(File::isDirectory);

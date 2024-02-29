@@ -90,7 +90,7 @@ public class Utils {
         return domDocument;
     }
 
-    public static DOMElement getRootElementFromConfigXml(DOMDocument document) {
+    public static DOMElement getRootElementFromConfigXml(DOMNode document) {
 
         DOMElement rootElement = null;
         for (int i = 0; i < document.getChildren().size(); i++) {

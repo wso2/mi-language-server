@@ -18,6 +18,8 @@
 
 package org.eclipse.lemminx.customservice;
 
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceParam;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceResponse;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryMapResponse;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeResponse;
 import org.eclipse.lsp4j.DefinitionParams;
@@ -44,4 +46,7 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<Location> definition(DefinitionParams params);
+
+    @JsonRequest
+    CompletableFuture<ResourceResponse> availableResources(ResourceParam param);
 }
