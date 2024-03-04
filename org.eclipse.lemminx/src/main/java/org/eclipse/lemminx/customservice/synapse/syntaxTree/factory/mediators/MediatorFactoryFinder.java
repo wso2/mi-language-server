@@ -18,7 +18,8 @@
 
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators;
 
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeGenerator;
+import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
+import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorLoader;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.advanced.CacheFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.advanced.CloneFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.advanced.DBLookupFactory;
@@ -72,16 +73,10 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.tr
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.transformation.XsltFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
-import org.eclipse.lemminx.customservice.synapse.utils.Utils;
-import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -149,6 +144,8 @@ public class MediatorFactoryFinder {
     private final static MediatorFactoryFinder instance = new MediatorFactoryFinder();
     private static Map<String, AbstractMediatorFactory> factoryMap = new HashMap<>();
     private static boolean initialized = false;
+    private static ConnectorLoader connectorLoader;
+    private ConnectorHolder connectorHolder;
 
     public static synchronized MediatorFactoryFinder getInstance() {
 
@@ -160,6 +157,8 @@ public class MediatorFactoryFinder {
 
     private MediatorFactoryFinder() {
 
+        connectorLoader = new ConnectorLoader();
+        connectorHolder = new ConnectorHolder();
     }
 
     private static void loadMediatorFactories() {
@@ -179,7 +178,7 @@ public class MediatorFactoryFinder {
 
         if (!node.getNodeName().equalsIgnoreCase(Constant.COMMENT)) {
             String mediatorName = node.getNodeName().toLowerCase();
-            if (isConnector(mediatorName)) {
+            if (mediatorName.contains(Constant.DOT) && connectorHolder.isValidConnector(mediatorName)) {
                 mediatorName = Constant.CONNECTOR;
             }
             AbstractMediatorFactory factory = factoryMap.get(mediatorName);
@@ -192,44 +191,9 @@ public class MediatorFactoryFinder {
         return null;
     }
 
-    private Boolean isConnector(String mediator) {
+    public void updateConnectors(String projectPath) {
 
-        if (mediator.contains(Constant.DOT)) {
-            String connectorName = mediator.substring(0, mediator.indexOf(Constant.DOT));
-            String workspaceUri = SyntaxTreeGenerator.getWorkspaceUri();
-            if (workspaceUri != null) {
-                String connectorPath = workspaceUri + "/.metadata/.Connectors/";
-                List<File> files = Arrays.asList(new File(connectorPath).listFiles(File::isDirectory));
-                for (File file : files) {
-                    File connectorFile = new File(file.getPath() + "/connector.xml");
-                    try {
-                        DOMDocument connectorDocument = Utils.getDOMDocument(connectorFile);
-                        DOMElement connectorElement = getConnectorElement(connectorDocument);
-                        DOMElement componentElement = (DOMElement) connectorElement.getChild(0);
-                        String name = componentElement.getAttribute(Constant.NAME);
-                        if (connectorName.equals(name)) {
-                            return true;
-                        }
-                    } catch (IOException e) {
-                        log.log(Level.SEVERE, "Error reading connector file", e);
-                    }
-                }
-            }
-            return false;
-        }
-        return false;
-    }
-
-    private DOMElement getConnectorElement(DOMDocument connectorDocument) {
-
-        DOMElement connectorElement = null;
-        for (int i = 0; i < connectorDocument.getChildren().size(); i++) {
-            String elementName = connectorDocument.getChild(i).getNodeName();
-            if (Constant.CONNECTOR.equalsIgnoreCase(elementName)) {
-                connectorElement = (DOMElement) connectorDocument.getChild(i);
-                break;
-            }
-        }
-        return connectorElement;
+        connectorLoader.updateConnectorLoader(projectPath);
+        connectorHolder = connectorLoader.loadConnector();
     }
 }

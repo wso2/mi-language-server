@@ -1,0 +1,275 @@
+/*
+ * Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+package org.eclipse.lemminx.customservice.synapse.connectors;
+
+import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
+import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.dom.DOMNode;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class ConnectorLoader {
+
+    private static final Logger log = Logger.getLogger(ConnectorLoader.class.getName());
+
+    private String connectorsFolderPath;
+    private Boolean legacyMode;
+    String projectId;
+
+    public ConnectorLoader() {
+
+    }
+
+    public ConnectorHolder loadConnector() {
+
+        if (legacyMode) {
+            return loadConnectorInLegacyMode();
+        }
+        return loadConnectorInNonLegacyMode();
+
+    }
+
+    private ConnectorHolder loadConnectorInNonLegacyMode() {
+
+        ConnectorHolder holder = new ConnectorHolder();
+        projectId = Utils.getHash(connectorsFolderPath);
+        String tempFolderPath =
+                System.getProperty("java.io.tmpdir") + "org.wso2.integrationstudio" + File.separator + "connectors"
+                        + File.separator + projectId;
+        File tempFolder = new File(tempFolderPath);
+
+        if (!tempFolder.exists()) {
+            tempFolder.mkdirs();
+        }
+        List<File> connectorZips = new ArrayList<>();
+        if (connectorsFolderPath != null) {
+            File folder = new File(connectorsFolderPath);
+            File[] files = folder.listFiles();
+            for (File f : files) {
+                if (Utils.isZipFile(f)) {
+                    connectorZips.add(f);
+                }
+            }
+        }
+        extractZips(connectorZips, tempFolder);
+        readTempFolder(tempFolder, holder);
+        return holder;
+    }
+
+    public ConnectorHolder loadConnectorInLegacyMode() {
+
+        ConnectorHolder holder = new ConnectorHolder();
+        File connectorFolder = new File(connectorsFolderPath);
+        if (connectorsFolderPath != null && connectorFolder.exists()) {
+            File[] connectors = connectorFolder.listFiles(File::isDirectory);
+            for (File connectorFile : connectors) {
+                Connector connector = readConnector(connectorFile.getPath());
+                if (connector != null) {
+                    holder.addConnector(connector);
+                }
+            }
+        }
+
+        return holder;
+    }
+
+    private void extractZips(List<File> connectorZips, File tempFolder) {
+
+        File[] tempFiles = tempFolder.listFiles();
+        List<String> tempConnectorNames =
+                Arrays.stream(tempFiles).filter(File::isDirectory).map(File::getName).toList();
+        for (File zip : connectorZips) {
+            String zipName = zip.getName();
+            zipName = zipName.substring(0, zipName.lastIndexOf(Constant.DOT));
+            if (!tempConnectorNames.contains(zipName)) {
+                String extractTo = tempFolder.getAbsolutePath() + File.separator + zipName;
+                File extractToFolder = new File(extractTo);
+                try {
+                    Utils.extractZip(zip, extractToFolder);
+                } catch (IOException e) {
+                    log.log(Level.WARNING, "Failed to extract connector zip:" + zipName, e);
+                }
+            }
+        }
+    }
+
+    private void readTempFolder(File tempFolder, ConnectorHolder holder) {
+
+        File[] files = tempFolder.listFiles(File::isDirectory);
+        for (File f : files) {
+            Connector connector = readConnector(f.getAbsolutePath());
+            if (connector != null) {
+                holder.addConnector(connector);
+            }
+        }
+    }
+
+    private Connector readConnector(String connectorPath) {
+
+        Connector connector = null;
+        if (connectorPath != null) {
+            File connectorFile = new File(connectorPath + File.separator + "connector.xml");
+            try {
+                DOMDocument connectorDocument = Utils.getDOMDocument(connectorFile);
+                DOMNode connectorElement = Utils.getChildNodeByName(connectorDocument, "connector");
+                DOMNode componentElement = Utils.getChildNodeByName(connectorElement, "component");
+                String name = componentElement.getAttribute(Constant.NAME);
+                connector = new Connector();
+                connector.setName(name);
+                connector.setPath(connectorPath);
+                connector.setIconPath(connectorPath + File.separator + "icon");
+                connector.setUiSchemaPath(connectorPath + File.separator + "uischema");
+                populateConnectorActions(connector, componentElement);
+            } catch (IOException e) {
+                log.log(Level.SEVERE, "Error reading connector file", e);
+            }
+        }
+        return connector;
+    }
+
+    private void populateConnectorActions(Connector connector, DOMNode componentElement) {
+
+        List<String> dependencies = getDependencies(componentElement);
+        readDependencies(connector, dependencies);
+    }
+
+    private List<String> getDependencies(DOMNode connectorElement) {
+
+        List<String> dependencies = new ArrayList<>();
+        List<DOMNode> children = connectorElement.getChildren();
+        for (DOMNode child : children) {
+            if (child.getNodeName().equals(Constant.DEPENDENCY)) {
+                String dependency = child.getAttribute(Constant.COMPONENT);
+                dependencies.add(dependency);
+            }
+        }
+        return dependencies;
+    }
+
+    private void readDependencies(Connector connector, List<String> dependencies) {
+
+        for (String dependency : dependencies) {
+            File dependencyFile = new File(connector.getPath() + File.separator + dependency + File.separator +
+                    "component.xml");
+            readSubComponents(connector, dependencyFile);
+
+        }
+    }
+
+    private void readSubComponents(Connector connector, File dependencyFile) {
+
+        try {
+            DOMDocument dependencyDocument = Utils.getDOMDocument(dependencyFile);
+            DOMNode componentElement = Utils.getChildNodeByName(dependencyDocument, "component");
+            DOMNode subComponents = Utils.getChildNodeByName(componentElement, "subComponents");
+            List<DOMNode> children = subComponents.getChildren();
+            for (DOMNode child : children) {
+                if (child.getNodeName().equals(Constant.COMPONENT)) {
+                    ConnectorAction action = new ConnectorAction();
+                    String name = child.getAttribute(Constant.NAME);
+                    action.setName(name);
+                    String tag = connector.getName() + Constant.DOT + name;
+                    action.setTag(tag);
+                    DOMNode descriptionNode = Utils.getChildNodeByName(child, Constant.DESCRIPTION);
+                    if (descriptionNode != null) {
+                        String description = Utils.getInlineString(descriptionNode.getFirstChild());
+                        action.setDescription(description);
+                    }
+                    DOMNode fileNode = Utils.getChildNodeByName(child, "file");
+                    if (fileNode != null) {
+                        String fileName = Utils.getInlineString(fileNode.getFirstChild());
+                        String actionPath = dependencyFile.getParent() + File.separator + fileName;
+                        populateParameters(action, actionPath);
+                    }
+                    DOMNode hiddenNode = Utils.getChildNodeByName(child, "hidden");
+                    if (hiddenNode != null) {
+                        String isHidden = Utils.getInlineString(hiddenNode.getFirstChild());
+                        action.setHidden(Boolean.parseBoolean(isHidden));
+                    } else {
+                        action.setHidden(Boolean.FALSE);
+                    }
+                    connector.addAction(action);
+                }
+            }
+        } catch (IOException e) {
+            log.log(Level.WARNING, "Error while reading " + connector.getName() + " connector", e);
+        }
+    }
+
+    private void populateParameters(ConnectorAction action, String actionPath) {
+
+        File actionFile = new File(actionPath);
+        try {
+            DOMDocument actionDom = Utils.getDOMDocument(actionFile);
+            DOMNode templateNode = Utils.getChildNodeByName(actionDom, "template");
+            if (templateNode != null) {
+                List<DOMNode> children = templateNode.getChildren();
+                for (DOMNode child : children) {
+                    if ("parameter".equalsIgnoreCase(child.getNodeName())) {
+                        String name = child.getAttribute("name");
+                        action.addParameter(name);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            log.log(Level.WARNING, "Error while reading " + action.getName() + " connector action", e);
+        }
+
+    }
+
+    public void updateConnectorLoader(String projectPath) {
+
+        setLegacyMode(projectPath);
+        setConnectorsFolderPath(projectPath);
+    }
+
+    private void setLegacyMode(String projectPath) {
+
+        if (Utils.isLegacyProject(projectPath)) {
+            legacyMode = Boolean.TRUE;
+        } else {
+            legacyMode = Boolean.FALSE;
+        }
+    }
+
+    private void setConnectorsFolderPath(String projectPath) {
+
+        String projectRoot = Utils.findProjectRootPath(projectPath);
+        if (projectRoot != null) {
+            if (legacyMode) {
+                File projectFile = new File(projectRoot);
+                File parentFolder = projectFile.getParentFile();
+                String workspacePath = parentFolder.getAbsolutePath();
+                connectorsFolderPath = workspacePath + File.separator + ".metadata" + File.separator + ".Connectors";
+            } else {
+                connectorsFolderPath = projectRoot + "/src/main/wso2mi/resources/connectors";
+            }
+        } else {
+            // To avoid null pointer exception.
+            connectorsFolderPath = "";
+        }
+    }
+}
