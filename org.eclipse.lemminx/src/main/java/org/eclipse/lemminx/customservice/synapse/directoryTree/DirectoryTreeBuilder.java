@@ -36,8 +36,10 @@ import org.eclipse.lsp4j.WorkspaceFolder;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URLDecoder;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -58,16 +60,23 @@ public class DirectoryTreeBuilder {
         if (DirectoryTreeUtils.isLegacyProject(projectFolder)) {
             return LegacyDirectoryTreeBuilder.buildDirectoryTree(projectFolder);
         }
-        projectPath = projectFolder.getUri().substring(7);
+        try {
+            String encodedPath = projectFolder.getUri().substring(7);
+            projectPath = URLDecoder.decode(encodedPath, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.log(Level.SEVERE, "Could not decode the file path.", e);
+        }
         Tree directoryTree = null;
-        String projectType = DirectoryTreeUtils.getProjectType(projectPath);
-        if (Constant.INTEGRATION_PROJECT.equalsIgnoreCase(projectType)) {
-            directoryTree = new IntegrationDirectoryTree(projectPath, projectType);
-            analyzeIntegrationProject((IntegrationDirectoryTree) directoryTree);
-        } else if (Constant.DOCKER_PROJECT.equalsIgnoreCase(projectType) || Constant.KUBERNETES_PROJECT.
-                equalsIgnoreCase(projectType)) {
-            directoryTree = new DistributionDirectoryTree(projectPath, projectType);
-            analyzeDistributionProject((DistributionDirectoryTree) directoryTree);
+        if (projectPath != null) {
+            String projectType = DirectoryTreeUtils.getProjectType(projectPath);
+            if (Constant.INTEGRATION_PROJECT.equalsIgnoreCase(projectType)) {
+                directoryTree = new IntegrationDirectoryTree(projectPath, projectType);
+                analyzeIntegrationProject((IntegrationDirectoryTree) directoryTree);
+            } else if (Constant.DOCKER_PROJECT.equalsIgnoreCase(projectType) || Constant.KUBERNETES_PROJECT.
+                    equalsIgnoreCase(projectType)) {
+                directoryTree = new DistributionDirectoryTree(projectPath, projectType);
+                analyzeDistributionProject((DistributionDirectoryTree) directoryTree);
+            }
         }
 
         DirectoryMapResponse directoryMapResponse = new DirectoryMapResponse(directoryTree);
@@ -163,22 +172,19 @@ public class DirectoryTreeBuilder {
 
     private static void analyzeRegistryByType(IntegrationDirectoryTree directoryTree, String type) {
 
-        String govRegistryPath = projectPath + File.separator + Constant.SRC + File.separator +
+        String registryPath = projectPath + File.separator + Constant.SRC + File.separator +
                 MAIN + File.separator + WSO2MI + File.separator + RESOURCES +
-                File.separator + "registry" + File.separator + type;
-        File folder = new File(govRegistryPath);
-        File[] listOfFiles = folder.listFiles();
-        if (listOfFiles != null) {
-            for (File file : listOfFiles) {
-                if (file.isFile() && !file.isHidden()) {
-                    String name = file.getName();
-                    String path = file.getAbsolutePath();
-                    Node resource = new Node(Constant.REGISTRY + ":" + type, name, path);
-                    if (Constant.GOV.equalsIgnoreCase(type)) {
-                        directoryTree.getResources().getRegistry().addGov(resource);
-                    } else if (Constant.CONF.equalsIgnoreCase(type)) {
-                        directoryTree.getResources().getRegistry().addConf(resource);
-                    }
+                File.separator + Constant.REGISTRY + File.separator + type;
+        File folder = new File(registryPath);
+        if (folder != null && folder.exists()) {
+            if (!folder.isHidden()) {
+                String folderName = folder.getName();
+                FolderNode registryFolderNode = new FolderNode(folderName, registryPath);
+                traverseFolder(registryFolderNode);
+                if (Constant.GOV.equalsIgnoreCase(type)) {
+                    directoryTree.getResources().getRegistry().setGov(registryFolderNode);
+                } else if (Constant.CONF.equalsIgnoreCase(type)) {
+                    directoryTree.getResources().getRegistry().setConf(registryFolderNode);
                 }
             }
         }
@@ -313,7 +319,8 @@ public class DirectoryTreeBuilder {
             if (Constant.RESOURCE.equalsIgnoreCase(name)) {
                 String methods = child.getAttribute(Constant.METHODS);
                 String uriTemplate = child.getAttribute(Constant.URI_TEMPLATE);
-                APIResource resource = new APIResource(methods, uriTemplate);
+                String urlMapping = child.getAttribute(Constant.URL_MAPPING);
+                APIResource resource = new APIResource(methods, uriTemplate, urlMapping);
                 ((APINode) advancedNode).addResource(resource);
             }
         }

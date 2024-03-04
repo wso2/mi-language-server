@@ -18,27 +18,28 @@
 
 package org.eclipse.lemminx.customservice.synapse.directoryTree.node;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class RegistryResource {
 
-    private List<Node> conf;
-    private List<Node> gov;
+    private FolderNode conf;
+    private FolderNode gov;
 
-    public RegistryResource() {
+    public FolderNode getConf() {
 
-        conf = new ArrayList<>();
-        gov = new ArrayList<>();
+        return conf;
     }
 
-    public void addConf(Node conf) {
+    public void setConf(FolderNode conf) {
 
-        this.conf.add(conf);
+        this.conf = conf;
     }
 
-    public void addGov(Node gov) {
+    public FolderNode getGov() {
 
-        this.gov.add(gov);
+        return gov;
+    }
+
+    public void setGov(FolderNode gov) {
+
+        this.gov = gov;
     }
 }
