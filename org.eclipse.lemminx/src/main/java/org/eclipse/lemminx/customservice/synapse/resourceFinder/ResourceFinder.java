@@ -24,12 +24,12 @@ import org.eclipse.lemminx.customservice.synapse.utils.LegacyConfigFinder;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
+import org.eclipse.lemminx.dom.DOMNode;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -94,6 +94,10 @@ public class ResourceFinder {
         List<Resource> resources = new ArrayList<>();
         String resourceTypeFolder = processType(type);
         if (resourceTypeFolder != null) {
+            if (resourceTypeFolder.contains(":")) {
+                type = resourceTypeFolder;
+                resourceTypeFolder = resourceTypeFolder.split(":")[0];
+            }
             Path resourceFolderPath = Path.of(artifactsPath.toString(), resourceTypeFolder);
             File folder = new File(resourceFolderPath.toString());
             File[] listOfFiles = folder.listFiles();
@@ -115,10 +119,14 @@ public class ResourceFinder {
             return "message-stores";
         } else if (Constant.MESSAGE_PROCESSOR.equalsIgnoreCase(type)) {
             return "message-processors";
-        } else if (Constant.TEMPLATE.equalsIgnoreCase(type)) {
-            return "templates";
+        } else if ("endpointTemplate".equalsIgnoreCase(type)) {
+            return "templates:endpoint";
+        } else if ("sequenceTemplate".equalsIgnoreCase(type)) {
+            return "templates:sequence";
         } else if (Constant.TASK.equalsIgnoreCase(type)) {
             return "tasks";
+        } else if (Constant.LOCAL_ENTRY.equalsIgnoreCase(type)) {
+            return "local-entries";
         }
         return null;
     }
@@ -157,6 +165,18 @@ public class ResourceFinder {
     private static boolean checkType(DOMElement rootElement, String type) {
 
         String elementType = rootElement.getNodeName();
-        return type.equalsIgnoreCase(elementType);
+        if (type.contains(":")) {
+            elementType = elementType + "s";
+            String[] splitType = type.split(":");
+            if (elementType.equalsIgnoreCase(splitType[0])) {
+                DOMNode childNode = Utils.getChildNodeByName(rootElement, splitType[1]);
+                if (childNode != null) {
+                    return Boolean.TRUE;
+                }
+            }
+        } else {
+            return type.equalsIgnoreCase(elementType);
+        }
+        return Boolean.FALSE;
     }
 }
