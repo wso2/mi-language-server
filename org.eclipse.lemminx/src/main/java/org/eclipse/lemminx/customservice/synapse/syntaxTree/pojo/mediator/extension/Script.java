@@ -25,6 +25,7 @@ public class Script extends Mediator {
     Object[] content;
     String language;
     String key;
+    String[] include;
     String function;
     String description;
 
@@ -66,6 +67,16 @@ public class Script extends Mediator {
     public void setFunction(String function) {
 
         this.function = function;
+    }
+
+    public String[] getInclude() {
+
+        return include;
+    }
+
+    public void setInclude(String[] include) {
+
+        this.include = include;
     }
 
     public String getDescription() {
