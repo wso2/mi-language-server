@@ -60,11 +60,11 @@ public class ClassFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String name = element.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             ((Class) node).setName(name);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((Class) node).setDescription(description);
         }
     }

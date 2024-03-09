@@ -62,11 +62,11 @@ public class ConditionalRouterFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String continueAfter = element.getAttribute(Constant.CONTINUE_AFTER);
-        if (continueAfter != null && !continueAfter.isEmpty()) {
+        if (continueAfter != null) {
             ((ConditionalRouter) node).setContinueAfter(Boolean.parseBoolean(continueAfter));
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((ConditionalRouter) node).setDescription(description);
         }
     }
@@ -76,7 +76,7 @@ public class ConditionalRouterFactory extends AbstractMediatorFactory {
         ConditionalRouterConditionalRoute route = new ConditionalRouterConditionalRoute();
         route.elementNode((DOMElement) child);
         String breakRoute = child.getAttribute(Constant.BREAK_ROUTE);
-        if (breakRoute != null && !breakRoute.isEmpty()) {
+        if (breakRoute != null) {
             route.setBreakRoute(Boolean.parseBoolean(breakRoute));
         }
         List<DOMNode> children = child.getChildren();

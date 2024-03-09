@@ -23,17 +23,17 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediat
 
 public class Send extends Mediator {
 
-    NamedEndpoint[] endpoint;
+    NamedEndpoint endpoint;
     String receive;
     boolean buildmessage;
     String description;
 
-    public NamedEndpoint[] getEndpoint() {
+    public NamedEndpoint getEndpoint() {
 
         return endpoint;
     }
 
-    public void setEndpoint(NamedEndpoint[] endpoint) {
+    public void setEndpoint(NamedEndpoint endpoint) {
 
         this.endpoint = endpoint;
     }

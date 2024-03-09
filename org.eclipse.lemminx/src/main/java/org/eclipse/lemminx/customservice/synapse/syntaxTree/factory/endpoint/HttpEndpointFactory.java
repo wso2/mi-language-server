@@ -138,7 +138,8 @@ public class HttpEndpointFactory extends AbstractFactory {
                     EndpointHttpAuthenticationOauthClientCredentials clientCredentials = createClientCredentials(child);
                     oauth.setClientCredentials(clientCredentials);
                 } else if (child.getNodeName().equalsIgnoreCase(Constant.PASSWORD_CREDENTIALS)) {
-                    EndpointHttpAuthenticationOauthPasswordCredentials passwordCredentials = createPasswordCredentials(child);
+                    EndpointHttpAuthenticationOauthPasswordCredentials passwordCredentials =
+                            createPasswordCredentials(child);
                     oauth.setPasswordCredentials(passwordCredentials);
                 }
             }
@@ -148,7 +149,8 @@ public class HttpEndpointFactory extends AbstractFactory {
 
     private EndpointHttpAuthenticationOauthAuthorizationCode createAuthorizationCode(DOMNode node) {
 
-        EndpointHttpAuthenticationOauthAuthorizationCode authorizationCode = new EndpointHttpAuthenticationOauthAuthorizationCode();
+        EndpointHttpAuthenticationOauthAuthorizationCode authorizationCode =
+                new EndpointHttpAuthenticationOauthAuthorizationCode();
         authorizationCode.elementNode((DOMElement) node);
         List<DOMNode> children = node.getChildren();
         if (children != null && !children.isEmpty()) {
@@ -187,7 +189,8 @@ public class HttpEndpointFactory extends AbstractFactory {
 
     private EndpointHttpAuthenticationOauthClientCredentials createClientCredentials(DOMNode node) {
 
-        EndpointHttpAuthenticationOauthClientCredentials clientCredentials = new EndpointHttpAuthenticationOauthClientCredentials();
+        EndpointHttpAuthenticationOauthClientCredentials clientCredentials =
+                new EndpointHttpAuthenticationOauthClientCredentials();
         clientCredentials.elementNode((DOMElement) node);
         List<DOMNode> children = node.getChildren();
         if (children != null && !children.isEmpty()) {
@@ -226,7 +229,8 @@ public class HttpEndpointFactory extends AbstractFactory {
 
     private EndpointHttpAuthenticationOauthPasswordCredentials createPasswordCredentials(DOMNode node) {
 
-        EndpointHttpAuthenticationOauthPasswordCredentials passwordCredentials = new EndpointHttpAuthenticationOauthPasswordCredentials();
+        EndpointHttpAuthenticationOauthPasswordCredentials passwordCredentials =
+                new EndpointHttpAuthenticationOauthPasswordCredentials();
         passwordCredentials.elementNode((DOMElement) node);
         List<DOMNode> children = node.getChildren();
         if (children != null && !children.isEmpty()) {

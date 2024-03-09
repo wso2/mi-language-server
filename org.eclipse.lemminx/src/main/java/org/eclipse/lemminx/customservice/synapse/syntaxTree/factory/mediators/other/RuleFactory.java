@@ -83,7 +83,7 @@ public class RuleFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((Rule) node).setDescription(description);
         }
     }
@@ -93,7 +93,7 @@ public class RuleFactory extends AbstractMediatorFactory {
         RuleSource ruleSource = new RuleSource();
         ruleSource.elementNode((DOMElement) node);
         String xpath = node.getAttribute(Constant.XPATH);
-        if (xpath != null && !xpath.isEmpty()) {
+        if (xpath != null) {
             ruleSource.setXpath(xpath);
         }
         DOMNode valueNode = node.getFirstChild();
@@ -109,15 +109,15 @@ public class RuleFactory extends AbstractMediatorFactory {
         RuleTarget ruleTarget = new RuleTarget();
         ruleTarget.elementNode((DOMElement) node);
         String action = node.getAttribute(Constant.ACTION);
-        if (action != null && !action.isEmpty()) {
+        if (action != null) {
             ruleTarget.setAction(action);
         }
         String resultXpath = node.getAttribute(Constant.RESULT_XPATH);
-        if (resultXpath != null && !resultXpath.isEmpty()) {
+        if (resultXpath != null) {
             ruleTarget.setResultXpath(resultXpath);
         }
         String xpath = node.getAttribute(Constant.XPATH);
-        if (xpath != null && !xpath.isEmpty()) {
+        if (xpath != null) {
             ruleTarget.setXpath(xpath);
         }
         DOMNode valueNode = node.getFirstChild();
@@ -133,11 +133,11 @@ public class RuleFactory extends AbstractMediatorFactory {
         RuleInput ruleInput = new RuleInput();
         ruleInput.elementNode((DOMElement) node);
         String namespace = node.getAttribute(Constant.NAMESPACE);
-        if (namespace != null && !namespace.isEmpty()) {
+        if (namespace != null) {
             ruleInput.setNamespace(namespace);
         }
         String wrapperElementName = node.getAttribute(Constant.WRAPPER_ELEMENT_NAME);
-        if (wrapperElementName != null && !wrapperElementName.isEmpty()) {
+        if (wrapperElementName != null) {
             ruleInput.setWrapperElementName(wrapperElementName);
         }
         List<DOMNode> children = node.getChildren();
@@ -159,19 +159,19 @@ public class RuleFactory extends AbstractMediatorFactory {
         RuleInputFact fact = new RuleInputFact();
         fact.elementNode((DOMElement) node);
         String elementName = node.getAttribute(Constant.ELEMENT_NAME);
-        if (elementName != null && !elementName.isEmpty()) {
+        if (elementName != null) {
             fact.setElementName(elementName);
         }
         String namespace = node.getAttribute(Constant.NAMESPACE);
-        if (namespace != null && !namespace.isEmpty()) {
+        if (namespace != null) {
             fact.setNamespace(namespace);
         }
         String type = node.getAttribute(Constant.TYPE);
-        if (type != null && !type.isEmpty()) {
+        if (type != null) {
             fact.setType(type);
         }
         String xpath = node.getAttribute(Constant.XPATH);
-        if (xpath != null && !xpath.isEmpty()) {
+        if (xpath != null) {
             fact.setXpath(xpath);
         }
         return fact;
@@ -182,11 +182,11 @@ public class RuleFactory extends AbstractMediatorFactory {
         RuleOutput ruleOutput = new RuleOutput();
         ruleOutput.elementNode((DOMElement) node);
         String namespace = node.getAttribute(Constant.NAMESPACE);
-        if (namespace != null && !namespace.isEmpty()) {
+        if (namespace != null) {
             ruleOutput.setNamespace(namespace);
         }
         String wrapperElementName = node.getAttribute(Constant.WRAPPER_ELEMENT_NAME);
-        if (wrapperElementName != null && !wrapperElementName.isEmpty()) {
+        if (wrapperElementName != null) {
             ruleOutput.setWrapperElementName(wrapperElementName);
         }
         List<DOMNode> children = node.getChildren();
@@ -208,15 +208,15 @@ public class RuleFactory extends AbstractMediatorFactory {
         RuleOutputFact fact = new RuleOutputFact();
         fact.elementNode((DOMElement) child);
         String elementName = child.getAttribute(Constant.ELEMENT_NAME);
-        if (elementName != null && !elementName.isEmpty()) {
+        if (elementName != null) {
             fact.setElementName(elementName);
         }
         String namespace = child.getAttribute(Constant.NAMESPACE);
-        if (namespace != null && !namespace.isEmpty()) {
+        if (namespace != null) {
             fact.setNamespace(namespace);
         }
         String type = child.getAttribute(Constant.TYPE);
-        if (type != null && !type.isEmpty()) {
+        if (type != null) {
             fact.setType(type);
         }
         return fact;
@@ -265,16 +265,16 @@ public class RuleFactory extends AbstractMediatorFactory {
         RuleRuleSetRule rule = new RuleRuleSetRule();
         rule.elementNode((DOMElement) node);
         String resourceType = node.getAttribute(Constant.RESOURCE_TYPE);
-        if (resourceType != null && !resourceType.isEmpty()) {
+        if (resourceType != null) {
             rule.setResourceType(resourceType);
         }
         String sourceType = node.getAttribute(Constant.SOURCE_TYPE);
-        if (sourceType != null && !sourceType.isEmpty()) {
+        if (sourceType != null) {
             rule.setSourceType(sourceType);
         }
         DOMNode valueNode = node.getFirstChild();
         String value = Utils.getInlineString(valueNode);
-        if (value != null && !value.isEmpty()) {
+        if (value != null) {
             rule.setValue(value);
         }
         return rule;

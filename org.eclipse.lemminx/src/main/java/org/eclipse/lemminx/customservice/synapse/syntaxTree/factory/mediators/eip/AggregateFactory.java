@@ -73,7 +73,7 @@ public class AggregateFactory extends AbstractMediatorFactory {
         AggregateCorrelateOn correlateOn = new AggregateCorrelateOn();
         correlateOn.elementNode((DOMElement) child);
         String expression = child.getAttribute(Constant.EXPRESSION);
-        if (expression != null && !expression.isEmpty()) {
+        if (expression != null) {
             correlateOn.setExpression(expression);
         }
         return correlateOn;
@@ -84,12 +84,12 @@ public class AggregateFactory extends AbstractMediatorFactory {
         AggregateCompleteCondition completeCondition = new AggregateCompleteCondition();
         completeCondition.elementNode((DOMElement) child);
         String timeout = child.getAttribute(Constant.TIMEOUT);
-        if (timeout != null && !timeout.isEmpty()) {
+        if (timeout != null) {
             completeCondition.setTimeout(Utils.parseInt(timeout));
         }
 
         List<DOMNode> children = child.getChildren();
-        if (children != null && !children.isEmpty()) {
+        if (children != null) {
             for (DOMNode node : children) {
                 String name = node.getNodeName();
                 if (name.equalsIgnoreCase(Constant.MESSAGE_COUNT)) {
@@ -106,11 +106,11 @@ public class AggregateFactory extends AbstractMediatorFactory {
         AggregateCompleteConditionMessageCount messageCount = new AggregateCompleteConditionMessageCount();
         messageCount.elementNode((DOMElement) node);
         String min = node.getAttribute(Constant.MIN);
-        if (min != null && !min.isEmpty()) {
+        if (min != null) {
             messageCount.setMin(min);
         }
         String max = node.getAttribute(Constant.MAX);
-        if (max != null && !max.isEmpty()) {
+        if (max != null) {
             messageCount.setMax(max);
         }
         return messageCount;
@@ -121,19 +121,19 @@ public class AggregateFactory extends AbstractMediatorFactory {
         AggregateOnComplete onComplete = new AggregateOnComplete();
         onComplete.elementNode((DOMElement) child);
         String expression = child.getAttribute(Constant.EXPRESSION);
-        if (expression != null && !expression.isEmpty()) {
+        if (expression != null) {
             onComplete.setExpression(expression);
         }
         String sequence = child.getAttribute(Constant.SEQUENCE);
-        if (sequence != null && !sequence.isEmpty()) {
+        if (sequence != null) {
             onComplete.setSequenceAttribute(sequence);
         }
         String enclosingElementProperty = child.getAttribute(Constant.ENCLOSING_ELEMENT_PROPERTY);
-        if (enclosingElementProperty != null && !enclosingElementProperty.isEmpty()) {
+        if (enclosingElementProperty != null) {
             onComplete.setEnclosingElementProperty(enclosingElementProperty);
         }
         String aggregateElementType = child.getAttribute(Constant.AGGREGATE_ELEMENT_TYPE);
-        if (aggregateElementType != null && !aggregateElementType.isEmpty()) {
+        if (aggregateElementType != null) {
             onComplete.setAggregateElementType(aggregateElementType);
         }
 
@@ -147,11 +147,11 @@ public class AggregateFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String id = element.getAttribute(Constant.ID);
-        if (id != null && !id.isEmpty()) {
+        if (id != null) {
             ((Aggregate) node).setId(id);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((Aggregate) node).setDescription(description);
         }
     }

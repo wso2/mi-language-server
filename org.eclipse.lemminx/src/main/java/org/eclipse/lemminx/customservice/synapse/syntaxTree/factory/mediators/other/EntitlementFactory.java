@@ -65,51 +65,51 @@ public class EntitlementFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String remoteServiceUrl = element.getAttribute(Constant.REMOTE_SERVICE_URL);
-        if (remoteServiceUrl != null && !remoteServiceUrl.isEmpty()) {
+        if (remoteServiceUrl != null) {
             ((EntitlementService) node).setRemoteServiceUrl(remoteServiceUrl);
         }
         String remoteServiceUsername = element.getAttribute(Constant.REMOTE_SERVICE_USERNAME);
-        if (remoteServiceUsername != null && !remoteServiceUsername.isEmpty()) {
+        if (remoteServiceUsername != null) {
             ((EntitlementService) node).setRemoteServiceUserName(remoteServiceUsername);
         }
         String remoteServicePassword = element.getAttribute(Constant.REMOTE_SERVICE_PASSWORD);
-        if (remoteServicePassword != null && !remoteServicePassword.isEmpty()) {
+        if (remoteServicePassword != null) {
             ((EntitlementService) node).setRemoteServicePassword(remoteServicePassword);
         }
         String callbackClass = element.getAttribute(Constant.CALLBACK_CLASS);
-        if (callbackClass != null && !callbackClass.isEmpty()) {
+        if (callbackClass != null) {
             ((EntitlementService) node).setCallbackClass(callbackClass);
         }
         String client = element.getAttribute(Constant.CLIENT);
-        if (client != null && !client.isEmpty()) {
+        if (client != null) {
             ((EntitlementService) node).setClient(client);
         }
         String thriftHost = element.getAttribute(Constant.THRIFT_HOST);
-        if (thriftHost != null && !thriftHost.isEmpty()) {
+        if (thriftHost != null) {
             ((EntitlementService) node).setThriftHost(thriftHost);
         }
         String thriftPort = element.getAttribute(Constant.THRIFT_PORT);
-        if (thriftPort != null && !thriftPort.isEmpty()) {
+        if (thriftPort != null) {
             ((EntitlementService) node).setThriftPort(thriftPort);
         }
         String onReject = element.getAttribute(Constant.ON_REJECT);
-        if (onReject != null && !onReject.isEmpty()) {
+        if (onReject != null) {
             ((EntitlementService) node).setOnRejectAttribute(onReject);
         }
         String onAccept = element.getAttribute(Constant.ON_ACCEPT);
-        if (onAccept != null && !onAccept.isEmpty()) {
+        if (onAccept != null) {
             ((EntitlementService) node).setOnAcceptAttribute(onAccept);
         }
         String advice = element.getAttribute(Constant.ADVICE);
-        if (advice != null && !advice.isEmpty()) {
+        if (advice != null) {
             ((EntitlementService) node).setAdviceAttribute(advice);
         }
         String obligations = element.getAttribute(Constant.OBLIGATIONS);
-        if (obligations != null && !obligations.isEmpty()) {
+        if (obligations != null) {
             ((EntitlementService) node).setObligationsAttribute(obligations);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((EntitlementService) node).setDescription(description);
         }
     }

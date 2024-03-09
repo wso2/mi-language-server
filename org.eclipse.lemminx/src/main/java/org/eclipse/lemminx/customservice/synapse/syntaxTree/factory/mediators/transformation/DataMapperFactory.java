@@ -43,35 +43,35 @@ public class DataMapperFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String config = element.getAttribute(Constant.CONFIG);
-        if (config != null && !config.isEmpty()) {
+        if (config != null) {
             ((Datamapper) node).setConfig(config);
         }
         String inputSchema = element.getAttribute(Constant.INPUT_SCHEMA);
-        if (inputSchema != null && !inputSchema.isEmpty()) {
+        if (inputSchema != null) {
             ((Datamapper) node).setInputSchema(inputSchema);
         }
         String outputSchema = element.getAttribute(Constant.OUTPUT_SCHEMA);
-        if (outputSchema != null && !outputSchema.isEmpty()) {
+        if (outputSchema != null) {
             ((Datamapper) node).setOutputSchema(outputSchema);
         }
         String inputType = element.getAttribute(Constant.INPUT_TYPE);
-        if (inputType != null && !inputType.isEmpty()) {
+        if (inputType != null) {
             ((Datamapper) node).setInputType(inputType);
         }
         String outputType = element.getAttribute(Constant.OUTPUT_TYPE);
-        if (outputType != null && !outputType.isEmpty()) {
+        if (outputType != null) {
             try {
                 ((Datamapper) node).setOutputType(SchemaType.valueOf(outputType));
             } catch (IllegalArgumentException e) {
-                // TODO: Handle exception if needed.
+                //ignore
             }
         }
         String xsltStyleSheet = element.getAttribute(Constant.XSLT_STYLE_SHEET);
-        if (xsltStyleSheet != null && !xsltStyleSheet.isEmpty()) {
+        if (xsltStyleSheet != null) {
             ((Datamapper) node).setXsltStyleSheet(xsltStyleSheet);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((Datamapper) node).setDescription(description);
         }
     }

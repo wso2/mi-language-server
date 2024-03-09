@@ -42,11 +42,11 @@ public class FastXSLTFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String key = element.getAttribute(Constant.KEY);
-        if (key != null && !key.isEmpty()) {
+        if (key != null) {
             ((FastXSLT) node).setKey(key);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((FastXSLT) node).setDescription(description);
         }
     }

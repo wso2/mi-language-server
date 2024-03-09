@@ -56,11 +56,11 @@ public class MessageStoreFactory extends AbstractFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String name = element.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             ((MessageStore) node).setName(name);
         }
         String clazz = element.getAttribute(Constant.CLASS);
-        if (clazz != null && !clazz.isEmpty()) {
+        if (clazz != null) {
             ((MessageStore) node).setClazz(clazz);
         }
     }

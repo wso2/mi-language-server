@@ -60,43 +60,43 @@ public class EjbFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String beanstalk = element.getAttribute(Constant.BEANSTALK);
-        if (beanstalk != null && !beanstalk.isEmpty()) {
+        if (beanstalk != null) {
             ((Ejb) node).setBeanstalk(beanstalk);
         }
         String clazz = element.getAttribute(Constant.CLASS);
-        if (clazz != null && !clazz.isEmpty()) {
+        if (clazz != null) {
             ((Ejb) node).setClazz(clazz);
         }
         String sessionId = element.getAttribute(Constant.SESSION_ID);
-        if (sessionId != null && !sessionId.isEmpty()) {
+        if (sessionId != null){
             ((Ejb) node).setSessionId(sessionId);
         }
         String remove = element.getAttribute(Constant.REMOVE);
-        if (remove != null && !remove.isEmpty()) {
+        if (remove != null) {
             ((Ejb) node).setRemove(Boolean.parseBoolean(remove));
         }
         String method = element.getAttribute(Constant.METHOD);
-        if (method != null && !method.isEmpty()) {
+        if (method != null) {
             ((Ejb) node).setMethod(method);
         }
         String target = element.getAttribute(Constant.TARGET);
-        if (target != null && !target.isEmpty()) {
+        if (target != null) {
             ((Ejb) node).setTarget(target);
         }
         String jndiName = element.getAttribute(Constant.JNDI_NAME);
-        if (jndiName != null && !jndiName.isEmpty()) {
+        if (jndiName != null) {
             ((Ejb) node).setJndiName(jndiName);
         }
         String id = element.getAttribute(Constant.ID);
-        if (id != null && !id.isEmpty()) {
+        if (id != null) {
             ((Ejb) node).setId(id);
         }
         String stateful = element.getAttribute(Constant.STATEFUL);
-        if (stateful != null && !stateful.isEmpty()) {
+        if (stateful != null) {
             ((Ejb) node).setStateful(Boolean.parseBoolean(stateful));
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((Ejb) node).setDescription(description);
         }
     }
@@ -111,7 +111,7 @@ public class EjbFactory extends AbstractMediatorFactory {
                     EjbArgsArg arg = new EjbArgsArg();
                     arg.elementNode((DOMElement) argsChild);
                     String value = argsChild.getAttribute(Constant.VALUE);
-                    if (value != null && !value.isEmpty()) {
+                    if (value != null) {
                         arg.setValue(value);
                     }
                     args.add(arg);

@@ -42,15 +42,15 @@ public class SpringFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String bean = element.getAttribute(Constant.BEAN);
-        if (bean != null && !bean.isEmpty()) {
+        if (bean != null) {
             ((Spring) node).setBean(bean);
         }
         String key = element.getAttribute(Constant.KEY);
-        if (key != null && !key.isEmpty()) {
+        if (key != null) {
             ((Spring) node).setKey(key);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((Spring) node).setDescription(description);
         }
     }

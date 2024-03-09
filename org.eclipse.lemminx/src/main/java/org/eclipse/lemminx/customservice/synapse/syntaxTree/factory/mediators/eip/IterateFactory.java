@@ -59,31 +59,31 @@ public class IterateFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String sequential = element.getAttribute(Constant.SEQUENTIAL);
-        if (sequential != null && !sequential.isEmpty()) {
+        if (sequential != null) {
             ((Iterate) node).setSequential(Boolean.parseBoolean(sequential));
         }
         String continueParent = element.getAttribute(Constant.CONTINUE_PARENT);
-        if (continueParent != null && !continueParent.isEmpty()) {
+        if (continueParent != null) {
             ((Iterate) node).setContinueParent(Boolean.parseBoolean(continueParent));
         }
         String preservePayload = element.getAttribute(Constant.PRESERVE_PAYLOAD);
-        if (preservePayload != null && !preservePayload.isEmpty()) {
+        if (preservePayload != null) {
             ((Iterate) node).setPreservePayload(Boolean.parseBoolean(preservePayload));
         }
         String expression = element.getAttribute(Constant.EXPRESSION);
-        if (expression != null && !expression.isEmpty()) {
+        if (expression != null) {
             ((Iterate) node).setExpression(expression);
         }
         String attachPath = element.getAttribute(Constant.ATTACH_PATH);
-        if (attachPath != null && !attachPath.isEmpty()) {
+        if (attachPath != null) {
             ((Iterate) node).setAttachPath(attachPath);
         }
         String id = element.getAttribute(Constant.ID);
-        if (id != null && !id.isEmpty()) {
+        if (id != null) {
             ((Iterate) node).setId(id);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((Iterate) node).setDescription(description);
         }
     }

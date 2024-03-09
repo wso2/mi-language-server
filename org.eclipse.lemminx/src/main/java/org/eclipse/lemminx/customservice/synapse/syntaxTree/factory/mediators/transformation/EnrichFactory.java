@@ -60,7 +60,7 @@ public class EnrichFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((Enrich) node).setDescription(description);
         }
     }
@@ -70,23 +70,23 @@ public class EnrichFactory extends AbstractMediatorFactory {
         SourceEnrich sourceEnrich = new SourceEnrich();
         sourceEnrich.elementNode((DOMElement) element);
         String clone = element.getAttribute(Constant.CLONE);
-        if (clone != null && !clone.isEmpty()) {
+        if (clone != null) {
             sourceEnrich.setClone(Boolean.parseBoolean(clone));
         }
         String xpath = element.getAttribute(Constant.XPATH);
-        if (xpath != null && !xpath.isEmpty()) {
+        if (xpath != null) {
             sourceEnrich.setXpath(xpath);
         }
         String key = element.getAttribute(Constant.KEY);
-        if (key != null && !key.isEmpty()) {
+        if (key != null) {
             sourceEnrich.setKey(key);
         }
         String type = element.getAttribute(Constant.TYPE);
-        if (type != null && !type.isEmpty()) {
+        if (type != null) {
             sourceEnrich.setType(type);
         }
         String property = element.getAttribute(Constant.PROPERTY);
-        if (property != null && !property.isEmpty()) {
+        if (property != null) {
             sourceEnrich.setProperty(property);
         }
 
@@ -103,19 +103,19 @@ public class EnrichFactory extends AbstractMediatorFactory {
         TargetEnrich targetEnrich = new TargetEnrich();
         targetEnrich.elementNode((DOMElement) element);
         String action = element.getAttribute(Constant.ACTION);
-        if (action != null && !action.isEmpty()) {
+        if (action != null) {
             targetEnrich.setAction(action);
         }
         String type = element.getAttribute(Constant.TYPE);
-        if (type != null && !type.isEmpty()) {
+        if (type != null) {
             targetEnrich.setType(type);
         }
         String xpath = element.getAttribute(Constant.XPATH);
-        if (xpath != null && !xpath.isEmpty()) {
+        if (xpath != null) {
             targetEnrich.setXpath(xpath);
         }
         String property = element.getAttribute(Constant.PROPERTY);
-        if (property != null && !property.isEmpty()) {
+        if (property != null) {
             targetEnrich.setProperty(property);
         }
         return targetEnrich;

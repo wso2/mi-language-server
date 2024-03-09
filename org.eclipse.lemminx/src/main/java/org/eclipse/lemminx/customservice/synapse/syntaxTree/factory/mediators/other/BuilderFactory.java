@@ -55,7 +55,7 @@ public class BuilderFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((Builder) node).setDescription(description);
         }
     }
@@ -65,15 +65,15 @@ public class BuilderFactory extends AbstractMediatorFactory {
         BuilderMessageBuilder builderMessageBuilder = new BuilderMessageBuilder();
         builderMessageBuilder.elementNode((DOMElement) node);
         String contentType = node.getAttribute(Constant.CONTENT_TYPE);
-        if (contentType != null && !contentType.isEmpty()) {
+        if (contentType != null) {
             builderMessageBuilder.setContentType(contentType);
         }
         String clazz = node.getAttribute(Constant.CLASS);
-        if (clazz != null && !clazz.isEmpty()) {
+        if (clazz != null) {
             builderMessageBuilder.setClazz(clazz);
         }
         String formatterClass = node.getAttribute(Constant.FORMATTER_CLASS);
-        if (formatterClass != null && !formatterClass.isEmpty()) {
+        if (formatterClass != null) {
             builderMessageBuilder.setFormatterClass(formatterClass);
         }
         return builderMessageBuilder;

@@ -46,11 +46,11 @@ public class LocalEntryFactory extends AbstractFactory {
 
         LocalEntry localEntry = (LocalEntry) node;
         String key = element.getAttribute(Constant.KEY);
-        if (key != null && !key.isEmpty()) {
+        if (key != null) {
             localEntry.setKey(key);
         }
         String src = element.getAttribute(Constant.SRC);
-        if (src != null && !src.isEmpty()) {
+        if (src != null) {
             localEntry.setSrc(src);
         }
     }

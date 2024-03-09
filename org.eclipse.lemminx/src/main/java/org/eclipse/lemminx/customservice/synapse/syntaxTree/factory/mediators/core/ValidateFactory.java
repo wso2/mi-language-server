@@ -83,7 +83,7 @@ public class ValidateFactory extends AbstractMediatorFactory {
                     populateResourceAttributes(validateResource, (DOMElement) node);
                     validateResources.add(validateResource);
                 } else {
-                    throw new RuntimeException("Unexpected child node: " + node.getNodeName());
+                    //ignore
                 }
             }
         }
@@ -102,11 +102,11 @@ public class ValidateFactory extends AbstractMediatorFactory {
     private void populatePropertyAttributes(ValidateProperty validateProperty, DOMElement node) {
 
         String name = node.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             validateProperty.setName(name);
         }
         String value = node.getAttribute(Constant.VALUE);
-        if (value != null && !value.isEmpty()) {
+        if (value != null) {
             validateProperty.setValue(Boolean.parseBoolean(value));
         }
     }
@@ -114,7 +114,7 @@ public class ValidateFactory extends AbstractMediatorFactory {
     private void populateSchemaAttributes(ValidateSchema validateSchema, DOMElement node) {
 
         String key = node.getAttribute(Constant.KEY);
-        if (key != null && !key.isEmpty()) {
+        if (key != null) {
             validateSchema.setKey(key);
         }
     }
@@ -122,11 +122,11 @@ public class ValidateFactory extends AbstractMediatorFactory {
     private void populateFeatureAttributes(Feature feature, DOMElement node) {
 
         String name = node.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             feature.setName(name);
         }
         String value = node.getAttribute(Constant.VALUE);
-        if (value != null && !value.isEmpty()) {
+        if (value != null) {
             feature.setValue(Boolean.parseBoolean(value));
         }
     }
@@ -134,11 +134,11 @@ public class ValidateFactory extends AbstractMediatorFactory {
     private void populateResourceAttributes(ValidateResource validateResource, DOMElement node) {
 
         String location = node.getAttribute(Constant.LOCATION);
-        if (location != null && !location.isEmpty()) {
+        if (location != null) {
             validateResource.setLocation(location);
         }
         String key = node.getAttribute(Constant.KEY);
-        if (key != null && !key.isEmpty()) {
+        if (key != null) {
             validateResource.setKey(key);
         }
     }

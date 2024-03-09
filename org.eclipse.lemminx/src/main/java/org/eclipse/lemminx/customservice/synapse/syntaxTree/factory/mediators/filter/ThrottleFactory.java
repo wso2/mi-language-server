@@ -69,19 +69,19 @@ public class ThrottleFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String id = element.getAttribute(Constant.ID);
-        if (id != null && !id.isEmpty()) {
+        if (id != null) {
             ((Throttle) node).setId(id);
         }
         String onAcceptAttribute = element.getAttribute(Constant.ON_ACCEPT);
-        if (onAcceptAttribute != null && !onAcceptAttribute.isEmpty()) {
+        if (onAcceptAttribute != null) {
             ((Throttle) node).setOnAcceptAttribute(onAcceptAttribute);
         }
         String onRejectAttribute = element.getAttribute(Constant.ON_REJECT);
-        if (onRejectAttribute != null && !onRejectAttribute.isEmpty()) {
+        if (onRejectAttribute != null) {
             ((Throttle) node).setOnRejectAttribute(onRejectAttribute);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((Throttle) node).setDescription(description);
         }
     }
@@ -91,7 +91,7 @@ public class ThrottleFactory extends AbstractMediatorFactory {
         ThrottlePolicy throttlePolicy = new ThrottlePolicy();
         throttlePolicy.elementNode((DOMElement) node);
         String key = node.getAttribute(Constant.KEY);
-        if (key != null && !key.isEmpty()) {
+        if (key != null) {
             throttlePolicy.setKey(key);
         }
         List<DOMNode> children = node.getChildren();
@@ -113,7 +113,7 @@ public class ThrottleFactory extends AbstractMediatorFactory {
         Policy policy = new Policy();
         policy.elementNode((DOMElement) node);
         String name = node.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             policy.setName(name);
         }
         List<DOMNode> children = node.getChildren();
@@ -160,12 +160,12 @@ public class ThrottleFactory extends AbstractMediatorFactory {
         ID id = new ID();
         id.elementNode((DOMElement) node);
         String type = node.getAttribute(Constant.THROTTLE_TYPE);
-        if (type != null && !type.isEmpty()) {
+        if (type != null) {
             id.setType(type);
         }
         DOMNode valueNode = node.getFirstChild();
         String value = Utils.getInlineString(valueNode);
-        if (value != null && !value.isEmpty()) {
+        if (value != null) {
             id.setValue(value);
         }
         return id;

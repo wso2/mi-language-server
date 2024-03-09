@@ -50,15 +50,15 @@ public class FilterSequenceFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String key = element.getAttribute(Constant.KEY);
-        if (key != null && !key.isEmpty()) {
+        if (key != null) {
             ((FilterSequence) node).setKey(key);
         }
         String name = element.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             ((FilterSequence) node).setName(name);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((FilterSequence) node).setDescription(description);
         }
     }

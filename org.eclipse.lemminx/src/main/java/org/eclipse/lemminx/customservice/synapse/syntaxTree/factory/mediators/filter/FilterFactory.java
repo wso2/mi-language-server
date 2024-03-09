@@ -60,19 +60,19 @@ public class FilterFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String xpath = element.getAttribute(Constant.XPATH);
-        if (xpath != null && !xpath.isEmpty()) {
+        if (xpath != null) {
             ((Filter) node).setXpath(xpath);
         }
         String regex = element.getAttribute(Constant.REGEX);
-        if (regex != null && !regex.isEmpty()) {
+        if (regex != null) {
             ((Filter) node).setRegex(regex);
         }
         String source = element.getAttribute(Constant.SOURCE);
-        if (source != null && !source.isEmpty()) {
+        if (source != null) {
             ((Filter) node).setSource(source);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((Filter) node).setDescription(description);
         }
     }

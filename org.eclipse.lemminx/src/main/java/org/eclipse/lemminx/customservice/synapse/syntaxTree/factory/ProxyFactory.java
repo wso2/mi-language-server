@@ -114,19 +114,19 @@ public class ProxyFactory extends AbstractFactory {
     private void populateProxyTargetAttributes(ProxyTarget target, DOMNode node) {
 
         String inSequence = node.getAttribute(Constant.IN_SEQUENCE);
-        if (inSequence != null && !inSequence.isEmpty()) {
+        if (inSequence != null) {
             target.setInSequenceAttribute(inSequence);
         }
         String outSequence = node.getAttribute(Constant.OUT_SEQUENCE);
-        if (outSequence != null && !outSequence.isEmpty()) {
+        if (outSequence != null) {
             target.setOutSequenceAttribute(outSequence);
         }
         String faultSequence = node.getAttribute(Constant.FAULT_SEQUENCE);
-        if (faultSequence != null && !faultSequence.isEmpty()) {
+        if (faultSequence != null) {
             target.setFaultSequenceAttribute(faultSequence);
         }
         String endpoint = node.getAttribute(Constant.ENDPOINT);
-        if (endpoint != null && !endpoint.isEmpty()) {
+        if (endpoint != null) {
             target.setEndpointAttribute(endpoint);
         }
     }
@@ -164,11 +164,11 @@ public class ProxyFactory extends AbstractFactory {
         Resource resource = new Resource();
         resource.elementNode((DOMElement) child);
         String location = child.getAttribute(Constant.LOCATION);
-        if (location != null && !location.isEmpty()) {
+        if (location != null) {
             resource.setLocation(location);
         }
         String key = child.getAttribute(Constant.KEY);
-        if (key != null && !key.isEmpty()) {
+        if (key != null) {
             resource.setKey(key);
         }
         return resource;
@@ -177,19 +177,19 @@ public class ProxyFactory extends AbstractFactory {
     private void populatePublishWSDLAttributes(ProxyPublishWSDL publishWSDL, DOMNode node) {
 
         String uri = node.getAttribute(Constant.URI);
-        if (uri != null && !uri.isEmpty()) {
+        if (uri != null) {
             publishWSDL.setUri(uri);
         }
         String key = node.getAttribute(Constant.KEY);
-        if (key != null && !key.isEmpty()) {
+        if (key != null) {
             publishWSDL.setKey(key);
         }
         String endpoint = node.getAttribute(Constant.ENDPOINT);
-        if (endpoint != null && !endpoint.isEmpty()) {
+        if (endpoint != null) {
             publishWSDL.setEndpoint(endpoint);
         }
         String preservePolicy = node.getAttribute(Constant.PRESERVE_POLICY);
-        if (preservePolicy != null && !preservePolicy.isEmpty()) {
+        if (preservePolicy != null) {
             publishWSDL.setPreservePolicy(Boolean.valueOf(preservePolicy));
         }
 
@@ -207,11 +207,11 @@ public class ProxyFactory extends AbstractFactory {
         ProxyPolicy policy = new ProxyPolicy();
         policy.elementNode((DOMElement) node);
         String key = node.getAttribute(Constant.KEY);
-        if (key != null && !key.isEmpty()) {
+        if (key != null) {
             policy.setKey(key);
         }
         String type = node.getAttribute(Constant.TYPE);
-        if (type != null && !type.isEmpty()) {
+        if (type != null) {
             policy.setType(type);
         }
         return policy;
@@ -221,23 +221,23 @@ public class ProxyFactory extends AbstractFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String name = element.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             ((Proxy) node).setName(name);
         }
         String transports = element.getAttribute(Constant.TRANSPORTS);
-        if (transports != null && !transports.isEmpty()) {
+        if (transports != null) {
             ((Proxy) node).setTransports(transports);
         }
         String pinnedServers = element.getAttribute(Constant.PINNED_SERVERS);
-        if (pinnedServers != null && !pinnedServers.isEmpty()) {
+        if (pinnedServers != null) {
             ((Proxy) node).setPinnedServers(pinnedServers);
         }
         String serviceGroup = element.getAttribute(Constant.SERVICE_GROUP);
-        if (serviceGroup != null && !serviceGroup.isEmpty()) {
+        if (serviceGroup != null) {
             ((Proxy) node).setServiceGroup(serviceGroup);
         }
         String startOnLoad = element.getAttribute(Constant.START_ON_LOAD);
-        if (startOnLoad != null && !startOnLoad.isEmpty()) {
+        if (startOnLoad != null) {
             ((Proxy) node).setStartOnLoad(Boolean.valueOf(startOnLoad));
         }
     }

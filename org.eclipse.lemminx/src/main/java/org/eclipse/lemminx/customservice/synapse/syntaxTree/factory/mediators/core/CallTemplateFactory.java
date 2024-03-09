@@ -58,15 +58,15 @@ public class CallTemplateFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String target = element.getAttribute(Constant.TARGET);
-        if (target != null && !target.isEmpty()) {
+        if (target != null) {
             ((CallTemplate) node).setTarget(target);
         }
         String onError = element.getAttribute(Constant.ON_ERROR);
-        if (onError != null && !onError.isEmpty()) {
+        if (onError != null) {
             ((CallTemplate) node).setOnError(onError);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((CallTemplate) node).setDescription(description);
         }
     }
@@ -83,15 +83,15 @@ public class CallTemplateFactory extends AbstractMediatorFactory {
     private void populateWithParamAttributes(WithParam withParam, DOMElement element) {
 
         String name = element.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             withParam.setName(name);
         }
         String value = element.getAttribute(Constant.VALUE);
-        if (value != null && !value.isEmpty()) {
+        if (value != null) {
             withParam.setValue(value);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             withParam.setDescription(description);
         }
     }

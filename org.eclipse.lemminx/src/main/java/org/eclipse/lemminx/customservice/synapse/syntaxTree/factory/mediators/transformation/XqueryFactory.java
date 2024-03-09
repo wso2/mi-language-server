@@ -58,15 +58,15 @@ public class XqueryFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String key = element.getAttribute(Constant.KEY);
-        if (key != null && !key.isEmpty()) {
+        if (key != null) {
             ((Xquery) node).setKey(key);
         }
         String target = element.getAttribute(Constant.TARGET);
-        if (target != null && !target.isEmpty()) {
+        if (target != null) {
             ((Xquery) node).setTarget(target);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((Xquery) node).setDescription(description);
         }
     }
@@ -76,23 +76,23 @@ public class XqueryFactory extends AbstractMediatorFactory {
         XqueryVariable xqueryVariable = new XqueryVariable();
         xqueryVariable.elementNode((DOMElement) element);
         String name = element.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             xqueryVariable.setName(name);
         }
         String type = element.getAttribute(Constant.TYPE);
-        if (type != null && !type.isEmpty()) {
+        if (type != null) {
             xqueryVariable.setType(type);
         }
         String expression = element.getAttribute(Constant.EXPRESSION);
-        if (expression != null && !expression.isEmpty()) {
+        if (expression != null) {
             xqueryVariable.setExpression(expression);
         }
         String value = element.getAttribute(Constant.VALUE);
-        if (value != null && !value.isEmpty()) {
+        if (value != null) {
             xqueryVariable.setValue(value);
         }
         String key = element.getAttribute(Constant.KEY);
-        if (key != null && !key.isEmpty()) {
+        if (key != null) {
             xqueryVariable.setKey(key);
         }
         return xqueryVariable;

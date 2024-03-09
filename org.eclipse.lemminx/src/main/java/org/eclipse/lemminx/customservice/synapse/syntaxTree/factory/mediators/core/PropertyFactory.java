@@ -50,31 +50,35 @@ public class PropertyFactory extends AbstractMediatorFactory {
 
         Property property = (Property) node;
         String name = element.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             property.setName(name);
         }
         String value = element.getAttribute(Constant.VALUE);
-        if (value != null && !value.isEmpty()) {
+        if (value != null) {
             property.setValue(value);
         }
         String expression = element.getAttribute(Constant.EXPRESSION);
-        if (expression != null && !expression.isEmpty()) {
+        if (expression != null) {
             property.setExpression(expression);
         }
         String scope = element.getAttribute(Constant.SCOPE);
-        if (scope != null && !scope.isEmpty()) {
+        if (scope != null) {
             property.setScope(scope);
         }
         String type = element.getAttribute(Constant.TYPE);
-        if (type != null && !type.isEmpty()) {
+        if (type != null) {
             property.setType(type);
         }
         String pattern = element.getAttribute(Constant.PATTERN);
-        if (pattern != null && !pattern.isEmpty()) {
+        if (pattern != null) {
             property.setPattern(pattern);
         }
+        String action = element.getAttribute(Constant.ACTION);
+        if (action != null) {
+            property.setAction(action);
+        }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             property.setDescription(description);
         }
     }

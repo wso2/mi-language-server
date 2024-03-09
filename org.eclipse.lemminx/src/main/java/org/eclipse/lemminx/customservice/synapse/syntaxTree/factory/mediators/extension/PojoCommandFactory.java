@@ -72,11 +72,11 @@ public class PojoCommandFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String name = element.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             ((PojoCommand) node).setName(name);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((PojoCommand) node).setDescription(description);
         }
     }
@@ -84,23 +84,23 @@ public class PojoCommandFactory extends AbstractMediatorFactory {
     public void populatePojoCommandPropertyAttributes(PojoCommandProperty property, DOMElement element) {
 
         String name = element.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             property.setName(name);
         }
         String value = element.getAttribute(Constant.VALUE);
-        if (value != null && !value.isEmpty()) {
+        if (value != null) {
             property.setValue(value);
         }
         String expression = element.getAttribute(Constant.EXPRESSION);
-        if (expression != null && !expression.isEmpty()) {
+        if (expression != null) {
             property.setExpression(expression);
         }
         String contextName = element.getAttribute(Constant.CONTEXT_NAME);
-        if (contextName != null && !contextName.isEmpty()) {
+        if (contextName != null) {
             property.setContextName(contextName);
         }
         String action = element.getAttribute(Constant.ACTION);
-        if (action != null && !action.isEmpty()) {
+        if (action != null) {
             property.setAction(action);
         }
     }

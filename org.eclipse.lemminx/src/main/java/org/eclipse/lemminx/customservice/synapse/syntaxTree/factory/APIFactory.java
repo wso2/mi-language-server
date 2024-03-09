@@ -64,43 +64,43 @@ public class APIFactory extends AbstractFactory {
 
         API api = (API) node;
         String name = element.getAttribute(Constant.NAME);
-        if (Objects.nonNull(name) && !name.isEmpty()) {
+        if (Objects.nonNull(name)) {
             api.setName(name);
         }
         String context = element.getAttribute(Constant.CONTEXT);
-        if (Objects.nonNull(context) && !context.isEmpty()) {
+        if (Objects.nonNull(context)) {
             api.setContext(context);
         }
         String hostname = element.getAttribute(Constant.HOSTNAME);
-        if (Objects.nonNull(hostname) && !hostname.isEmpty()) {
+        if (Objects.nonNull(hostname)) {
             api.setHostname(hostname);
         }
         String port = element.getAttribute(Constant.PORT);
-        if (Objects.nonNull(port) && !port.isEmpty()) {
+        if (Objects.nonNull(port)) {
             api.setPort(port);
         }
         String version = element.getAttribute(Constant.VERSION);
-        if (Objects.nonNull(version) && !version.isEmpty()) {
+        if (Objects.nonNull(version)) {
             api.setVersion(version);
         }
         String versionType = element.getAttribute(Constant.VERSION_TYPE);
-        if (Objects.nonNull(versionType) && !versionType.isEmpty()) {
+        if (Objects.nonNull(versionType)) {
             api.setVersionType(versionType);
         }
         String publishSwagger = element.getAttribute(Constant.PUBLISH_SWAGGER);
-        if (Objects.nonNull(publishSwagger) && !publishSwagger.isEmpty()) {
+        if (Objects.nonNull(publishSwagger)) {
             api.setPublishSwagger(publishSwagger);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (Objects.nonNull(description) && !description.isEmpty()) {
+        if (Objects.nonNull(description)) {
             api.setDescription(description);
         }
         String statistics = element.getAttribute(Constant.STATISTICS);
-        if (Objects.nonNull(statistics) && !statistics.isEmpty()) {
+        if (Objects.nonNull(statistics)) {
             api.setStatistics(statistics);
         }
         String trace = element.getAttribute(Constant.TRACE);
-        if (Objects.nonNull(trace) && !trace.isEmpty()) {
+        if (Objects.nonNull(trace)) {
             api.setTrace(trace);
         }
     }
@@ -135,7 +135,7 @@ public class APIFactory extends AbstractFactory {
         APIHandlersHandler apiHandlersHandler = new APIHandlersHandler();
         apiHandlersHandler.elementNode((DOMElement) childNode);
         String className = childNode.getAttribute(Constant.CLASS);
-        if (className != null && !className.isEmpty()) {
+        if (className != null) {
             apiHandlersHandler.setClazz(className);
         }
         List<DOMNode> children = childNode.getChildren();
@@ -157,11 +157,11 @@ public class APIFactory extends AbstractFactory {
         APIHandlersHandlerProperty apiHandlersHandlerProperty = new APIHandlersHandlerProperty();
         apiHandlersHandlerProperty.elementNode((DOMElement) node);
         String name = node.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             apiHandlersHandlerProperty.setName(name);
         }
         String value = node.getAttribute(Constant.VALUE);
-        if (value != null && !value.isEmpty()) {
+        if (value != null) {
             apiHandlersHandlerProperty.setValue(value);
         }
         return apiHandlersHandlerProperty;

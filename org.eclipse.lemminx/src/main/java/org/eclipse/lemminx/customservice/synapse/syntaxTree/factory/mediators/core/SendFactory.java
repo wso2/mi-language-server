@@ -25,6 +25,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.NamedE
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Send;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 
@@ -43,16 +44,12 @@ public class SendFactory extends AbstractMediatorFactory {
         populateAttributes(send, element);
         List<DOMNode> children = element.getChildren();
         List<NamedEndpoint> endpoints = new ArrayList<>();
-        if (children != null && !children.isEmpty()) {
-            for (DOMNode child : children) {
-                if (child.getNodeName().equalsIgnoreCase(Constant.ENDPOINT)) {
-                    EndpointFactory endpointFactory = new EndpointFactory();
-                    NamedEndpoint endpoint = (NamedEndpoint) endpointFactory.create((DOMElement) child);
-                    endpoints.add(endpoint);
-                }
-            }
+        DOMNode endpointNode = Utils.getChildNodeByName(element, Constant.ENDPOINT);
+        if (endpointNode != null) {
+            EndpointFactory endpointFactory = new EndpointFactory();
+            NamedEndpoint endpoint = (NamedEndpoint) endpointFactory.create((DOMElement) endpointNode);
+            send.setEndpoint(endpoint);
         }
-        send.setEndpoint(endpoints.toArray(new NamedEndpoint[endpoints.size()]));
         return send;
     }
 
@@ -61,15 +58,15 @@ public class SendFactory extends AbstractMediatorFactory {
 
         Send send = (Send) node;
         String receive = element.getAttribute(Constant.RECEIVE);
-        if (receive != null && !receive.isEmpty()) {
+        if (receive != null) {
             send.setReceive(receive);
         }
         String buildmessage = element.getAttribute(Constant.BUILDMESSAGE);
-        if (buildmessage != null && !buildmessage.isEmpty()) {
+        if (buildmessage != null) {
             send.setBuildmessage(Boolean.parseBoolean(buildmessage));
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             send.setDescription(description);
         }
     }

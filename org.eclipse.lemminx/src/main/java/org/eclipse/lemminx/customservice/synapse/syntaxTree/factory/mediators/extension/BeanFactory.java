@@ -42,27 +42,27 @@ public class BeanFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String action = element.getAttribute(Constant.ACTION);
-        if (action != null && !action.isEmpty()) {
+        if (action != null) {
             ((Bean) node).setAction(action);
         }
         String var = element.getAttribute(Constant.VAR);
-        if (var != null && !var.isEmpty()) {
+        if (var != null) {
             ((Bean) node).setVar(var);
         }
         String clazz = element.getAttribute(Constant.CLASS);
-        if (clazz != null && !clazz.isEmpty()) {
+        if (clazz != null) {
             ((Bean) node).setClazz(clazz);
         }
         String property = element.getAttribute(Constant.PROPERTY);
-        if (property != null && !property.isEmpty()) {
+        if (property != null) {
             ((Bean) node).setProperty(property);
         }
         String value = element.getAttribute(Constant.VALUE);
-        if (value != null && !value.isEmpty()) {
+        if (value != null) {
             ((Bean) node).setValue(value);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((Bean) node).setDescription(description);
         }
     }

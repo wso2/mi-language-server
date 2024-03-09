@@ -43,15 +43,15 @@ public class StoreFactory extends AbstractMediatorFactory {
 
         Store store = (Store) node;
         String messageStore = element.getAttribute(Constant.MESSAGE_STORE);
-        if (messageStore != null && !messageStore.isEmpty()) {
+        if (messageStore != null) {
             store.setMessageStore(messageStore);
         }
         String sequence = element.getAttribute(Constant.SEQUENCE);
-        if (sequence != null && !sequence.isEmpty()) {
+        if (sequence != null) {
             store.setSequence(sequence);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             store.setDescription(description);
         }
     }

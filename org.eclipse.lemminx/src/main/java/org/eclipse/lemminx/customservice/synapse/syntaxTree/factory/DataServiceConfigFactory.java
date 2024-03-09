@@ -112,11 +112,11 @@ public class DataServiceConfigFactory extends AbstractFactory {
         Config config = new Config();
         config.elementNode((DOMElement) element);
         String id = element.getAttribute(Constant.ID);
-        if (id != null && !id.isEmpty()) {
+        if (id != null) {
             config.setId(id);
         }
         String enableOData = element.getAttribute(Constant.ENABLE_ODATA);
-        if (enableOData != null && !enableOData.isEmpty()) {
+        if (enableOData != null) {
             config.setEnableOData(Boolean.parseBoolean(enableOData));
         }
         List<DOMNode> children = element.getChildren();
@@ -139,27 +139,27 @@ public class DataServiceConfigFactory extends AbstractFactory {
         Query query = new Query();
         query.elementNode((DOMElement) element);
         String id = element.getAttribute(Constant.ID);
-        if (id != null && !id.isEmpty()) {
+        if (id != null) {
             query.setId(id);
         }
         String useConfig = element.getAttribute(Constant.USE_CONFIG);
-        if (useConfig != null && !useConfig.isEmpty()) {
+        if (useConfig != null) {
             query.setUseConfig(useConfig);
         }
         String returnGeneratedKeys = element.getAttribute(Constant.RETURN_GENERATED_KEYS);
-        if (returnGeneratedKeys != null && !returnGeneratedKeys.isEmpty()) {
+        if (returnGeneratedKeys != null) {
             query.setReturnGeneratedKeys(Boolean.parseBoolean(returnGeneratedKeys));
         }
         String inputEventTrigger = element.getAttribute(Constant.INPUT_EVENT_TRIGGER);
-        if (inputEventTrigger != null && !inputEventTrigger.isEmpty()) {
+        if (inputEventTrigger != null) {
             query.setInputEventTrigger(inputEventTrigger);
         }
         String keyColumns = element.getAttribute(Constant.KEY_COLUMNS);
-        if (keyColumns != null && !keyColumns.isEmpty()) {
+        if (keyColumns != null) {
             query.setKeyColumns(keyColumns);
         }
         String returnUpdatedRowCount = element.getAttribute(Constant.RETURN_UPDATED_ROW_COUNT);
-        if (returnUpdatedRowCount != null && !returnUpdatedRowCount.isEmpty()) {
+        if (returnUpdatedRowCount != null) {
             query.setReturnUpdatedRowCount(returnUpdatedRowCount);
         }
 
@@ -201,7 +201,7 @@ public class DataServiceConfigFactory extends AbstractFactory {
         Sql sql = new Sql();
         sql.elementNode((DOMElement) element);
         String dialect = element.getAttribute(Constant.DIALECT);
-        if (dialect != null && !dialect.isEmpty()) {
+        if (dialect != null) {
             sql.setDialect(dialect);
         }
         DOMNode child = element.getFirstChild();
@@ -217,7 +217,7 @@ public class DataServiceConfigFactory extends AbstractFactory {
         Expression expression = new Expression();
         expression.elementNode((DOMElement) element);
         String dialect = element.getAttribute(Constant.DIALECT);
-        if (dialect != null && !dialect.isEmpty()) {
+        if (dialect != null) {
             expression.setDialect(dialect);
         }
         DOMNode child = element.getFirstChild();
@@ -265,7 +265,7 @@ public class DataServiceConfigFactory extends AbstractFactory {
         Property property = new Property();
         property.elementNode((DOMElement) element);
         String name = element.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             property.setName(name);
         }
         List<DOMNode> children = element.getChildren();
@@ -313,7 +313,7 @@ public class DataServiceConfigFactory extends AbstractFactory {
         PropertyConfigurationEntry entry = new PropertyConfigurationEntry();
         entry.elementNode((DOMElement) element);
         String request = element.getAttribute(Constant.REQUEST);
-        if (request != null && !request.isEmpty()) {
+        if (request != null) {
             entry.setRequest(request);
         }
         List<DOMNode> children = element.getChildren();
@@ -339,12 +339,12 @@ public class DataServiceConfigFactory extends AbstractFactory {
         PropertyProperty propertyProperty = new PropertyProperty();
         propertyProperty.elementNode((DOMElement) element);
         String name = element.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             propertyProperty.setName(name);
         }
         DOMNode child = element.getFirstChild();
         String value = Utils.getInlineString(child);
-        if (value != null && !value.isEmpty()) {
+        if (value != null) {
             propertyProperty.setValue(value);
         }
         return propertyProperty;
@@ -355,27 +355,27 @@ public class DataServiceConfigFactory extends AbstractFactory {
         Param param = new Param();
         param.elementNode((DOMElement) element);
         String name = element.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             param.setName(name);
         }
         String sqlType = element.getAttribute(Constant.SQL_TYPE);
-        if (sqlType != null && !sqlType.isEmpty()) {
+        if (sqlType != null) {
             param.setSqlType(sqlType);
         }
         String paramType = element.getAttribute(Constant.PARAM_TYPE);
-        if (paramType != null && !paramType.isEmpty()) {
+        if (paramType != null) {
             param.setParamType(paramType);
         }
         String type = element.getAttribute(Constant.TYPE);
-        if (type != null && !type.isEmpty()) {
+        if (type != null) {
             param.setType(type);
         }
         String ordinal = element.getAttribute(Constant.ORDINAL);
-        if (ordinal != null && !ordinal.isEmpty()) {
+        if (ordinal != null) {
             param.setOrdinal(Utils.parseInt(ordinal));
         }
         String defaultValue = element.getAttribute(Constant.DEFAULT_VALUE);
-        if (defaultValue != null && !defaultValue.isEmpty()) {
+        if (defaultValue != null) {
             param.setDefaultValue(defaultValue);
         }
         List<DOMNode> children = element.getChildren();
@@ -411,7 +411,7 @@ public class DataServiceConfigFactory extends AbstractFactory {
         ParamValidateCustom validateCustom = new ParamValidateCustom();
         validateCustom.elementNode((DOMElement) element);
         String className = element.getAttribute(Constant.CLASS);
-        if (className != null && !className.isEmpty()) {
+        if (className != null) {
             validateCustom.setClazz(className);
         }
         return validateCustom;
@@ -422,11 +422,11 @@ public class DataServiceConfigFactory extends AbstractFactory {
         ParamValidateLength validateLength = new ParamValidateLength();
         validateLength.elementNode((DOMElement) element);
         String minimum = element.getAttribute(Constant.MINIMUM);
-        if (minimum != null && !minimum.isEmpty()) {
+        if (minimum != null) {
             validateLength.setMinimum(Utils.parseInt(minimum));
         }
         String maximum = element.getAttribute(Constant.MAXIMUM);
-        if (maximum != null && !maximum.isEmpty()) {
+        if (maximum != null) {
             validateLength.setMaximum(Utils.parseInt(maximum));
         }
         return validateLength;
@@ -437,7 +437,7 @@ public class DataServiceConfigFactory extends AbstractFactory {
         ParamValidatePattern validatePattern = new ParamValidatePattern();
         validatePattern.elementNode((DOMElement) element);
         String pattern = element.getAttribute(Constant.PATTERN);
-        if (pattern != null && !pattern.isEmpty()) {
+        if (pattern != null) {
             validatePattern.setPattern(pattern);
         }
         return validatePattern;
@@ -448,11 +448,11 @@ public class DataServiceConfigFactory extends AbstractFactory {
         ParamValidateLongRange validateLongRange = new ParamValidateLongRange();
         validateLongRange.elementNode((DOMElement) element);
         String minimum = element.getAttribute(Constant.MINIMUM);
-        if (minimum != null && !minimum.isEmpty()) {
+        if (minimum != null) {
             validateLongRange.setMinimum(Utils.parseInt(minimum));
         }
         String maximum = element.getAttribute(Constant.MAXIMUM);
-        if (maximum != null && !maximum.isEmpty()) {
+        if (maximum != null) {
             validateLongRange.setMaximum(Utils.parseInt(maximum));
         }
         return validateLongRange;
@@ -463,11 +463,11 @@ public class DataServiceConfigFactory extends AbstractFactory {
         ParamValidateDoubleRange validateDoubleRange = new ParamValidateDoubleRange();
         validateDoubleRange.elementNode((DOMElement) element);
         String minimum = element.getAttribute(Constant.MINIMUM);
-        if (minimum != null && !minimum.isEmpty()) {
+        if (minimum != null) {
             validateDoubleRange.setMinimum(Utils.parseInt(minimum));
         }
         String maximum = element.getAttribute(Constant.MAXIMUM);
-        if (maximum != null && !maximum.isEmpty()) {
+        if (maximum != null) {
             validateDoubleRange.setMaximum(Utils.parseInt(maximum));
         }
         return validateDoubleRange;
@@ -478,15 +478,15 @@ public class DataServiceConfigFactory extends AbstractFactory {
         Operation operation = new Operation();
         operation.elementNode((DOMElement) element);
         String name = element.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             operation.setName(name);
         }
         String disableStreaming = element.getAttribute(Constant.DISABLE_STREAMING);
-        if (disableStreaming != null && !disableStreaming.isEmpty()) {
+        if (disableStreaming != null) {
             operation.setDisableStreaming(Boolean.parseBoolean(disableStreaming));
         }
         String returnRequestStatus = element.getAttribute(Constant.RETURN_REQUEST_STATUS);
-        if (returnRequestStatus != null && !returnRequestStatus.isEmpty()) {
+        if (returnRequestStatus != null) {
             operation.setReturnRequestStatus(Boolean.parseBoolean(returnRequestStatus));
         }
         List<DOMNode> children = element.getChildren();
@@ -515,19 +515,19 @@ public class DataServiceConfigFactory extends AbstractFactory {
         Resource resource = new Resource();
         resource.elementNode((DOMElement) element);
         String path = element.getAttribute(Constant.PATH);
-        if (path != null && !path.isEmpty()) {
+        if (path != null) {
             resource.setPath(path);
         }
         String method = element.getAttribute(Constant.METHOD);
-        if (method != null && !method.isEmpty()) {
+        if (method != null) {
             resource.setMethod(method);
         }
         String disableStreaming = element.getAttribute(Constant.DISABLE_STREAMING);
-        if (disableStreaming != null && !disableStreaming.isEmpty()) {
+        if (disableStreaming != null) {
             resource.setDisableStreaming(Boolean.parseBoolean(disableStreaming));
         }
         String returnRequestStatus = element.getAttribute(Constant.RETURN_REQUEST_STATUS);
-        if (returnRequestStatus != null && !returnRequestStatus.isEmpty()) {
+        if (returnRequestStatus != null) {
             resource.setReturnRequestStatus(Boolean.parseBoolean(returnRequestStatus));
         }
         List<DOMNode> children = element.getChildren();
@@ -552,11 +552,11 @@ public class DataServiceConfigFactory extends AbstractFactory {
         CallQuery callQuery = new CallQuery();
         callQuery.elementNode((DOMElement) element);
         String href = element.getAttribute(Constant.HREF);
-        if (href != null && !href.isEmpty()) {
+        if (href != null) {
             callQuery.setHref(href);
         }
         String requiredRoles = element.getAttribute(Constant.REQUIRED_ROLES);
-        if (requiredRoles != null && !requiredRoles.isEmpty()) {
+        if (requiredRoles != null) {
             callQuery.setRequiredRoles(requiredRoles);
         }
         List<DOMNode> children = element.getChildren();
@@ -579,19 +579,19 @@ public class DataServiceConfigFactory extends AbstractFactory {
         CallQueryWithParam withParam = new CallQueryWithParam();
         withParam.elementNode((DOMElement) element);
         String name = element.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             withParam.setName(name);
         }
         String query_param = element.getAttribute(Constant.QUERY_PARAM);
-        if (query_param != null && !query_param.isEmpty()) {
+        if (query_param != null) {
             withParam.setQueryParam(query_param);
         }
         String column = element.getAttribute(Constant.COLUMN);
-        if (column != null && !column.isEmpty()) {
+        if (column != null) {
             withParam.setColumn(column);
         }
         String param = element.getAttribute(Constant.PARAM);
-        if (param != null && !param.isEmpty()) {
+        if (param != null) {
             withParam.setParam(param);
         }
         return withParam;
@@ -602,7 +602,7 @@ public class DataServiceConfigFactory extends AbstractFactory {
         DataPolicy policy = new DataPolicy();
         policy.elementNode((DOMElement) element);
         String key = element.getAttribute(Constant.KEY);
-        if (key != null && !key.isEmpty()) {
+        if (key != null) {
             policy.setKey(key);
         }
         return policy;
@@ -613,11 +613,11 @@ public class DataServiceConfigFactory extends AbstractFactory {
         EventTrigger eventTrigger = new EventTrigger();
         eventTrigger.elementNode((DOMElement) element);
         String id = element.getAttribute(Constant.ID);
-        if (id != null && !id.isEmpty()) {
+        if (id != null) {
             eventTrigger.setId(id);
         }
         String language = element.getAttribute(Constant.LANGUAGE);
-        if (language != null && !language.isEmpty()) {
+        if (language != null) {
             eventTrigger.setLanguage(language);
         }
         List<DOMNode> children = element.getChildren();
@@ -661,11 +661,11 @@ public class DataServiceConfigFactory extends AbstractFactory {
         AuthorizationProvider authorizationProvider = new AuthorizationProvider();
         authorizationProvider.elementNode((DOMElement) element);
         String clazz = element.getAttribute(Constant.CLASS);
-        if (clazz != null && !clazz.isEmpty()) {
+        if (clazz != null) {
             authorizationProvider.setClazz(clazz);
         }
         List<DOMNode> children = element.getChildren();
-        if (children != null && !children.isEmpty()) {
+        if (children != null) {
             List<STNode> properties = new ArrayList<>();
             for (DOMNode child : children) {
                 String childName = child.getNodeName();
@@ -684,12 +684,12 @@ public class DataServiceConfigFactory extends AbstractFactory {
         AuthorizationProviderProperty property = new AuthorizationProviderProperty();
         property.elementNode((DOMElement) element);
         String name = element.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             property.setName(name);
         }
         DOMNode child = element.getFirstChild();
         String value = Utils.getInlineString(child);
-        if (value != null && !value.isEmpty()) {
+        if (value != null) {
             property.setValue(value);
         }
         return property;
@@ -699,51 +699,51 @@ public class DataServiceConfigFactory extends AbstractFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String baseURI = element.getAttribute(Constant.BASE_URI);
-        if (baseURI != null && !baseURI.isEmpty()) {
+        if (baseURI != null) {
             ((Data) node).setBaseURI(baseURI);
         }
         String name = element.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             ((Data) node).setName(name);
         }
         String enableBatchRequests = element.getAttribute(Constant.ENABLE_BATCH_REQUESTS);
-        if (enableBatchRequests != null && !enableBatchRequests.isEmpty()) {
+        if (enableBatchRequests != null) {
             ((Data) node).setEnableBatchRequests(Boolean.parseBoolean(enableBatchRequests));
         }
         String enableBoxcarring = element.getAttribute(Constant.ENABLE_BOXCARRING);
-        if (enableBoxcarring != null && !enableBoxcarring.isEmpty()) {
+        if (enableBoxcarring != null) {
             ((Data) node).setEnableBoxcarring(Boolean.parseBoolean(enableBoxcarring));
         }
         String disableLegacyBoxcarringMode = element.getAttribute(Constant.DISABLE_LEGACY_BOXCARRING_MODE);
-        if (disableLegacyBoxcarringMode != null && !disableLegacyBoxcarringMode.isEmpty()) {
+        if (disableLegacyBoxcarringMode != null) {
             ((Data) node).setDisableLegacyBoxcarringMode(Boolean.parseBoolean(disableLegacyBoxcarringMode));
         }
         String disableStreaming = element.getAttribute(Constant.DISABLE_STREAMING);
-        if (disableStreaming != null && !disableStreaming.isEmpty()) {
+        if (disableStreaming != null) {
             ((Data) node).setDisableStreaming(Boolean.parseBoolean(disableStreaming));
         }
         String txManagerJNDIName = element.getAttribute(Constant.TX_MANAGER_JNDI_NAME);
-        if (txManagerJNDIName != null && !txManagerJNDIName.isEmpty()) {
+        if (txManagerJNDIName != null) {
             ((Data) node).setTxManagerJNDIName(txManagerJNDIName);
         }
         String serviceNamespace = element.getAttribute(Constant.SERVICE_NAMESPACE);
-        if (serviceNamespace != null && !serviceNamespace.isEmpty()) {
+        if (serviceNamespace != null) {
             ((Data) node).setServiceNamespace(serviceNamespace);
         }
         String serviceGroup = element.getAttribute(Constant.SERVICE_GROUP);
-        if (serviceGroup != null && !serviceGroup.isEmpty()) {
+        if (serviceGroup != null) {
             ((Data) node).setServiceGroup(serviceGroup);
         }
         String publishSwagger = element.getAttribute(Constant.PUBLISH_SWAGGER);
-        if (publishSwagger != null && !publishSwagger.isEmpty()) {
+        if (publishSwagger != null) {
             ((Data) node).setPublishSwagger(publishSwagger);
         }
         String transports = element.getAttribute(Constant.TRANSPORTS);
-        if (transports != null && !transports.isEmpty()) {
+        if (transports != null) {
             ((Data) node).setTransports(transports);
         }
         String serviceStatus = element.getAttribute(Constant.SERVICE_STATUS);
-        if (serviceStatus != null && !serviceStatus.isEmpty()) {
+        if (serviceStatus != null) {
             ((Data) node).setServiceStatus(serviceStatus);
         }
     }

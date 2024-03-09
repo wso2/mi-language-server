@@ -64,19 +64,19 @@ public class ScriptFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String language = element.getAttribute(Constant.LANGUAGE);
-        if (language != null && !language.isEmpty()) {
+        if (language != null) {
             ((Script) node).setLanguage(language);
         }
         String key = element.getAttribute(Constant.KEY);
-        if (key != null && !key.isEmpty()) {
+        if (key != null) {
             ((Script) node).setKey(key);
         }
         String function = element.getAttribute(Constant.FUNCTION);
-        if (function != null && !function.isEmpty()) {
+        if (function != null) {
             ((Script) node).setFunction(function);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((Script) node).setDescription(description);
         }
     }

@@ -59,7 +59,7 @@ public class JsonTransformFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String schema = element.getAttribute(Constant.SCHEMA);
-        if (schema != null && !schema.isEmpty()) {
+        if (schema != null) {
             ((Jsontransform) node).setSchema(schema);
         }
     }

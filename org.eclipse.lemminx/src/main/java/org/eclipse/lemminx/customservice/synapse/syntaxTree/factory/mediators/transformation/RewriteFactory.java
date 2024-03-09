@@ -31,7 +31,6 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.evaluators
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.evaluators.Or;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.utils.SyntaxTreeUtils;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
-import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 
@@ -66,15 +65,15 @@ public class RewriteFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String inProperty = element.getAttribute(Constant.IN_PROPERTY);
-        if (inProperty != null && !inProperty.isEmpty()) {
+        if (inProperty != null) {
             ((Rewrite) node).setInProperty(inProperty);
         }
         String outProperty = element.getAttribute(Constant.OUT_PROPERTY);
-        if (outProperty != null && !outProperty.isEmpty()) {
+        if (outProperty != null) {
             ((Rewrite) node).setOutProperty(outProperty);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((Rewrite) node).setDescription(description);
         }
     }
@@ -88,7 +87,8 @@ public class RewriteFactory extends AbstractMediatorFactory {
         if (rewriteruleChildren != null && !rewriteruleChildren.isEmpty()) {
             for (DOMNode rewriteruleChild : rewriteruleChildren) {
                 if (rewriteruleChild.getNodeName().equalsIgnoreCase(Constant.CONDITION)) {
-                    RewriteRewriteruleCondition rewritecondition = createRewriteRewriteruleRewritecondition(rewriteruleChild);
+                    RewriteRewriteruleCondition rewritecondition =
+                            createRewriteRewriteruleRewritecondition(rewriteruleChild);
                     rewriterule.setCondition(rewritecondition);
                 } else if (rewriteruleChild.getNodeName().equalsIgnoreCase(Constant.ACTION)) {
                     RewriteRewriteruleAction rewriteaction = createRewriteRewriteruleRewriteaction(rewriteruleChild);
@@ -130,23 +130,23 @@ public class RewriteFactory extends AbstractMediatorFactory {
         RewriteRewriteruleAction rewriteaction = new RewriteRewriteruleAction();
         rewriteaction.elementNode((DOMElement) element);
         String xpath = element.getAttribute(Constant.XPATH);
-        if (xpath != null && !xpath.isEmpty()) {
+        if (xpath != null) {
             rewriteaction.setXpath(xpath);
         }
         String regex = element.getAttribute(Constant.REGEX);
-        if (regex != null && !regex.isEmpty()) {
+        if (regex != null) {
             rewriteaction.setRegex(regex);
         }
         String value = element.getAttribute(Constant.VALUE);
-        if (value != null && !value.isEmpty()) {
+        if (value != null) {
             rewriteaction.setValue(value);
         }
         String type = element.getAttribute(Constant.TYPE);
-        if (type != null && !type.isEmpty()) {
+        if (type != null) {
             rewriteaction.setType(type);
         }
         String fragment = element.getAttribute(Constant.FRAGMENT);
-        if (fragment != null && !fragment.isEmpty()) {
+        if (fragment != null) {
             rewriteaction.setFragment(fragment);
         }
         return rewriteaction;

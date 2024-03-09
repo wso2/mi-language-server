@@ -69,15 +69,15 @@ public class CallFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String blocking = element.getAttribute(Constant.BLOCKING);
-        if (blocking != null && !blocking.isEmpty()) {
+        if (blocking != null) {
             ((Call) node).setBlocking(Boolean.parseBoolean(blocking));
         }
         String initAxis2ClientOptions = element.getAttribute(Constant.INIT_AXIS2_CLIENT_OPTIONS);
-        if (initAxis2ClientOptions != null && !initAxis2ClientOptions.isEmpty()) {
+        if (initAxis2ClientOptions != null) {
             ((Call) node).setInitAxis2ClientOptions(initAxis2ClientOptions);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((Call) node).setDescription(description);
         }
     }
@@ -85,11 +85,11 @@ public class CallFactory extends AbstractMediatorFactory {
     private void populateSourceAttributes(CallSource callSource, DOMElement element) {
 
         String contentType = element.getAttribute(Constant.CONTENT_TYPE);
-        if (contentType != null && !contentType.isEmpty()) {
+        if (contentType != null) {
             callSource.setContentType(contentType);
         }
         String type = element.getAttribute(Constant.TYPE);
-        if (type != null && !type.isEmpty()) {
+        if (type != null) {
             callSource.setType(type);
         }
     }
@@ -97,7 +97,7 @@ public class CallFactory extends AbstractMediatorFactory {
     private void populateTargetAttributes(CallTarget callTarget, DOMElement element) {
 
         String type = element.getAttribute(Constant.TYPE);
-        if (type != null && !type.isEmpty()) {
+        if (type != null) {
             callTarget.setType(type);
         }
     }
