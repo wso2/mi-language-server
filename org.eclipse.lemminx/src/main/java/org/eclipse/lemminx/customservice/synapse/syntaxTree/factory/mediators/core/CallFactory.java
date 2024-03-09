@@ -74,7 +74,7 @@ public class CallFactory extends AbstractMediatorFactory {
         }
         String initAxis2ClientOptions = element.getAttribute(Constant.INIT_AXIS2_CLIENT_OPTIONS);
         if (initAxis2ClientOptions != null) {
-            ((Call) node).setInitAxis2ClientOptions(initAxis2ClientOptions);
+            ((Call) node).setInitAxis2ClientOptions(Boolean.parseBoolean(initAxis2ClientOptions));
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
         if (description != null) {
