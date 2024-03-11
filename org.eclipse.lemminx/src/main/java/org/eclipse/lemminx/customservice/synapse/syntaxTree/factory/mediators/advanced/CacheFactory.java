@@ -76,11 +76,11 @@ public class CacheFactory extends AbstractMediatorFactory {
             cacheMediator.setMaxMessageSize(Utils.parseInt(maxMessageSize));
         }
         String scope = element.getAttribute(Constant.SCOPE);
-        if (scope != null && !scope.isEmpty()) {
+        if (scope != null) {
             cacheMediator.setScope(scope);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             cacheMediator.setDescription(description);
         }
     }
@@ -90,7 +90,7 @@ public class CacheFactory extends AbstractMediatorFactory {
         CacheOnCacheHit cacheOnCacheHit = new CacheOnCacheHit();
         cacheOnCacheHit.elementNode((DOMElement) element);
         String sequence = element.getAttribute(Constant.SEQUENCE);
-        if (sequence != null && !sequence.isEmpty()) {
+        if (sequence != null) {
             cacheOnCacheHit.setSequence(sequence);
         }
         List<DOMNode> children = element.getChildren();
@@ -134,7 +134,7 @@ public class CacheFactory extends AbstractMediatorFactory {
     public void populateCacheProtocolAttributes(CacheProtocol cacheProtocol, DOMNode element) {
 
         String type = element.getAttribute(Constant.TYPE);
-        if (type != null && !type.isEmpty()) {
+        if (type != null) {
             cacheProtocol.setType(type);
         }
     }
@@ -144,7 +144,7 @@ public class CacheFactory extends AbstractMediatorFactory {
         CacheImplementation cacheImplementation = new CacheImplementation();
         cacheImplementation.elementNode((DOMElement) element);
         String maxSize = element.getAttribute(Constant.MAX_SIZE);
-        if (maxSize != null && !maxSize.isEmpty()) {
+        if (maxSize != null) {
             cacheImplementation.setMaxSize(Utils.parseInt(maxSize));
         }
         return cacheImplementation;

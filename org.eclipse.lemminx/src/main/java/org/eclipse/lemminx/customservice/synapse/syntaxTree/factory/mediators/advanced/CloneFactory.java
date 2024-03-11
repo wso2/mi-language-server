@@ -76,11 +76,11 @@ public class CloneFactory extends AbstractMediatorFactory {
             clone.setContinueParent(Boolean.valueOf(continueParent));
         }
         String id = element.getAttribute(Constant.ID);
-        if (id != null && !id.isEmpty()) {
+        if (id != null) {
             clone.setId(id);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             clone.setDescription(description);
         }
     }
@@ -108,19 +108,19 @@ public class CloneFactory extends AbstractMediatorFactory {
     public void populateCloneTargetAttributes(CloneTarget cloneTarget, DOMElement element) {
 
         String to = element.getAttribute(Constant.TO);
-        if (to != null && !to.isEmpty()) {
+        if (to != null) {
             cloneTarget.setTo(to);
         }
         String soapAction = element.getAttribute(Constant.SOAP_ACTION);
-        if (soapAction != null && !soapAction.isEmpty()) {
+        if (soapAction != null) {
             cloneTarget.setSoapAction(soapAction);
         }
         String sequenceAttribute = element.getAttribute(Constant.SEQUENCE);
-        if (sequenceAttribute != null && !sequenceAttribute.isEmpty()) {
+        if (sequenceAttribute != null) {
             cloneTarget.setSequenceAttribute(sequenceAttribute);
         }
         String endpointAttribute = element.getAttribute(Constant.ENDPOINT);
-        if (endpointAttribute != null && !endpointAttribute.isEmpty()) {
+        if (endpointAttribute != null) {
             cloneTarget.setEndpointAttribute(endpointAttribute);
         }
     }

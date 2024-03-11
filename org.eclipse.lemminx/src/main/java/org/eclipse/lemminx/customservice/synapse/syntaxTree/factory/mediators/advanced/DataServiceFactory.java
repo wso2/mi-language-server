@@ -102,7 +102,7 @@ public class DataServiceFactory extends AbstractMediatorFactory {
         for (DOMNode node : children) {
             if (node.getNodeName().equalsIgnoreCase(Constant.OPERATION)) {
                 DataServiceCallOperationsOperation dataServiceCallOperationsOperation =
-                        createDataServiceCallOperationsOperation(element);
+                        createDataServiceCallOperationsOperation((DOMElement) node);
                 operationsOperationList.add(dataServiceCallOperationsOperation);
             } else {
                 //invalid configuration
@@ -126,7 +126,7 @@ public class DataServiceFactory extends AbstractMediatorFactory {
         for (DOMNode node : children) {
             if (node.getNodeName().equalsIgnoreCase(Constant.PARAM)) {
                 DataServiceCallOperationsOperationParam dataServiceCallOperationsOperationParam =
-                        createDataServiceCallOperationsOperationParam(element);
+                        createDataServiceCallOperationsOperationParam((DOMElement) node);
                 dataServiceCallOperationsOperationParamList.add(dataServiceCallOperationsOperationParam);
             } else {
                 //invalid configuration
