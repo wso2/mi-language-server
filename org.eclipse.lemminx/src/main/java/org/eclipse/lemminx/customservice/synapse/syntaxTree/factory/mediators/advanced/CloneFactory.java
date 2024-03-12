@@ -19,9 +19,12 @@
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.advanced;
 
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.AbstractFactory;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.endpoint.EndpointFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.AbstractMediatorFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.misc.SequenceFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.Endpoint;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.NamedEndpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.Clone.Clone;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.Clone.CloneTarget;
@@ -97,9 +100,9 @@ public class CloneFactory extends AbstractMediatorFactory {
                 Sequence sequence = (Sequence) sequenceFactory.create((DOMElement) node);
                 cloneTarget.setSequence(sequence);
             } else if (node.getNodeName().equalsIgnoreCase(Constant.ENDPOINT)) {
-//                AbstractFactory endpointFactory = new EndpointFactory();
-//                Endpoint endpoint = endpointFactory.create(element);
-//                cloneTarget.setEndpoint(endpoint);
+                AbstractFactory endpointFactory = new EndpointFactory();
+                Endpoint endpoint = (Endpoint) endpointFactory.create(element);
+                cloneTarget.setEndpoint((NamedEndpoint) endpoint);
             }
         }
         return cloneTarget;
