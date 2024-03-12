@@ -79,6 +79,10 @@ public class CacheFactory extends AbstractMediatorFactory {
         if (scope != null) {
             cacheMediator.setScope(scope);
         }
+        String hashGenerator = element.getAttribute(Constant.HASH_GENERATOR);
+        if (hashGenerator != null) {
+            cacheMediator.setHashGenerator(hashGenerator);
+        }
         String description = element.getAttribute(Constant.DESCRIPTION);
         if (description != null) {
             cacheMediator.setDescription(description);
