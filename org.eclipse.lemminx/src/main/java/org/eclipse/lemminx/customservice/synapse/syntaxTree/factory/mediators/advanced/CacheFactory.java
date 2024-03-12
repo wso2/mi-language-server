@@ -63,6 +63,10 @@ public class CacheFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         Cache cacheMediator = (Cache) node;
+        String id = element.getAttribute(Constant.ID);
+        if (id != null) {
+            cacheMediator.setId(id);
+        }
         String timeout = element.getAttribute(Constant.TIMEOUT);
         if (timeout != null) {
             cacheMediator.setTimeout(Utils.parseInt(timeout));
