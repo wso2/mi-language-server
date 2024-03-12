@@ -42,27 +42,27 @@ public class NtlmFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String domain = element.getAttribute(Constant.DOMAIN);
-        if (domain != null && !domain.isEmpty()) {
+        if (domain != null) {
             ((Ntlm) node).setDomain(domain);
         }
         String host = element.getAttribute(Constant.HOST);
-        if (host != null && !host.isEmpty()) {
+        if (host != null) {
             ((Ntlm) node).setHost(host);
         }
         String username = element.getAttribute(Constant.USERNAME);
-        if (username != null && !username.isEmpty()) {
+        if (username != null) {
             ((Ntlm) node).setUsername(username);
         }
         String password = element.getAttribute(Constant.PASSWORD);
-        if (password != null && !password.isEmpty()) {
+        if (password != null) {
             ((Ntlm) node).setPassword(password);
         }
         String ntlmVersion = element.getAttribute(Constant.NTLM_VERSION);
-        if (ntlmVersion != null && !ntlmVersion.isEmpty()) {
+        if (ntlmVersion != null) {
             ((Ntlm) node).setNtlmVersion(ntlmVersion);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((Ntlm) node).setDescription(description);
         }
     }

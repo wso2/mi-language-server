@@ -42,13 +42,20 @@ public class ScriptFactory extends AbstractMediatorFactory {
         populateAttributes(script, element);
         // TODO: check handling <xs:any> elements
         List<DOMNode> children = element.getChildren();
-        List<Object> elemets = new ArrayList<>();
+        List<Object> elements = new ArrayList<>();
+        List<String> scriptKeys = new ArrayList<>();
         if (children != null && !children.isEmpty()) {
             for (DOMNode node : children) {
-                String xml = Utils.getInlineString(node);
-                elemets.add(xml);
+                if (Constant.INCLUDE.equalsIgnoreCase(node.getNodeName())) {
+                    String keyValue = node.getAttribute("key");
+                    scriptKeys.add(keyValue);
+                } else {
+                    String xml = Utils.getInlineString(node);
+                    elements.add(xml);
+                }
             }
-            script.setContent(elemets.toArray());
+            script.setContent(elements.toArray());
+            script.setInclude(scriptKeys.toArray(new String[scriptKeys.size()]));
         }
         return script;
     }
@@ -57,19 +64,19 @@ public class ScriptFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String language = element.getAttribute(Constant.LANGUAGE);
-        if (language != null && !language.isEmpty()) {
+        if (language != null) {
             ((Script) node).setLanguage(language);
         }
         String key = element.getAttribute(Constant.KEY);
-        if (key != null && !key.isEmpty()) {
+        if (key != null) {
             ((Script) node).setKey(key);
         }
         String function = element.getAttribute(Constant.FUNCTION);
-        if (function != null && !function.isEmpty()) {
+        if (function != null) {
             ((Script) node).setFunction(function);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((Script) node).setDescription(description);
         }
     }

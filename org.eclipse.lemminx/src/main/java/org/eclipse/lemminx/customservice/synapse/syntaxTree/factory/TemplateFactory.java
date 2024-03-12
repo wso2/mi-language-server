@@ -65,7 +65,7 @@ public class TemplateFactory extends AbstractFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String name = element.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             ((Template) node).setName(name);
         }
     }
@@ -75,15 +75,15 @@ public class TemplateFactory extends AbstractFactory {
         TemplateParameter parameter = new TemplateParameter();
         parameter.elementNode((DOMElement) element);
         String name = element.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             parameter.setName(name);
         }
         String isMandatory = element.getAttribute(Constant.IS_MANDATORY);
-        if (isMandatory != null && !isMandatory.isEmpty()) {
+        if (isMandatory != null) {
             parameter.setMandatory(Boolean.parseBoolean(isMandatory));
         }
         String defaultValue = element.getAttribute(Constant.DEFAULT_VALUE);
-        if (defaultValue != null && !defaultValue.isEmpty()) {
+        if (defaultValue != null) {
             parameter.setDefaultValue(defaultValue);
         }
         //TODO: handle xs:anytype (skipped as not used in Integration Studio)

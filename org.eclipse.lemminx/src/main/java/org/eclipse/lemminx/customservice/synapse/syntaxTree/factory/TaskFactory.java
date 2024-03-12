@@ -60,19 +60,19 @@ public class TaskFactory extends AbstractFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String name = element.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             ((Task) node).setName(name);
         }
         String clazz = element.getAttribute(Constant.CLASS);
-        if (clazz != null && !clazz.isEmpty()) {
+        if (clazz != null) {
             ((Task) node).setClazz(clazz);
         }
         String group = element.getAttribute(Constant.GROUP);
-        if (group != null && !group.isEmpty()) {
+        if (group != null) {
             ((Task) node).setGroup(group);
         }
         String pinnedServers = element.getAttribute(Constant.PINNED_SERVERS);
-        if (pinnedServers != null && !pinnedServers.isEmpty()) {
+        if (pinnedServers != null) {
             ((Task) node).setPinnedServers(pinnedServers);
         }
     }
@@ -81,20 +81,20 @@ public class TaskFactory extends AbstractFactory {
 
         TaskTrigger taskTrigger = new TaskTrigger();
         taskTrigger.elementNode((DOMElement) node);
-        String cron = ((DOMElement) node).getAttribute(Constant.CRON);
-        if (cron != null && !cron.isEmpty()) {
+        String cron = node.getAttribute(Constant.CRON);
+        if (cron != null) {
             taskTrigger.setCron(cron);
         }
-        String interval = ((DOMElement) node).getAttribute(Constant.INTERVAL);
-        if (interval != null && !interval.isEmpty()) {
+        String interval = node.getAttribute(Constant.INTERVAL);
+        if (interval != null) {
             taskTrigger.setInterval(interval);
         }
-        String count = ((DOMElement) node).getAttribute(Constant.COUNT);
-        if (count != null && !count.isEmpty()) {
+        String count = node.getAttribute(Constant.COUNT);
+        if (count != null) {
             taskTrigger.setCount(count);
         }
-        String once = ((DOMElement) node).getAttribute(Constant.ONCE);
-        if (once != null && !once.isEmpty()) {
+        String once = node.getAttribute(Constant.ONCE);
+        if (once != null) {
             taskTrigger.setOnce(once);
         }
         return taskTrigger;

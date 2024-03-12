@@ -54,19 +54,19 @@ public class ForeachFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String expression = element.getAttribute(Constant.EXPRESSION);
-        if (expression != null && !expression.isEmpty()) {
+        if (expression != null) {
             ((Foreach) node).setExpression(expression);
         }
         String sequenceAttribute = element.getAttribute(Constant.SEQUENCE);
-        if (sequenceAttribute != null && !sequenceAttribute.isEmpty()) {
+        if (sequenceAttribute != null) {
             ((Foreach) node).setSequenceAttribute(sequenceAttribute);
         }
         String id = element.getAttribute(Constant.ID);
-        if (id != null && !id.isEmpty()) {
+        if (id != null) {
             ((Foreach) node).setId(id);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((Foreach) node).setDescription(description);
         }
     }

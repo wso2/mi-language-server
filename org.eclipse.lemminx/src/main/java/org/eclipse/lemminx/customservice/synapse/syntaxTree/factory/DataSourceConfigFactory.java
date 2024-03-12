@@ -69,7 +69,7 @@ public class DataSourceConfigFactory extends AbstractFactory {
         JndiConfigType jndiConfig = new JndiConfigType();
         jndiConfig.elementNode((DOMElement) element);
         String useDataSourceFactory = element.getAttribute(Constant.USE_DATA_SOURCE_FACTORY);
-        if (useDataSourceFactory != null && !useDataSourceFactory.isEmpty()) {
+        if (useDataSourceFactory != null) {
             jndiConfig.setUseDataSourceFactory(Boolean.parseBoolean(useDataSourceFactory));
         }
         List<DOMNode> childNodes = element.getChildren();
@@ -110,13 +110,13 @@ public class DataSourceConfigFactory extends AbstractFactory {
         PropertyType property = new PropertyType();
         property.elementNode((DOMElement) element);
         String name = element.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             property.setName(name);
         }
 
         DOMNode firstChild = element.getFirstChild();
         String value = Utils.getInlineString(firstChild);
-        if (value != null && !value.isEmpty()) {
+        if (value != null) {
             property.setValue(value);
         }
 
@@ -129,7 +129,7 @@ public class DataSourceConfigFactory extends AbstractFactory {
         DefinitionType definition = new DefinitionType();
         definition.elementNode((DOMElement) element);
         String type = element.getAttribute(Constant.TYPE);
-        if (type != null && !type.isEmpty()) {
+        if (type != null) {
             definition.setType(type);
         }
         List<DOMNode> childNodes = element.getChildren();

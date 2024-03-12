@@ -43,7 +43,7 @@ public class RespondFactory extends AbstractMediatorFactory {
 
         Respond respond = (Respond) node;
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             respond.setDescription(description);
         }
     }

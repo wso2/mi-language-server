@@ -63,11 +63,11 @@ public class SwitchFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String source = element.getAttribute(Constant.SOURCE);
-        if (source != null && !source.isEmpty()) {
+        if (source != null) {
             ((Switch) node).setSource(source);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((Switch) node).setDescription(description);
         }
     }
@@ -77,7 +77,7 @@ public class SwitchFactory extends AbstractMediatorFactory {
         SwitchCase switchCase = new SwitchCase();
         switchCase.elementNode((DOMElement) child);
         String regex = child.getAttribute(Constant.REGEX);
-        if (regex != null && !regex.isEmpty()) {
+        if (regex != null) {
             switchCase.setRegex(regex);
         }
         List<DOMNode> children = child.getChildren();

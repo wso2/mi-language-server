@@ -19,9 +19,12 @@
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.advanced;
 
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.AbstractFactory;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.endpoint.EndpointFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.AbstractMediatorFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.misc.SequenceFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.Endpoint;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.NamedEndpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.Clone.Clone;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.Clone.CloneTarget;
@@ -76,11 +79,11 @@ public class CloneFactory extends AbstractMediatorFactory {
             clone.setContinueParent(Boolean.valueOf(continueParent));
         }
         String id = element.getAttribute(Constant.ID);
-        if (id != null && !id.isEmpty()) {
+        if (id != null) {
             clone.setId(id);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             clone.setDescription(description);
         }
     }
@@ -97,9 +100,9 @@ public class CloneFactory extends AbstractMediatorFactory {
                 Sequence sequence = (Sequence) sequenceFactory.create((DOMElement) node);
                 cloneTarget.setSequence(sequence);
             } else if (node.getNodeName().equalsIgnoreCase(Constant.ENDPOINT)) {
-//                AbstractFactory endpointFactory = new EndpointFactory();
-//                Endpoint endpoint = endpointFactory.create(element);
-//                cloneTarget.setEndpoint(endpoint);
+                AbstractFactory endpointFactory = new EndpointFactory();
+                Endpoint endpoint = (Endpoint) endpointFactory.create(element);
+                cloneTarget.setEndpoint((NamedEndpoint) endpoint);
             }
         }
         return cloneTarget;
@@ -108,19 +111,19 @@ public class CloneFactory extends AbstractMediatorFactory {
     public void populateCloneTargetAttributes(CloneTarget cloneTarget, DOMElement element) {
 
         String to = element.getAttribute(Constant.TO);
-        if (to != null && !to.isEmpty()) {
+        if (to != null) {
             cloneTarget.setTo(to);
         }
         String soapAction = element.getAttribute(Constant.SOAP_ACTION);
-        if (soapAction != null && !soapAction.isEmpty()) {
+        if (soapAction != null) {
             cloneTarget.setSoapAction(soapAction);
         }
         String sequenceAttribute = element.getAttribute(Constant.SEQUENCE);
-        if (sequenceAttribute != null && !sequenceAttribute.isEmpty()) {
+        if (sequenceAttribute != null) {
             cloneTarget.setSequenceAttribute(sequenceAttribute);
         }
         String endpointAttribute = element.getAttribute(Constant.ENDPOINT);
-        if (endpointAttribute != null && !endpointAttribute.isEmpty()) {
+        if (endpointAttribute != null) {
             cloneTarget.setEndpointAttribute(endpointAttribute);
         }
     }

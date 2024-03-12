@@ -78,15 +78,15 @@ public class FaultFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((Makefault) node).setDescription(description);
         }
         String version = element.getAttribute(Constant.VERSION);
-        if (version != null && !version.isEmpty()) {
+        if (version != null) {
             ((Makefault) node).setVersion(version);
         }
         String response = element.getAttribute(Constant.RESPONSE);
-        if (response != null && !response.isEmpty()) {
+        if (response != null) {
             ((Makefault) node).setResponse(Boolean.parseBoolean(response));
         }
     }
@@ -96,11 +96,11 @@ public class FaultFactory extends AbstractMediatorFactory {
         MakefaultCode code = new MakefaultCode();
         code.elementNode((DOMElement) element);
         String value = element.getAttribute(Constant.VALUE);
-        if (value != null && !value.isEmpty()) {
+        if (value != null) {
             code.setValue(value);
         }
         String expression = element.getAttribute(Constant.EXPRESSION);
-        if (expression != null && !expression.isEmpty()) {
+        if (expression != null) {
             code.setExpression(expression);
         }
         return code;
@@ -111,11 +111,11 @@ public class FaultFactory extends AbstractMediatorFactory {
         MakefaultReason reason = new MakefaultReason();
         reason.elementNode((DOMElement) element);
         String value = element.getAttribute(Constant.VALUE);
-        if (value != null && !value.isEmpty()) {
+        if (value != null) {
             reason.setValue(value);
         }
         String expression = element.getAttribute(Constant.EXPRESSION);
-        if (expression != null && !expression.isEmpty()) {
+        if (expression != null) {
             reason.setExpression(expression);
         }
         return reason;

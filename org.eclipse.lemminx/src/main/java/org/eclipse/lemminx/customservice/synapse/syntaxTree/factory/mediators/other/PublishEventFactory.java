@@ -72,7 +72,7 @@ public class PublishEventFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((PublishEvent) node).setDescription(description);
         }
     }
@@ -88,13 +88,16 @@ public class PublishEventFactory extends AbstractMediatorFactory {
                     PublishEventAttributesMeta publishEventAttributesMeta = createPublishEventAttributesMeta(child);
                     publishEventAttributes.setMeta(publishEventAttributesMeta);
                 } else if (child.getNodeName().equalsIgnoreCase(Constant.CORRELATION)) {
-                    PublishEventAttributesCorrelation publishEventAttributesCorrelation = createPublishEventAttributesCorrelation(child);
+                    PublishEventAttributesCorrelation publishEventAttributesCorrelation =
+                            createPublishEventAttributesCorrelation(child);
                     publishEventAttributes.setCorrelation(publishEventAttributesCorrelation);
                 } else if (child.getNodeName().equalsIgnoreCase(Constant.PAYLOAD)) {
-                    PublishEventAttributesPayload publishEventAttributesPayload = createPublishEventAttributesPayload(child);
+                    PublishEventAttributesPayload publishEventAttributesPayload =
+                            createPublishEventAttributesPayload(child);
                     publishEventAttributes.setPayload(publishEventAttributesPayload);
                 } else if (child.getNodeName().equalsIgnoreCase(Constant.ARBITRARY)) {
-                    PublishEventAttributesArbitrary publishEventAttributesArbitrary = createPublishEventAttributesArbitrary(child);
+                    PublishEventAttributesArbitrary publishEventAttributesArbitrary =
+                            createPublishEventAttributesArbitrary(child);
                     publishEventAttributes.setArbitrary(publishEventAttributesArbitrary);
                 }
             }
@@ -107,23 +110,23 @@ public class PublishEventFactory extends AbstractMediatorFactory {
         Attribute attribute = new Attribute();
         attribute.elementNode((DOMElement) childNode);
         String name = childNode.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             attribute.setName(name);
         }
         String dataType = childNode.getAttribute(Constant.DATA_TYPE);
-        if (dataType != null && !dataType.isEmpty()) {
+        if (dataType != null) {
             attribute.setDataType(dataType);
         }
         String _default = childNode.getAttribute(Constant.DEFAULT);
-        if (_default != null && !_default.isEmpty()) {
+        if (_default != null) {
             attribute.set_default(_default);
         }
         String value = childNode.getAttribute(Constant.VALUE);
-        if (value != null && !value.isEmpty()) {
+        if (value != null) {
             attribute.setValue(value);
         }
         String expression = childNode.getAttribute(Constant.EXPRESSION);
-        if (expression != null && !expression.isEmpty()) {
+        if (expression != null) {
             attribute.setExpression(expression);
         }
         return attribute;
@@ -198,19 +201,19 @@ public class PublishEventFactory extends AbstractMediatorFactory {
         PublishEventAttributesArbitraryAttribute attribute = new PublishEventAttributesArbitraryAttribute();
         attribute.elementNode((DOMElement) childNode);
         String name = childNode.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             attribute.setName(name);
         }
         String dataType = childNode.getAttribute(Constant.DATA_TYPE);
-        if (dataType != null && !dataType.isEmpty()) {
+        if (dataType != null) {
             attribute.setDataType(dataType);
         }
         String _default = childNode.getAttribute(Constant.DEFAULT);
-        if (_default != null && !_default.isEmpty()) {
+        if (_default != null) {
             attribute.set_default(_default);
         }
         String value = childNode.getAttribute(Constant.VALUE);
-        if (value != null && !value.isEmpty()) {
+        if (value != null) {
             attribute.setValue(value);
         }
         return attribute;

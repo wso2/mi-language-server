@@ -42,19 +42,19 @@ public class OauthServiceFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String remoteServiceUrl = element.getAttribute(Constant.REMOTE_SERVICE_URL);
-        if (remoteServiceUrl != null && !remoteServiceUrl.isEmpty()) {
+        if (remoteServiceUrl != null) {
             ((OauthService) node).setRemoteServiceUrl(remoteServiceUrl);
         }
         String username = element.getAttribute(Constant.USERNAME);
-        if (username != null && !username.isEmpty()) {
+        if (username != null) {
             ((OauthService) node).setUsername(username);
         }
         String password = element.getAttribute(Constant.PASSWORD);
-        if (password != null && !password.isEmpty()) {
+        if (password != null) {
             ((OauthService) node).setPassword(password);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((OauthService) node).setDescription(description);
         }
     }

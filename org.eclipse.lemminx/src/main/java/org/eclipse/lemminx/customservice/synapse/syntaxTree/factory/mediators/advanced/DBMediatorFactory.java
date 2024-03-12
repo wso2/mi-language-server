@@ -171,10 +171,12 @@ public abstract class DBMediatorFactory extends AbstractMediatorFactory {
                 String sql = Utils.getInlineString(node.getFirstChild());
                 dbMediatorStatement.setSql(sql);
             } else if (node.getNodeName().equalsIgnoreCase(Constant.PARAMETER)) {
-                DbMediatorStatementParameter dbMediatorStatementParameter = createDbMediatorStatementParameter((DOMElement) node);
+                DbMediatorStatementParameter dbMediatorStatementParameter =
+                        createDbMediatorStatementParameter((DOMElement) node);
                 dbMediatorStatementParameterList.add(dbMediatorStatementParameter);
             } else if (node.getNodeName().equalsIgnoreCase(Constant.RESULT)) {
-                DbMediatorStatementResult dbMediatorStatementResult = createDbMediatorStatementResult((DOMElement) node);
+                DbMediatorStatementResult dbMediatorStatementResult =
+                        createDbMediatorStatementResult((DOMElement) node);
                 dbMediatorStatementResultList.add(dbMediatorStatementResult);
             } else {
                 //invalid configuration

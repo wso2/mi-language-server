@@ -56,7 +56,7 @@ public class BamFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((Bam) node).setDescription(description);
         }
     }
@@ -66,7 +66,7 @@ public class BamFactory extends AbstractMediatorFactory {
         BamServerProfile bamServerProfile = new BamServerProfile();
         bamServerProfile.elementNode((DOMElement) node);
         String name = node.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             bamServerProfile.setName(name);
         }
         List<DOMNode> children = node.getChildren();
@@ -86,11 +86,11 @@ public class BamFactory extends AbstractMediatorFactory {
         BamServerProfileStreamConfig bamServerProfileStreamConfig = new BamServerProfileStreamConfig();
         bamServerProfileStreamConfig.elementNode((DOMElement) node);
         String name = node.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             bamServerProfileStreamConfig.setName(name);
         }
         String version = node.getAttribute(Constant.VERSION);
-        if (version != null && !version.isEmpty()) {
+        if (version != null) {
             bamServerProfileStreamConfig.setVersion(version);
         }
         return bamServerProfileStreamConfig;

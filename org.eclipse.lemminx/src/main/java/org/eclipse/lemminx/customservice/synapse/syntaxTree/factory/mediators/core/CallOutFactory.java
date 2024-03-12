@@ -73,11 +73,11 @@ public class CallOutFactory extends AbstractMediatorFactory {
         CalloutSource source = new CalloutSource();
         source.elementNode((DOMElement) child);
         String xpath = child.getAttribute(Constant.XPATH);
-        if (xpath != null && !xpath.isEmpty()) {
+        if (xpath != null) {
             source.setXpath(xpath);
         }
         String key = child.getAttribute(Constant.KEY);
-        if (key != null && !key.isEmpty()) {
+        if (key != null) {
             source.setKey(key);
         }
         return source;
@@ -88,11 +88,11 @@ public class CallOutFactory extends AbstractMediatorFactory {
         CalloutTarget target = new CalloutTarget();
         target.elementNode((DOMElement) child);
         String xpath = child.getAttribute(Constant.XPATH);
-        if (xpath != null && !xpath.isEmpty()) {
+        if (xpath != null) {
             target.setXpath(xpath);
         }
         String key = child.getAttribute(Constant.KEY);
-        if (key != null && !key.isEmpty()) {
+        if (key != null) {
             target.setKey(key);
         }
         return target;
@@ -103,15 +103,15 @@ public class CallOutFactory extends AbstractMediatorFactory {
         CalloutEnableSec enableSec = new CalloutEnableSec();
         enableSec.elementNode((DOMElement) child);
         String policy = child.getAttribute(Constant.POLICY);
-        if (policy != null && !policy.isEmpty()) {
+        if (policy != null) {
             enableSec.setPolicy(policy);
         }
         String outboundPolicy = child.getAttribute(Constant.OUTBOUND_POLICY);
-        if (outboundPolicy != null && !outboundPolicy.isEmpty()) {
+        if (outboundPolicy != null) {
             enableSec.setOutboundPolicy(outboundPolicy);
         }
         String inboundPolicy = child.getAttribute(Constant.INBOUND_POLICY);
-        if (inboundPolicy != null && !inboundPolicy.isEmpty()) {
+        if (inboundPolicy != null) {
             enableSec.setInboundPolicy(inboundPolicy);
         }
         return enableSec;
@@ -122,11 +122,11 @@ public class CallOutFactory extends AbstractMediatorFactory {
         CalloutConfiguration configuration = new CalloutConfiguration();
         configuration.elementNode((DOMElement) child);
         String axis2xml = child.getAttribute(Constant.AXIS2XML);
-        if (axis2xml != null && !axis2xml.isEmpty()) {
+        if (axis2xml != null) {
             configuration.setAxis2Xml(axis2xml);
         }
         String repository = child.getAttribute(Constant.REPOSITORY);
-        if (repository != null && !repository.isEmpty()) {
+        if (repository != null) {
             configuration.setRepository(repository);
         }
         return configuration;
@@ -136,23 +136,23 @@ public class CallOutFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String serviceURL = element.getAttribute(Constant.SERVICE_URL);
-        if (serviceURL != null && !serviceURL.isEmpty()) {
+        if (serviceURL != null) {
             ((Callout) node).setServiceURL(serviceURL);
         }
         String action = element.getAttribute(Constant.ACTION);
-        if (action != null && !action.isEmpty()) {
+        if (action != null) {
             ((Callout) node).setAction(action);
         }
         String initAxis2ClientOptions = element.getAttribute(Constant.INIT_AXIS2_CLIENT_OPTIONS);
-        if (initAxis2ClientOptions != null && !initAxis2ClientOptions.isEmpty()) {
+        if (initAxis2ClientOptions != null) {
             ((Callout) node).setInitAxis2ClientOptions(Boolean.valueOf(initAxis2ClientOptions));
         }
         String endpointKey = element.getAttribute(Constant.ENDPOINT_KEY);
-        if (endpointKey != null && !endpointKey.isEmpty()) {
+        if (endpointKey != null) {
             ((Callout) node).setEndpointKey(endpointKey);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((Callout) node).setDescription(description);
         }
     }

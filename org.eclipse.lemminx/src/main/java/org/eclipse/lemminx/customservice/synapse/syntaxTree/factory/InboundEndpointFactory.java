@@ -74,35 +74,35 @@ public class InboundEndpointFactory extends AbstractFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String name = element.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             ((InboundEndpoint) node).setName(name);
         }
         String protocol = element.getAttribute(Constant.PROTOCOL);
-        if (protocol != null && !protocol.isEmpty()) {
+        if (protocol != null) {
             ((InboundEndpoint) node).setProtocol(protocol);
         }
         String onError = element.getAttribute(Constant.ON_ERROR);
-        if (onError != null && !onError.isEmpty()) {
+        if (onError != null) {
             ((InboundEndpoint) node).setOnError(onError);
         }
         String suspend = element.getAttribute(Constant.SUSPEND);
-        if (suspend != null && !suspend.isEmpty()) {
+        if (suspend != null) {
             ((InboundEndpoint) node).setSuspend(Boolean.parseBoolean(suspend));
         }
         String clazz = element.getAttribute(Constant.CLASS);
-        if (clazz != null && !clazz.isEmpty()) {
+        if (clazz != null) {
             ((InboundEndpoint) node).setClazz(clazz);
         }
         String statistics = element.getAttribute(Constant.STATISTICS);
-        if (statistics != null && !statistics.isEmpty()) {
+        if (statistics != null) {
             ((InboundEndpoint) node).setStatistics(statistics);
         }
         String trace = element.getAttribute(Constant.TRACE);
-        if (trace != null && !trace.isEmpty()) {
+        if (trace != null) {
             ((InboundEndpoint) node).setTrace(trace);
         }
         String sequence = element.getAttribute(Constant.SEQUENCE);
-        if (sequence != null && !sequence.isEmpty()) {
+        if (sequence != null) {
             ((InboundEndpoint) node).setSequence(sequence);
         }
     }

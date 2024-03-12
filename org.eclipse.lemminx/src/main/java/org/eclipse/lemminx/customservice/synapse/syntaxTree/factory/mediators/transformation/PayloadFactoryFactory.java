@@ -81,19 +81,19 @@ public class PayloadFactoryFactory extends AbstractMediatorFactory {
         PayloadFactoryArgsArg arg = new PayloadFactoryArgsArg();
         arg.elementNode((DOMElement) element);
         String value = element.getAttribute(Constant.VALUE);
-        if (value != null && !value.isEmpty()) {
+        if (value != null) {
             arg.setValue(value);
         }
         String evaluator = element.getAttribute(Constant.EVALUATOR);
-        if (evaluator != null && !evaluator.isEmpty()) {
+        if (evaluator != null) {
             arg.setEvaluator(evaluator);
         }
         String expression = element.getAttribute(Constant.EXPRESSION);
-        if (expression != null && !expression.isEmpty()) {
+        if (expression != null) {
             arg.setExpression(expression);
         }
         String literal = element.getAttribute(Constant.LITERAL);
-        if (literal != null && !literal.isEmpty()) {
+        if (literal != null) {
             arg.setLiteral(Boolean.parseBoolean(literal));
         }
         return arg;
@@ -104,7 +104,7 @@ public class PayloadFactoryFactory extends AbstractMediatorFactory {
         PayloadFactoryFormat format = new PayloadFactoryFormat();
         format.elementNode((DOMElement) element);
         String key = element.getAttribute(Constant.KEY);
-        if (key != null && !key.isEmpty()) {
+        if (key != null) {
             format.setKey(key);
         }
         DOMNode inline = element.getFirstChild();
@@ -119,15 +119,15 @@ public class PayloadFactoryFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String mediaType = element.getAttribute(Constant.MEDIA_TYPE);
-        if (mediaType != null && !mediaType.isEmpty()) {
+        if (mediaType != null) {
             ((PayloadFactory) node).setMediaType(mediaType);
         }
         String templateType = element.getAttribute(Constant.TEMPLATE_TYPE);
-        if (templateType != null && !templateType.isEmpty()) {
+        if (templateType != null) {
             ((PayloadFactory) node).setTemplateType(templateType);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((PayloadFactory) node).setDescription(description);
         }
     }

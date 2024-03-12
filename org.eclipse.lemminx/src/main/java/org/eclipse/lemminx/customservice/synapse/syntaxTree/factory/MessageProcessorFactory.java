@@ -56,19 +56,19 @@ public class MessageProcessorFactory extends AbstractFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String name = element.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             ((MessageProcessor) node).setName(name);
         }
         String clazz = element.getAttribute(Constant.CLASS);
-        if (clazz != null && !clazz.isEmpty()) {
+        if (clazz != null) {
             ((MessageProcessor) node).setClazz(clazz);
         }
         String messageStore = element.getAttribute(Constant.MESSAGE_STORE);
-        if (messageStore != null && !messageStore.isEmpty()) {
+        if (messageStore != null) {
             ((MessageProcessor) node).setMessageStore(messageStore);
         }
         String targetEndpoint = element.getAttribute(Constant.TARGET_ENDPOINT);
-        if (targetEndpoint != null && !targetEndpoint.isEmpty()) {
+        if (targetEndpoint != null) {
             ((MessageProcessor) node).setTargetEndpoint(targetEndpoint);
         }
     }

@@ -48,23 +48,23 @@ public class NamedSequenceFactory extends AbstractFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String name = element.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             ((NamedSequence) node).setName(name);
         }
         String onError = element.getAttribute(Constant.ON_ERROR);
-        if (onError != null && !onError.isEmpty()) {
+        if (onError != null) {
             ((NamedSequence) node).setOnError(onError);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((NamedSequence) node).setDescription(description);
         }
         String statistics = element.getAttribute(Constant.STATISTICS);
-        if (statistics != null && !statistics.isEmpty()) {
+        if (statistics != null) {
             ((NamedSequence) node).setStatistics(statistics);
         }
         String trace = element.getAttribute(Constant.TRACE);
-        if (trace != null && !trace.isEmpty()) {
+        if (trace != null) {
             ((NamedSequence) node).setTrace(trace);
         }
     }

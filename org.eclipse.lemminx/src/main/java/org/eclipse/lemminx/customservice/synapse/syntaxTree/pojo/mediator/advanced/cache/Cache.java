@@ -25,11 +25,23 @@ public class Cache extends Mediator {
     CacheOnCacheHit onCacheHit;
     CacheProtocol protocol;
     CacheImplementation implementation;
+    String id;
     int timeout;
     boolean collector;
     int maxMessageSize;
     String scope;
+    String hashGenerator;
     String description;
+
+    public String getId() {
+
+        return id;
+    }
+
+    public void setId(String id) {
+
+        this.id = id;
+    }
 
     public CacheOnCacheHit getOnCacheHit() {
 
@@ -99,6 +111,16 @@ public class Cache extends Mediator {
     public void setScope(String scope) {
 
         this.scope = scope;
+    }
+
+    public String getHashGenerator() {
+
+        return hashGenerator;
+    }
+
+    public void setHashGenerator(String hashGenerator) {
+
+        this.hashGenerator = hashGenerator;
     }
 
     public String getDescription() {

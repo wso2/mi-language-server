@@ -49,27 +49,27 @@ public class HeaderFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String name = element.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             ((Header) node).setName(name);
         }
         String value = element.getAttribute(Constant.VALUE);
-        if (value != null && !value.isEmpty()) {
+        if (value != null) {
             ((Header) node).setValue(value);
         }
         String expression = element.getAttribute(Constant.EXPRESSION);
-        if (expression != null && !expression.isEmpty()) {
+        if (expression != null) {
             ((Header) node).setExpression(expression);
         }
         String action = element.getAttribute(Constant.ACTION);
-        if (action != null && !action.isEmpty()) {
+        if (action != null) {
             ((Header) node).setAction(action);
         }
         String scope = element.getAttribute(Constant.SCOPE);
-        if (scope != null && !scope.isEmpty()) {
+        if (scope != null) {
             ((Header) node).setScope(scope);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((Header) node).setDescription(description);
         }
     }

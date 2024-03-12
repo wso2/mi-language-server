@@ -418,4 +418,5 @@ public class Constant {
     public static final String STORE = "store";
     public static final String DEPENDENCY = "dependency";
     public static final String COMPONENT = "component";
+    public static final String INCLUDE = "include";
 }

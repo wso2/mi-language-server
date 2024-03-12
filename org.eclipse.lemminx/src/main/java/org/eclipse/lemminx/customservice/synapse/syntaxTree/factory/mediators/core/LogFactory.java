@@ -60,23 +60,23 @@ public class LogFactory extends AbstractMediatorFactory {
 
         try {
             String level = element.getAttribute(Constant.LEVEL);
-            if (level != null && !level.isEmpty()) {
+            if (level != null) {
                 ((Log) node).setLevel(LogLevel.valueOf(level));
             }
             String separator = element.getAttribute(Constant.SEPARATOR);
-            if (separator != null && !separator.isEmpty()) {
+            if (separator != null) {
                 ((Log) node).setSeparator(separator);
             }
             String category = element.getAttribute(Constant.CATEGORY);
-            if (category != null && !category.isEmpty()) {
+            if (category != null) {
                 ((Log) node).setCategory(LogCategory.valueOf(category));
             }
             String description = element.getAttribute(Constant.DESCRIPTION);
-            if (description != null && !description.isEmpty()) {
+            if (description != null) {
                 ((Log) node).setDescription(description);
             }
         } catch (IllegalArgumentException e) {
-            // TODO: Handle exception if needed.
+            // ignore
         }
     }
 

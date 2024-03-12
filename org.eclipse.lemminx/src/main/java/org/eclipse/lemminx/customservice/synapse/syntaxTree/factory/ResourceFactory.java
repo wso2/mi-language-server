@@ -64,31 +64,31 @@ public class ResourceFactory extends AbstractFactory {
         APIResource apiResource = (APIResource) node;
 
         String urlMapping = element.getAttribute(Constant.URL_MAPPING);
-        if (Objects.nonNull(urlMapping) && !urlMapping.isEmpty()) {
+        if (Objects.nonNull(urlMapping)) {
             apiResource.setUrlMapping(urlMapping);
         }
         String uriTemplate = element.getAttribute(Constant.URI_TEMPLATE);
-        if (Objects.nonNull(uriTemplate) && !uriTemplate.isEmpty()) {
+        if (Objects.nonNull(uriTemplate)) {
             apiResource.setUriTemplate(uriTemplate);
         }
         String protocol = element.getAttribute(Constant.PROTOCOL);
-        if (Objects.nonNull(protocol) && !protocol.isEmpty()) {
+        if (Objects.nonNull(protocol)) {
             apiResource.setProtocol(getProtocols(protocol));
         }
         String methods = element.getAttribute(Constant.METHODS);
-        if (Objects.nonNull(methods) && !methods.isEmpty()) {
+        if (Objects.nonNull(methods)) {
             apiResource.setMethods(getMethods(methods));
         }
         String inSequence = element.getAttribute(Constant.IN_SEQUENCE);
-        if (Objects.nonNull(inSequence) && !inSequence.isEmpty()) {
+        if (Objects.nonNull(inSequence)) {
             apiResource.setInSequenceAttribute(inSequence);
         }
         String outSequence = element.getAttribute(Constant.OUT_SEQUENCE);
-        if (Objects.nonNull(outSequence) && !outSequence.isEmpty()) {
+        if (Objects.nonNull(outSequence)) {
             apiResource.setOutSequenceAttribute(outSequence);
         }
         String faultSequence = element.getAttribute(Constant.FAULT_SEQUENCE);
-        if (Objects.nonNull(faultSequence) && !faultSequence.isEmpty()) {
+        if (Objects.nonNull(faultSequence)) {
             apiResource.setFaultSequenceAttribute(faultSequence);
         }
     }

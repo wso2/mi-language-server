@@ -59,11 +59,11 @@ public class SmooksFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String configKey = element.getAttribute(Constant.CONFIG_KEY);
-        if (configKey != null && !configKey.isEmpty()) {
+        if (configKey != null) {
             ((Smooks) node).setConfigKey(configKey);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((Smooks) node).setDescription(description);
         }
     }
@@ -73,11 +73,11 @@ public class SmooksFactory extends AbstractMediatorFactory {
         SmooksInput smooksInput = new SmooksInput();
         smooksInput.elementNode((DOMElement) childNode);
         String type = childNode.getAttribute(Constant.TYPE);
-        if (type != null && !type.isEmpty()) {
+        if (type != null) {
             smooksInput.setType(type);
         }
         String expression = childNode.getAttribute(Constant.EXPRESSION);
-        if (expression != null && !expression.isEmpty()) {
+        if (expression != null) {
             smooksInput.setExpression(expression);
         }
         return smooksInput;
@@ -88,19 +88,19 @@ public class SmooksFactory extends AbstractMediatorFactory {
         SmooksOutput smooksOutput = new SmooksOutput();
         smooksOutput.elementNode((DOMElement) element);
         String type = element.getAttribute(Constant.TYPE);
-        if (type != null && !type.isEmpty()) {
+        if (type != null) {
             smooksOutput.setType(type);
         }
         String property = element.getAttribute(Constant.PROPERTY);
-        if (property != null && !property.isEmpty()) {
+        if (property != null) {
             smooksOutput.setProperty(property);
         }
         String action = element.getAttribute(Constant.ACTION);
-        if (action != null && !action.isEmpty()) {
+        if (action != null) {
             smooksOutput.setAction(action);
         }
         String expression = element.getAttribute(Constant.EXPRESSION);
-        if (expression != null && !expression.isEmpty()) {
+        if (expression != null) {
             smooksOutput.setExpression(expression);
         }
         return smooksOutput;

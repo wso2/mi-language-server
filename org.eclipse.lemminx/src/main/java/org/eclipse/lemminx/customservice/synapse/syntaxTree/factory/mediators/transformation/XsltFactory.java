@@ -72,11 +72,11 @@ public class XsltFactory extends AbstractMediatorFactory {
         XsltFeature xsltFeature = new XsltFeature();
         xsltFeature.elementNode((DOMElement) childNode);
         String name = childNode.getAttribute(Constant.NAME);
-        if (name != null && !name.isEmpty()) {
+        if (name != null) {
             xsltFeature.setName(name);
         }
         String value = childNode.getAttribute(Constant.VALUE);
-        if (value != null && !value.isEmpty()) {
+        if (value != null) {
             xsltFeature.setValue(Boolean.parseBoolean(value));
         }
         return xsltFeature;
@@ -87,11 +87,11 @@ public class XsltFactory extends AbstractMediatorFactory {
         XsltResource xsltResource = new XsltResource();
         xsltResource.elementNode((DOMElement) childNode);
         String location = childNode.getAttribute(Constant.LOCATION);
-        if (location != null && !location.isEmpty()) {
+        if (location != null) {
             xsltResource.setLocation(location);
         }
         String key = childNode.getAttribute(Constant.KEY);
-        if (key != null && !key.isEmpty()) {
+        if (key != null) {
             xsltResource.setKey(key);
         }
         return xsltResource;
@@ -101,15 +101,15 @@ public class XsltFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String key = element.getAttribute(Constant.KEY);
-        if (key != null && !key.isEmpty()) {
+        if (key != null) {
             ((Xslt) node).setKey(key);
         }
         String source = element.getAttribute(Constant.SOURCE);
-        if (source != null && !source.isEmpty()) {
+        if (source != null) {
             ((Xslt) node).setSource(source);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             ((Xslt) node).setDescription(description);
         }
     }

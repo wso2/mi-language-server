@@ -28,7 +28,7 @@ public class Call extends Mediator {
     NamedEndpoint endpoint;
     boolean blocking;
     String description;
-    String initAxis2ClientOptions;
+    boolean initAxis2ClientOptions;
 
     public CallSource getSource() {
 
@@ -80,12 +80,12 @@ public class Call extends Mediator {
         this.description = description;
     }
 
-    public String getInitAxis2ClientOptions() {
+    public boolean getInitAxis2ClientOptions() {
 
         return initAxis2ClientOptions;
     }
 
-    public void setInitAxis2ClientOptions(String initAxis2ClientOptions) {
+    public void setInitAxis2ClientOptions(boolean initAxis2ClientOptions) {
 
         this.initAxis2ClientOptions = initAxis2ClientOptions;
     }

@@ -62,7 +62,7 @@ public class PropertyGroupFactory extends AbstractMediatorFactory {
 
         PropertyGroup propertyGroup = (PropertyGroup) node;
         String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null && !description.isEmpty()) {
+        if (description != null) {
             propertyGroup.setDescription(description);
         }
     }
