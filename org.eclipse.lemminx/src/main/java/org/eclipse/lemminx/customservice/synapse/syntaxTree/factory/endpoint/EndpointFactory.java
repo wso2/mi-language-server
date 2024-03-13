@@ -151,6 +151,10 @@ public class EndpointFactory extends AbstractFactory {
         if (key != null && !key.isEmpty()) {
             ((NamedEndpoint) node).setKey(key);
         }
+        String keyExpression = element.getAttribute(Constant.KEY_EXPRESSION);
+        if (keyExpression != null) {
+            ((NamedEndpoint) node).setKeyExpression(keyExpression);
+        }
         String template = element.getAttribute(Constant.TEMPLATE);
         if (template != null && !template.isEmpty()) {
             ((NamedEndpoint) node).setTemplate(template);

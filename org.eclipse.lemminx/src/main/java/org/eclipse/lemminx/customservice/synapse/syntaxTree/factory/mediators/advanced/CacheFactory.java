@@ -151,6 +151,10 @@ public class CacheFactory extends AbstractMediatorFactory {
 
         CacheImplementation cacheImplementation = new CacheImplementation();
         cacheImplementation.elementNode((DOMElement) element);
+        String type = element.getAttribute(Constant.TYPE);
+        if (type != null) {
+            cacheImplementation.setType(type);
+        }
         String maxSize = element.getAttribute(Constant.MAX_SIZE);
         if (maxSize != null) {
             cacheImplementation.setMaxSize(Utils.parseInt(maxSize));
