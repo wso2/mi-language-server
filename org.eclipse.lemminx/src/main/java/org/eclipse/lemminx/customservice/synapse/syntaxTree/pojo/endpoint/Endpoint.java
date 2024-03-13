@@ -41,6 +41,7 @@ public class Endpoint extends STNode {
     EndpointParameter[] parameter;
     String description;
     String key;
+    String keyExpression;
     String template;
     String uri;
     EndpointType type;
@@ -153,6 +154,16 @@ public class Endpoint extends STNode {
     public void setKey(String key) {
 
         this.key = key;
+    }
+
+    public String getKeyExpression() {
+
+        return keyExpression;
+    }
+
+    public void setKeyExpression(String keyExpression) {
+
+        this.keyExpression = keyExpression;
     }
 
     public String getTemplate() {
