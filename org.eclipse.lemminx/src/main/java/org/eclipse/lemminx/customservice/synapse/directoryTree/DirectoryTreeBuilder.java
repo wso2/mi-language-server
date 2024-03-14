@@ -27,6 +27,8 @@ import org.eclipse.lemminx.customservice.synapse.directoryTree.node.Node;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.node.TestFolder;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.legacyBuilder.LegacyDirectoryTreeBuilder;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.utils.DirectoryTreeUtils;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.endpoint.EndpointFactory;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.NamedEndpoint;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -141,13 +143,15 @@ public class DirectoryTreeBuilder {
                         String name = file.getName();
                         String path = file.getAbsolutePath();
                         Node advancedComponent = createEsbComponent(type, name, path);
-                        try {
-                            String methodName = "add" + type;
-                            Method method = directoryTree.getClass().getMethod(methodName, Node.class);
-                            method.invoke(directoryTree, advancedComponent);
-                        } catch (NoSuchMethodException | IllegalArgumentException | IllegalAccessException |
-                                 InvocationTargetException e) {
-                            LOGGER.log(Level.WARNING, "Error while trying to execute method.", e);
+                        if (advancedComponent != null) {
+                            try {
+                                String methodName = "add" + type;
+                                Method method = directoryTree.getClass().getMethod(methodName, Node.class);
+                                method.invoke(directoryTree, advancedComponent);
+                            } catch (NoSuchMethodException | IllegalArgumentException | IllegalAccessException |
+                                     InvocationTargetException e) {
+                                LOGGER.log(Level.WARNING, "Error while trying to execute method.", e);
+                            }
                         }
                     }
                 }
@@ -284,12 +288,22 @@ public class DirectoryTreeBuilder {
 
     private static Node createEsbComponent(String type, String name, String path) {
 
-        Node component = new Node(Utils.addUnderscoreBetweenWords(type).toUpperCase(), name, path);
+        String artifactName;
+        try {
+            artifactName = getArtifactName(type, path);
+        } catch (IOException e) {
+            //Could not read artifact name. Ignoring the file as it is invalid.
+            return null;
+        }
+        if (artifactName == null) artifactName = name;
+        Node component = new Node(Utils.addUnderscoreBetweenWords(type).toUpperCase(), artifactName, path);
         if (Constant.API.equalsIgnoreCase(type) || Constant.SEQUENCES.equalsIgnoreCase(type) ||
                 Constant.PROXY_SERVICES.equalsIgnoreCase(type) || Constant.INBOUND_ENDPOINTS.equalsIgnoreCase(type)) {
             AdvancedNode advancedNode;
             if (Constant.API.equalsIgnoreCase(type)) {
+                String context = getApiContext(path);
                 advancedNode = new APINode(component);
+                ((APINode) advancedNode).setContext(context);
             } else {
                 advancedNode = new AdvancedNode(component);
             }
@@ -308,7 +322,59 @@ public class DirectoryTreeBuilder {
             }
             return advancedNode;
         }
+        if (Constant.ENDPOINT.equalsIgnoreCase(type)) {
+            String endpointType = getEndpointType(path);
+            component.setSubType(endpointType);
+        }
         return component;
+    }
+
+    private static String getApiContext(String path) {
+
+        File file = new File(path);
+        DOMDocument domDocument = null;
+        try {
+            domDocument = Utils.getDOMDocument(file);
+            DOMNode node = Utils.getChildNodeByName(domDocument, Constant.API);
+            if (node != null) {
+                String context = node.getAttribute(Constant.CONTEXT);
+                return context;
+            }
+        } catch (IOException e) {
+            //ignore
+        }
+        return null;
+    }
+
+    private static String getArtifactName(String type, String path) throws IOException {
+
+        File file = new File(path);
+        DOMDocument domDocument = Utils.getDOMDocument(file);
+        DOMNode node = Utils.getChildNodeByName(domDocument, type);
+        if (node != null) {
+            String name = node.getAttribute(Constant.NAME);
+            if (name == null) {
+                name = node.getAttribute(Constant.KEY);
+            }
+            return name;
+        } else {
+            throw new IOException("Invalid artifact in the artifact folder: " + type);
+        }
+    }
+
+    private static String getEndpointType(String path) {
+
+        try {
+            File file = new File(path);
+            DOMDocument domDocument = Utils.getDOMDocument(file);
+            EndpointFactory factory = new EndpointFactory();
+            NamedEndpoint endpoint = (NamedEndpoint) factory.create(domDocument.getDocumentElement());
+            String type = endpoint.getType().name();
+            return type;
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Could not read the type from endpoint");
+        }
+        return "";
     }
 
     private static void addResources(DOMElement rootElement, AdvancedNode advancedNode) {
