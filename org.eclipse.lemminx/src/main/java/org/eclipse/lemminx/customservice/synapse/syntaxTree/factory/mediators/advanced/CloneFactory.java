@@ -101,7 +101,7 @@ public class CloneFactory extends AbstractMediatorFactory {
                 cloneTarget.setSequence(sequence);
             } else if (node.getNodeName().equalsIgnoreCase(Constant.ENDPOINT)) {
                 AbstractFactory endpointFactory = new EndpointFactory();
-                Endpoint endpoint = (Endpoint) endpointFactory.create(element);
+                Endpoint endpoint = (Endpoint) endpointFactory.create((DOMElement) node);
                 cloneTarget.setEndpoint((NamedEndpoint) endpoint);
             }
         }
