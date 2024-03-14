@@ -23,7 +23,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.targets.Ta
 
 public class Iterate extends Mediator {
 
-    Target[] target;
+    Target target;
     boolean sequential;
     boolean continueParent;
     String expression;
@@ -32,12 +32,12 @@ public class Iterate extends Mediator {
     String id;
     String description;
 
-    public Target[] getTarget() {
+    public Target getTarget() {
 
         return target;
     }
 
-    public void setTarget(Target[] target) {
+    public void setTarget(Target target) {
 
         this.target = target;
     }

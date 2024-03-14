@@ -96,19 +96,19 @@ public class SyntaxTreeUtils {
     private static void populateTargetAttributes(Target target, DOMNode node) {
 
         String sequence = node.getAttribute(Constant.SEQUENCE);
-        if (sequence != null && !sequence.isEmpty()) {
+        if (sequence != null) {
             target.setSequenceAttribute(sequence);
         }
         String endpoint = node.getAttribute(Constant.ENDPOINT);
-        if (endpoint != null && !endpoint.isEmpty()) {
+        if (endpoint != null) {
             target.setEndpointAttribute(endpoint);
         }
         String to = node.getAttribute(Constant.TO);
-        if (to != null && !to.isEmpty()) {
+        if (to != null) {
             target.setTo(to);
         }
         String soapAction = node.getAttribute(Constant.SOAP_ACTION);
-        if (soapAction != null && !soapAction.isEmpty()) {
+        if (soapAction != null) {
             target.setSoapAction(soapAction);
         }
     }

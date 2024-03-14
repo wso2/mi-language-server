@@ -25,6 +25,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.It
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.targets.Target;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.utils.SyntaxTreeUtils;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 
@@ -41,16 +42,10 @@ public class IterateFactory extends AbstractMediatorFactory {
         Iterate iterate = new Iterate();
         iterate.elementNode(element);
         populateAttributes(iterate, element);
-        List<DOMNode> children = element.getChildren();
-        List<Target> targets = new ArrayList<>();
-        if (children != null && !children.isEmpty()) {
-            for (DOMNode node : children) {
-                if (node.getNodeName().equals(Constant.TARGET)) {
-                    Target target = SyntaxTreeUtils.createTarget(node);
-                    targets.add(target);
-                }
-            }
-            iterate.setTarget(targets.toArray(new Target[targets.size()]));
+        DOMNode targetNode = Utils.getChildNodeByName(element, Constant.TARGET);
+        if (targetNode != null) {
+            Target target = SyntaxTreeUtils.createTarget(targetNode);
+            iterate.setTarget(target);
         }
         return iterate;
     }
