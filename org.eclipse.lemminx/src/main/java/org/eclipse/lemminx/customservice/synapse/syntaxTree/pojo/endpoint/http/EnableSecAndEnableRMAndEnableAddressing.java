@@ -23,6 +23,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointEnableRM;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointEnableSec;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointMarkForSuspension;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointRetryConfig;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointSuspendOnFailure;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointTimeout;
 
@@ -37,6 +38,7 @@ public class EnableSecAndEnableRMAndEnableAddressing extends STNode {
     Optional<EndpointSuspendOnFailure> suspendOnFailure;
     Optional<EndpointMarkForSuspension> markForSuspension;
     Optional<EndpointHttpAuthentication> authentication;
+    Optional<EndpointRetryConfig> retryConfig;
 
     public Optional<EndpointEnableSec> getEnableSec() {
 
@@ -106,5 +108,15 @@ public class EnableSecAndEnableRMAndEnableAddressing extends STNode {
     public void setAuthentication(Optional<EndpointHttpAuthentication> authentication) {
 
         this.authentication = authentication;
+    }
+
+    public Optional<EndpointRetryConfig> getRetryConfig() {
+
+        return retryConfig;
+    }
+
+    public void setRetryConfig(Optional<EndpointRetryConfig> retryConfig) {
+
+        this.retryConfig = retryConfig;
     }
 }

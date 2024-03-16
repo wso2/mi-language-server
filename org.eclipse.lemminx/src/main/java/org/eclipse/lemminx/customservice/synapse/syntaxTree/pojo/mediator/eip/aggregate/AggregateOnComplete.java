@@ -26,7 +26,7 @@ import java.util.List;
 
 public class AggregateOnComplete extends STNode {
 
-    List<Mediator> mediators;
+    List<Mediator> mediatorList;
     String expression;
     String sequenceAttribute;
     String enclosingElementProperty;
@@ -34,17 +34,17 @@ public class AggregateOnComplete extends STNode {
 
     public AggregateOnComplete() {
 
-        mediators = new ArrayList<>();
+        mediatorList = new ArrayList<>();
     }
 
-    public List<Mediator> getMediators() {
+    public List<Mediator> getMediatorList() {
 
-        return mediators;
+        return mediatorList;
     }
 
-    public void setMediators(List<Mediator> mediators) {
+    public void setMediatorList(List<Mediator> mediatorList) {
 
-        this.mediators = mediators;
+        this.mediatorList = mediatorList;
     }
 
     public String getExpression() {

@@ -44,7 +44,7 @@ public class TemplateFactory extends AbstractFactory {
         if (children != null && !children.isEmpty()) {
             for (DOMNode child : children) {
                 String name = child.getNodeName();
-                if (name.equalsIgnoreCase(Constant.PARAMETER)) {
+                if (name.contains(Constant.PARAMETER)) {
                     TemplateParameter parameter = createTemplateParameter(child);
                     parameters.add(parameter);
                 } else if (name.equalsIgnoreCase(Constant.ENDPOINT)) {
@@ -57,6 +57,7 @@ public class TemplateFactory extends AbstractFactory {
                     template.setSequence(sequence);
                 }
             }
+            template.setParameter(parameters.toArray(new TemplateParameter[parameters.size()]));
         }
         return template;
     }

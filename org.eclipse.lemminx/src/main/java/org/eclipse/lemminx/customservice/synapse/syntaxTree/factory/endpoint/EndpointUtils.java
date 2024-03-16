@@ -23,6 +23,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointEnableRM;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointEnableSec;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointMarkForSuspension;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointRetryConfig;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointSuspendOnFailure;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointTimeout;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.http.EndpointHttpAuthenticationOauthRequestParameters;
@@ -167,5 +168,24 @@ public class EndpointUtils {
             requestParameters.setParameter(parameters.toArray(new Parameter[parameters.size()]));
         }
         return requestParameters;
+    }
+
+    public static EndpointRetryConfig createRetryConfig(DOMNode node) {
+
+        EndpointRetryConfig retryConfig = new EndpointRetryConfig();
+        List<DOMNode> children = node.getChildren();
+        if (children != null && !children.isEmpty()) {
+            for (DOMNode child : children) {
+                String name = child.getNodeName();
+                STNode stNode = new STNode();
+                stNode.elementNode((DOMElement) child);
+                if (Constant.ENABLED_ERROR_CODES.equalsIgnoreCase(name)) {
+                    retryConfig.setEnabledErrorCodes(stNode);
+                } else if (Constant.DISABLED_ERROR_CODES.equalsIgnoreCase(name)) {
+                    retryConfig.setDisabledErrorCodes(stNode);
+                }
+            }
+        }
+        return retryConfig;
     }
 }
