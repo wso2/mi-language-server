@@ -350,6 +350,10 @@ public class DirectoryTreeBuilder {
 
         File file = new File(path);
         DOMDocument domDocument = Utils.getDOMDocument(file);
+
+        if ("ProxyService".equalsIgnoreCase(type)) type = Constant.PROXY;
+        if ("DataService".equalsIgnoreCase(type)) type = Constant.DATA;
+
         DOMNode node = Utils.getChildNodeByName(domDocument, type);
         if (node != null) {
             String name = node.getAttribute(Constant.NAME);
