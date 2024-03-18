@@ -420,4 +420,7 @@ public class Constant {
     public static final String COMPONENT = "component";
     public static final String INCLUDE = "include";
     public static final String KEY_EXPRESSION = "key-expression";
+    public static final String RETRY_CONFIG = "retryConfig";
+    public static final String ENABLED_ERROR_CODES = "enabledErrorCodes";
+    public static final String DISABLED_ERROR_CODES = "disabledErrorCodes";
 }

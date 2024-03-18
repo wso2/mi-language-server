@@ -139,7 +139,7 @@ public class AggregateFactory extends AbstractMediatorFactory {
 
         List<DOMNode> children = child.getChildren();
         List<Mediator> mediators = SyntaxTreeUtils.createMediators(children);
-        onComplete.setMediators(mediators);
+        onComplete.setMediatorList(mediators);
         return onComplete;
     }
 

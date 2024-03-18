@@ -99,7 +99,7 @@ public class EndpointFactory extends AbstractFactory {
                 } else if (name.equalsIgnoreCase(Constant.PROPERTY)) {
                     EndpointProperty property = createEndpointProperty(node);
                     properties.add(property);
-                } else if (name.equalsIgnoreCase(Constant.PARAMETER)) {
+                } else if (name.contains(Constant.PARAMETER)) {
                     EndpointParameter parameter = createEndpointParameter(node);
                     parameters.add(parameter);
                 } else if (name.equalsIgnoreCase(Constant.DESCRIPTION)) {

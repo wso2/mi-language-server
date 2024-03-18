@@ -24,6 +24,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointEnableRM;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointEnableSec;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointMarkForSuspension;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointRetryConfig;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointSuspendOnFailure;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointTimeout;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.http.EnableSecAndEnableRMAndEnableAddressing;
@@ -76,6 +77,9 @@ public class HttpEndpointFactory extends AbstractFactory {
                 } else if (name.equalsIgnoreCase(Constant.AUTHENTICATION)) {
                     EndpointHttpAuthentication authentication = createAuthentication(node);
                     configs.setAuthentication(Optional.ofNullable(authentication));
+                } else if (Constant.RETRY_CONFIG.equalsIgnoreCase(name)) {
+                    EndpointRetryConfig retryConfig = EndpointUtils.createRetryConfig(node);
+                    configs.setRetryConfig(Optional.ofNullable(retryConfig));
                 }
             }
             httpEndpoint.setEnableSecAndEnableRMAndEnableAddressing(configs);
