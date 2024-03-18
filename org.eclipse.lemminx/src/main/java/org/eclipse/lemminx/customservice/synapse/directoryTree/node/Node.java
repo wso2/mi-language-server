@@ -21,6 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.directoryTree.node;
 public class Node {
 
     String type;
+    String subType;
     String name;
     String path;
 
@@ -39,6 +40,16 @@ public class Node {
     public void setType(String type) {
 
         this.type = type;
+    }
+
+    public String getSubType() {
+
+        return subType;
+    }
+
+    public void setSubType(String subType) {
+
+        this.subType = subType;
     }
 
     public String getName() {

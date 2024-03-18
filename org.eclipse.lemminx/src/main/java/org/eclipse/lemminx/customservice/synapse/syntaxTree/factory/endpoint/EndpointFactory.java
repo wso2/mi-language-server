@@ -157,6 +157,7 @@ public class EndpointFactory extends AbstractFactory {
         }
         String template = element.getAttribute(Constant.TEMPLATE);
         if (template != null && !template.isEmpty()) {
+            ((NamedEndpoint) node).setType(EndpointType.TEMPLATE_ENDPOINT);
             ((NamedEndpoint) node).setTemplate(template);
         }
         String uri = element.getAttribute(Constant.URI);
