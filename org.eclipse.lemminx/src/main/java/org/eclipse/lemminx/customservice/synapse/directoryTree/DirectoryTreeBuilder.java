@@ -27,8 +27,10 @@ import org.eclipse.lemminx.customservice.synapse.directoryTree.node.Node;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.node.TestFolder;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.legacyBuilder.LegacyDirectoryTreeBuilder;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.utils.DirectoryTreeUtils;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.TemplateFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.endpoint.EndpointFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.NamedEndpoint;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.template.Template;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -297,8 +299,8 @@ public class DirectoryTreeBuilder {
         }
         if (artifactName == null) artifactName = name;
         Node component = new Node(Utils.addUnderscoreBetweenWords(type).toUpperCase(), artifactName, path);
-        if (Constant.API.equalsIgnoreCase(type) || Constant.SEQUENCES.equalsIgnoreCase(type) ||
-                Constant.PROXY_SERVICES.equalsIgnoreCase(type) || Constant.INBOUND_ENDPOINTS.equalsIgnoreCase(type)) {
+        if (Constant.API.equalsIgnoreCase(type) || Constant.SEQUENCE.equalsIgnoreCase(type) ||
+                Constant.PROXY_SERVICE.equalsIgnoreCase(type) || Constant.INBOUND_ENDPOINT.equalsIgnoreCase(type)) {
             AdvancedNode advancedNode;
             if (Constant.API.equalsIgnoreCase(type)) {
                 String context = getApiContext(path);
@@ -325,8 +327,30 @@ public class DirectoryTreeBuilder {
         if (Constant.ENDPOINT.equalsIgnoreCase(type)) {
             String endpointType = getEndpointType(path);
             component.setSubType(endpointType);
+        } else if (Constant.TEMPLATE.equalsIgnoreCase(type)) {
+            String templateType = getTemplateType(path);
+            component.setSubType(templateType);
         }
         return component;
+    }
+
+    private static String getTemplateType(String path) {
+
+        File file = new File(path);
+        DOMDocument domDocument = null;
+        try {
+            domDocument = Utils.getDOMDocument(file);
+            TemplateFactory factory = new TemplateFactory();
+            Template template = (Template) factory.create(domDocument.getDocumentElement());
+            if (template.getEndpoint() != null) {
+                return template.getEndpoint().getType().toString();
+            } else if (template.getSequence() != null) {
+                return Constant.SEQUENCE.toUpperCase();
+            }
+        } catch (IOException e) {
+            //ignore
+        }
+        return null;
     }
 
     private static String getApiContext(String path) {

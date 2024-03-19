@@ -423,4 +423,5 @@ public class Constant {
     public static final String RETRY_CONFIG = "retryConfig";
     public static final String ENABLED_ERROR_CODES = "enabledErrorCodes";
     public static final String DISABLED_ERROR_CODES = "disabledErrorCodes";
+    public static final String PROXY_SERVICE = "ProxyService";
 }
