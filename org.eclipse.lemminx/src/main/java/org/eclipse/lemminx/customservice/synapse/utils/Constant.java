@@ -106,7 +106,7 @@ public class Constant {
     public static final String REMOTE_SERVICE_URL = "remoteServiceUrl";
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
-    public static final String REMOTE_SERVICE_USERNAME = "remoteServiceUsername";
+    public static final String REMOTE_SERVICE_USERNAME = "remoteServiceUserName";
     public static final String REMOTE_SERVICE_PASSWORD = "remoteServicePassword";
     public static final String CALLBACK_CLASS = "callbackClass";
     public static final String CLIENT = "client";
@@ -424,4 +424,5 @@ public class Constant {
     public static final String ENABLED_ERROR_CODES = "enabledErrorCodes";
     public static final String DISABLED_ERROR_CODES = "disabledErrorCodes";
     public static final String PROXY_SERVICE = "ProxyService";
+    public static final String ASYNC = "async";
 }
