@@ -34,6 +34,7 @@ import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PublishEventFactory extends AbstractMediatorFactory {
@@ -71,6 +72,14 @@ public class PublishEventFactory extends AbstractMediatorFactory {
     @Override
     public void populateAttributes(STNode node, DOMElement element) {
 
+        String async = element.getAttribute(Constant.ASYNC);
+        if (async != null) {
+            ((PublishEvent) node).setAsync(Boolean.parseBoolean(async));
+        }
+        String timeout = element.getAttribute(Constant.TIMEOUT);
+        if (timeout != null) {
+            ((PublishEvent) node).setTimeout(timeout);
+        }
         String description = element.getAttribute(Constant.DESCRIPTION);
         if (description != null) {
             ((PublishEvent) node).setDescription(description);
@@ -113,11 +122,11 @@ public class PublishEventFactory extends AbstractMediatorFactory {
         if (name != null) {
             attribute.setName(name);
         }
-        String dataType = childNode.getAttribute(Constant.DATA_TYPE);
+        String dataType = childNode.getAttribute(Constant.TYPE);
         if (dataType != null) {
             attribute.setDataType(dataType);
         }
-        String _default = childNode.getAttribute(Constant.DEFAULT);
+        String _default = childNode.getAttribute(Constant.DEFAULT_VALUE);
         if (_default != null) {
             attribute.set_default(_default);
         }
@@ -138,12 +147,14 @@ public class PublishEventFactory extends AbstractMediatorFactory {
         publishEventAttributesMeta.elementNode((DOMElement) child);
         List<DOMNode> children = child.getChildren();
         if (children != null && !children.isEmpty()) {
+            List<Attribute> attributes = new ArrayList<>();
             for (DOMNode childNode : children) {
                 if (childNode.getNodeName().equalsIgnoreCase(Constant.ATTRIBUTE)) {
                     Attribute attribute = createAttribute(childNode);
-                    publishEventAttributesMeta.setAttribute(attribute);
+                    attributes.add(attribute);
                 }
             }
+            publishEventAttributesMeta.setAttributes(attributes.toArray(new Attribute[attributes.size()]));
         }
         return publishEventAttributesMeta;
     }
@@ -154,12 +165,14 @@ public class PublishEventFactory extends AbstractMediatorFactory {
         publishEventAttributesCorrelation.elementNode((DOMElement) child);
         List<DOMNode> children = child.getChildren();
         if (children != null && !children.isEmpty()) {
+            List<Attribute> attributes = new ArrayList<>();
             for (DOMNode childNode : children) {
                 if (childNode.getNodeName().equalsIgnoreCase(Constant.ATTRIBUTE)) {
                     Attribute attribute = createAttribute(childNode);
-                    publishEventAttributesCorrelation.setAttribute(attribute);
+                    attributes.add(attribute);
                 }
             }
+            publishEventAttributesCorrelation.setAttributes(attributes.toArray(new Attribute[attributes.size()]));
         }
         return publishEventAttributesCorrelation;
     }
@@ -170,12 +183,14 @@ public class PublishEventFactory extends AbstractMediatorFactory {
         publishEventAttributesPayload.elementNode((DOMElement) child);
         List<DOMNode> children = child.getChildren();
         if (children != null && !children.isEmpty()) {
+            List<Attribute> attributes = new ArrayList<>();
             for (DOMNode childNode : children) {
                 if (childNode.getNodeName().equalsIgnoreCase(Constant.ATTRIBUTE)) {
                     Attribute attribute = createAttribute(childNode);
-                    publishEventAttributesPayload.setAttribute(attribute);
+                    attributes.add(attribute);
                 }
             }
+            publishEventAttributesPayload.setAttributes(attributes.toArray(new Attribute[attributes.size()]));
         }
         return publishEventAttributesPayload;
     }
@@ -186,12 +201,14 @@ public class PublishEventFactory extends AbstractMediatorFactory {
         publishEventAttributesArbitrary.elementNode((DOMElement) child);
         List<DOMNode> children = child.getChildren();
         if (children != null && !children.isEmpty()) {
+            List<PublishEventAttributesArbitraryAttribute> attributes = new ArrayList<>();
             for (DOMNode childNode : children) {
                 if (childNode.getNodeName().equalsIgnoreCase(Constant.ATTRIBUTE)) {
                     PublishEventAttributesArbitraryAttribute attribute = createArbitaryAttribute(childNode);
-                    publishEventAttributesArbitrary.setAttribute(attribute);
+                    attributes.add(attribute);
                 }
             }
+            publishEventAttributesArbitrary.setAttributes(attributes.toArray(new PublishEventAttributesArbitraryAttribute[attributes.size()]));
         }
         return publishEventAttributesArbitrary;
     }

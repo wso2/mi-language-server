@@ -22,15 +22,15 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 
 public class PublishEventAttributesArbitrary extends STNode {
 
-    PublishEventAttributesArbitraryAttribute attribute;
+    PublishEventAttributesArbitraryAttribute[] attributes;
 
-    public PublishEventAttributesArbitraryAttribute getAttribute() {
+    public PublishEventAttributesArbitraryAttribute[] getAttributes() {
 
-        return attribute;
+        return attributes;
     }
 
-    public void setAttribute(PublishEventAttributesArbitraryAttribute attribute) {
+    public void setAttributes(PublishEventAttributesArbitraryAttribute[] attributes) {
 
-        this.attribute = attribute;
+        this.attributes = attributes;
     }
 }

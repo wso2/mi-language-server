@@ -25,6 +25,8 @@ public class PublishEvent extends Mediator {
     Object eventSink;
     Object streamName;
     Object streamVersion;
+    boolean async;
+    String timeout;
     PublishEventAttributes attributes;
     String description;
 
@@ -66,6 +68,26 @@ public class PublishEvent extends Mediator {
     public void setAttributes(PublishEventAttributes attributes) {
 
         this.attributes = attributes;
+    }
+
+    public boolean isAsync() {
+
+        return async;
+    }
+
+    public void setAsync(boolean async) {
+
+        this.async = async;
+    }
+
+    public String getTimeout() {
+
+        return timeout;
+    }
+
+    public void setTimeout(String timeout) {
+
+        this.timeout = timeout;
     }
 
     public String getDescription() {

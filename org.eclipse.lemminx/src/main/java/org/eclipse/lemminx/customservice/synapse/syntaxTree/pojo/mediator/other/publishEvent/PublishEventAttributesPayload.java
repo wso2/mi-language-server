@@ -23,15 +23,15 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.other.
 
 public class PublishEventAttributesPayload extends STNode {
 
-    Attribute attribute;
+    Attribute[] attributes;
 
-    public Attribute getAttribute() {
+    public Attribute[] getAttributes() {
 
-        return attribute;
+        return attributes;
     }
 
-    public void setAttribute(Attribute attribute) {
+    public void setAttributes(Attribute[] attributes) {
 
-        this.attribute = attribute;
+        this.attributes = attributes;
     }
 }
