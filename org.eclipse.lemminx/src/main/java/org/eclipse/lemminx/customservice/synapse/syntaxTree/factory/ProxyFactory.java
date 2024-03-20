@@ -23,6 +23,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.misc.Wsdl11F
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.misc.Wsdl20Factory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.NamedEndpoint;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Parameter;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.wsdl11.TDefinitions;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.wsdl20.DescriptionType;
@@ -33,6 +34,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.proxy.ProxyTarg
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.proxy.Resource;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.utils.SyntaxTreeUtils;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 
@@ -48,42 +50,42 @@ public class ProxyFactory extends AbstractFactory {
         proxy.elementNode(element);
         populateAttributes(proxy, element);
         List<DOMNode> children = element.getChildren();
-        List<STNode> elements = new ArrayList<>();
+        List<Parameter> parameters = new ArrayList<>();
         if (children != null && !children.isEmpty()) {
             for (DOMNode node : children) {
                 String name = node.getNodeName();
                 if (name.equalsIgnoreCase(Constant.DESCRIPTION)) {
-                    STNode description = createTextNode(node);
-                    elements.add(description);
+                    String description = Utils.getInlineString(node.getFirstChild());
+                    proxy.setDescription(description);
                 } else if (name.equalsIgnoreCase(Constant.TARGET)) {
-                    STNode target = createProxyTarget(node);
-                    elements.add(target);
+                    ProxyTarget target = createProxyTarget(node);
+                    proxy.setTarget(target);
                 } else if (name.equalsIgnoreCase(Constant.PUBLISH_WSDL)) {
-                    STNode publishWSDL = createPublishWSDL(node);
-                    elements.add(publishWSDL);
+                    ProxyPublishWSDL publishWSDL = createPublishWSDL(node);
+                    proxy.setPublishWSDL(publishWSDL);
                 } else if (name.equalsIgnoreCase(Constant.ENABLE_ADDRESSING)) {
                     STNode enableAddressing = createTextNode(node);
-                    elements.add(enableAddressing);
+                    proxy.setEnableAddressing(enableAddressing);
                 } else if (name.equalsIgnoreCase(Constant.ENABLE_SEC)) {
                     STNode enableSec = createTextNode(node);
-                    elements.add(enableSec);
+                    proxy.setEnableSec(enableSec);
                 } else if (name.equalsIgnoreCase(Constant.ENABLE_RM)) {
                     STNode enableRM = createTextNode(node);
-                    elements.add(enableRM);
+                    proxy.setEnableRM(enableRM);
                 } else if (name.equalsIgnoreCase(Constant.POLICY)) {
-                    STNode policy = createPolicy(node);
-                    elements.add(policy);
+                    ProxyPolicy policy = createPolicy(node);
+                    proxy.setPolicy(policy);
                 } else if (name.equalsIgnoreCase(Constant.PARAMETER)) {
-                    STNode parameter = SyntaxTreeUtils.createParameter(node);
-                    elements.add(parameter);
+                    Parameter parameter = SyntaxTreeUtils.createParameter(node);
+                    parameters.add(parameter);
                 }
             }
-            proxy.setDescriptionOrTargetOrPublishWSDL(elements);
+            proxy.setParameters(parameters.toArray(new Parameter[parameters.size()]));
         }
         return proxy;
     }
 
-    private STNode createProxyTarget(DOMNode node) {
+    private ProxyTarget createProxyTarget(DOMNode node) {
 
         ProxyTarget target = new ProxyTarget();
         target.elementNode((DOMElement) node);
@@ -131,7 +133,7 @@ public class ProxyFactory extends AbstractFactory {
         }
     }
 
-    private STNode createPublishWSDL(DOMNode node) {
+    private ProxyPublishWSDL createPublishWSDL(DOMNode node) {
 
         ProxyPublishWSDL publishWSDL = new ProxyPublishWSDL();
         publishWSDL.elementNode((DOMElement) node);
@@ -202,7 +204,7 @@ public class ProxyFactory extends AbstractFactory {
         return textNode;
     }
 
-    private STNode createPolicy(DOMNode node) {
+    private ProxyPolicy createPolicy(DOMNode node) {
 
         ProxyPolicy policy = new ProxyPolicy();
         policy.elementNode((DOMElement) node);

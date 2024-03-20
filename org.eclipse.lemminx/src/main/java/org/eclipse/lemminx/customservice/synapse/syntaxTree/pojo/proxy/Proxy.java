@@ -19,12 +19,20 @@
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.proxy;
 
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Parameter;
 
 import java.util.List;
 
 public class Proxy extends STNode {
 
-    List<STNode> descriptionOrTargetOrPublishWSDL;
+    ProxyTarget target;
+    ProxyPublishWSDL publishWSDL;
+    ProxyPolicy policy;
+    STNode enableAddressing;
+    STNode enableSec;
+    STNode enableRM;
+    Parameter[] parameters;
+    String description;
     String name;
     String transports;
     String pinnedServers;
@@ -32,16 +40,6 @@ public class Proxy extends STNode {
     boolean startOnLoad;
     String statistics;
     String trace;
-
-    public List<STNode> getDescriptionOrTargetOrPublishWSDL() {
-
-        return descriptionOrTargetOrPublishWSDL;
-    }
-
-    public void setDescriptionOrTargetOrPublishWSDL(List<STNode> descriptionOrTargetOrPublishWSDL) {
-
-        this.descriptionOrTargetOrPublishWSDL = descriptionOrTargetOrPublishWSDL;
-    }
 
     public String getName() {
 
@@ -111,5 +109,85 @@ public class Proxy extends STNode {
     public void setTrace(String trace) {
 
         this.trace = trace;
+    }
+
+    public ProxyTarget getTarget() {
+
+        return target;
+    }
+
+    public void setTarget(ProxyTarget target) {
+
+        this.target = target;
+    }
+
+    public ProxyPublishWSDL getPublishWSDL() {
+
+        return publishWSDL;
+    }
+
+    public void setPublishWSDL(ProxyPublishWSDL publishWSDL) {
+
+        this.publishWSDL = publishWSDL;
+    }
+
+    public ProxyPolicy getPolicy() {
+
+        return policy;
+    }
+
+    public void setPolicy(ProxyPolicy policy) {
+
+        this.policy = policy;
+    }
+
+    public STNode getEnableAddressing() {
+
+        return enableAddressing;
+    }
+
+    public void setEnableAddressing(STNode enableAddressing) {
+
+        this.enableAddressing = enableAddressing;
+    }
+
+    public STNode getEnableSec() {
+
+        return enableSec;
+    }
+
+    public void setEnableSec(STNode enableSec) {
+
+        this.enableSec = enableSec;
+    }
+
+    public STNode getEnableRM() {
+
+        return enableRM;
+    }
+
+    public void setEnableRM(STNode enableRM) {
+
+        this.enableRM = enableRM;
+    }
+
+    public Parameter[] getParameters() {
+
+        return parameters;
+    }
+
+    public void setParameters(Parameter[] parameters) {
+
+        this.parameters = parameters;
+    }
+
+    public String getDescription() {
+
+        return description;
+    }
+
+    public void setDescription(String description) {
+
+        this.description = description;
     }
 }
