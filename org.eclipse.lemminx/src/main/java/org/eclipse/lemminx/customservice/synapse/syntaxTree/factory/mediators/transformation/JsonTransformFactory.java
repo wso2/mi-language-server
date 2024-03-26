@@ -62,6 +62,10 @@ public class JsonTransformFactory extends AbstractMediatorFactory {
         if (schema != null) {
             ((Jsontransform) node).setSchema(schema);
         }
+        String description = element.getAttribute(Constant.DESCRIPTION);
+        if (description != null) {
+            ((Jsontransform) node).setDescription(description);
+        }
     }
 
     @Override
