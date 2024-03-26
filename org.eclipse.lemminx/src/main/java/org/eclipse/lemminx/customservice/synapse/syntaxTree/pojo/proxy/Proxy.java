@@ -21,13 +21,11 @@ package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.proxy;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Parameter;
 
-import java.util.List;
-
 public class Proxy extends STNode {
 
     ProxyTarget target;
     ProxyPublishWSDL publishWSDL;
-    ProxyPolicy policy;
+    ProxyPolicy[] policies;
     STNode enableAddressing;
     STNode enableSec;
     STNode enableRM;
@@ -131,14 +129,14 @@ public class Proxy extends STNode {
         this.publishWSDL = publishWSDL;
     }
 
-    public ProxyPolicy getPolicy() {
+    public ProxyPolicy[] getPolicies() {
 
-        return policy;
+        return policies;
     }
 
-    public void setPolicy(ProxyPolicy policy) {
+    public void setPolicies(ProxyPolicy[] policies) {
 
-        this.policy = policy;
+        this.policies = policies;
     }
 
     public STNode getEnableAddressing() {

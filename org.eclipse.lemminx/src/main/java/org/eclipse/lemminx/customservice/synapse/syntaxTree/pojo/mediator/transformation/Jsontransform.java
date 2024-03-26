@@ -25,6 +25,7 @@ public class Jsontransform extends Mediator {
 
     MediatorProperty[] property;
     String schema;
+    String description;
 
     public MediatorProperty[] getProperty() {
 
@@ -44,5 +45,15 @@ public class Jsontransform extends Mediator {
     public void setSchema(String schema) {
 
         this.schema = schema;
+    }
+
+    public String getDescription() {
+
+        return description;
+    }
+
+    public void setDescription(String description) {
+
+        this.description = description;
     }
 }

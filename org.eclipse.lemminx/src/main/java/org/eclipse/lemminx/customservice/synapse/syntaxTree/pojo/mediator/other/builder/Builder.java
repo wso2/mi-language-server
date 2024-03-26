@@ -22,17 +22,17 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediat
 
 public class Builder extends Mediator {
 
-    BuilderMessageBuilder messageBuilder;
+    BuilderMessageBuilder[] messageBuilders;
     String description;
 
-    public BuilderMessageBuilder getMessageBuilder() {
+    public BuilderMessageBuilder[] getMessageBuilders() {
 
-        return messageBuilder;
+        return messageBuilders;
     }
 
-    public void setMessageBuilder(BuilderMessageBuilder messageBuilder) {
+    public void setMessageBuilders(BuilderMessageBuilder[] messageBuilders) {
 
-        this.messageBuilder = messageBuilder;
+        this.messageBuilders = messageBuilders;
     }
 
     public String getDescription() {

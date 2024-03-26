@@ -51,6 +51,7 @@ public class ProxyFactory extends AbstractFactory {
         populateAttributes(proxy, element);
         List<DOMNode> children = element.getChildren();
         List<Parameter> parameters = new ArrayList<>();
+        List<ProxyPolicy> proxyPolicies = new ArrayList<>();
         if (children != null && !children.isEmpty()) {
             for (DOMNode node : children) {
                 String name = node.getNodeName();
@@ -74,13 +75,14 @@ public class ProxyFactory extends AbstractFactory {
                     proxy.setEnableRM(enableRM);
                 } else if (name.equalsIgnoreCase(Constant.POLICY)) {
                     ProxyPolicy policy = createPolicy(node);
-                    proxy.setPolicy(policy);
+                    proxyPolicies.add(policy);
                 } else if (name.equalsIgnoreCase(Constant.PARAMETER)) {
                     Parameter parameter = SyntaxTreeUtils.createParameter(node);
                     parameters.add(parameter);
                 }
             }
             proxy.setParameters(parameters.toArray(new Parameter[parameters.size()]));
+            proxy.setPolicies(proxyPolicies.toArray(new ProxyPolicy[proxyPolicies.size()]));
         }
         return proxy;
     }
@@ -241,6 +243,14 @@ public class ProxyFactory extends AbstractFactory {
         String startOnLoad = element.getAttribute(Constant.START_ON_LOAD);
         if (startOnLoad != null) {
             ((Proxy) node).setStartOnLoad(Boolean.valueOf(startOnLoad));
+        }
+        String statistics = element.getAttribute(Constant.STATISTICS);
+        if (statistics != null) {
+            ((Proxy) node).setStatistics(statistics);
+        }
+        String trace = element.getAttribute(Constant.TRACE);
+        if (trace != null) {
+            ((Proxy) node).setTrace(trace);
         }
     }
 }

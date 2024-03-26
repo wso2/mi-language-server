@@ -27,6 +27,7 @@ import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BuilderFactory extends AbstractMediatorFactory {
@@ -41,12 +42,14 @@ public class BuilderFactory extends AbstractMediatorFactory {
         populateAttributes(builder, element);
         List<DOMNode> children = element.getChildren();
         if (children != null && !children.isEmpty()) {
+            List<BuilderMessageBuilder> builders = new ArrayList<>();
             for (DOMNode child : children) {
                 if (child.getNodeName().equalsIgnoreCase(Constant.MESSAGE_BUILDER)) {
                     BuilderMessageBuilder messageBuilder = createBuilderMessageBuilder(child);
-                    builder.setMessageBuilder(messageBuilder);
+                    builders.add(messageBuilder);
                 }
             }
+            builder.setMessageBuilders(builders.toArray(new BuilderMessageBuilder[builders.size()]));
         }
         return builder;
     }
