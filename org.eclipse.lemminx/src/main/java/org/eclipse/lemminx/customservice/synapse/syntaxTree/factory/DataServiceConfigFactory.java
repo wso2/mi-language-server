@@ -19,6 +19,7 @@
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.factory;
 
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.Attribute;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.AuthorizationProvider;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.AuthorizationProviderProperty;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.CallQuery;
@@ -26,6 +27,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.Cal
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.Config;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.Data;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.DataPolicy;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.Element;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.EventTrigger;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.EventTriggerSubscriptions;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.Expression;
@@ -46,6 +48,8 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.Que
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.QueryElements;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.QueryProperties;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.Resource;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.Result;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.ResultElements;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.Sparql;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.Sql;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
@@ -182,9 +186,8 @@ public class DataServiceConfigFactory extends AbstractFactory {
                     QueryProperties properties = createQueryProperties(child);
                     queryElements.setProperties(Optional.ofNullable(properties));
                 } else if (Constant.RESULT.equalsIgnoreCase(childName)) {
-                    STNode result = new STNode();
-                    result.elementNode((DOMElement) child);
-                    queryElements.setResult(Optional.ofNullable(result));
+                    Result queryResult = createQueryResult(child);
+                    queryElements.setResult(Optional.ofNullable(queryResult));
                 } else if (Constant.PARAM.equalsIgnoreCase(childName)) {
                     Param param = createParam(child);
                     queryElements.setParam(Optional.ofNullable(param));
@@ -350,6 +353,166 @@ public class DataServiceConfigFactory extends AbstractFactory {
         return propertyProperty;
     }
 
+    private Result createQueryResult(DOMNode node) {
+
+        Result result = new Result();
+        result.elementNode((DOMElement) node);
+
+        String elementName = node.getAttribute(Constant.ELEMENT);
+        if (elementName != null) {
+            result.setElement(elementName);
+        }
+        String rowName = node.getAttribute(Constant.ROW_NAME);
+        if (rowName != null) {
+            result.setRowName(rowName);
+        }
+        String defaultNamespace = node.getAttribute(Constant.DEFAULT_NAMESPACE);
+        if (defaultNamespace != null) {
+            result.setDefaultNamespace(defaultNamespace);
+        }
+        List<ResultElements> resultElements = createResultElements(node);
+        if (resultElements != null) {
+            result.setResultElements(resultElements.toArray(new ResultElements[resultElements.size()]));
+        }
+
+        return result;
+    }
+
+    private List<ResultElements> createResultElements(DOMNode node) {
+
+        List<DOMNode> children = node.getChildren();
+        if (children != null && !children.isEmpty()) {
+            List<ResultElements> resultElements = new ArrayList<>();
+            for (DOMNode child : children) {
+                ResultElements resultElement = new ResultElements();
+                String childName = child.getNodeName();
+                if (Constant.ELEMENT.equalsIgnoreCase(childName)) {
+                    Element element = createElement(child);
+                    resultElement.setElement(Optional.ofNullable(element));
+                } else if (Constant.ATTRIBUTE.equalsIgnoreCase(childName)) {
+                    Attribute attribute = createAttribute(child);
+                    resultElement.setAttribute(Optional.ofNullable(attribute));
+                } else if (Constant.CALL_QUERY.equalsIgnoreCase(childName)) {
+                    CallQuery callQuery = createCallQuery(child);
+                    resultElement.setCall_query(Optional.ofNullable(callQuery));
+                }
+                resultElements.add(resultElement);
+            }
+            return resultElements;
+        }
+        return null;
+    }
+
+    private Element createElement(DOMNode node) {
+
+        Element element = new Element();
+        element.elementNode((DOMElement) node);
+
+        populateElementAttributes(element, node);
+
+        List<ResultElements> resultElements = createResultElements(node);
+        if (resultElements != null) {
+            element.setResultElements(resultElements.toArray(new ResultElements[resultElements.size()]));
+        }
+        return element;
+    }
+
+    private void populateElementAttributes(Element element, DOMNode node) {
+
+        String name = node.getAttribute(Constant.NAME);
+        if (name != null) {
+            element.setName(name);
+        }
+        String column = node.getAttribute(Constant.COLUMN);
+        if (column != null) {
+            element.setColumn(column);
+        }
+        String requiredRoles = node.getAttribute(Constant.REQUIRED_ROLES);
+        if (requiredRoles != null) {
+            element.setRequiredRoles(requiredRoles);
+        }
+        String export = node.getAttribute(Constant.EXPORT);
+        if (export != null) {
+            element.setExport(export);
+        }
+        String exportType = node.getAttribute(Constant.EXPORT_TYPE);
+        if (exportType != null) {
+            element.setExportType(exportType);
+        }
+        String xsdType = node.getAttribute(Constant.XSD_TYPE);
+        if (xsdType != null) {
+            element.setXsdType(xsdType);
+        }
+        String namespace = node.getAttribute(Constant.NAMESPACE);
+        if (namespace != null) {
+            element.setNamespace(namespace);
+        }
+        String optional = node.getAttribute(Constant.OPTIONAL);
+        if (optional != null) {
+            element.setOptional(Boolean.parseBoolean(optional));
+        }
+        String arrayName = node.getAttribute(Constant.ARRAY_NAME);
+        if (arrayName != null) {
+            element.setArrayName(arrayName);
+        }
+        String queryParam = node.getAttribute(Constant.QUERY_PARAM);
+        if (queryParam != null) {
+            element.setQueryParam(queryParam);
+        }
+    }
+
+    private Attribute createAttribute(DOMNode node) {
+
+        Attribute attribute = new Attribute();
+        attribute.elementNode((DOMElement) node);
+        populateAttributeAttributes(attribute, node);
+        return attribute;
+    }
+
+    private void populateAttributeAttributes(Attribute attribute, DOMNode node) {
+
+        String name = node.getAttribute(Constant.NAME);
+        if (name != null) {
+            attribute.setName(name);
+        }
+        String column = node.getAttribute(Constant.COLUMN);
+        if (column != null) {
+            attribute.setColumn(column);
+        }
+        String requiredRoles = node.getAttribute(Constant.REQUIRED_ROLES);
+        if (requiredRoles != null) {
+            attribute.setRequiredRoles(requiredRoles);
+        }
+        String export = node.getAttribute(Constant.EXPORT);
+        if (export != null) {
+            attribute.setExport(export);
+        }
+        String exportType = node.getAttribute(Constant.EXPORT_TYPE);
+        if (exportType != null) {
+            attribute.setExportType(exportType);
+        }
+        String xsdType = node.getAttribute(Constant.XSD_TYPE);
+        if (xsdType != null) {
+            attribute.setXsdType(xsdType);
+        }
+        String namespace = node.getAttribute(Constant.NAMESPACE);
+        if (namespace != null) {
+            attribute.setNamespace(namespace);
+        }
+        String optional = node.getAttribute(Constant.OPTIONAL);
+        if (optional != null) {
+            attribute.setOptional(Boolean.parseBoolean(optional));
+        }
+        String arrayName = node.getAttribute(Constant.ARRAY_NAME);
+        if (arrayName != null) {
+            attribute.setArrayName(arrayName);
+        }
+        String queryParam = node.getAttribute(Constant.QUERY_PARAM);
+        if (queryParam != null) {
+            attribute.setQueryParam(queryParam);
+        }
+    }
+
     private Param createParam(DOMNode element) {
 
         Param param = new Param();
@@ -400,6 +563,7 @@ public class DataServiceConfigFactory extends AbstractFactory {
                     ParamValidateDoubleRange validateDoubleRange = createParamValidateDoubleRange(child);
                     paramElements.setValidateDoubleRange(Optional.ofNullable(validateDoubleRange));
                 }
+                elementList.add(paramElements);
             }
             param.setParamElements(elementList.toArray(new ParamElements[elementList.size()]));
         }

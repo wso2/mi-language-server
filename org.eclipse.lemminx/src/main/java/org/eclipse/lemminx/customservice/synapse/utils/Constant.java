@@ -425,4 +425,11 @@ public class Constant {
     public static final String DISABLED_ERROR_CODES = "disabledErrorCodes";
     public static final String PROXY_SERVICE = "ProxyService";
     public static final String ASYNC = "async";
+    public static final String ROW_NAME = "rowName";
+    public static final String DEFAULT_NAMESPACE = "defaultNamespace";
+    public static final String EXPORT = "export";
+    public static final String EXPORT_TYPE = "exportType";
+    public static final String XSD_TYPE = "xsdType";
+    public static final String OPTIONAL = "optional";
+    public static final String ARRAY_NAME = "arrayName";
 }
