@@ -149,10 +149,14 @@ public class ProxyFactory extends AbstractFactory {
                     Wsdl11Factory factory = new Wsdl11Factory();
                     TDefinitions definitions = (TDefinitions) factory.create((DOMElement) child);
                     publishWSDL.setDefinitions(definitions);
+                    String inlineWSDL = Utils.getInlineString(child);
+                    publishWSDL.setInlineWsdl(inlineWSDL);
                 } else if (name.equalsIgnoreCase(Constant.WSDL_DESCRIPTION)) {
                     Wsdl20Factory factory = new Wsdl20Factory();
                     DescriptionType description = (DescriptionType) factory.create((DOMElement) child);
                     publishWSDL.setDescription(description);
+                    String inlineWSDL = Utils.getInlineString(child);
+                    publishWSDL.setInlineWsdl(inlineWSDL);
                 } else if (name.equalsIgnoreCase(Constant.RESOURCE)) {
                     Resource resource = createResource(child);
                     resourceList.add(resource);
