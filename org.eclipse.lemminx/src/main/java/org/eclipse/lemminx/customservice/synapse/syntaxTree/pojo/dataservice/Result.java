@@ -26,6 +26,11 @@ public class Result extends STNode {
     String element;
     String rowName;
     String defaultNamespace;
+    Boolean useColumnNumbers;
+    Boolean escapeNonPrintableChar;
+    String xsltPath;
+    String rdfBaseURI;
+    String outputType;
 
     public ResultElements[] getResultElements() {
 
@@ -65,5 +70,55 @@ public class Result extends STNode {
     public void setDefaultNamespace(String defaultNamespace) {
 
         this.defaultNamespace = defaultNamespace;
+    }
+
+    public Boolean getUseColumnNumbers() {
+
+        return useColumnNumbers;
+    }
+
+    public void setUseColumnNumbers(Boolean useColumnNumbers) {
+
+        this.useColumnNumbers = useColumnNumbers;
+    }
+
+    public Boolean getEscapeNonPrintableChar() {
+
+        return escapeNonPrintableChar;
+    }
+
+    public void setEscapeNonPrintableChar(Boolean escapeNonPrintableChar) {
+
+        this.escapeNonPrintableChar = escapeNonPrintableChar;
+    }
+
+    public String getXsltPath() {
+
+        return xsltPath;
+    }
+
+    public void setXsltPath(String xsltPath) {
+
+        this.xsltPath = xsltPath;
+    }
+
+    public String getRdfBaseURI() {
+
+        return rdfBaseURI;
+    }
+
+    public void setRdfBaseURI(String rdfBaseURI) {
+
+        this.rdfBaseURI = rdfBaseURI;
+    }
+
+    public String getOutputType() {
+
+        return outputType;
+    }
+
+    public void setOutputType(String outputType) {
+
+        this.outputType = outputType;
     }
 }

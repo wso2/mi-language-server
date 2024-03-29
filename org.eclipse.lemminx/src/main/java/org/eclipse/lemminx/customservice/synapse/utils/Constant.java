@@ -432,4 +432,8 @@ public class Constant {
     public static final String XSD_TYPE = "xsdType";
     public static final String OPTIONAL = "optional";
     public static final String ARRAY_NAME = "arrayName";
+    public static final String USE_COLUMN_NUMBERS = "useColumnNumbers";
+    public static final String ESCAPE_NON_PRINTABLE_CHAR = "escapeNonPrintableChar";
+    public static final String XSLT_PATH = "xsltPath";
+    public static final String RDF_BASE_URI = "rdfBaseURI";
 }

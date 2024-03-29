@@ -370,6 +370,32 @@ public class DataServiceConfigFactory extends AbstractFactory {
         if (defaultNamespace != null) {
             result.setDefaultNamespace(defaultNamespace);
         }
+
+        String useColumnNumbers = node.getAttribute(Constant.USE_COLUMN_NUMBERS);
+        if (useColumnNumbers != null) {
+            result.setUseColumnNumbers(Boolean.parseBoolean(useColumnNumbers));
+        }
+
+        String escapeNonPrintableChar = node.getAttribute(Constant.ESCAPE_NON_PRINTABLE_CHAR);
+        if (escapeNonPrintableChar != null) {
+            result.setEscapeNonPrintableChar(Boolean.parseBoolean(escapeNonPrintableChar));
+        }
+
+        String xsltPath = node.getAttribute(Constant.XSLT_PATH);
+        if (xsltPath != null) {
+            result.setXsltPath(xsltPath);
+        }
+
+        String rdfBaseURI = node.getAttribute(Constant.RDF_BASE_URI);
+        if (rdfBaseURI != null) {
+            result.setRdfBaseURI(rdfBaseURI);
+        }
+
+        String outputType = node.getAttribute(Constant.OUTPUT_TYPE);
+        if (outputType != null) {
+            result.setOutputType(outputType);
+        }
+
         List<ResultElements> resultElements = createResultElements(node);
         if (resultElements != null) {
             result.setResultElements(resultElements.toArray(new ResultElements[resultElements.size()]));
