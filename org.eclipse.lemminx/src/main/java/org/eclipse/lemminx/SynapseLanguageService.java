@@ -36,6 +36,8 @@ import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointsRequ
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointValidity;
 import org.eclipse.lemminx.customservice.synapse.debugger.DebuggerHelper;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.ValidationResponse;
+import org.eclipse.lemminx.customservice.synapse.api.generator.APIGenerateParam;
+import org.eclipse.lemminx.customservice.synapse.api.generator.RestApiAdmin;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceFinder;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceResponse;
@@ -259,6 +261,14 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     public ConnectorHolder getConnectorHolder() {
 
         return connectorHolder;
+    }
+
+    @Override
+    public CompletableFuture<String> generateAPI(APIGenerateParam param) {
+
+        RestApiAdmin generator = new RestApiAdmin();
+        String apiXml = generator.createAPI(param.apiName, param.swaggerOrWsdlPath, param.mode);
+        return CompletableFuture.supplyAsync(() -> apiXml);
     }
 
     public static String getExtensionPath() {

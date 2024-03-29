@@ -21,6 +21,9 @@ package org.eclipse.lemminx.customservice;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connections;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
+import org.eclipse.lemminx.customservice.synapse.api.generator.APIGenerateParam;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceParam;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceResponse;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointInfoResponse;
@@ -89,4 +92,6 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<SchemaGenResponse> generateSchema(SchemaGenRequest schemaGenRequest);
+
+    CompletableFuture<String> generateAPI(APIGenerateParam param);
 }
