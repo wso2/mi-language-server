@@ -291,14 +291,17 @@ public class DirectoryTreeBuilder {
     private static Node createEsbComponent(String type, String name, String path) {
 
         String artifactName;
+        String nodeType = Utils.addUnderscoreBetweenWords(type).toUpperCase();
         try {
             artifactName = getArtifactName(type, path);
         } catch (IOException e) {
             //Could not read artifact name. Ignoring the file as it is invalid.
-            return null;
+            Node invalidNode = new Node(nodeType, name, path);
+            invalidNode.setFaulty(Boolean.TRUE);
+            return invalidNode;
         }
         if (artifactName == null) artifactName = name;
-        Node component = new Node(Utils.addUnderscoreBetweenWords(type).toUpperCase(), artifactName, path);
+        Node component = new Node(nodeType, artifactName, path);
         if (Constant.API.equalsIgnoreCase(type) || Constant.SEQUENCE.equalsIgnoreCase(type) ||
                 Constant.PROXY_SERVICE.equalsIgnoreCase(type) || Constant.INBOUND_ENDPOINT.equalsIgnoreCase(type)) {
             AdvancedNode advancedNode;

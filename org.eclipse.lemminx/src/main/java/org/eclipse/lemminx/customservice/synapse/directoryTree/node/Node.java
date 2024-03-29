@@ -24,6 +24,7 @@ public class Node {
     String subType;
     String name;
     String path;
+    Boolean isFaulty = false;
 
     public Node(String type, String name, String path) {
 
@@ -70,6 +71,16 @@ public class Node {
     public void setPath(String path) {
 
         this.path = path;
+    }
+
+    public Boolean getFaulty() {
+
+        return isFaulty;
+    }
+
+    public void setFaulty(Boolean faulty) {
+
+        isFaulty = faulty;
     }
 
     protected Boolean equals(Node component) {
