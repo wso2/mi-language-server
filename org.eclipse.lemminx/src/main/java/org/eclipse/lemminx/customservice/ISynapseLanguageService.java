@@ -18,6 +18,7 @@
 
 package org.eclipse.lemminx.customservice;
 
+import org.eclipse.lemminx.customservice.synapse.api.generator.APIGenerateParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceResponse;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
@@ -54,6 +55,9 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<ConnectorHolder> availableConnectors(TextDocumentIdentifier param);
+
+    @JsonRequest
+    CompletableFuture<String> generateAPI(APIGenerateParam param);
 
     @JsonNotification
     void updateConnectors(TextDocumentIdentifier param);

@@ -20,6 +20,8 @@ package org.eclipse.lemminx;
 
 import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.ISynapseLanguageService;
+import org.eclipse.lemminx.customservice.synapse.api.generator.APIGenerateParam;
+import org.eclipse.lemminx.customservice.synapse.api.generator.RestApiAdmin;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceFinder;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceResponse;
@@ -141,6 +143,14 @@ public class SynapseLanguageService implements ISynapseLanguageService {
                 extensionPath + File.separator + "synapse-schemas" + File.separator +
                         "mediators" + File.separator + "connectors.xsd";
         SchemaGenerate.generate(holder, connectorPath);
+    }
+
+    @Override
+    public CompletableFuture<String> generateAPI(APIGenerateParam param) {
+
+        RestApiAdmin generator = new RestApiAdmin();
+        String apiXml = generator.createAPI(param.apiName, param.swaggerOrWsdlPath, param.mode);
+        return CompletableFuture.supplyAsync(() -> apiXml);
     }
 
     public static String getExtensionPath() {
