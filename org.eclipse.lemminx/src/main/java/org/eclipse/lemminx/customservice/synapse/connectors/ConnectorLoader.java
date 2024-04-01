@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class ConnectorLoader {
 
@@ -100,7 +101,7 @@ public class ConnectorLoader {
 
         File[] tempFiles = tempFolder.listFiles();
         List<String> tempConnectorNames =
-                Arrays.stream(tempFiles).filter(File::isDirectory).map(File::getName).toList();
+                Arrays.stream(tempFiles).filter(File::isDirectory).map(File::getName).collect(Collectors.toList());
         for (File zip : connectorZips) {
             String zipName = zip.getName();
             zipName = zipName.substring(0, zipName.lastIndexOf(Constant.DOT));
