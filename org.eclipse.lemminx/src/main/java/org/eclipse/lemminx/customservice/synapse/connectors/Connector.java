@@ -25,6 +25,7 @@ public class Connector {
 
     private String name;
     private String path;
+    private String version;
     private List<ConnectorAction> actions;
     private String iconPath;
     private String uiSchemaPath;
@@ -67,6 +68,16 @@ public class Connector {
     public void setActions(List<ConnectorAction> actions) {
 
         this.actions = actions;
+    }
+
+    public String getVersion() {
+
+        return version;
+    }
+
+    public void setVersion(String version) {
+
+        this.version = version;
     }
 
     public String getIconPath() {

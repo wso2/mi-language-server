@@ -18,6 +18,8 @@
 
 package org.eclipse.lemminx.customservice;
 
+import org.eclipse.lemminx.customservice.synapse.connectors.AvailableConnectorParam;
+import org.eclipse.lemminx.customservice.synapse.connectors.Connector;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceResponse;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
@@ -28,6 +30,7 @@ import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceFolder;
+import org.eclipse.lsp4j.jsonrpc.messages.Either3;
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
@@ -53,7 +56,7 @@ public interface ISynapseLanguageService {
     CompletableFuture<ResourceResponse> availableResources(ResourceParam param);
 
     @JsonRequest
-    CompletableFuture<ConnectorHolder> availableConnectors(TextDocumentIdentifier param);
+    CompletableFuture<Either3<ConnectorHolder, Connector, Boolean>> availableConnectors(AvailableConnectorParam param);
 
     @JsonNotification
     void updateConnectors(TextDocumentIdentifier param);

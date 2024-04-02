@@ -20,6 +20,8 @@ package org.eclipse.lemminx;
 
 import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.ISynapseLanguageService;
+import org.eclipse.lemminx.customservice.synapse.connectors.AvailableConnectorParam;
+import org.eclipse.lemminx.customservice.synapse.connectors.Connector;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceFinder;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceResponse;
@@ -40,6 +42,7 @@ import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceFolder;
+import org.eclipse.lsp4j.jsonrpc.messages.Either3;
 
 import java.io.File;
 import java.util.Collections;
@@ -117,13 +120,20 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     }
 
     @Override
-    public CompletableFuture<ConnectorHolder> availableConnectors(TextDocumentIdentifier param) {
+    public CompletableFuture<Either3<ConnectorHolder, Connector, Boolean>> availableConnectors(AvailableConnectorParam param) {
 
-        return xmlTextDocumentService.computeDOMAsync(param, (xmlDocument, cancelChecker) -> {
+        return xmlTextDocumentService.computeDOMAsync(param.documentIdentifier, (xmlDocument, cancelChecker) -> {
             ConnectorLoader connectorLoader = new ConnectorLoader();
             connectorLoader.updateConnectorLoader(xmlDocument.getDocumentURI());
             ConnectorHolder availableConnectors = connectorLoader.loadConnector();
-            return availableConnectors;
+            if (param.connectorName != null && !param.connectorName.isEmpty()) {
+                Connector connector = availableConnectors.getConnector(param.connectorName);
+                if (connector == null) {
+                    return Either3.forThird(Boolean.FALSE);
+                }
+                return Either3.forSecond(connector);
+            }
+            return Either3.forFirst(availableConnectors);
         });
     }
 

@@ -141,6 +141,7 @@ public class ConnectorLoader {
                 connector = new Connector();
                 connector.setName(name);
                 connector.setPath(connectorPath);
+                connector.setVersion(getConnectorVersion(connectorPath));
                 connector.setIconPath(connectorPath + File.separator + "icon");
                 connector.setUiSchemaPath(connectorPath + File.separator + "uischema");
                 populateConnectorActions(connector, componentElement);
@@ -149,6 +150,16 @@ public class ConnectorLoader {
             }
         }
         return connector;
+    }
+
+    private String getConnectorVersion(String connectorPath) {
+
+        String connectorName = connectorPath.substring(connectorPath.lastIndexOf(File.separator) + 1);
+        int versionStartIndex = connectorName.lastIndexOf("-");
+        if (versionStartIndex == -1) {
+            return "";
+        }
+        return connectorName.substring(versionStartIndex + 1);
     }
 
     private void populateConnectorActions(Connector connector, DOMNode componentElement) {
