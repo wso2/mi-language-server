@@ -9,6 +9,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<lsp4j.version>0.20.1</lsp4j.version>
+		<commons.io.version>2.11.0</commons.io.version>
 		<junit.version>5.9.2</junit.version>
 	</properties>
 	<url>https://github.com/eclipse/lemminx</url>
@@ -112,6 +113,11 @@
 				<groupId>org.eclipse</groupId>
 				<artifactId>org.eclipse.lemminx</artifactId>
 				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>${commons.io.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

@@ -50,11 +50,21 @@ public class ConnectorHolder {
         return connectors;
     }
 
+    public Connector getConnector(String name) {
+
+        for (Connector connector : connectors) {
+            if (connector.getName().equalsIgnoreCase(name)) {
+                return connector;
+            }
+        }
+        return null;
+    }
+
     public Boolean isValidConnector(String name) {
 
         String connectorName = name.split("\\.")[0];
         for (Connector connector : connectors) {
-            if (connector.getName().equals(connectorName)) {
+            if (connector.getName().equalsIgnoreCase(connectorName)) {
                 for (ConnectorAction action : connector.getActions()) {
                     String tag = action.getTag();
                     if (tag != null && tag.equalsIgnoreCase(name)) {
