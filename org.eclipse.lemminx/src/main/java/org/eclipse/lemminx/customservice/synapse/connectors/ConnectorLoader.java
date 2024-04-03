@@ -18,6 +18,7 @@
 
 package org.eclipse.lemminx.customservice.synapse.connectors;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -25,6 +26,7 @@ import org.eclipse.lemminx.dom.DOMNode;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -75,9 +77,29 @@ public class ConnectorLoader {
                 }
             }
         }
+        removeOldConnectors(tempFolder, connectorZips);
         extractZips(connectorZips, tempFolder);
         readTempFolder(tempFolder, holder);
         return holder;
+    }
+
+    private void removeOldConnectors(File tempFolder, List<File> connectorZips) {
+
+        File[] tempFiles = tempFolder.listFiles();
+        List<String> tempConnectorNames =
+                Arrays.stream(tempFiles).filter(File::isDirectory).map(File::getName).collect(Collectors.toList());
+        for (String connectorName : tempConnectorNames) {
+            boolean isConnectorAvailable =
+                    connectorZips.stream().anyMatch(file -> file.getName().contains(connectorName));
+            if (!isConnectorAvailable) {
+                File connectorFolder = new File(tempFolder.getAbsolutePath() + File.separator + connectorName);
+                try {
+                    FileUtils.deleteDirectory(connectorFolder);
+                } catch (IOException e) {
+                    log.log(Level.WARNING, "Failed to delete connector folder:" + connectorName, e);
+                }
+            }
+        }
     }
 
     public ConnectorHolder loadConnectorInLegacyMode() {
