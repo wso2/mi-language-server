@@ -23,6 +23,7 @@ import java.util.List;
 public class ResourceResponse {
 
     private List<Resource> resources;
+    private List<Resource> registryResources;
 
     public List<Resource> getResources() {
 
@@ -32,5 +33,15 @@ public class ResourceResponse {
     public void setResources(List<Resource> resources) {
 
         this.resources = resources;
+    }
+
+    public List<Resource> getRegistryResources() {
+
+        return registryResources;
+    }
+
+    public void setRegistryResources(List<Resource> registryResources) {
+
+        this.registryResources = registryResources;
     }
 }

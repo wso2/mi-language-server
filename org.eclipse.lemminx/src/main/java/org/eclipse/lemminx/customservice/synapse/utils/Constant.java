@@ -436,4 +436,5 @@ public class Constant {
     public static final String ESCAPE_NON_PRINTABLE_CHAR = "escapeNonPrintableChar";
     public static final String XSLT_PATH = "xsltPath";
     public static final String RDF_BASE_URI = "rdfBaseURI";
+    public static final String DATA_SERVICE = "dataService";
 }

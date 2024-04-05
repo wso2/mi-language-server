@@ -37,16 +37,18 @@ public class ResourceFinder {
 
     private static final Logger LOGGER = Logger.getLogger(ResourceFinder.class.getName());
     private static final String ARTIFACTS = "ARTIFACTS";
+    private static final String REGISTRY = "REGISTRY";
+    private static final List<String> resourceFromRegistryOnly = List.of("dataMapper", "js", "json", "smooksConfig",
+            "wsdl", "ws_policy", "xsd", "xsl", "xslt", "yaml");
 
-    public static ResourceResponse getAvailableResources(DOMDocument xmlDocument, String resourceType) {
+    public static ResourceResponse getAvailableResources(String uri, String resourceType) {
 
-        ResourceResponse response = new ResourceResponse();
-        Boolean isLegacyProject = Utils.isLegacyProject(xmlDocument);
+        ResourceResponse response = null;
+        Boolean isLegacyProject = Utils.isLegacyProject(uri);
         try {
-            String projectRootPath = Utils.findProjectRootPath(xmlDocument.getDocumentURI(), isLegacyProject);
+            String projectRootPath = Utils.findProjectRootPath(uri, isLegacyProject);
             if (projectRootPath != null) {
-                List<Resource> resources = findResources(projectRootPath, resourceType, isLegacyProject);
-                response.setResources(resources);
+                response = findResources(projectRootPath, resourceType, isLegacyProject);
             }
         } catch (IOException e) {
             LOGGER.warning("Error while finding project root path");
@@ -54,7 +56,7 @@ public class ResourceFinder {
         return response;
     }
 
-    private static List<Resource> findResources(String projectPath, String type, Boolean isLegacyProject) {
+    private static ResourceResponse findResources(String projectPath, String type, Boolean isLegacyProject) {
 
         if (isLegacyProject) {
             return findResourcesInLegacyProject(projectPath, type);
@@ -62,31 +64,46 @@ public class ResourceFinder {
         return findResources(projectPath, type);
     }
 
-    private static List<Resource> findResources(String projectPath, String type) {
+    private static ResourceResponse findResources(String projectPath, String type) {
 
-        List<Resource> resources = new ArrayList<>();
-        Path artifactsPath = Path.of(projectPath, "src", "main", "wso2mi", "artifacts");
-        List<Resource> resourcesInArtifacts = findResourceInArtifacts(artifactsPath, type);
-        resources.addAll(resourcesInArtifacts);
+        ResourceResponse response = new ResourceResponse();
+        if (!resourceFromRegistryOnly.contains(type)) {
+            Path artifactsPath = Path.of(projectPath, "src", "main", "wso2mi", "artifacts");
+            List<Resource> resourcesInArtifacts = findResourceInArtifacts(artifactsPath, type);
+            response.setResources(resourcesInArtifacts);
+        }
+        Path registryPath = Path.of(projectPath, "src", "main", "wso2mi", "resources", "registry");
+        List<Resource> resourcesInRegistry = findResourceInRegistry(registryPath, type);
+        response.setRegistryResources(resourcesInRegistry);
 
-        return resources;
+        return response;
     }
 
-    private static List<Resource> findResourcesInLegacyProject(String projectPath, String type) {
+    private static ResourceResponse findResourcesInLegacyProject(String projectPath, String type) {
 
-        List<Resource> resources = new ArrayList<>();
+        ResourceResponse response = new ResourceResponse();
+        List<Resource> resourcesInArtifacts = new ArrayList<>();
+        List<Resource> resourcesInRegistry = new ArrayList<>();
         try {
             List<String> esbConfigPaths = LegacyConfigFinder.getConfigPaths(projectPath, ProjectType.ESB_CONFIGS.value);
             for (String esbConfigPath : esbConfigPaths) {
                 Path artifactPath = Path.of(esbConfigPath, "src", "main", "synapse-config");
                 List<Resource> resourceInArtifacts = findResourceInArtifacts(artifactPath, type);
-                resources.addAll(resourceInArtifacts);
+                resourcesInArtifacts.addAll(resourceInArtifacts);
+            }
+            List<String> registryConfigPaths = LegacyConfigFinder.getConfigPaths(projectPath,
+                    ProjectType.REGISTRY_RESOURCE.value);
+            for (String registryConfigPath : registryConfigPaths) {
+                Path registryPath = Path.of(registryConfigPath);
+                List<Resource> resourceInRegistry = findResourceInRegistry(registryPath, type);
+                resourcesInRegistry.addAll(resourceInRegistry);
             }
         } catch (IOException e) {
             LOGGER.warning("Error while finding resources in legacy project");
         }
-
-        return resources;
+        response.setResources(resourcesInArtifacts);
+        response.setRegistryResources(resourcesInRegistry);
+        return response;
     }
 
     private static List<Resource> findResourceInArtifacts(Path artifactsPath, String type) {
@@ -109,6 +126,49 @@ public class ResourceFinder {
         return resources;
     }
 
+    private static List<Resource> findResourceInRegistry(Path registryPath, String type) {
+
+        List<Resource> resources = new ArrayList<>();
+        File folder = registryPath.toFile();
+        traverseFolder(folder, type, resources);
+        return resources;
+    }
+
+    private static void traverseFolder(File folder, String type, List<Resource> resources) {
+
+        File[] listOfFiles = folder.listFiles();
+        if (listOfFiles != null) {
+            for (File file : listOfFiles) {
+                if (file.isDirectory()) {
+                    traverseFolder(file, type, resources);
+                } else if (file.isFile()) {
+                    List<String> nonXmlTypes = List.of("dataMapper", "js", "json", "wsdl", "xsd", "xsl", "xslt",
+                            "yaml");
+                    if (Utils.containsIgnoreCase(nonXmlTypes, type)) {
+                        String extension;
+                        if ("dataMapper".equalsIgnoreCase(type)) {
+                            extension = ".dmc";
+                        } else {
+                            extension = "." + type.toLowerCase();
+                        }
+                        if (file.getName().endsWith(extension)) {
+                            Resource resource = createNonXmlResource(file, type, REGISTRY);
+                            if (resource != null) {
+                                resources.add(resource);
+                            }
+                        }
+                    } else if (Utils.isXml(file)) {
+                        Resource resource = createResource(file, type, REGISTRY);
+                        if (resource != null) {
+                            resources.add(resource);
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+
     private static String processType(String type) {
 
         if (Constant.ENDPOINT.equalsIgnoreCase(type)) {
@@ -127,6 +187,10 @@ public class ResourceFinder {
             return "tasks";
         } else if (Constant.LOCAL_ENTRY.equalsIgnoreCase(type)) {
             return "local-entries";
+        } else if (Constant.DATA_SERVICE.equalsIgnoreCase(type)) {
+            return "data-services";
+        } else if (Constant.DATA_SOURCE.equalsIgnoreCase(type)) {
+            return "data-sources";
         }
         return null;
     }
@@ -143,12 +207,30 @@ public class ResourceFinder {
         return resources;
     }
 
+    private static Resource createNonXmlResource(File file, String type, String registry) {
+
+        Resource resource = new Resource();
+        resource.setName(file.getName());
+        resource.setType(type.toUpperCase());
+        resource.setFrom(registry);
+        resource.setPath(file.getAbsolutePath());
+        return resource;
+    }
+
     private static Resource createResource(File file, String type, String from) {
 
         try {
             DOMDocument document = Utils.getDOMDocument(file);
-            DOMElement rootElement = Utils.getRootElementFromConfigXml(document);
-            if (checkType(rootElement, type)) {
+            DOMElement rootElement;
+            String nodeName;
+            if ("ws_policy".equalsIgnoreCase(type) || "smooksConfig".equalsIgnoreCase(type)) {
+                nodeName = "smooksConfig".equalsIgnoreCase(type) ? "smooks-resource-list" : "wsp:Policy";
+                rootElement = (DOMElement) Utils.getChildNodeByName(document, nodeName);
+            } else {
+                nodeName = Constant.DATA_SERVICE.equalsIgnoreCase(type) ? "data" : type;
+                rootElement = Utils.getRootElementFromConfigXml(document);
+            }
+            if (rootElement != null && checkType(rootElement, nodeName)) {
                 Resource resource = new Resource();
                 resource.setName(rootElement.getAttribute(Constant.NAME));
                 resource.setType(Utils.addUnderscoreBetweenWords(type).toUpperCase());
@@ -165,7 +247,7 @@ public class ResourceFinder {
     private static boolean checkType(DOMElement rootElement, String type) {
 
         String elementType = rootElement.getNodeName();
-        if (type.contains(":")) {
+        if (type.contains("templates")) {
             elementType = elementType + "s";
             String[] splitType = type.split(":");
             if (elementType.equalsIgnoreCase(splitType[0])) {
