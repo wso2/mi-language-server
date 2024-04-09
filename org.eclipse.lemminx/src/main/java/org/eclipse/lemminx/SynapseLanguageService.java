@@ -141,6 +141,11 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     public void updateConnectors(TextDocumentIdentifier param) {
 
         String uri = param.getUri();
+        updateConnectors(uri);
+    }
+
+    public static void updateConnectors(String uri) {
+
         MediatorFactoryFinder.getInstance().updateConnectors(uri);
 
         //Generate xsd schema for the available connectors and write it to the schema file.

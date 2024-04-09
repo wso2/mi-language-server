@@ -93,8 +93,12 @@ public class XMLWorkspaceService implements WorkspaceService, IXMLCommandService
 				.getTextDocumentService();
 		List<FileEvent> changes = params.getChanges();
 		for (FileEvent change : changes) {
-			if (!xmlTextDocumentService.documentIsOpen(change.getUri())) {
-				xmlTextDocumentService.doSave(change.getUri());
+			if (change.getUri().contains("connectors") && change.getUri().contains(".zip")) {
+				SynapseLanguageService.updateConnectors(change.getUri());
+			} else {
+				if (!xmlTextDocumentService.documentIsOpen(change.getUri())) {
+					xmlTextDocumentService.doSave(change.getUri());
+				}
 			}
 		}
 	}
