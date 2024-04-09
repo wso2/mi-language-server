@@ -23,6 +23,9 @@ import org.eclipse.lemminx.customservice.ISynapseLanguageService;
 import org.eclipse.lemminx.customservice.synapse.connectors.AvailableConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.Connector;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.RegistryFileScanner;
+import org.eclipse.lemminx.customservice.synapse.debugger.BreakPointsRequest;
+import org.eclipse.lemminx.customservice.synapse.debugger.DebuggerHelper;
+import org.eclipse.lemminx.customservice.synapse.debugger.ValidationResponse;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceFinder;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceResponse;
@@ -163,6 +166,24 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
         List<String> registryFiles = RegistryFileScanner.scanRegistryFiles(param.getUri());
         return CompletableFuture.supplyAsync(() -> registryFiles);
+    }
+
+    @Override
+    public CompletableFuture<List<String>> getBreakPointInfo(BreakPointsRequest breakPointRequest) {
+
+        DebuggerHelper debuggerHelper = new DebuggerHelper(breakPointRequest.filePath);
+        List<String> debugInfoJson = debuggerHelper.generateDebugInfoJson(breakPointRequest.breakPoints);
+
+        return CompletableFuture.supplyAsync(() -> debugInfoJson);
+    }
+
+    @Override
+    public CompletableFuture<List<ValidationResponse>> validateBreakPoints(BreakPointsRequest breakPointRequest) {
+
+        DebuggerHelper debuggerHelper = new DebuggerHelper(breakPointRequest.filePath);
+        List<ValidationResponse> out = debuggerHelper.validateBreakpoints(breakPointRequest.breakPoints);
+
+        return CompletableFuture.supplyAsync(() -> out);
     }
 
     public static String getExtensionPath() {

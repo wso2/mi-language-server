@@ -20,6 +20,8 @@ package org.eclipse.lemminx.customservice;
 
 import org.eclipse.lemminx.customservice.synapse.connectors.AvailableConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.Connector;
+import org.eclipse.lemminx.customservice.synapse.debugger.BreakPointsRequest;
+import org.eclipse.lemminx.customservice.synapse.debugger.ValidationResponse;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceResponse;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
@@ -64,4 +66,10 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<List<String>> getRegistryFiles(TextDocumentIdentifier param);
+
+    @JsonRequest
+    CompletableFuture<List<String>> getBreakPointInfo(BreakPointsRequest breakPointRequest);
+
+    @JsonRequest
+    CompletableFuture<List<ValidationResponse>> validateBreakPoints(BreakPointsRequest breakPointRequest);
 }

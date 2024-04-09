@@ -1,0 +1,114 @@
+/*
+ * Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+package org.eclipse.lemminx.customservice.synapse.debugger.visitor;
+
+import org.eclipse.lemminx.customservice.synapse.debugger.BreakPoint;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.logging.Logger;
+
+public class VisitorUtils {
+
+    private static final Logger LOGGER = Logger.getLogger(VisitorUtils.class.getName());
+
+    public static boolean checkNodeInRange(STNode node, BreakPoint breakpoint) {
+
+        if (node == null) {
+            return false;
+        }
+        int startLine = node.getRange().getStartTagRange().getStart().getLine();
+        int endLine;
+        if (node.isSelfClosed()) {
+            endLine = node.getRange().getStartTagRange().getEnd().getLine();
+        } else {
+            endLine = node.getRange().getEndTagRange().getEnd().getLine();
+        }
+        if (startLine <= breakpoint.getLine() && breakpoint.getLine() <= endLine) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static boolean checkValidBreakpoint(STNode node, BreakPoint breakpoint) {
+
+        if (node == null) {
+            return false;
+        }
+        int startLine = node.getRange().getStartTagRange().getStart().getLine();
+        int endLine = node.getRange().getStartTagRange().getEnd().getLine();
+        if (startLine <= breakpoint.getLine() && breakpoint.getLine() <= endLine) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static void visitMediators(List<Mediator> mediators, MediatorVisitor visitor) {
+
+        if (mediators != null && mediators.size() > 0) {
+            for (Mediator mediator : mediators) {
+                if (visitor.isDone()) {
+                    return;
+                }
+                visitMediator(mediator, visitor);
+            }
+        }
+    }
+
+    public static void visitMediator(Mediator node, MediatorVisitor visitor) {
+
+        String tag = node.getTag();
+        tag = sanitizeTag(tag);
+
+        String visitFn;
+        visitFn = "visit" + tag.substring(0, 1).toUpperCase() + tag.substring(1);
+        try {
+            Method method = MediatorVisitor.class.getDeclaredMethod(visitFn, node.getClass());
+            method.setAccessible(true);
+            method.invoke(visitor, node);
+        } catch (NoSuchMethodException e) {
+            LOGGER.warning("No visit method found for mediator: " + tag);
+        } catch (InvocationTargetException e) {
+            LOGGER.warning("Error while invoking visit method for mediator: " + tag);
+        } catch (IllegalAccessException e) {
+            LOGGER.warning("Error while accessing visit method for mediator: " + tag);
+        }
+    }
+
+    private static String sanitizeTag(String tag) {
+
+        String sanitizedTag = tag;
+        if (tag.contains("-")) {
+            String[] split = tag.split("-");
+            sanitizedTag = split[0] + split[1].substring(0, 1).toUpperCase() + split[1].substring(1);
+        } else if (tag.contains(":")) {
+            String[] split = tag.split(":");
+            sanitizedTag = split[1];
+        } else if (tag.contains(".")) {
+            sanitizedTag = "connector";
+        }
+        return sanitizedTag;
+
+    }
+}

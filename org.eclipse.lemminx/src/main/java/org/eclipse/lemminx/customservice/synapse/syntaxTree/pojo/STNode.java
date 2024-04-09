@@ -69,9 +69,19 @@ public class STNode {
         return new Range(startTagRange, endTagRange);
     }
 
+    public Range getRange() {
+
+        return range;
+    }
+
     public String getTag() {
 
         return tag;
+    }
+
+    public boolean isSelfClosed() {
+
+        return selfClosed;
     }
 
     public void setTag(String tag) {
