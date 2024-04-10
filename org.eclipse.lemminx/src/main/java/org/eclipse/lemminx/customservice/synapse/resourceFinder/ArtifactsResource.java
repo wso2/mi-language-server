@@ -18,39 +18,18 @@
 
 package org.eclipse.lemminx.customservice.synapse.resourceFinder;
 
-public abstract class Resource {
+public class ArtifactsResource extends Resource {
 
-    private String name;
-    private String type;
-    private String from;
+    private String artifactPath;
 
-    public String getName() {
+    public String getArtifactPath() {
 
-        return name;
+        return artifactPath;
     }
 
-    public void setName(String name) {
+    public void setArtifactPath(String artifactPath) {
 
-        this.name = name;
+        this.artifactPath = artifactPath;
     }
 
-    public String getType() {
-
-        return type;
-    }
-
-    public void setType(String type) {
-
-        this.type = type;
-    }
-
-    public String getFrom() {
-
-        return from;
-    }
-
-    public void setFrom(String from) {
-
-        this.from = from;
-    }
 }

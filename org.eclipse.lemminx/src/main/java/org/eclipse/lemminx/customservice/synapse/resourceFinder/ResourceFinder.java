@@ -24,7 +24,6 @@ import org.eclipse.lemminx.customservice.synapse.utils.LegacyConfigFinder;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
-import org.eclipse.lemminx.dom.DOMNode;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +33,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ResourceFinder {
 
@@ -233,11 +234,12 @@ public class ResourceFinder {
 
     private static Resource createNonXmlResource(File file, String type, String registry) {
 
-        Resource resource = new Resource();
+        Resource resource = new RegistryResource();
         resource.setName(file.getName());
         resource.setType(type.toUpperCase());
         resource.setFrom(registry);
-        resource.setPath(file.getAbsolutePath());
+        ((RegistryResource) resource).setRegistryPath(file.getAbsolutePath());
+        ((RegistryResource) resource).setRegistryKey(getRegistryKey(file));
         return resource;
     }
 
@@ -249,11 +251,12 @@ public class ResourceFinder {
             String nodeName = typeToXmlTagMap.get(type);
             rootElement = (DOMElement) Utils.getChildNodeByName(document, nodeName);
             if (rootElement != null) {
-                Resource resource = new Resource();
-                resource.setName(rootElement.getAttribute(Constant.NAME));
-                resource.setType(Utils.addUnderscoreBetweenWords(type).toUpperCase());
-                resource.setFrom(from);
-                resource.setPath(file.getAbsolutePath());
+                Resource resource = null;
+                if (ARTIFACTS.equals(from)) {
+                    resource = createArtifactResource(file, rootElement, type);
+                } else if (REGISTRY.equals(from)) {
+                    resource = createRegistryResource(file, rootElement, type);
+                }
                 return resource;
             }
         } catch (IOException e) {
@@ -262,4 +265,39 @@ public class ResourceFinder {
         return null;
     }
 
+    private static Resource createArtifactResource(File file, DOMElement rootElement, String type) {
+
+        Resource artifact = new ArtifactsResource();
+        artifact.setName(rootElement.getAttribute(Constant.NAME));
+        artifact.setType(Utils.addUnderscoreBetweenWords(type).toUpperCase());
+        artifact.setFrom(ARTIFACTS);
+        ((ArtifactsResource) artifact).setArtifactPath(file.getAbsolutePath());
+        return artifact;
+    }
+
+    private static Resource createRegistryResource(File file, DOMElement rootElement, String type) {
+
+        Resource registry = new RegistryResource();
+        registry.setName(rootElement.getAttribute(Constant.NAME));
+        registry.setType(Utils.addUnderscoreBetweenWords(type).toUpperCase());
+        registry.setFrom(REGISTRY);
+        ((RegistryResource) registry).setRegistryPath(file.getAbsolutePath());
+        ((RegistryResource) registry).setRegistryKey(getRegistryKey(file));
+        return registry;
+    }
+
+    private static String getRegistryKey(File file) {
+
+        String pattern = "(.*)(\\b(gov|conf)\\b)(.*)";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(file.getAbsolutePath());
+
+        if (m.find()) {
+            String type = m.group(3);
+            String path = m.group(4).replaceAll("^/+", "");
+            return type + ":" + path;
+        } else {
+            return null;
+        }
+    }
 }
