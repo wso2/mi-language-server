@@ -24,6 +24,7 @@ import org.eclipse.lemminx.customservice.synapse.directoryTree.node.AdvancedNode
 import org.eclipse.lemminx.customservice.synapse.directoryTree.node.FileNode;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.node.FolderNode;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.node.Node;
+import org.eclipse.lemminx.customservice.synapse.directoryTree.node.RegistryNode;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.node.TestFolder;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.legacyBuilder.LegacyDirectoryTreeBuilder;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.utils.DirectoryTreeUtils;
@@ -101,7 +102,7 @@ public class DirectoryTreeBuilder {
         if (folder != null && folder.exists() && !folder.isHidden()) {
             String folderName = folder.getName();
             FolderNode folderNode = new FolderNode(folderName, projectPath);
-            traverseFolder(folderNode);
+            traverseFolder(folderNode, null);
             directoryTree.setFolders(folderNode.getFolders());
             directoryTree.setFiles(folderNode.getFiles());
         }
@@ -186,7 +187,7 @@ public class DirectoryTreeBuilder {
             if (!folder.isHidden()) {
                 String folderName = folder.getName();
                 FolderNode registryFolderNode = new FolderNode(folderName, registryPath);
-                traverseFolder(registryFolderNode);
+                traverseFolder(registryFolderNode, directoryTree);
                 if (Constant.GOV.equalsIgnoreCase(type)) {
                     directoryTree.getResources().getRegistry().setGov(registryFolderNode);
                 } else if (Constant.CONF.equalsIgnoreCase(type)) {
@@ -243,7 +244,7 @@ public class DirectoryTreeBuilder {
             if (!folder.isHidden()) {
                 String folderName = folder.getName();
                 FolderNode javaFolderNode = new FolderNode(folderName, javaPath);
-                traverseFolder(javaFolderNode);
+                traverseFolder(javaFolderNode, null);
                 directoryTree.setJava(javaFolderNode);
             }
         }
@@ -264,12 +265,12 @@ public class DirectoryTreeBuilder {
         if (subFolder != null && subFolder.exists() && !subFolder.isHidden()) {
             String folderName = subFolder.getName();
             FolderNode testsFolderNode = new FolderNode(folderName, testPath);
-            traverseFolder(testsFolderNode);
+            traverseFolder(testsFolderNode, null);
             setter.accept(testsFolderNode);
         }
     }
 
-    private static void traverseFolder(FolderNode folderNode) {
+    private static void traverseFolder(FolderNode folderNode, IntegrationDirectoryTree directoryTree) {
 
         File[] listOfFiles = folderNode.listFiles();
         for (File file : listOfFiles) {
@@ -278,14 +279,60 @@ public class DirectoryTreeBuilder {
                 String filePath = file.getAbsolutePath();
                 FileNode fileNodeComponent = new FileNode(name, filePath);
                 folderNode.addFile(fileNodeComponent);
+                if (directoryTree != null) {
+                    addResourceToIntegrationTree(directoryTree, filePath);
+                }
             } else if (file.isDirectory() && !file.isHidden()) {
                 String name = file.getName();
                 String folderPath = file.getAbsolutePath();
                 FolderNode subFolderNode = new FolderNode(name, folderPath);
                 folderNode.addFolder(subFolderNode);
-                traverseFolder(subFolderNode);
+                traverseFolder(subFolderNode, directoryTree);
             }
         }
+    }
+
+    private static void addResourceToIntegrationTree(IntegrationDirectoryTree directoryTree, String path) {
+
+        if (path.endsWith(".xml")) {
+            try {
+                File file = new File(path);
+                DOMDocument domDocument = Utils.getDOMDocument(file);
+                DOMElement rootElement = Utils.getRootElementFromConfigXml(domDocument);
+
+                if (rootElement != null) {
+                    String type = rootElement.getNodeName();
+                    String name = file.getName();
+                    type = getType(type);
+                    Node regNode = createRegistryNode(name, type, path);
+                    String methodName = "add" + type;
+                    Method method = directoryTree.getClass().getMethod
+                            (methodName, Node.class);
+                    method.invoke(directoryTree, regNode);
+                }
+            } catch (IOException e) {
+                LOGGER.log(Level.WARNING, "Error while reading file content", e);
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                LOGGER.log(Level.WARNING, "Error while trying to execute method.", e);
+            }
+        }
+    }
+
+    private static Node createRegistryNode(String name, String type, String path) {
+
+        StringBuilder key = new StringBuilder();
+        if (path.contains(Constant.GOV)) {
+            key.append(Constant.GOV);
+        } else {
+            key.append(Constant.CONF);
+        }
+        String key1 = path.substring(path.indexOf(key.toString()) + key.length() + 1,
+                path.lastIndexOf(File.separator) + 1);
+        key.append(":");
+        key.append(key1);
+        Node node = createEsbComponent(type, name, path);
+        Node registry = new RegistryNode(node, key.toString());
+        return registry;
     }
 
     private static Node createEsbComponent(String type, String name, String path) {
