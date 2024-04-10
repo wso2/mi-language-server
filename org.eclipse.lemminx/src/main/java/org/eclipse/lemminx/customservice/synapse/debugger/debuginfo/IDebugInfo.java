@@ -18,7 +18,7 @@
 
 package org.eclipse.lemminx.customservice.synapse.debugger.debuginfo;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.gson.JsonElement;
 
 public interface IDebugInfo {
 
@@ -32,5 +32,5 @@ public interface IDebugInfo {
 
     void setError(String error);
 
-    String toJsonString() throws JsonProcessingException;
+    JsonElement toJson();
 }

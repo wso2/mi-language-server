@@ -18,9 +18,8 @@
 
 package org.eclipse.lemminx.customservice.synapse.debugger.debuginfo;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 public class ApiDebugInfo extends DebugInfo {
 
@@ -29,12 +28,6 @@ public class ApiDebugInfo extends DebugInfo {
     String uriTemplate;
     String urlMapping;
     String sequenceType;
-
-    public ApiDebugInfo() {
-
-        objectMapper = new ObjectMapper();
-        this.isValid = true;
-    }
 
     public void setApiKey(String apiKey) {
 
@@ -61,30 +54,28 @@ public class ApiDebugInfo extends DebugInfo {
         this.urlMapping = urlMapping;
     }
 
-    public String toJsonString() throws JsonProcessingException {
+    public JsonElement toJson() {
 
-        ObjectNode rootNode = objectMapper.createObjectNode();
-
-        ObjectNode sequence = objectMapper.createObjectNode();
-        ObjectNode api = objectMapper.createObjectNode();
-        api.put("api-key", apiKey);
-        ObjectNode resource = objectMapper.createObjectNode();
-        resource.put("method", method);
+        JsonObject rootNode = new JsonObject();
+        JsonObject sequence = new JsonObject();
+        JsonObject api = new JsonObject();
+        api.addProperty("api-key", apiKey);
+        JsonObject resource = new JsonObject();
+        resource.addProperty("method", method);
         if (uriTemplate != null) {
-            resource.put("uri-template", uriTemplate);
+            resource.addProperty("uri-template", uriTemplate);
         } else {
-            resource.put("url-mapping", urlMapping);
+            resource.addProperty("url-mapping", urlMapping);
         }
-        api.set("resource", resource);
-        api.put("sequence-type", sequenceType);
-        api.put("mediator-position", mediatorPosition);
-        sequence.set("api", api);
-        rootNode.set("sequence", sequence);
+        api.add("resource", resource);
+        api.addProperty("sequence-type", sequenceType);
+        api.addProperty("mediator-position", mediatorPosition);
+        sequence.add("api", api);
+        rootNode.add("sequence", sequence);
 
-        rootNode.put("command", "set");
-        rootNode.put("command-argument", "breakpoint");
-        rootNode.put("mediation-component", "sequence");
-
-        return objectMapper.writeValueAsString(rootNode);
+        rootNode.addProperty("command", "set");
+        rootNode.addProperty("command-argument", "breakpoint");
+        rootNode.addProperty("mediation-component", "sequence");
+        return rootNode;
     }
 }

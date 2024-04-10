@@ -18,38 +18,32 @@
 
 package org.eclipse.lemminx.customservice.synapse.debugger.debuginfo;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 public class SequenceDebugInfo extends DebugInfo {
 
     String sequenceKey;
-
-    public SequenceDebugInfo() {
-
-        objectMapper = new ObjectMapper();
-    }
 
     public void setSequenceKey(String sequenceKey) {
 
         this.sequenceKey = sequenceKey;
     }
 
-    public String toJsonString() throws JsonProcessingException {
+    @Override
+    public JsonElement toJson() {
 
-        ObjectNode rootNode = objectMapper.createObjectNode();
+        JsonObject rootNode = new JsonObject();
+        JsonObject sequence = new JsonObject();
+        sequence.addProperty("sequence-type", "named");
+        sequence.addProperty("sequence-key", sequenceKey);
+        sequence.addProperty("mediator-position", mediatorPosition);
 
-        ObjectNode sequence = objectMapper.createObjectNode();
-        sequence.put("sequence-type", "named");
-        sequence.put("sequence-key", sequenceKey);
-        sequence.put("mediator-position", mediatorPosition);
+        rootNode.add("sequence", sequence);
+        rootNode.addProperty("command", "set");
+        rootNode.addProperty("command-argument", "breakpoint");
+        rootNode.addProperty("mediation-component", "sequence");
 
-        rootNode.set("sequence", sequence);
-        rootNode.put("command", "set");
-        rootNode.put("command-argument", "breakpoint");
-        rootNode.put("mediation-component", "sequence");
-
-        return objectMapper.writeValueAsString(rootNode);
+        return rootNode;
     }
 }

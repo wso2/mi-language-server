@@ -18,7 +18,7 @@
 
 package org.eclipse.lemminx.customservice.synapse.debugger.visitor;
 
-import org.eclipse.lemminx.customservice.synapse.debugger.BreakPoint;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 
@@ -31,7 +31,7 @@ public class VisitorUtils {
 
     private static final Logger LOGGER = Logger.getLogger(VisitorUtils.class.getName());
 
-    public static boolean checkNodeInRange(STNode node, BreakPoint breakpoint) {
+    public static boolean checkNodeInRange(STNode node, Breakpoint breakpoint) {
 
         if (node == null) {
             return false;
@@ -50,7 +50,7 @@ public class VisitorUtils {
         }
     }
 
-    public static boolean checkValidBreakpoint(STNode node, BreakPoint breakpoint) {
+    public static boolean checkValidBreakpoint(STNode node, Breakpoint breakpoint) {
 
         if (node == null) {
             return false;

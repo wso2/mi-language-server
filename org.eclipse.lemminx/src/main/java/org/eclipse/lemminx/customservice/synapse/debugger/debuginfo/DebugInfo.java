@@ -18,15 +18,11 @@
 
 package org.eclipse.lemminx.customservice.synapse.debugger.debuginfo;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-public class DebugInfo implements IDebugInfo {
+public abstract class DebugInfo implements IDebugInfo {
 
     String mediatorPosition;
-    boolean isValid;
+    boolean isValid = Boolean.TRUE;
     String error;
-    ObjectMapper objectMapper;
 
     @Override
     public boolean isValid() {
@@ -56,11 +52,5 @@ public class DebugInfo implements IDebugInfo {
     public void setMediatorPosition(String mediatorPosition) {
 
         this.mediatorPosition = mediatorPosition;
-    }
-
-    @Override
-    public String toJsonString() throws JsonProcessingException {
-
-        return null;
     }
 }

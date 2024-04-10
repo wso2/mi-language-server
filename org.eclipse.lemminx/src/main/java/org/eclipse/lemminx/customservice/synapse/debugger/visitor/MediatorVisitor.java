@@ -18,9 +18,9 @@
 
 package org.eclipse.lemminx.customservice.synapse.debugger.visitor;
 
-import org.eclipse.lemminx.customservice.synapse.debugger.BreakPoint;
 import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.ApiDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.IDebugInfo;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Connector;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.Clone.Clone;
@@ -78,13 +78,13 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transf
 
 public class MediatorVisitor extends AbstractMediatorVisitor {
 
-    BreakPoint breakpoint;
+    Breakpoint breakpoint;
     IDebugInfo debugInfo;
     String mediatorPosition;
     int mediatorCount;
     boolean done; //remove it later
 
-    public MediatorVisitor(BreakPoint breakpoint, IDebugInfo debugInfo) {
+    public MediatorVisitor(Breakpoint breakpoint, IDebugInfo debugInfo) {
 
         this.breakpoint = breakpoint;
         this.debugInfo = debugInfo;
@@ -92,7 +92,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
         this.done = false;
     }
 
-    public MediatorVisitor(BreakPoint breakpoint) {
+    public MediatorVisitor(Breakpoint breakpoint) {
 
         this.breakpoint = breakpoint;
         this.debugInfo = new ApiDebugInfo();

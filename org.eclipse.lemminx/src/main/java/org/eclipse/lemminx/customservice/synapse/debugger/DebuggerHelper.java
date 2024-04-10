@@ -18,13 +18,15 @@
 
 package org.eclipse.lemminx.customservice.synapse.debugger;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.gson.JsonElement;
 import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.ApiDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.IDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.InboundDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.ProxyDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.SequenceDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.TemplateDebugInfo;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointValidity;
 import org.eclipse.lemminx.customservice.synapse.debugger.visitor.ApiVisitor;
 import org.eclipse.lemminx.customservice.synapse.debugger.visitor.InboundEndpointVisitor;
 import org.eclipse.lemminx.customservice.synapse.debugger.visitor.ProxyVisitor;
@@ -64,44 +66,40 @@ public class DebuggerHelper {
         }
     }
 
-    public List<ValidationResponse> validateBreakpoints(List<BreakPoint> breakPoints) {
-
-        List<IDebugInfo> debugInfos = generateDebugInfo(breakPoints);
-        List<ValidationResponse> out = new ArrayList<>();
-        for (int i = 0; i < breakPoints.size(); i++) {
-            BreakPoint breakPoint = breakPoints.get(i);
-            IDebugInfo debugInfo = debugInfos.get(i);
-            ValidationResponse validationResponse = new ValidationResponse(breakPoint.getLine(), debugInfo.isValid(),
-                    debugInfo.getError());
-            out.add(validationResponse);
-        }
-        return out;
-    }
-
-    public List<String> generateDebugInfoJson(List<BreakPoint> breakpoints) {
+    public List<BreakpointValidity> validateBreakpoints(List<Breakpoint> breakpoints) {
 
         List<IDebugInfo> debugInfos = generateDebugInfo(breakpoints);
-        List<String> out = new ArrayList<>();
-        try {
-            for (IDebugInfo debugInfo : debugInfos) {
-                out.add(debugInfo.toJsonString());
-            }
-        } catch (JsonProcessingException e) {
-            LOGGER.log(Level.SEVERE, "Error while generating debug info json", e);
+        List<BreakpointValidity> validationList = new ArrayList<>();
+        for (int i = 0; i < breakpoints.size(); i++) {
+            Breakpoint breakPoint = breakpoints.get(i);
+            IDebugInfo debugInfo = debugInfos.get(i);
+            BreakpointValidity breakpointValidity = new BreakpointValidity(breakPoint.getLine(), debugInfo.isValid(),
+                    debugInfo.getError());
+            validationList.add(breakpointValidity);
+        }
+        return validationList;
+    }
+
+    public List<JsonElement> generateDebugInfoJson(List<Breakpoint> breakpoints) {
+
+        List<IDebugInfo> debugInfos = generateDebugInfo(breakpoints);
+        List<JsonElement> out = new ArrayList<>();
+        for (IDebugInfo debugInfo : debugInfos) {
+            out.add(debugInfo.toJson());
         }
         return out;
     }
 
-    public List<IDebugInfo> generateDebugInfo(List<BreakPoint> breakpoints) {
+    public List<IDebugInfo> generateDebugInfo(List<Breakpoint> breakpoints) {
 
         List<IDebugInfo> breakPointInfo = new ArrayList<>();
-        for (BreakPoint bpr : breakpoints) {
+        for (Breakpoint bpr : breakpoints) {
             breakPointInfo.add(generateDebugInfo(bpr));
         }
         return breakPointInfo;
     }
 
-    public IDebugInfo generateDebugInfo(BreakPoint breakPoint) {
+    public IDebugInfo generateDebugInfo(Breakpoint breakPoint) {
 
         String tag = syntaxTree.getTag();
         IDebugInfo debugInfo = null;
@@ -121,8 +119,8 @@ public class DebuggerHelper {
             sequenceVisitor.startVisit();
         } else if (Constant.INBOUND_ENDPOINT.equalsIgnoreCase(tag)) {
             debugInfo = new InboundDebugInfo();
-            InboundEndpointVisitor inboundEndpointVisitor = new InboundEndpointVisitor((InboundEndpoint) syntaxTree, breakPoint,
-                    (InboundDebugInfo) debugInfo);
+            InboundEndpointVisitor inboundEndpointVisitor = new InboundEndpointVisitor((InboundEndpoint) syntaxTree,
+                    breakPoint, (InboundDebugInfo) debugInfo);
             inboundEndpointVisitor.startVisit();
         } else if (Constant.TEMPLATE.equalsIgnoreCase(tag)) {
             debugInfo = new TemplateDebugInfo();

@@ -18,17 +18,17 @@
 
 package org.eclipse.lemminx.customservice.synapse.debugger.visitor;
 
-import org.eclipse.lemminx.customservice.synapse.debugger.BreakPoint;
 import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.SequenceDebugInfo;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.NamedSequence;
 
 public class SequenceVisitor implements Visitor {
 
     NamedSequence syntaxTree;
-    BreakPoint breakpoint;
+    Breakpoint breakpoint;
     SequenceDebugInfo debugInfo;
 
-    public SequenceVisitor(NamedSequence syntaxTree, BreakPoint breakpoint, SequenceDebugInfo debugInfo) {
+    public SequenceVisitor(NamedSequence syntaxTree, Breakpoint breakpoint, SequenceDebugInfo debugInfo) {
 
         this.syntaxTree = syntaxTree;
         this.breakpoint = breakpoint;

@@ -18,19 +18,13 @@
 
 package org.eclipse.lemminx.customservice.synapse.debugger.debuginfo;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 public class InboundDebugInfo extends DebugInfo {
 
     String inboundKey;
     String sequenceType;
-
-    public InboundDebugInfo() {
-
-        objectMapper = new ObjectMapper();
-    }
 
     public void setInboundKey(String inboundKey) {
 
@@ -42,23 +36,22 @@ public class InboundDebugInfo extends DebugInfo {
         this.sequenceType = sequenceType;
     }
 
-    public String toJsonString() throws JsonProcessingException {
+    @Override
+    public JsonElement toJson() {
 
-        ObjectNode rootNode = objectMapper.createObjectNode();
+        JsonObject rootNode = new JsonObject();
+        JsonObject sequence = new JsonObject();
+        JsonObject inbound = new JsonObject();
+        inbound.addProperty("inbound-key", inboundKey);
+        inbound.addProperty("sequence-type", sequenceType);
+        inbound.addProperty("mediator-position", mediatorPosition);
+        sequence.add("proxy", inbound);
+        rootNode.add("sequence", sequence);
 
-        ObjectNode sequence = objectMapper.createObjectNode();
-        ObjectNode inbound = objectMapper.createObjectNode();
-        inbound.put("inbound-key", inboundKey);
-        inbound.put("sequence-type", sequenceType);
-        inbound.put("mediator-position", mediatorPosition);
-        sequence.set("proxy", inbound);
-        rootNode.set("sequence", sequence);
+        rootNode.addProperty("command", "set");
+        rootNode.addProperty("command-argument", "breakpoint");
+        rootNode.addProperty("mediation-component", "sequence");
 
-        rootNode.put("command", "set");
-        rootNode.put("command-argument", "breakpoint");
-        rootNode.put("mediation-component", "sequence");
-
-        return objectMapper.writeValueAsString(rootNode);
+        return rootNode;
     }
-
 }

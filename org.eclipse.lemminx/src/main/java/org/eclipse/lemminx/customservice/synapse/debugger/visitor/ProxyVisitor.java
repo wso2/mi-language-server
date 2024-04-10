@@ -18,8 +18,8 @@
 
 package org.eclipse.lemminx.customservice.synapse.debugger.visitor;
 
-import org.eclipse.lemminx.customservice.synapse.debugger.BreakPoint;
 import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.ProxyDebugInfo;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.proxy.Proxy;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.proxy.ProxyTarget;
@@ -27,10 +27,10 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.proxy.ProxyTarg
 public class ProxyVisitor implements Visitor {
 
     Proxy syntaxTree;
-    BreakPoint breakpoint;
+    Breakpoint breakpoint;
     ProxyDebugInfo proxyDebugInfo;
 
-    public ProxyVisitor(Proxy syntaxTree, BreakPoint breakpoint, ProxyDebugInfo proxyDebugInfo) {
+    public ProxyVisitor(Proxy syntaxTree, Breakpoint breakpoint, ProxyDebugInfo proxyDebugInfo) {
 
         this.syntaxTree = syntaxTree;
         this.breakpoint = breakpoint;
@@ -68,6 +68,9 @@ public class ProxyVisitor implements Visitor {
             visitMediationSequence(target.getOutSequence());
         } else if (VisitorUtils.checkNodeInRange(target.getFaultSequence(), breakpoint)) {
             visitMediationSequence(target.getFaultSequence());
+        } else {
+            proxyDebugInfo.setError("Breakpoint is not in the range of the proxy target sequence");
+            proxyDebugInfo.setValid(false);
         }
     }
 

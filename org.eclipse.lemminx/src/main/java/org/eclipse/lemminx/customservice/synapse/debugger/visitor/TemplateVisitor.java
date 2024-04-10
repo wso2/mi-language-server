@@ -18,17 +18,17 @@
 
 package org.eclipse.lemminx.customservice.synapse.debugger.visitor;
 
-import org.eclipse.lemminx.customservice.synapse.debugger.BreakPoint;
 import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.TemplateDebugInfo;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.template.Template;
 
 public class TemplateVisitor implements Visitor {
 
     Template syntaxTree;
-    BreakPoint breakpoint;
+    Breakpoint breakpoint;
     TemplateDebugInfo templateDebugInfo;
 
-    public TemplateVisitor(Template syntaxTree, BreakPoint breakpoint, TemplateDebugInfo debugInfo) {
+    public TemplateVisitor(Template syntaxTree, Breakpoint breakpoint, TemplateDebugInfo debugInfo) {
 
         this.syntaxTree = syntaxTree;
         this.breakpoint = breakpoint;

@@ -18,19 +18,13 @@
 
 package org.eclipse.lemminx.customservice.synapse.debugger.debuginfo;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 public class ProxyDebugInfo extends DebugInfo {
 
     String proxyKey;
     String sequenceType;
-
-    public ProxyDebugInfo() {
-
-        objectMapper = new ObjectMapper();
-    }
 
     public void setProxyKey(String proxyKey) {
 
@@ -42,22 +36,21 @@ public class ProxyDebugInfo extends DebugInfo {
         this.sequenceType = sequenceType;
     }
 
-    public String toJsonString() throws JsonProcessingException {
+    @Override
+    public JsonElement toJson() {
 
-        ObjectNode rootNode = objectMapper.createObjectNode();
+        JsonObject rootNode = new JsonObject();
+        JsonObject sequence = new JsonObject();
+        JsonObject proxy = new JsonObject();
+        proxy.addProperty("proxy-key", proxyKey);
+        proxy.addProperty("sequence-type", sequenceType);
+        proxy.addProperty("mediator-position", mediatorPosition);
+        sequence.add("proxy", proxy);
+        rootNode.add("sequence", sequence);
 
-        ObjectNode sequence = objectMapper.createObjectNode();
-        ObjectNode proxy = objectMapper.createObjectNode();
-        proxy.put("proxy-key", proxyKey);
-        proxy.put("sequence-type", sequenceType);
-        proxy.put("mediator-position", mediatorPosition);
-        sequence.set("proxy", proxy);
-        rootNode.set("sequence", sequence);
-
-        rootNode.put("command", "set");
-        rootNode.put("command-argument", "breakpoint");
-        rootNode.put("mediation-component", "sequence");
-
-        return objectMapper.writeValueAsString(rootNode);
+        rootNode.addProperty("command", "set");
+        rootNode.addProperty("command-argument", "breakpoint");
+        rootNode.addProperty("mediation-component", "sequence");
+        return rootNode;
     }
 }

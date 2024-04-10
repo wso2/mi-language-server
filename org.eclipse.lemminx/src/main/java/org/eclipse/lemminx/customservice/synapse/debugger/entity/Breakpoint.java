@@ -16,17 +16,15 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.debugger;
+package org.eclipse.lemminx.customservice.synapse.debugger.entity;
 
-public class BreakPoint {
+public class Breakpoint {
 
     int line;
-    int column;
 
-    public BreakPoint(int line, int column) {
+    public Breakpoint(int line) {
 
         this.line = line;
-        this.column = column;
     }
 
     public int getLine() {
@@ -37,15 +35,5 @@ public class BreakPoint {
     public void setLine(int line) {
 
         this.line = line;
-    }
-
-    public int getColumn() {
-
-        return column;
-    }
-
-    public void setColumn(int column) {
-
-        this.column = column;
     }
 }

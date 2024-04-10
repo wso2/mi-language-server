@@ -16,20 +16,12 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.debugger.visitor;
+package org.eclipse.lemminx.customservice.synapse.debugger.entity;
 
-import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.InboundDebugInfo;
-import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+import java.util.List;
 
-public class InboundEndpointVisitor implements Visitor {
+public class BreakpointsRequest {
 
-    public InboundEndpointVisitor(STNode syntaxTree, Breakpoint breakpoint, InboundDebugInfo breakPoint) {
-
-    }
-
-    @Override
-    public void startVisit() {
-
-    }
+    public String filePath;
+    public List<Breakpoint> breakpoints;
 }

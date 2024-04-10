@@ -16,18 +16,18 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.debugger;
+package org.eclipse.lemminx.customservice.synapse.debugger.entity;
 
-public class ValidationResponse {
+import com.google.gson.JsonElement;
 
-    int line;
-    boolean valid;
-    String reason;
+import java.util.List;
 
-    public ValidationResponse(int line, boolean valid, String reason) {
+public class BreakpointInfoResponse {
 
-        this.line = line;
-        this.valid = valid;
-        this.reason = reason;
+    List<JsonElement> breakpointInfo;
+
+    public BreakpointInfoResponse(List<JsonElement> debugInfoJsonList) {
+
+        this.breakpointInfo = debugInfoJsonList;
     }
 }

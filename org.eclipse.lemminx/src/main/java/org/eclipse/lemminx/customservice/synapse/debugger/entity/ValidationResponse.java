@@ -16,12 +16,16 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.debugger;
+package org.eclipse.lemminx.customservice.synapse.debugger.entity;
 
 import java.util.List;
 
-public class BreakPointsRequest {
+public class ValidationResponse {
 
-    public String filePath;
-    public List<BreakPoint> breakPoints;
+    List<BreakpointValidity> breakPointValidity;
+
+    public ValidationResponse(List<BreakpointValidity> breakPointValidity) {
+
+        this.breakPointValidity = breakPointValidity;
+    }
 }

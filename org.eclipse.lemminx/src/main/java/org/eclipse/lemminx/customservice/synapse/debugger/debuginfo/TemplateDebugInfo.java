@@ -18,38 +18,31 @@
 
 package org.eclipse.lemminx.customservice.synapse.debugger.debuginfo;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 public class TemplateDebugInfo extends DebugInfo {
 
     String templateKey;
-
-    public TemplateDebugInfo() {
-
-        objectMapper = new ObjectMapper();
-    }
 
     public void setTemplateKey(String templateKey) {
 
         this.templateKey = templateKey;
     }
 
-    public String toJsonString() throws JsonProcessingException {
+    @Override
+    public JsonElement toJson() {
 
-        ObjectNode rootNode = objectMapper.createObjectNode();
+        JsonObject rootNode = new JsonObject();
+        JsonObject template = new JsonObject();
+        template.addProperty("template-key", templateKey);
+        template.addProperty("mediator-position", mediatorPosition);
+        rootNode.add("template", template);
 
-        ObjectNode template = objectMapper.createObjectNode();
-        template.put("template-key", templateKey);
-        template.put("mediator-position", mediatorPosition);
-        rootNode.set("template", template);
+        rootNode.addProperty("command", "set");
+        rootNode.addProperty("command-argument", "breakpoint");
+        rootNode.addProperty("mediation-component", "template");
 
-        rootNode.put("command", "set");
-        rootNode.put("command-argument", "breakpoint");
-        rootNode.put("mediation-component", "template");
-
-        return objectMapper.writeValueAsString(rootNode);
+        return rootNode;
     }
-
 }

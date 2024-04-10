@@ -18,8 +18,8 @@
 
 package org.eclipse.lemminx.customservice.synapse.debugger.visitor;
 
-import org.eclipse.lemminx.customservice.synapse.debugger.BreakPoint;
 import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.ApiDebugInfo;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.API;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.APIResource;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
@@ -27,10 +27,10 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Seq
 public class ApiVisitor implements Visitor {
 
     API syntaxTree;
-    BreakPoint breakpoint;
+    Breakpoint breakpoint;
     ApiDebugInfo apiDebugInfo;
 
-    public ApiVisitor(API syntaxTree, BreakPoint breakpoint, ApiDebugInfo apiDebugInfo) {
+    public ApiVisitor(API syntaxTree, Breakpoint breakpoint, ApiDebugInfo apiDebugInfo) {
 
         this.syntaxTree = syntaxTree;
         this.breakpoint = breakpoint;

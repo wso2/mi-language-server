@@ -18,14 +18,17 @@
 
 package org.eclipse.lemminx;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.ISynapseLanguageService;
 import org.eclipse.lemminx.customservice.synapse.connectors.AvailableConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.Connector;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.RegistryFileScanner;
-import org.eclipse.lemminx.customservice.synapse.debugger.BreakPointsRequest;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointInfoResponse;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointsRequest;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointValidity;
 import org.eclipse.lemminx.customservice.synapse.debugger.DebuggerHelper;
-import org.eclipse.lemminx.customservice.synapse.debugger.ValidationResponse;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.ValidationResponse;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceFinder;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceResponse;
@@ -169,21 +172,21 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     }
 
     @Override
-    public CompletableFuture<List<String>> getBreakPointInfo(BreakPointsRequest breakPointRequest) {
+    public CompletableFuture<BreakpointInfoResponse> getBreakpointInfo(BreakpointsRequest breakPointRequest) {
 
         DebuggerHelper debuggerHelper = new DebuggerHelper(breakPointRequest.filePath);
-        List<String> debugInfoJson = debuggerHelper.generateDebugInfoJson(breakPointRequest.breakPoints);
-
-        return CompletableFuture.supplyAsync(() -> debugInfoJson);
+        List<JsonElement> debugInfoJsonList = debuggerHelper.generateDebugInfoJson(breakPointRequest.breakpoints);
+        BreakpointInfoResponse breakpointInfoResponse = new BreakpointInfoResponse(debugInfoJsonList);
+        return CompletableFuture.supplyAsync(() -> breakpointInfoResponse);
     }
 
     @Override
-    public CompletableFuture<List<ValidationResponse>> validateBreakPoints(BreakPointsRequest breakPointRequest) {
+    public CompletableFuture<ValidationResponse> validateBreakpoints(BreakpointsRequest breakPointRequest) {
 
         DebuggerHelper debuggerHelper = new DebuggerHelper(breakPointRequest.filePath);
-        List<ValidationResponse> out = debuggerHelper.validateBreakpoints(breakPointRequest.breakPoints);
-
-        return CompletableFuture.supplyAsync(() -> out);
+        List<BreakpointValidity> validityList = debuggerHelper.validateBreakpoints(breakPointRequest.breakpoints);
+        ValidationResponse validationResponse = new ValidationResponse(validityList);
+        return CompletableFuture.supplyAsync(() -> validationResponse);
     }
 
     public static String getExtensionPath() {
