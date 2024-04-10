@@ -18,30 +18,28 @@
 
 package org.eclipse.lemminx.customservice.synapse.resourceFinder;
 
-import java.util.List;
+public class RegistryResource extends Resource {
 
-public class ResourceResponse {
+    private String registryPath;
+    private String registryKey;
 
-    private List<Resource> resources;
-    private List<Resource> registryResources;
+    public String getRegistryPath() {
 
-    public List<Resource> getResources() {
-
-        return resources;
+        return registryPath;
     }
 
-    public void setResources(List<Resource> resources) {
+    public void setRegistryPath(String registryPath) {
 
-        this.resources = resources;
+        this.registryPath = registryPath;
     }
 
-    public List<Resource> getRegistryResources() {
+    public String getRegistryKey() {
 
-        return registryResources;
+        return registryKey;
     }
 
-    public void setRegistryResources(List<Resource> registryResources) {
+    public void setRegistryKey(String registryKey) {
 
-        this.registryResources = registryResources;
+        this.registryKey = registryKey;
     }
 }

@@ -18,12 +18,11 @@
 
 package org.eclipse.lemminx.customservice.synapse.resourceFinder;
 
-public class Resource {
+public abstract class Resource {
 
     private String name;
     private String type;
     private String from;
-    private String path;
 
     public String getName() {
 
@@ -53,15 +52,5 @@ public class Resource {
     public void setFrom(String from) {
 
         this.from = from;
-    }
-
-    public String getPath() {
-
-        return path;
-    }
-
-    public void setPath(String path) {
-
-        this.path = path;
     }
 }

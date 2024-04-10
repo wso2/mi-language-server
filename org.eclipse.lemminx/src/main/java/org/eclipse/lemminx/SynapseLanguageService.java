@@ -113,10 +113,9 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     @Override
     public CompletableFuture<ResourceResponse> availableResources(ResourceParam param) {
 
-        return xmlTextDocumentService.computeDOMAsync(param.documentIdentifier, (xmlDocument, cancelChecker) -> {
-            ResourceResponse response = ResourceFinder.getAvailableResources(xmlDocument, param.resourceType);
-            return response;
-        });
+        ResourceResponse response = ResourceFinder.getAvailableResources(param.documentIdentifier.getUri(),
+                param.resourceType);
+        return CompletableFuture.supplyAsync(() -> response);
     }
 
     @Override

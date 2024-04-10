@@ -24,29 +24,67 @@ import org.eclipse.lemminx.customservice.synapse.utils.LegacyConfigFinder;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
-import org.eclipse.lemminx.dom.DOMNode;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ResourceFinder {
 
     private static final Logger LOGGER = Logger.getLogger(ResourceFinder.class.getName());
     private static final String ARTIFACTS = "ARTIFACTS";
+    private static final String REGISTRY = "REGISTRY";
+    private static final List<String> resourceFromRegistryOnly = List.of("dataMapper", "js", "json", "smooksConfig",
+            "wsdl", "ws_policy", "xsd", "xsl", "xslt", "yaml");
 
-    public static ResourceResponse getAvailableResources(DOMDocument xmlDocument, String resourceType) {
+    // This has the extension mapping for the non-xml types in the registry
+    private static final Map<String, String> nonXmlTypeToExtensionMap = new HashMap<>();
 
-        ResourceResponse response = new ResourceResponse();
-        Boolean isLegacyProject = Utils.isLegacyProject(xmlDocument);
+    // This has the xml tag mapping for each artifact type
+    private static final Map<String, String> typeToXmlTagMap = new HashMap<>();
+
+    static {
+        // Populate the type to extension map
+        nonXmlTypeToExtensionMap.put("dataMapper", ".dmc");
+        nonXmlTypeToExtensionMap.put("js", ".js");
+        nonXmlTypeToExtensionMap.put("json", ".json");
+        nonXmlTypeToExtensionMap.put("wsdl", ".wsdl");
+        nonXmlTypeToExtensionMap.put("xsd", ".xsd");
+        nonXmlTypeToExtensionMap.put("xsl", ".xsl");
+        nonXmlTypeToExtensionMap.put("xslt", ".xslt");
+        nonXmlTypeToExtensionMap.put("yaml", ".yaml");
+
+        // Populate the type to xml tag map
+        typeToXmlTagMap.put("api", "api");
+        typeToXmlTagMap.put("endpoint", "endpoint");
+        typeToXmlTagMap.put("sequence", "sequence");
+        typeToXmlTagMap.put("messageStore", "messageStore");
+        typeToXmlTagMap.put("messageProcessor", "messageProcessor");
+        typeToXmlTagMap.put("endpointTemplate", "template");
+        typeToXmlTagMap.put("sequenceTemplate", "template");
+        typeToXmlTagMap.put("task", "task");
+        typeToXmlTagMap.put("localEntry", "localEntry");
+        typeToXmlTagMap.put("dataService", "data");
+        typeToXmlTagMap.put("dataSource", "dataSource");
+        typeToXmlTagMap.put("ws_policy", "wsp:Policy");
+        typeToXmlTagMap.put("smooksConfig", "smooks-resource-list");
+    }
+
+    public static ResourceResponse getAvailableResources(String uri, String resourceType) {
+
+        ResourceResponse response = null;
+        Boolean isLegacyProject = Utils.isLegacyProject(uri);
         try {
-            String projectRootPath = Utils.findProjectRootPath(xmlDocument.getDocumentURI(), isLegacyProject);
+            String projectRootPath = Utils.findProjectRootPath(uri, isLegacyProject);
             if (projectRootPath != null) {
-                List<Resource> resources = findResources(projectRootPath, resourceType, isLegacyProject);
-                response.setResources(resources);
+                response = findResources(projectRootPath, resourceType, isLegacyProject);
             }
         } catch (IOException e) {
             LOGGER.warning("Error while finding project root path");
@@ -54,7 +92,7 @@ public class ResourceFinder {
         return response;
     }
 
-    private static List<Resource> findResources(String projectPath, String type, Boolean isLegacyProject) {
+    private static ResourceResponse findResources(String projectPath, String type, Boolean isLegacyProject) {
 
         if (isLegacyProject) {
             return findResourcesInLegacyProject(projectPath, type);
@@ -62,42 +100,53 @@ public class ResourceFinder {
         return findResources(projectPath, type);
     }
 
-    private static List<Resource> findResources(String projectPath, String type) {
+    private static ResourceResponse findResources(String projectPath, String type) {
 
-        List<Resource> resources = new ArrayList<>();
-        Path artifactsPath = Path.of(projectPath, "src", "main", "wso2mi", "artifacts");
-        List<Resource> resourcesInArtifacts = findResourceInArtifacts(artifactsPath, type);
-        resources.addAll(resourcesInArtifacts);
+        ResourceResponse response = new ResourceResponse();
+        if (!resourceFromRegistryOnly.contains(type)) {
+            Path artifactsPath = Path.of(projectPath, "src", "main", "wso2mi", "artifacts");
+            List<Resource> resourcesInArtifacts = findResourceInArtifacts(artifactsPath, type);
+            response.setResources(resourcesInArtifacts);
+        }
+        Path registryPath = Path.of(projectPath, "src", "main", "wso2mi", "resources", "registry");
+        List<Resource> resourcesInRegistry = findResourceInRegistry(registryPath, type);
+        response.setRegistryResources(resourcesInRegistry);
 
-        return resources;
+        return response;
     }
 
-    private static List<Resource> findResourcesInLegacyProject(String projectPath, String type) {
+    private static ResourceResponse findResourcesInLegacyProject(String projectPath, String type) {
 
-        List<Resource> resources = new ArrayList<>();
+        ResourceResponse response = new ResourceResponse();
+        List<Resource> resourcesInArtifacts = new ArrayList<>();
+        List<Resource> resourcesInRegistry = new ArrayList<>();
         try {
             List<String> esbConfigPaths = LegacyConfigFinder.getConfigPaths(projectPath, ProjectType.ESB_CONFIGS.value);
             for (String esbConfigPath : esbConfigPaths) {
                 Path artifactPath = Path.of(esbConfigPath, "src", "main", "synapse-config");
                 List<Resource> resourceInArtifacts = findResourceInArtifacts(artifactPath, type);
-                resources.addAll(resourceInArtifacts);
+                resourcesInArtifacts.addAll(resourceInArtifacts);
+            }
+            List<String> registryConfigPaths = LegacyConfigFinder.getConfigPaths(projectPath,
+                    ProjectType.REGISTRY_RESOURCE.value);
+            for (String registryConfigPath : registryConfigPaths) {
+                Path registryPath = Path.of(registryConfigPath);
+                List<Resource> resourceInRegistry = findResourceInRegistry(registryPath, type);
+                resourcesInRegistry.addAll(resourceInRegistry);
             }
         } catch (IOException e) {
             LOGGER.warning("Error while finding resources in legacy project");
         }
-
-        return resources;
+        response.setResources(resourcesInArtifacts);
+        response.setRegistryResources(resourcesInRegistry);
+        return response;
     }
 
     private static List<Resource> findResourceInArtifacts(Path artifactsPath, String type) {
 
         List<Resource> resources = new ArrayList<>();
-        String resourceTypeFolder = processType(type);
+        String resourceTypeFolder = getArtifactFolder(type);
         if (resourceTypeFolder != null) {
-            if (resourceTypeFolder.contains(":")) {
-                type = resourceTypeFolder;
-                resourceTypeFolder = resourceTypeFolder.split(":")[0];
-            }
             Path resourceFolderPath = Path.of(artifactsPath.toString(), resourceTypeFolder);
             File folder = new File(resourceFolderPath.toString());
             File[] listOfFiles = folder.listFiles();
@@ -109,7 +158,43 @@ public class ResourceFinder {
         return resources;
     }
 
-    private static String processType(String type) {
+    private static List<Resource> findResourceInRegistry(Path registryPath, String type) {
+
+        List<Resource> resources = new ArrayList<>();
+        File folder = registryPath.toFile();
+        traverseFolder(folder, type, resources);
+        return resources;
+    }
+
+    private static void traverseFolder(File folder, String type, List<Resource> resources) {
+
+        File[] listOfFiles = folder.listFiles();
+        if (listOfFiles != null) {
+            for (File file : listOfFiles) {
+                if (file.isDirectory()) {
+                    traverseFolder(file, type, resources);
+                } else if (file.isFile()) {
+                    if (nonXmlTypeToExtensionMap.containsKey(type)) {
+                        String extension = nonXmlTypeToExtensionMap.get(type);
+                        if (file.getName().endsWith(extension)) {
+                            Resource resource = createNonXmlResource(file, type, REGISTRY);
+                            if (resource != null) {
+                                resources.add(resource);
+                            }
+                        }
+                    } else if (Utils.isXml(file)) {
+                        Resource resource = createResource(file, type, REGISTRY);
+                        if (resource != null) {
+                            resources.add(resource);
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+
+    private static String getArtifactFolder(String type) {
 
         if (Constant.ENDPOINT.equalsIgnoreCase(type)) {
             return "endpoints";
@@ -120,13 +205,17 @@ public class ResourceFinder {
         } else if (Constant.MESSAGE_PROCESSOR.equalsIgnoreCase(type)) {
             return "message-processors";
         } else if ("endpointTemplate".equalsIgnoreCase(type)) {
-            return "templates:endpoint";
+            return "templates";
         } else if ("sequenceTemplate".equalsIgnoreCase(type)) {
-            return "templates:sequence";
+            return "templates";
         } else if (Constant.TASK.equalsIgnoreCase(type)) {
             return "tasks";
         } else if (Constant.LOCAL_ENTRY.equalsIgnoreCase(type)) {
             return "local-entries";
+        } else if (Constant.DATA_SERVICE.equalsIgnoreCase(type)) {
+            return "data-services";
+        } else if (Constant.DATA_SOURCE.equalsIgnoreCase(type)) {
+            return "data-sources";
         }
         return null;
     }
@@ -143,17 +232,31 @@ public class ResourceFinder {
         return resources;
     }
 
+    private static Resource createNonXmlResource(File file, String type, String registry) {
+
+        Resource resource = new RegistryResource();
+        resource.setName(file.getName());
+        resource.setType(type.toUpperCase());
+        resource.setFrom(registry);
+        ((RegistryResource) resource).setRegistryPath(file.getAbsolutePath());
+        ((RegistryResource) resource).setRegistryKey(getRegistryKey(file));
+        return resource;
+    }
+
     private static Resource createResource(File file, String type, String from) {
 
         try {
             DOMDocument document = Utils.getDOMDocument(file);
-            DOMElement rootElement = Utils.getRootElementFromConfigXml(document);
-            if (checkType(rootElement, type)) {
-                Resource resource = new Resource();
-                resource.setName(rootElement.getAttribute(Constant.NAME));
-                resource.setType(Utils.addUnderscoreBetweenWords(type).toUpperCase());
-                resource.setFrom(from);
-                resource.setPath(file.getAbsolutePath());
+            DOMElement rootElement;
+            String nodeName = typeToXmlTagMap.get(type);
+            rootElement = (DOMElement) Utils.getChildNodeByName(document, nodeName);
+            if (rootElement != null) {
+                Resource resource = null;
+                if (ARTIFACTS.equals(from)) {
+                    resource = createArtifactResource(file, rootElement, type);
+                } else if (REGISTRY.equals(from)) {
+                    resource = createRegistryResource(file, rootElement, type);
+                }
                 return resource;
             }
         } catch (IOException e) {
@@ -162,21 +265,39 @@ public class ResourceFinder {
         return null;
     }
 
-    private static boolean checkType(DOMElement rootElement, String type) {
+    private static Resource createArtifactResource(File file, DOMElement rootElement, String type) {
 
-        String elementType = rootElement.getNodeName();
-        if (type.contains(":")) {
-            elementType = elementType + "s";
-            String[] splitType = type.split(":");
-            if (elementType.equalsIgnoreCase(splitType[0])) {
-                DOMNode childNode = Utils.getChildNodeByName(rootElement, splitType[1]);
-                if (childNode != null) {
-                    return Boolean.TRUE;
-                }
-            }
+        Resource artifact = new ArtifactsResource();
+        artifact.setName(rootElement.getAttribute(Constant.NAME));
+        artifact.setType(Utils.addUnderscoreBetweenWords(type).toUpperCase());
+        artifact.setFrom(ARTIFACTS);
+        ((ArtifactsResource) artifact).setArtifactPath(file.getName());
+        return artifact;
+    }
+
+    private static Resource createRegistryResource(File file, DOMElement rootElement, String type) {
+
+        Resource registry = new RegistryResource();
+        registry.setName(rootElement.getAttribute(Constant.NAME));
+        registry.setType(Utils.addUnderscoreBetweenWords(type).toUpperCase());
+        registry.setFrom(REGISTRY);
+        ((RegistryResource) registry).setRegistryPath(file.getAbsolutePath());
+        ((RegistryResource) registry).setRegistryKey(getRegistryKey(file));
+        return registry;
+    }
+
+    private static String getRegistryKey(File file) {
+
+        String pattern = "(.*)(\\b(gov|conf)\\b)(.*)";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(file.getAbsolutePath());
+
+        if (m.find()) {
+            String type = m.group(3);
+            String path = m.group(4).replaceAll("^/+", "");
+            return type + ":" + path;
         } else {
-            return type.equalsIgnoreCase(elementType);
+            return null;
         }
-        return Boolean.FALSE;
     }
 }

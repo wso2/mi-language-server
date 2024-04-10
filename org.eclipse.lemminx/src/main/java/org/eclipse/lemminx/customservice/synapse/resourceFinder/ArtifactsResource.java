@@ -18,30 +18,18 @@
 
 package org.eclipse.lemminx.customservice.synapse.resourceFinder;
 
-import java.util.List;
+public class ArtifactsResource extends Resource {
 
-public class ResourceResponse {
+    private String artifactPath;
 
-    private List<Resource> resources;
-    private List<Resource> registryResources;
+    public String getArtifactPath() {
 
-    public List<Resource> getResources() {
-
-        return resources;
+        return artifactPath;
     }
 
-    public void setResources(List<Resource> resources) {
+    public void setArtifactPath(String artifactPath) {
 
-        this.resources = resources;
+        this.artifactPath = artifactPath;
     }
 
-    public List<Resource> getRegistryResources() {
-
-        return registryResources;
-    }
-
-    public void setRegistryResources(List<Resource> registryResources) {
-
-        this.registryResources = registryResources;
-    }
 }
