@@ -30,7 +30,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class ResourceFinder {
@@ -40,6 +42,39 @@ public class ResourceFinder {
     private static final String REGISTRY = "REGISTRY";
     private static final List<String> resourceFromRegistryOnly = List.of("dataMapper", "js", "json", "smooksConfig",
             "wsdl", "ws_policy", "xsd", "xsl", "xslt", "yaml");
+
+    // This has the extension mapping for the non-xml types in the registry
+    private static final Map<String, String> nonXmlTypeToExtensionMap = new HashMap<>();
+
+    // This has the xml tag mapping for each artifact type
+    private static final Map<String, String> typeToXmlTagMap = new HashMap<>();
+
+    static {
+        // Populate the type to extension map
+        nonXmlTypeToExtensionMap.put("dataMapper", ".dmc");
+        nonXmlTypeToExtensionMap.put("js", ".js");
+        nonXmlTypeToExtensionMap.put("json", ".json");
+        nonXmlTypeToExtensionMap.put("wsdl", ".wsdl");
+        nonXmlTypeToExtensionMap.put("xsd", ".xsd");
+        nonXmlTypeToExtensionMap.put("xsl", ".xsl");
+        nonXmlTypeToExtensionMap.put("xslt", ".xslt");
+        nonXmlTypeToExtensionMap.put("yaml", ".yaml");
+
+        // Populate the type to xml tag map
+        typeToXmlTagMap.put("api", "api");
+        typeToXmlTagMap.put("endpoint", "endpoint");
+        typeToXmlTagMap.put("sequence", "sequence");
+        typeToXmlTagMap.put("messageStore", "messageStore");
+        typeToXmlTagMap.put("messageProcessor", "messageProcessor");
+        typeToXmlTagMap.put("endpointTemplate", "template");
+        typeToXmlTagMap.put("sequenceTemplate", "template");
+        typeToXmlTagMap.put("task", "task");
+        typeToXmlTagMap.put("localEntry", "localEntry");
+        typeToXmlTagMap.put("dataService", "data");
+        typeToXmlTagMap.put("dataSource", "dataSource");
+        typeToXmlTagMap.put("ws_policy", "wsp:Policy");
+        typeToXmlTagMap.put("smooksConfig", "smooks-resource-list");
+    }
 
     public static ResourceResponse getAvailableResources(String uri, String resourceType) {
 
@@ -109,12 +144,8 @@ public class ResourceFinder {
     private static List<Resource> findResourceInArtifacts(Path artifactsPath, String type) {
 
         List<Resource> resources = new ArrayList<>();
-        String resourceTypeFolder = processType(type);
+        String resourceTypeFolder = getArtifactFolder(type);
         if (resourceTypeFolder != null) {
-            if (resourceTypeFolder.contains(":")) {
-                type = resourceTypeFolder;
-                resourceTypeFolder = resourceTypeFolder.split(":")[0];
-            }
             Path resourceFolderPath = Path.of(artifactsPath.toString(), resourceTypeFolder);
             File folder = new File(resourceFolderPath.toString());
             File[] listOfFiles = folder.listFiles();
@@ -142,15 +173,8 @@ public class ResourceFinder {
                 if (file.isDirectory()) {
                     traverseFolder(file, type, resources);
                 } else if (file.isFile()) {
-                    List<String> nonXmlTypes = List.of("dataMapper", "js", "json", "wsdl", "xsd", "xsl", "xslt",
-                            "yaml");
-                    if (Utils.containsIgnoreCase(nonXmlTypes, type)) {
-                        String extension;
-                        if ("dataMapper".equalsIgnoreCase(type)) {
-                            extension = ".dmc";
-                        } else {
-                            extension = "." + type.toLowerCase();
-                        }
+                    if (nonXmlTypeToExtensionMap.containsKey(type)) {
+                        String extension = nonXmlTypeToExtensionMap.get(type);
                         if (file.getName().endsWith(extension)) {
                             Resource resource = createNonXmlResource(file, type, REGISTRY);
                             if (resource != null) {
@@ -169,7 +193,7 @@ public class ResourceFinder {
         }
     }
 
-    private static String processType(String type) {
+    private static String getArtifactFolder(String type) {
 
         if (Constant.ENDPOINT.equalsIgnoreCase(type)) {
             return "endpoints";
@@ -180,9 +204,9 @@ public class ResourceFinder {
         } else if (Constant.MESSAGE_PROCESSOR.equalsIgnoreCase(type)) {
             return "message-processors";
         } else if ("endpointTemplate".equalsIgnoreCase(type)) {
-            return "templates:endpoint";
+            return "templates";
         } else if ("sequenceTemplate".equalsIgnoreCase(type)) {
-            return "templates:sequence";
+            return "templates";
         } else if (Constant.TASK.equalsIgnoreCase(type)) {
             return "tasks";
         } else if (Constant.LOCAL_ENTRY.equalsIgnoreCase(type)) {
@@ -222,15 +246,9 @@ public class ResourceFinder {
         try {
             DOMDocument document = Utils.getDOMDocument(file);
             DOMElement rootElement;
-            String nodeName;
-            if ("ws_policy".equalsIgnoreCase(type) || "smooksConfig".equalsIgnoreCase(type)) {
-                nodeName = "smooksConfig".equalsIgnoreCase(type) ? "smooks-resource-list" : "wsp:Policy";
-                rootElement = (DOMElement) Utils.getChildNodeByName(document, nodeName);
-            } else {
-                nodeName = Constant.DATA_SERVICE.equalsIgnoreCase(type) ? "data" : type;
-                rootElement = Utils.getRootElementFromConfigXml(document);
-            }
-            if (rootElement != null && checkType(rootElement, nodeName)) {
+            String nodeName = typeToXmlTagMap.get(type);
+            rootElement = (DOMElement) Utils.getChildNodeByName(document, nodeName);
+            if (rootElement != null) {
                 Resource resource = new Resource();
                 resource.setName(rootElement.getAttribute(Constant.NAME));
                 resource.setType(Utils.addUnderscoreBetweenWords(type).toUpperCase());
@@ -244,21 +262,4 @@ public class ResourceFinder {
         return null;
     }
 
-    private static boolean checkType(DOMElement rootElement, String type) {
-
-        String elementType = rootElement.getNodeName();
-        if (type.contains("templates")) {
-            elementType = elementType + "s";
-            String[] splitType = type.split(":");
-            if (elementType.equalsIgnoreCase(splitType[0])) {
-                DOMNode childNode = Utils.getChildNodeByName(rootElement, splitType[1]);
-                if (childNode != null) {
-                    return Boolean.TRUE;
-                }
-            }
-        } else {
-            return type.equalsIgnoreCase(elementType);
-        }
-        return Boolean.FALSE;
-    }
 }
