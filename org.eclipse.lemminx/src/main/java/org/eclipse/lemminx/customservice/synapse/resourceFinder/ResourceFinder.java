@@ -271,7 +271,7 @@ public class ResourceFinder {
         artifact.setName(rootElement.getAttribute(Constant.NAME));
         artifact.setType(Utils.addUnderscoreBetweenWords(type).toUpperCase());
         artifact.setFrom(ARTIFACTS);
-        ((ArtifactsResource) artifact).setArtifactPath(file.getAbsolutePath());
+        ((ArtifactsResource) artifact).setArtifactPath(file.getName());
         return artifact;
     }
 
