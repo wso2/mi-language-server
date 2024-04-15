@@ -18,7 +18,10 @@
 
 package org.eclipse.lemminx.customservice.synapse.debugger.debuginfo;
 
-public abstract class DebugInfo implements IDebugInfo {
+import com.google.gson.JsonElement;
+import org.apache.commons.lang3.NotImplementedException;
+
+public class DebugInfo implements IDebugInfo {
 
     String mediatorPosition;
     boolean isValid = Boolean.TRUE;
@@ -46,6 +49,12 @@ public abstract class DebugInfo implements IDebugInfo {
     public void setError(String error) {
 
         this.error = error;
+    }
+
+    @Override
+    public JsonElement toJson() {
+
+        throw new NotImplementedException("toJson method is not implemented");
     }
 
     @Override

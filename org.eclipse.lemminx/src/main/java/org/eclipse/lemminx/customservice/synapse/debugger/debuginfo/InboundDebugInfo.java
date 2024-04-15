@@ -48,8 +48,6 @@ public class InboundDebugInfo extends DebugInfo {
         sequence.add("proxy", inbound);
         rootNode.add("sequence", sequence);
 
-        rootNode.addProperty("command", "set");
-        rootNode.addProperty("command-argument", "breakpoint");
         rootNode.addProperty("mediation-component", "sequence");
 
         return rootNode;

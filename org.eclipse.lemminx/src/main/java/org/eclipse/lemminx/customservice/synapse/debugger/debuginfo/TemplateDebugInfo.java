@@ -39,8 +39,6 @@ public class TemplateDebugInfo extends DebugInfo {
         template.addProperty("mediator-position", mediatorPosition);
         rootNode.add("template", template);
 
-        rootNode.addProperty("command", "set");
-        rootNode.addProperty("command-argument", "breakpoint");
         rootNode.addProperty("mediation-component", "template");
 
         return rootNode;

@@ -40,8 +40,7 @@ public class SequenceDebugInfo extends DebugInfo {
         sequence.addProperty("mediator-position", mediatorPosition);
 
         rootNode.add("sequence", sequence);
-        rootNode.addProperty("command", "set");
-        rootNode.addProperty("command-argument", "breakpoint");
+
         rootNode.addProperty("mediation-component", "sequence");
 
         return rootNode;

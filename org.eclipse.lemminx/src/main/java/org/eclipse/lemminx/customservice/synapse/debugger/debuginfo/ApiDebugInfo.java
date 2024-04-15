@@ -73,8 +73,6 @@ public class ApiDebugInfo extends DebugInfo {
         sequence.add("api", api);
         rootNode.add("sequence", sequence);
 
-        rootNode.addProperty("command", "set");
-        rootNode.addProperty("command-argument", "breakpoint");
         rootNode.addProperty("mediation-component", "sequence");
         return rootNode;
     }

@@ -18,7 +18,7 @@
 
 package org.eclipse.lemminx.customservice.synapse.debugger.visitor;
 
-import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.ApiDebugInfo;
+import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.DebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.IDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
@@ -95,7 +95,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
     public MediatorVisitor(Breakpoint breakpoint) {
 
         this.breakpoint = breakpoint;
-        this.debugInfo = new ApiDebugInfo();
+        this.debugInfo = new DebugInfo();
         this.mediatorCount = 0;
     }
 
@@ -566,7 +566,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
     }
 
     @Override
-    void visitNtlm(Ntlm node) {
+    void visitNTLM(Ntlm node) {
 
         visitSimpleMediator(node);
     }

@@ -140,7 +140,7 @@ abstract class AbstractMediatorVisitor {
 
     abstract void visitEjb(Ejb node);
 
-    abstract void visitNtlm(Ntlm node);
+    abstract void visitNTLM(Ntlm node);
 
     abstract void visitRewrite(Rewrite node);
 

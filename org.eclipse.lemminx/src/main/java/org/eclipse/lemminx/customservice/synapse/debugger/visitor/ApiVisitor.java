@@ -79,7 +79,7 @@ public class ApiVisitor implements Visitor {
 
     private void visitMediationSequence(Sequence sequence) {
 
-        apiDebugInfo.setSequenceType("api_" + sequence.getTag().substring(0, sequence.getTag().length() - 4).toLowerCase());
+        apiDebugInfo.setSequenceType("api_" + sequence.getTag().substring(0, sequence.getTag().length() - 5).toLowerCase());
         MediatorVisitor mediatorVisitor = new MediatorVisitor(breakpoint, apiDebugInfo);
         VisitorUtils.visitMediators(sequence.getMediatorList(), mediatorVisitor);
 

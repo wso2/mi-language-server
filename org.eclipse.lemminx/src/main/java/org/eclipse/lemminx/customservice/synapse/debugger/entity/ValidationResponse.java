@@ -22,10 +22,10 @@ import java.util.List;
 
 public class ValidationResponse {
 
-    List<BreakpointValidity> breakPointValidity;
+    List<BreakpointValidity> breakpointValidity;
 
-    public ValidationResponse(List<BreakpointValidity> breakPointValidity) {
+    public ValidationResponse(List<BreakpointValidity> breakpointValidity) {
 
-        this.breakPointValidity = breakPointValidity;
+        this.breakpointValidity = breakpointValidity;
     }
 }
