@@ -45,7 +45,10 @@ public class RegistryFileScanner {
 
         for (File file : listOfFiles) {
             if (file.isFile() && !file.isHidden()) {
-                registryFiles.add(extractRegistryFilePath(file));
+                String regFilePath = extractRegistryFilePath(file);
+                if (regFilePath.contains("gov") || regFilePath.contains("conf")) {
+                    registryFiles.add(regFilePath);
+                }
             } else if (file.isDirectory()) {
                 if (!".meta".equals(file.getName())) {
                     traverseFiles(file.listFiles(), registryFiles);
