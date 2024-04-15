@@ -35,6 +35,7 @@ import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @JsonSegment("synapse")
@@ -60,4 +61,7 @@ public interface ISynapseLanguageService {
 
     @JsonNotification
     void updateConnectors(TextDocumentIdentifier param);
+
+    @JsonRequest
+    CompletableFuture<List<String>> getRegistryFiles(TextDocumentIdentifier param);
 }

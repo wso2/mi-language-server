@@ -22,6 +22,7 @@ import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.ISynapseLanguageService;
 import org.eclipse.lemminx.customservice.synapse.connectors.AvailableConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.Connector;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.RegistryFileScanner;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceFinder;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceResponse;
@@ -155,6 +156,13 @@ public class SynapseLanguageService implements ISynapseLanguageService {
                 extensionPath + File.separator + "synapse-schemas" + File.separator +
                         "mediators" + File.separator + "connectors.xsd";
         SchemaGenerate.generate(holder, connectorPath);
+    }
+
+    @Override
+    public CompletableFuture<List<String>> getRegistryFiles(TextDocumentIdentifier param) {
+
+        List<String> registryFiles = RegistryFileScanner.scanRegistryFiles(param.getUri());
+        return CompletableFuture.supplyAsync(() -> registryFiles);
     }
 
     public static String getExtensionPath() {
