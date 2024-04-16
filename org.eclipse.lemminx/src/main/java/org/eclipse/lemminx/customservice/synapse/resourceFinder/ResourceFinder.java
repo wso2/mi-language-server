@@ -75,6 +75,7 @@ public class ResourceFinder {
         typeToXmlTagMap.put("dataSource", "dataSource");
         typeToXmlTagMap.put("ws_policy", "wsp:Policy");
         typeToXmlTagMap.put("smooksConfig", "smooks-resource-list");
+        typeToXmlTagMap.put("proxyService", "proxy");
     }
 
     public static ResourceResponse getAvailableResources(String uri, String resourceType) {
@@ -216,6 +217,8 @@ public class ResourceFinder {
             return "data-services";
         } else if (Constant.DATA_SOURCE.equalsIgnoreCase(type)) {
             return "data-sources";
+        } else if (Constant.PROXY_SERVICE.equalsIgnoreCase(type)) {
+            return "proxy-services";
         }
         return null;
     }
