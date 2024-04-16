@@ -271,22 +271,40 @@ public class ResourceFinder {
     private static Resource createArtifactResource(File file, DOMElement rootElement, String type) {
 
         Resource artifact = new ArtifactsResource();
-        artifact.setName(rootElement.getAttribute(Constant.NAME));
-        artifact.setType(Utils.addUnderscoreBetweenWords(type).toUpperCase());
-        artifact.setFrom(ARTIFACTS);
-        ((ArtifactsResource) artifact).setArtifactPath(file.getName());
-        return artifact;
+        String name = getArtifactName(rootElement);
+        if (name != null) {
+            artifact.setName(name);
+            artifact.setType(Utils.addUnderscoreBetweenWords(type).toUpperCase());
+            artifact.setFrom(ARTIFACTS);
+            ((ArtifactsResource) artifact).setArtifactPath(file.getName());
+            return artifact;
+        }
+        return null;
     }
 
     private static Resource createRegistryResource(File file, DOMElement rootElement, String type) {
 
         Resource registry = new RegistryResource();
-        registry.setName(rootElement.getAttribute(Constant.NAME));
-        registry.setType(Utils.addUnderscoreBetweenWords(type).toUpperCase());
-        registry.setFrom(REGISTRY);
-        ((RegistryResource) registry).setRegistryPath(file.getAbsolutePath());
-        ((RegistryResource) registry).setRegistryKey(getRegistryKey(file));
-        return registry;
+        String name = getArtifactName(rootElement);
+        if (name != null) {
+            registry.setName(name);
+            registry.setType(Utils.addUnderscoreBetweenWords(type).toUpperCase());
+            registry.setFrom(REGISTRY);
+            ((RegistryResource) registry).setRegistryPath(file.getAbsolutePath());
+            ((RegistryResource) registry).setRegistryKey(getRegistryKey(file));
+            return registry;
+        }
+        return null;
+    }
+
+    private static String getArtifactName(DOMElement rootElement) {
+
+        if (rootElement.hasAttribute(Constant.NAME)) {
+            return rootElement.getAttribute(Constant.NAME);
+        } else if (rootElement.hasAttribute(Constant.KEY)) {
+            return rootElement.getAttribute(Constant.KEY);
+        }
+        return null;
     }
 
     private static String getRegistryKey(File file) {
