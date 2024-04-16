@@ -60,10 +60,9 @@ public class ApiVisitor implements Visitor {
                     return;
                 }
             }
-        } else {
-            apiDebugInfo.setValid(false);
-            apiDebugInfo.setError("Breakpoint is not in the range of the API");
         }
+        apiDebugInfo.setValid(false);
+        apiDebugInfo.setError("Invalid breakpoint in API");
     }
 
     private void visitResource(APIResource resource) {
@@ -74,6 +73,9 @@ public class ApiVisitor implements Visitor {
             visitMediationSequence(resource.getOutSequence());
         } else if (VisitorUtils.checkNodeInRange(resource.getFaultSequence(), breakpoint)) {
             visitMediationSequence(resource.getFaultSequence());
+        } else {
+            apiDebugInfo.setValid(false);
+            apiDebugInfo.setError("Invalid breakpoint in API");
         }
     }
 
@@ -82,6 +84,9 @@ public class ApiVisitor implements Visitor {
         apiDebugInfo.setSequenceType("api_" + sequence.getTag().substring(0, sequence.getTag().length() - 5).toLowerCase());
         MediatorVisitor mediatorVisitor = new MediatorVisitor(breakpoint, apiDebugInfo);
         VisitorUtils.visitMediators(sequence.getMediatorList(), mediatorVisitor);
-
+        if (!mediatorVisitor.isDone()) {
+            apiDebugInfo.setValid(false);
+            apiDebugInfo.setError("Invalid breakpoint in API");
+        }
     }
 }
