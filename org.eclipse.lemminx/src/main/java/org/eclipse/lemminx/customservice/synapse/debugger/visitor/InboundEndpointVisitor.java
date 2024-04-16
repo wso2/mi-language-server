@@ -20,16 +20,36 @@ package org.eclipse.lemminx.customservice.synapse.debugger.visitor;
 
 import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.InboundDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.inbound.InboundEndpoint;
 
 public class InboundEndpointVisitor implements Visitor {
 
-    public InboundEndpointVisitor(STNode syntaxTree, Breakpoint breakpoint, InboundDebugInfo breakPoint) {
+    InboundEndpoint syntaxTree;
+    Breakpoint breakpoint;
+    InboundDebugInfo inboundDebugInfo;
 
+    public InboundEndpointVisitor(InboundEndpoint syntaxTree, Breakpoint breakpoint,
+                                  InboundDebugInfo inboundDebugInfo) {
+
+        this.syntaxTree = syntaxTree;
+        this.breakpoint = breakpoint;
+        this.inboundDebugInfo = inboundDebugInfo;
     }
 
     @Override
     public void startVisit() {
 
+        traverseNode(syntaxTree);
+    }
+
+    private void traverseNode(InboundEndpoint syntaxTree) {
+
+        if (syntaxTree == null) {
+            return;
+        }
+
+        inboundDebugInfo.setValid(false);
+        inboundDebugInfo.setError("Breakpoint is not supported in inbound endpoint. Please add the breakpoint " +
+                "inside the respective sequence");
     }
 }

@@ -19,37 +19,12 @@
 package org.eclipse.lemminx.customservice.synapse.debugger.debuginfo;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 public class InboundDebugInfo extends DebugInfo {
-
-    String inboundKey;
-    String sequenceType;
-
-    public void setInboundKey(String inboundKey) {
-
-        this.inboundKey = inboundKey;
-    }
-
-    public void setSequenceType(String sequenceType) {
-
-        this.sequenceType = sequenceType;
-    }
 
     @Override
     public JsonElement toJson() {
 
-        JsonObject rootNode = new JsonObject();
-        JsonObject sequence = new JsonObject();
-        JsonObject inbound = new JsonObject();
-        inbound.addProperty("inbound-key", inboundKey);
-        inbound.addProperty("sequence-type", sequenceType);
-        inbound.addProperty("mediator-position", mediatorPosition);
-        sequence.add("proxy", inbound);
-        rootNode.add("sequence", sequence);
-
-        rootNode.addProperty("mediation-component", "sequence");
-
-        return rootNode;
+        return null;
     }
 }
