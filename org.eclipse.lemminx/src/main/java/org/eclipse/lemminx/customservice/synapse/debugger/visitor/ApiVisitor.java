@@ -49,7 +49,7 @@ public class ApiVisitor implements Visitor {
             return;
         }
         if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
-            apiDebugInfo.setApiKey(node.getContext());
+            apiDebugInfo.setApiKey(node.getName());
             APIResource[] resources = node.getResource();
             for (APIResource resource : resources) {
                 if (VisitorUtils.checkNodeInRange(resource, breakpoint)) {
