@@ -21,8 +21,8 @@ package org.eclipse.lemminx;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.ISynapseLanguageService;
+import org.eclipse.lemminx.customservice.synapse.connectors.Connections;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorParam;
-import org.eclipse.lemminx.customservice.synapse.connectors.Connection;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectionFinder;
 import org.eclipse.lemminx.customservice.synapse.connectors.Connector;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.RegistryFileScanner;
@@ -194,9 +194,9 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     }
 
     @Override
-    public CompletableFuture<Either<List<Connection>, Map<String, List<Connection>>>> connectorConnections(ConnectorParam param) {
+    public CompletableFuture<Either<Connections, Map<String, Connections>>> connectorConnections(ConnectorParam param) {
 
-        Either<List<Connection>, Map<String, List<Connection>>> connections =
+        Either<Connections, Map<String, Connections>> connections =
                 ConnectionFinder.findConnections(param.documentIdentifier.getUri(), param.connectorName);
         return CompletableFuture.supplyAsync(() -> connections);
     }

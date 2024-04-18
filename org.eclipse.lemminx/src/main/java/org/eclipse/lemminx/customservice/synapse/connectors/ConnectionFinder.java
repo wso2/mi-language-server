@@ -43,17 +43,17 @@ public class ConnectionFinder {
 
     private static final Logger log = Logger.getLogger(ConnectionFinder.class.getName());
 
-    public static Either<List<Connection>, Map<String, List<Connection>>> findConnections(String uri, String name) {
+    public static Either<Connections, Map<String, Connections>> findConnections(String uri, String name) {
 
         if (uri != null) {
             ResourceResponse response = ResourceFinder.getAvailableResources(uri, Constant.LOCAL_ENTRY);
             if (response != null) {
                 List<Resource> resources = response.getResources();
                 if (name != null) {
-                    List<Connection> connections = getConnections(resources, name);
+                    Connections connections = getConnections(resources, name);
                     return Either.forLeft(connections);
                 } else {
-                    Map<String, List<Connection>> connections = new HashMap<>();
+                    Map<String, Connections> connections = new HashMap<>();
                     populateConnectors(connections);
                     getConnections(connections, resources);
                     return Either.forRight(connections);
@@ -63,27 +63,27 @@ public class ConnectionFinder {
         return null;
     }
 
-    private static void populateConnectors(Map<String, List<Connection>> connections) {
+    private static void populateConnectors(Map<String, Connections> connections) {
 
         ConnectorHolder connectors = MediatorFactoryFinder.getInstance().getConnectorHolder();
         if (connectors != null) {
             List<Connector> connectorList = connectors.getConnectors();
             for (Connector connector : connectorList) {
                 String connectorName = connector.getName();
-                connections.put(connectorName, new ArrayList<>());
+                connections.put(connectorName, new Connections());
             }
         }
     }
 
-    private static List<Connection> getConnections(List<Resource> resources, String name) {
+    private static Connections getConnections(List<Resource> resources, String name) {
 
-        HashMap<String, List<Connection>> connections = new HashMap<>();
-        connections.put(name, new ArrayList<>());
+        HashMap<String, Connections> connections = new HashMap<>();
+        connections.put(name, new Connections());
         getConnections(connections, resources);
         return connections.get(name);
     }
 
-    private static void getConnections(Map<String, List<Connection>> connections, List<Resource> resources) {
+    private static void getConnections(Map<String, Connections> connections, List<Resource> resources) {
 
         for (Resource resource : resources) {
             try {
@@ -115,12 +115,12 @@ public class ConnectionFinder {
         return null;
     }
 
-    private static void addToConnections(Map<String, List<Connection>> connections, String connectorName,
+    private static void addToConnections(Map<String, Connections> connections, String connectorName,
                                          String connectionName, String connectionType, String path) {
 
         if (connections.containsKey(connectorName)) {
             Connection connection = new Connection(connectionName, connectionType, path);
-            connections.get(connectorName).add(connection);
+            connections.get(connectorName).addConnection(connection);
         }
     }
 

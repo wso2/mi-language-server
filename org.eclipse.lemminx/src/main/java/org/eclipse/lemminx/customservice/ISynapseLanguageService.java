@@ -18,8 +18,8 @@
 
 package org.eclipse.lemminx.customservice;
 
+import org.eclipse.lemminx.customservice.synapse.connectors.Connections;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorParam;
-import org.eclipse.lemminx.customservice.synapse.connectors.Connection;
 import org.eclipse.lemminx.customservice.synapse.connectors.Connector;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointInfoResponse;
@@ -78,5 +78,5 @@ public interface ISynapseLanguageService {
     CompletableFuture<ValidationResponse> validateBreakpoints(BreakpointsRequest breakPointRequest);
 
     @JsonRequest
-    CompletableFuture<Either<List<Connection>, Map<String, List<Connection>>>> connectorConnections(ConnectorParam param);
+    CompletableFuture<Either<Connections, Map<String, Connections>>> connectorConnections(ConnectorParam param);
 }
