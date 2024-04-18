@@ -27,6 +27,7 @@ import org.eclipse.lemminx.dom.DOMNode;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -297,9 +298,10 @@ public class ConnectorLoader {
                 File projectFile = new File(projectRoot);
                 File parentFolder = projectFile.getParentFile();
                 String workspacePath = parentFolder.getAbsolutePath();
-                connectorsFolderPath = workspacePath + File.separator + ".metadata" + File.separator + ".Connectors";
+                connectorsFolderPath = Path.of(workspacePath, ".metadata", ".Connectors").toString();
             } else {
-                connectorsFolderPath = projectRoot + "/src/main/wso2mi/resources/connectors";
+                connectorsFolderPath =
+                        Path.of(projectRoot, "src", "main", "wso2mi", "resources", "connectors").toString();
             }
         } else {
             // To avoid null pointer exception.
