@@ -62,10 +62,13 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         this.xmlLanguageServer = xmlLanguageServer;
     }
 
-    public void init(Object settings) {
+    public void init(String projectUri, Object settings) {
 
         if (settings != null) {
             extensionPath = ((JsonObject) settings).get("extensionPath").getAsString();
+        }
+        if (projectUri != null) {
+            updateConnectors(projectUri);
         }
     }
 
