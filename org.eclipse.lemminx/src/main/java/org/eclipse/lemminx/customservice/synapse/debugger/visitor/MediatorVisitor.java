@@ -133,10 +133,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
                 mediatorPosition = Integer.toString(mediatorCount);
                 debugInfo.setMediatorPosition(mediatorPosition);
             } else {
-                mediatorPosition = null;
-                debugInfo.setMediatorPosition(null);
-                debugInfo.setValid(false);
-                debugInfo.setError("Breakpoint is not in the starting tag of the mediator:" + node.getTag());
+                markAsInvalid("Breakpoint is not in the starting tag of the mediator:" + node.getTag());
             }
         } else {
             mediatorCount += 1;
@@ -236,10 +233,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
                     mediatorPosition += " " + visitor.mediatorPosition;
                     debugInfo.setMediatorPosition(mediatorPosition);
                 } else {
-                    mediatorPosition = null;
-                    debugInfo.setMediatorPosition(null);
-                    debugInfo.setValid(false);
-                    debugInfo.setError("Invalid breakpoint in Entitlement Service");
+                    markAsInvalid("Invalid breakpoint in Entitlement Service");
                 }
             }
         } else {
@@ -268,10 +262,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
                     mediatorPosition += " " + visitor.mediatorPosition;
                     debugInfo.setMediatorPosition(mediatorPosition);
                 } else {
-                    mediatorPosition = null;
-                    debugInfo.setMediatorPosition(null);
-                    debugInfo.setValid(false);
-                    debugInfo.setError("Invalid breakpoint in Throttle Mediator");
+                    markAsInvalid("Invalid breakpoint in Throttle Mediator");
                 }
             }
         } else {
@@ -297,10 +288,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
                     mediatorPosition += " " + visitor.mediatorPosition;
                     debugInfo.setMediatorPosition(mediatorPosition);
                 } else {
-                    mediatorPosition = null;
-                    debugInfo.setMediatorPosition(null);
-                    debugInfo.setValid(false);
-                    debugInfo.setError("Invalid breakpoint in Cache Mediator");
+                    markAsInvalid("Invalid breakpoint in Cache Mediator");
                 }
             }
         } else {
@@ -373,10 +361,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
                     mediatorPosition += " " + visitor.mediatorPosition;
                     debugInfo.setMediatorPosition(mediatorPosition);
                 } else {
-                    mediatorPosition = null;
-                    debugInfo.setMediatorPosition(null);
-                    debugInfo.setValid(false);
-                    debugInfo.setError("Invalid breakpoint in Switch Mediator");
+                    markAsInvalid("Invalid breakpoint in Switch Mediator");
                 }
             }
 
@@ -409,10 +394,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
                     mediatorPosition += " " + visitor.mediatorPosition;
                     debugInfo.setMediatorPosition(mediatorPosition);
                 } else {
-                    mediatorPosition = null;
-                    debugInfo.setMediatorPosition(null);
-                    debugInfo.setValid(false);
-                    debugInfo.setError("Invalid breakpoint in Rule Mediator");
+                    markAsInvalid("Invalid breakpoint in Rule Mediator");
                 }
             }
         } else {
@@ -456,10 +438,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
                     mediatorPosition += " " + visitor.mediatorPosition;
                     debugInfo.setMediatorPosition(mediatorPosition);
                 } else {
-                    mediatorPosition = null;
-                    debugInfo.setMediatorPosition(null);
-                    debugInfo.setValid(false);
-                    debugInfo.setError("Invalid breakpoint in Validate Mediator");
+                    markAsInvalid("Invalid breakpoint in Validate Mediator");
                 }
             }
         } else {
@@ -488,10 +467,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
                     mediatorPosition += " " + visitor.mediatorPosition;
                     debugInfo.setMediatorPosition(mediatorPosition);
                 } else {
-                    mediatorPosition = null;
-                    debugInfo.setMediatorPosition(null);
-                    debugInfo.setValid(false);
-                    debugInfo.setError("Invalid breakpoint in Filter Mediator");
+                    markAsInvalid("Invalid breakpoint in Filter Mediator");
                 }
             }
         } else {
@@ -529,10 +505,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
                     mediatorPosition += " " + visitor.mediatorPosition;
                     debugInfo.setMediatorPosition(mediatorPosition);
                 } else {
-                    mediatorPosition = null;
-                    debugInfo.setMediatorPosition(null);
-                    debugInfo.setValid(false);
-                    debugInfo.setError("Invalid breakpoint in Clone Mediator");
+                    markAsInvalid("Invalid breakpoint in Clone Mediator");
                 }
             }
         } else {
@@ -564,10 +537,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
                     mediatorPosition += " " + visitor.mediatorPosition;
                     debugInfo.setMediatorPosition(mediatorPosition);
                 } else {
-                    mediatorPosition = null;
-                    debugInfo.setMediatorPosition(null);
-                    debugInfo.setValid(false);
-                    debugInfo.setError("Invalid breakpoint in Aggregate Mediator");
+                    markAsInvalid("Invalid breakpoint in Aggregate Mediator");
                 }
             }
         } else {
@@ -629,10 +599,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
                     mediatorPosition += " " + visitor.mediatorPosition;
                     debugInfo.setMediatorPosition(mediatorPosition);
                 } else {
-                    mediatorPosition = null;
-                    debugInfo.setMediatorPosition(null);
-                    debugInfo.setValid(false);
-                    debugInfo.setError("Invalid breakpoint in Iterate Mediator");
+                    markAsInvalid("Invalid breakpoint in Iterate Mediator");
                 }
             }
         } else {
@@ -664,10 +631,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
                     mediatorPosition += " " + visitor.mediatorPosition;
                     debugInfo.setMediatorPosition(mediatorPosition);
                 } else {
-                    mediatorPosition = null;
-                    debugInfo.setMediatorPosition(null);
-                    debugInfo.setValid(false);
-                    debugInfo.setError("Invalid breakpoint in Foreach Mediator");
+                    markAsInvalid("Invalid breakpoint in Foreach Mediator");
                 }
             }
         } else {
@@ -739,5 +703,13 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
     void visitCallout(Callout node) {
 
         visitSimpleMediator(node);
+    }
+
+    private void markAsInvalid(String error) {
+
+        mediatorPosition = null;
+        debugInfo.setMediatorPosition(null);
+        debugInfo.setValid(false);
+        debugInfo.setError(error);
     }
 }
