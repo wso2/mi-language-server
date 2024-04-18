@@ -196,4 +196,9 @@ public class MediatorFactoryFinder {
         connectorLoader.updateConnectorLoader(projectPath);
         connectorHolder = connectorLoader.loadConnector();
     }
+
+    public ConnectorHolder getConnectorHolder() {
+
+        return connectorHolder;
+    }
 }

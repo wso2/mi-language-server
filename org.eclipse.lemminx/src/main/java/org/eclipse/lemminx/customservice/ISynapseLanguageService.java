@@ -18,7 +18,8 @@
 
 package org.eclipse.lemminx.customservice;
 
-import org.eclipse.lemminx.customservice.synapse.connectors.AvailableConnectorParam;
+import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorParam;
+import org.eclipse.lemminx.customservice.synapse.connectors.Connection;
 import org.eclipse.lemminx.customservice.synapse.connectors.Connector;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointInfoResponse;
@@ -33,12 +34,14 @@ import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceFolder;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.messages.Either3;
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 @JsonSegment("synapse")
@@ -60,7 +63,7 @@ public interface ISynapseLanguageService {
     CompletableFuture<ResourceResponse> availableResources(ResourceParam param);
 
     @JsonRequest
-    CompletableFuture<Either3<ConnectorHolder, Connector, Boolean>> availableConnectors(AvailableConnectorParam param);
+    CompletableFuture<Either3<ConnectorHolder, Connector, Boolean>> availableConnectors(ConnectorParam param);
 
     @JsonNotification
     void updateConnectors(TextDocumentIdentifier param);
@@ -73,4 +76,7 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<ValidationResponse> validateBreakpoints(BreakpointsRequest breakPointRequest);
+
+    @JsonRequest
+    CompletableFuture<Either<List<Connection>, Map<String, List<Connection>>>> connectorConnections(ConnectorParam param);
 }

@@ -18,10 +18,15 @@
 
 package org.eclipse.lemminx.customservice.synapse.connectors;
 
-import org.eclipse.lsp4j.TextDocumentIdentifier;
+public class Connection {
 
-public class AvailableConnectorParam {
+    String name;
+    String path;
 
-    public TextDocumentIdentifier documentIdentifier;
-    public String connectorName;
+    public Connection(String name, String path) {
+
+        this.name = name;
+        this.path = path;
+
+    }
 }
