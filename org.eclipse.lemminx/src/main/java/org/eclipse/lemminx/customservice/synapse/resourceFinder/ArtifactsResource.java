@@ -21,6 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.resourceFinder;
 public class ArtifactsResource extends Resource {
 
     private String artifactPath;
+    private String absolutePath;
 
     public String getArtifactPath() {
 
@@ -32,4 +33,13 @@ public class ArtifactsResource extends Resource {
         this.artifactPath = artifactPath;
     }
 
+    public String getAbsolutePath() {
+
+        return absolutePath;
+    }
+
+    public void setAbsolutePath(String absolutePath) {
+
+        this.absolutePath = absolutePath;
+    }
 }

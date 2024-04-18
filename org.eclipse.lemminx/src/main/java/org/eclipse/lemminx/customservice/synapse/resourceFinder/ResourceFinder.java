@@ -297,6 +297,7 @@ public class ResourceFinder {
             artifact.setType(Utils.addUnderscoreBetweenWords(type).toUpperCase());
             artifact.setFrom(ARTIFACTS);
             ((ArtifactsResource) artifact).setArtifactPath(file.getName());
+            ((ArtifactsResource) artifact).setAbsolutePath(file.getAbsolutePath());
             return artifact;
         }
         return null;
