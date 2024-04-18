@@ -43,6 +43,14 @@ public class ConnectionFinder {
 
     private static final Logger log = Logger.getLogger(ConnectionFinder.class.getName());
 
+    /**
+     * Find connections for a given uri and name. If the name is null, it will return all the connections.
+     * Otherwise, it will return the connections for the given connector.
+     *
+     * @param uri  uri of the file
+     * @param name name of the connection (Optional)
+     * @return connections
+     */
     public static Either<Connections, Map<String, Connections>> findConnections(String uri, String name) {
 
         if (uri != null) {
