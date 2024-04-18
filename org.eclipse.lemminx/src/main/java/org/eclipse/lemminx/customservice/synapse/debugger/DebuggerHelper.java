@@ -46,6 +46,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * This class is used get info about the breakpoint to support debugging in the Synapse language.
+ */
 public class DebuggerHelper {
 
     private static final Logger LOGGER = Logger.getLogger(DebuggerHelper.class.getName());
@@ -62,6 +65,12 @@ public class DebuggerHelper {
         }
     }
 
+    /**
+     * This method is used to validate the breakpoints.
+     *
+     * @param breakpoints list of breakpoints
+     * @return list of breakpoint validity
+     */
     public List<BreakpointValidity> validateBreakpoints(List<Breakpoint> breakpoints) {
 
         List<IDebugInfo> debugInfos = generateDebugInfo(breakpoints);
@@ -76,6 +85,12 @@ public class DebuggerHelper {
         return validationList;
     }
 
+    /**
+     * This method is used to generate the debug info json that will have the details about each breakpoint.
+     *
+     * @param breakpoints list of breakpoints
+     * @return list of json elements
+     */
     public List<JsonElement> generateDebugInfoJson(List<Breakpoint> breakpoints) {
 
         List<IDebugInfo> debugInfos = generateDebugInfo(breakpoints);
@@ -90,6 +105,13 @@ public class DebuggerHelper {
         return out;
     }
 
+    /**
+     * This method is used to generate the debug info. It will traverse the syntax tree and generate the info for
+     * each breakpoint.
+     *
+     * @param breakPoints list of breakpoints
+     * @return list of debug info
+     */
     public List<IDebugInfo> generateDebugInfo(List<Breakpoint> breakPoints) {
 
         String tag = syntaxTree.getTag();

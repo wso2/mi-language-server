@@ -34,6 +34,13 @@ public class VisitorUtils {
 
     private static final Logger LOGGER = Logger.getLogger(VisitorUtils.class.getName());
 
+    /**
+     * Check whether the breakpoint is within the range of the node.
+     *
+     * @param node       The node to check.
+     * @param breakpoint The breakpoint to check.
+     * @return True if the breakpoint is within the range of the node, false otherwise.
+     */
     public static boolean checkNodeInRange(STNode node, Breakpoint breakpoint) {
 
         if (node == null) {
@@ -53,6 +60,13 @@ public class VisitorUtils {
         }
     }
 
+    /**
+     * Check whether the breakpoint is in the start tag range of the mediator node.
+     *
+     * @param node       The node(mediator) to check.
+     * @param breakpoint The breakpoint to check.
+     * @return True if the breakpoint is within the start tag range of the node, false otherwise.
+     */
     public static boolean checkValidBreakpoint(STNode node, Breakpoint breakpoint) {
 
         if (node == null) {
@@ -67,11 +81,26 @@ public class VisitorUtils {
         }
     }
 
+    /**
+     * Visit the mediators in the list.
+     *
+     * @param mediators The list of mediators to visit.
+     * @param visitor   The visitor to visit the mediators.
+     */
     public static void visitMediators(List<Mediator> mediators, MediatorVisitor visitor) {
 
         visitMediators(mediators, visitor, new HashMap<>());
     }
 
+    /**
+     * Visit the mediators in the list and generate debug info for the current breakpoint.
+     * If the visitor is done, then the breakpoint will be removed from the list and the debug info will be stored in
+     * the map. Then the visitor will continue from the next breakpoint.
+     *
+     * @param mediators  The list of mediators to visit.
+     * @param visitor    The visitor to visit the mediators.
+     * @param debugInfos The map to store the debug info of the mediators.
+     */
     public static void visitMediators(List<Mediator> mediators, MediatorVisitor visitor, HashMap<Breakpoint,
             IDebugInfo> debugInfos) {
 
@@ -96,6 +125,12 @@ public class VisitorUtils {
         }
     }
 
+    /**
+     * Visit the mediator node.
+     *
+     * @param node    The mediator node to visit.
+     * @param visitor The visitor to visit the mediator.
+     */
     public static void visitMediator(Mediator node, MediatorVisitor visitor) {
 
         String tag = node.getTag();
@@ -132,6 +167,15 @@ public class VisitorUtils {
 
     }
 
+    /**
+     * Mark the breakpoint as invalid and store the error message in the debug info.
+     *
+     * @param breakpoint        The breakpoint to mark as invalid.
+     * @param error             The error message to store in the debug info.
+     * @param debugInfo         The debug info to store the error message.
+     * @param breakpointInfoMap The map to store the debug info of the breakpoints.
+     * @param breakpoints       The list of breakpoints.
+     */
     public static void markAsInvalid(Breakpoint breakpoint, String error, IDebugInfo debugInfo, HashMap<Breakpoint,
             IDebugInfo> breakpointInfoMap, List<Breakpoint> breakpoints) {
 
