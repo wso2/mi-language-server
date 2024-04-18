@@ -253,7 +253,7 @@ public class ResourceFinder {
             DOMElement rootElement;
             String nodeName = typeToXmlTagMap.get(type);
             rootElement = (DOMElement) Utils.getChildNodeByName(document, nodeName);
-            if (rootElement != null) {
+            if (rootElement != null && checkValid(rootElement, type)) {
                 Resource resource = null;
                 if (ARTIFACTS.equals(from)) {
                     resource = createArtifactResource(file, rootElement, type);
@@ -266,6 +266,26 @@ public class ResourceFinder {
             LOGGER.warning("Error while reading file: " + file.getName() + " to create resource object");
         }
         return null;
+    }
+
+    private static boolean checkValid(DOMElement rootElement, String type) {
+
+        String nodeName = rootElement.getNodeName();
+        if (Constant.TEMPLATE.equals(nodeName)) {
+            if ("sequenceTemplate".equals(type)) {
+                DOMElement sequenceElement = (DOMElement) Utils.getChildNodeByName(rootElement, Constant.SEQUENCE);
+                if (sequenceElement != null) {
+                    return true;
+                }
+            } else if ("endpointTemplate".equals(type)) {
+                DOMElement endpointElement = (DOMElement) Utils.getChildNodeByName(rootElement, Constant.ENDPOINT);
+                if (endpointElement != null) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return true;
     }
 
     private static Resource createArtifactResource(File file, DOMElement rootElement, String type) {
