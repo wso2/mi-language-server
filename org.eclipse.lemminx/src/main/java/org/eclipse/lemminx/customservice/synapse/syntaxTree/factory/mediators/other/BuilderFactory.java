@@ -32,7 +32,7 @@ import java.util.List;
 
 public class BuilderFactory extends AbstractMediatorFactory {
 
-    private static final String BUILDER = "builder";
+    private static final String BUILDER = "syn:builder";
 
     @Override
     public Mediator createSpecificMediator(DOMElement element) {
