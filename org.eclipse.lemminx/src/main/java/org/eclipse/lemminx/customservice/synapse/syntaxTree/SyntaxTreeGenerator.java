@@ -108,7 +108,7 @@ public class SyntaxTreeGenerator {
         return rootElement;
     }
 
-    private static STNode buildTree(DOMElement xmlNode) {
+    public static STNode buildTree(DOMElement xmlNode) {
 
         AbstractFactory factory = null;
         STNode root = null;

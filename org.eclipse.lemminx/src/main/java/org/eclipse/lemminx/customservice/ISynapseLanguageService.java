@@ -20,10 +20,13 @@ package org.eclipse.lemminx.customservice;
 
 import org.eclipse.lemminx.customservice.synapse.connectors.AvailableConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.Connector;
+import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointInfoResponse;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointsRequest;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.ValidationResponse;
+import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryMapResponse;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceResponse;
-import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
-import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryMapResponse;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeResponse;
 import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.Location;
@@ -64,4 +67,10 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<List<String>> getRegistryFiles(TextDocumentIdentifier param);
+
+    @JsonRequest
+    CompletableFuture<BreakpointInfoResponse> getBreakpointInfo(BreakpointsRequest breakPointRequest);
+
+    @JsonRequest
+    CompletableFuture<ValidationResponse> validateBreakpoints(BreakpointsRequest breakPointRequest);
 }
