@@ -27,6 +27,7 @@ import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
+import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.io.File;
@@ -94,8 +95,9 @@ public class ConnectionFinder {
                 if (childElement != null) {
                     String nodeName = childElement.getNodeName();
                     String connectorName = getConnectorName(nodeName);
+                    String connectionType = getConnectionType(childElement);
                     if (connectorName != null) {
-                        addToConnections(connections, connectorName, localEntryName, filePath);
+                        addToConnections(connections, connectorName, localEntryName, connectionType, filePath);
                     }
                 }
             } catch (IOException e) {
@@ -113,12 +115,27 @@ public class ConnectionFinder {
         return null;
     }
 
-    private static void addToConnections(Map<String, List<Connection>> connections, String connectorName, String name,
-                                         String path) {
+    private static void addToConnections(Map<String, List<Connection>> connections, String connectorName,
+                                         String connectionName, String connectionType, String path) {
 
         if (connections.containsKey(connectorName)) {
-            Connection connection = new Connection(name, path);
+            Connection connection = new Connection(connectionName, connectionType, path);
             connections.get(connectorName).add(connection);
         }
+    }
+
+    private static String getConnectionType(DOMElement element) {
+
+        List<DOMNode> children = element.getChildren();
+        if (children != null) {
+            for (DOMNode child : children) {
+                String nodeName = child.getNodeName();
+                if ("connectionType".equals(nodeName)) {
+                    String connectionType = Utils.getInlineString(child.getFirstChild());
+                    return connectionType;
+                }
+            }
+        }
+        return null;
     }
 }

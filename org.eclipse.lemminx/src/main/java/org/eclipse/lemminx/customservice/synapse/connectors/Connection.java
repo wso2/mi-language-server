@@ -21,11 +21,13 @@ package org.eclipse.lemminx.customservice.synapse.connectors;
 public class Connection {
 
     String name;
+    String connectionType;
     String path;
 
-    public Connection(String name, String path) {
+    public Connection(String name, String connectionType, String path) {
 
         this.name = name;
+        this.connectionType = connectionType;
         this.path = path;
 
     }
