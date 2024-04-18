@@ -18,30 +18,40 @@
 
 package org.eclipse.lemminx.customservice.synapse.debugger.visitor;
 
+import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.IDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.TemplateDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.template.Template;
 
+import java.util.HashMap;
+import java.util.List;
+
 public class TemplateVisitor implements Visitor {
 
     Template syntaxTree;
-    Breakpoint breakpoint;
+    List<Breakpoint> breakpoints;
+    HashMap<Breakpoint, IDebugInfo> breakpointInfoMap;
     TemplateDebugInfo templateDebugInfo;
 
-    public TemplateVisitor(Template syntaxTree, Breakpoint breakpoint, TemplateDebugInfo debugInfo) {
+    public TemplateVisitor(Template syntaxTree, List<Breakpoint> breakpoints,
+                           HashMap<Breakpoint, IDebugInfo> breakpointInfoMap) {
 
         this.syntaxTree = syntaxTree;
-        this.breakpoint = breakpoint;
-        this.templateDebugInfo = debugInfo;
+        this.breakpoints = breakpoints;
+        this.breakpointInfoMap = breakpointInfoMap;
     }
 
     @Override
     public void startVisit() {
 
-        traverseNode(syntaxTree);
+        while (breakpoints.size() > 0) {
+            Breakpoint breakpoint = breakpoints.get(0);
+            templateDebugInfo = new TemplateDebugInfo();
+            traverseNode(syntaxTree, breakpoint);
+        }
     }
 
-    private void traverseNode(Template syntaxTree) {
+    private void traverseNode(Template syntaxTree, Breakpoint breakpoint) {
 
         if (syntaxTree == null) {
             return;
@@ -49,12 +59,20 @@ public class TemplateVisitor implements Visitor {
         if (VisitorUtils.checkNodeInRange(syntaxTree, breakpoint)) {
             templateDebugInfo.setTemplateKey(syntaxTree.getName());
             if (syntaxTree.getSequence() != null) {
-                MediatorVisitor mediatorVisitor = new MediatorVisitor(breakpoint, templateDebugInfo);
-                VisitorUtils.visitMediators(syntaxTree.getSequence().getMediatorList(), mediatorVisitor);
+                MediatorVisitor mediatorVisitor = new MediatorVisitor(breakpoints, templateDebugInfo);
+                VisitorUtils.visitMediators(syntaxTree.getSequence().getMediatorList(), mediatorVisitor,
+                        breakpointInfoMap);
+                if (!mediatorVisitor.isDone()) {
+                    markAsInvalid(mediatorVisitor.breakpoint, "Invalid breakpoint in Template");
+                }
             }
         } else {
-            templateDebugInfo.setError("Breakpoint is not in the range of the template");
-            templateDebugInfo.setValid(false);
+            markAsInvalid(breakpoint, "Breakpoint is not in the range of the template");
         }
+    }
+
+    private void markAsInvalid(Breakpoint breakpoint, String error) {
+
+        VisitorUtils.markAsInvalid(breakpoint, error, templateDebugInfo, breakpointInfoMap, breakpoints);
     }
 }

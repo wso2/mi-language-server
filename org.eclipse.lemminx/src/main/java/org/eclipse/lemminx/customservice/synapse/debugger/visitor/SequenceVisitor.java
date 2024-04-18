@@ -18,41 +18,61 @@
 
 package org.eclipse.lemminx.customservice.synapse.debugger.visitor;
 
+import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.IDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.SequenceDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.NamedSequence;
 
+import java.util.HashMap;
+import java.util.List;
+
 public class SequenceVisitor implements Visitor {
 
     NamedSequence syntaxTree;
-    Breakpoint breakpoint;
-    SequenceDebugInfo debugInfo;
+    List<Breakpoint> breakpoints;
+    HashMap<Breakpoint, IDebugInfo> breakpointInfoMap;
+    SequenceDebugInfo sequenceDebugInfo;
 
-    public SequenceVisitor(NamedSequence syntaxTree, Breakpoint breakpoint, SequenceDebugInfo debugInfo) {
+    public SequenceVisitor(NamedSequence syntaxTree, List<Breakpoint> breakpoints,
+                           HashMap<Breakpoint, IDebugInfo> breakpointInfoMap) {
 
         this.syntaxTree = syntaxTree;
-        this.breakpoint = breakpoint;
-        this.debugInfo = debugInfo;
+        this.breakpoints = breakpoints;
+        this.breakpointInfoMap = breakpointInfoMap;
     }
 
     @Override
     public void startVisit() {
 
-        traverseNode(syntaxTree);
+        while (breakpoints.size() > 0) {
+            Breakpoint breakpoint = breakpoints.get(0);
+            sequenceDebugInfo = new SequenceDebugInfo();
+            traverseNode(syntaxTree, breakpoint);
+        }
     }
 
-    private void traverseNode(NamedSequence syntaxTree) {
+    private void traverseNode(NamedSequence syntaxTree, Breakpoint breakpoint) {
 
         if (syntaxTree == null) {
             return;
         }
         if (VisitorUtils.checkNodeInRange(syntaxTree, breakpoint)) {
-            debugInfo.setSequenceKey(syntaxTree.getName());
-            MediatorVisitor mediatorVisitor = new MediatorVisitor(breakpoint, debugInfo);
-            VisitorUtils.visitMediators(syntaxTree.getMediatorList(), mediatorVisitor);
+            sequenceDebugInfo.setSequenceKey(syntaxTree.getName());
+            MediatorVisitor mediatorVisitor = new MediatorVisitor(breakpoints, sequenceDebugInfo);
+            VisitorUtils.visitMediators(syntaxTree.getMediatorList(), mediatorVisitor, breakpointInfoMap);
+            if (!mediatorVisitor.isDone()) {
+                breakpoints.remove(mediatorVisitor.breakpoint);
+                sequenceDebugInfo.setValid(false);
+                sequenceDebugInfo.setError("Invalid breakpoint in Sequence");
+                breakpointInfoMap.put(mediatorVisitor.breakpoint, sequenceDebugInfo);
+            }
         } else {
-            debugInfo.setError("Breakpoint is not in the range of the sequence");
-            debugInfo.setValid(false);
+            markAsInvalid(breakpoint, "Breakpoint is not in the range of the sequence");
         }
+    }
+
+    private void markAsInvalid(Breakpoint breakpoint, String error) {
+
+        VisitorUtils.markAsInvalid(breakpoint, error, sequenceDebugInfo, breakpointInfoMap, breakpoints);
     }
 }

@@ -20,7 +20,7 @@ package org.eclipse.lemminx.customservice.synapse.debugger.debuginfo;
 
 import com.google.gson.JsonElement;
 
-public interface IDebugInfo {
+public interface IDebugInfo extends Cloneable {
 
     void setMediatorPosition(String mediatorPosition);
 
@@ -33,4 +33,6 @@ public interface IDebugInfo {
     void setError(String error);
 
     JsonElement toJson();
+
+    IDebugInfo clone() throws CloneNotSupportedException;
 }

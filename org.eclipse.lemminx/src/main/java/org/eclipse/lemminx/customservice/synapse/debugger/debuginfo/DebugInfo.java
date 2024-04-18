@@ -62,4 +62,10 @@ public class DebugInfo implements IDebugInfo {
 
         this.mediatorPosition = mediatorPosition;
     }
+
+    @Override
+    public IDebugInfo clone() throws CloneNotSupportedException {
+
+        return (IDebugInfo) super.clone();
+    }
 }

@@ -19,31 +19,40 @@
 package org.eclipse.lemminx.customservice.synapse.debugger.visitor;
 
 import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.ApiDebugInfo;
+import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.IDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.API;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.APIResource;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
 
+import java.util.HashMap;
+import java.util.List;
+
 public class ApiVisitor implements Visitor {
 
     API syntaxTree;
-    Breakpoint breakpoint;
+    List<Breakpoint> breakpoints;
+    HashMap<Breakpoint, IDebugInfo> breakpointInfoMap;
     ApiDebugInfo apiDebugInfo;
 
-    public ApiVisitor(API syntaxTree, Breakpoint breakpoint, ApiDebugInfo apiDebugInfo) {
+    public ApiVisitor(API syntaxTree, List<Breakpoint> breakpoints, HashMap<Breakpoint, IDebugInfo> breakpointInfoMap) {
 
         this.syntaxTree = syntaxTree;
-        this.breakpoint = breakpoint;
-        this.apiDebugInfo = apiDebugInfo;
+        this.breakpoints = breakpoints;
+        this.breakpointInfoMap = breakpointInfoMap;
     }
 
     @Override
     public void startVisit() {
 
-        traverseNode(syntaxTree);
+        while (breakpoints.size() > 0) {
+            Breakpoint breakpoint = breakpoints.get(0);
+            apiDebugInfo = new ApiDebugInfo();
+            traverseNode(syntaxTree, breakpoint);
+        }
     }
 
-    private void traverseNode(API node) {
+    private void traverseNode(API node, Breakpoint breakpoint) {
 
         if (node == null) {
             return;
@@ -56,16 +65,15 @@ public class ApiVisitor implements Visitor {
                     apiDebugInfo.setMethod(resource.getMethods()[0]);
                     apiDebugInfo.setUriTemplate(resource.getUriTemplate());
                     apiDebugInfo.setUrlMapping(resource.getUrlMapping());
-                    visitResource(resource);
+                    visitResource(resource, breakpoint);
                     return;
                 }
             }
         }
-        apiDebugInfo.setValid(false);
-        apiDebugInfo.setError("Invalid breakpoint in API");
+        markAsInvalid(breakpoint, "Invalid breakpoint in API");
     }
 
-    private void visitResource(APIResource resource) {
+    private void visitResource(APIResource resource, Breakpoint breakpoint) {
 
         if (VisitorUtils.checkNodeInRange(resource.getInSequence(), breakpoint)) {
             visitMediationSequence(resource.getInSequence());
@@ -74,19 +82,22 @@ public class ApiVisitor implements Visitor {
         } else if (VisitorUtils.checkNodeInRange(resource.getFaultSequence(), breakpoint)) {
             visitMediationSequence(resource.getFaultSequence());
         } else {
-            apiDebugInfo.setValid(false);
-            apiDebugInfo.setError("Invalid breakpoint in API");
+            markAsInvalid(breakpoint, "Invalid breakpoint in API");
         }
     }
 
     private void visitMediationSequence(Sequence sequence) {
 
         apiDebugInfo.setSequenceType("api_" + sequence.getTag().substring(0, sequence.getTag().length() - 5).toLowerCase());
-        MediatorVisitor mediatorVisitor = new MediatorVisitor(breakpoint, apiDebugInfo);
-        VisitorUtils.visitMediators(sequence.getMediatorList(), mediatorVisitor);
+        MediatorVisitor mediatorVisitor = new MediatorVisitor(breakpoints, apiDebugInfo);
+        VisitorUtils.visitMediators(sequence.getMediatorList(), mediatorVisitor, breakpointInfoMap);
         if (!mediatorVisitor.isDone()) {
-            apiDebugInfo.setValid(false);
-            apiDebugInfo.setError("Invalid breakpoint in API");
+            markAsInvalid(mediatorVisitor.breakpoint, "Invalid breakpoint in API");
         }
+    }
+
+    private void markAsInvalid(Breakpoint breakpoint, String error) {
+
+        VisitorUtils.markAsInvalid(breakpoint, error, apiDebugInfo, breakpointInfoMap, breakpoints);
     }
 }

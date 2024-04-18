@@ -19,12 +19,7 @@
 package org.eclipse.lemminx.customservice.synapse.debugger;
 
 import com.google.gson.JsonElement;
-import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.ApiDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.IDebugInfo;
-import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.InboundDebugInfo;
-import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.ProxyDebugInfo;
-import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.SequenceDebugInfo;
-import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.TemplateDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointValidity;
 import org.eclipse.lemminx.customservice.synapse.debugger.visitor.ApiVisitor;
@@ -46,6 +41,7 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -85,50 +81,50 @@ public class DebuggerHelper {
         List<IDebugInfo> debugInfos = generateDebugInfo(breakpoints);
         List<JsonElement> out = new ArrayList<>();
         for (IDebugInfo debugInfo : debugInfos) {
-            out.add(debugInfo.toJson());
+            if (debugInfo.isValid()) {
+                out.add(debugInfo.toJson());
+            } else {
+                out.add(null);
+            }
         }
         return out;
     }
 
-    public List<IDebugInfo> generateDebugInfo(List<Breakpoint> breakpoints) {
-
-        List<IDebugInfo> breakPointInfo = new ArrayList<>();
-        for (Breakpoint bpr : breakpoints) {
-            breakPointInfo.add(generateDebugInfo(bpr));
-        }
-        return breakPointInfo;
-    }
-
-    public IDebugInfo generateDebugInfo(Breakpoint breakPoint) {
+    public List<IDebugInfo> generateDebugInfo(List<Breakpoint> breakPoints) {
 
         String tag = syntaxTree.getTag();
-        IDebugInfo debugInfo = null;
+        List<Breakpoint> breakpointsCopy = new ArrayList<>(breakPoints);
+        HashMap<Breakpoint, IDebugInfo> breakpointInfoMap = new HashMap<>(breakPoints.size());
+        for (Breakpoint breakpoint : breakPoints) {
+            breakpointInfoMap.put(breakpoint, null);
+        }
         if (Constant.API.equalsIgnoreCase(tag)) {
-            debugInfo = new ApiDebugInfo();
-            ApiVisitor apiVisitor = new ApiVisitor((API) syntaxTree, breakPoint, (ApiDebugInfo) debugInfo);
+            ApiVisitor apiVisitor = new ApiVisitor((API) syntaxTree, breakpointsCopy, breakpointInfoMap);
             apiVisitor.startVisit();
         } else if (Constant.PROXY.equalsIgnoreCase(tag)) {
-            debugInfo = new ProxyDebugInfo();
-            ProxyVisitor proxyVisitor = new ProxyVisitor((Proxy) syntaxTree, breakPoint,
-                    (ProxyDebugInfo) debugInfo);
+            ProxyVisitor proxyVisitor = new ProxyVisitor((Proxy) syntaxTree, breakpointsCopy,
+                    breakpointInfoMap);
             proxyVisitor.startVisit();
         } else if (Constant.SEQUENCE.equalsIgnoreCase(tag)) {
-            debugInfo = new SequenceDebugInfo();
-            SequenceVisitor sequenceVisitor = new SequenceVisitor((NamedSequence) syntaxTree, breakPoint,
-                    (SequenceDebugInfo) debugInfo);
+            SequenceVisitor sequenceVisitor = new SequenceVisitor((NamedSequence) syntaxTree, breakpointsCopy,
+                    breakpointInfoMap);
             sequenceVisitor.startVisit();
         } else if (Constant.INBOUND_ENDPOINT.equalsIgnoreCase(tag)) {
-            debugInfo = new InboundDebugInfo();
             InboundEndpointVisitor inboundEndpointVisitor = new InboundEndpointVisitor((InboundEndpoint) syntaxTree,
-                    breakPoint, (InboundDebugInfo) debugInfo);
+                    breakpointsCopy, breakpointInfoMap);
             inboundEndpointVisitor.startVisit();
         } else if (Constant.TEMPLATE.equalsIgnoreCase(tag)) {
-            debugInfo = new TemplateDebugInfo();
-            TemplateVisitor templateVisitor = new TemplateVisitor((Template) syntaxTree, breakPoint,
-                    (TemplateDebugInfo) debugInfo);
+            TemplateVisitor templateVisitor = new TemplateVisitor((Template) syntaxTree, breakpointsCopy,
+                    breakpointInfoMap);
             templateVisitor.startVisit();
         }
-        return debugInfo;
+        IDebugInfo[] debugInfos = new IDebugInfo[breakPoints.size()];
+        for (Breakpoint bp : breakPoints) {
+            IDebugInfo debugInfo = breakpointInfoMap.get(bp);
+            int index = breakPoints.indexOf(bp);
+            debugInfos[index] = debugInfo;
+        }
+        return List.of(debugInfos);
     }
 
     private STNode getSyntaxTree() throws IOException {

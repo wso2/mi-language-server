@@ -18,13 +18,16 @@
 
 package org.eclipse.lemminx.customservice.synapse.debugger.visitor;
 
+import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.IDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class VisitorUtils {
@@ -66,12 +69,29 @@ public class VisitorUtils {
 
     public static void visitMediators(List<Mediator> mediators, MediatorVisitor visitor) {
 
+        visitMediators(mediators, visitor, new HashMap<>());
+    }
+
+    public static void visitMediators(List<Mediator> mediators, MediatorVisitor visitor, HashMap<Breakpoint,
+            IDebugInfo> debugInfos) {
+
         if (mediators != null && mediators.size() > 0) {
-            for (Mediator mediator : mediators) {
+            for (int i = 0; i < mediators.size(); i++) {
+
+                visitMediator(mediators.get(i), visitor);
                 if (visitor.isDone()) {
-                    return;
+                    IDebugInfo debugInfo = null;
+                    try {
+                        debugInfo = visitor.debugInfo.clone();
+                    } catch (CloneNotSupportedException e) {
+                        LOGGER.log(Level.SEVERE, "Error while cloning debug info", e);
+                    }
+                    debugInfos.put(visitor.breakpoint, debugInfo);
+                    if (visitor.breakpoints != null) {
+                        visitor.nextBreakpoint();
+                        i--;
+                    }
                 }
-                visitMediator(mediator, visitor);
             }
         }
     }
@@ -110,5 +130,14 @@ public class VisitorUtils {
         }
         return sanitizedTag;
 
+    }
+
+    public static void markAsInvalid(Breakpoint breakpoint, String error, IDebugInfo debugInfo, HashMap<Breakpoint,
+            IDebugInfo> breakpointInfoMap, List<Breakpoint> breakpoints) {
+
+        breakpoints.remove(breakpoint);
+        debugInfo.setValid(false);
+        debugInfo.setError(error);
+        breakpointInfoMap.put(breakpoint, debugInfo);
     }
 }

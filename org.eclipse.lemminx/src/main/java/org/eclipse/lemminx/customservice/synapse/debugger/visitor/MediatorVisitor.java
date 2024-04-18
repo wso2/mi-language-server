@@ -76,17 +76,21 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transf
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.smooks.Smooks;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.xslt.Xslt;
 
+import java.util.List;
+
 public class MediatorVisitor extends AbstractMediatorVisitor {
 
+    List<Breakpoint> breakpoints;
     Breakpoint breakpoint;
     IDebugInfo debugInfo;
     String mediatorPosition;
     int mediatorCount;
-    boolean done; //remove it later
+    boolean done;
 
-    public MediatorVisitor(Breakpoint breakpoint, IDebugInfo debugInfo) {
+    public MediatorVisitor(List<Breakpoint> breakpoints, IDebugInfo debugInfo) {
 
-        this.breakpoint = breakpoint;
+        this.breakpoints = breakpoints;
+        this.breakpoint = breakpoints.get(0);
         this.debugInfo = debugInfo;
         this.mediatorCount = 0;
         this.done = false;
@@ -104,15 +108,33 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
         return done;
     }
 
+    public void nextBreakpoint() {
+
+        breakpoints.remove(breakpoint);
+        if (breakpoints.size() > 0) {
+            this.done = false;
+            breakpoint = breakpoints.get(0);
+            resetDebugInfo();
+        }
+    }
+
+    private void resetDebugInfo() {
+
+        debugInfo.setMediatorPosition(null);
+        debugInfo.setValid(true);
+        debugInfo.setError(null);
+    }
+
     void visitSimpleMediator(STNode node) {
 
         if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
+            this.done = true;
             if (VisitorUtils.checkValidBreakpoint(node, breakpoint)) {
                 mediatorPosition = Integer.toString(mediatorCount);
                 debugInfo.setMediatorPosition(mediatorPosition);
-                this.done = true;
             } else {
                 mediatorPosition = null;
+                debugInfo.setMediatorPosition(null);
                 debugInfo.setValid(false);
                 debugInfo.setError("Breakpoint is not in the starting tag of the mediator:" + node.getTag());
             }
