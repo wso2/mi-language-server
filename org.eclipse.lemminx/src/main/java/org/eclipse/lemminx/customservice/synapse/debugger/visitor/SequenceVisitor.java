@@ -21,6 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.debugger.visitor;
 import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.IDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.SequenceDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.NamedSequence;
 
 import java.util.HashMap;
@@ -32,6 +33,8 @@ public class SequenceVisitor implements Visitor {
     List<Breakpoint> breakpoints;
     HashMap<Breakpoint, IDebugInfo> breakpointInfoMap;
     SequenceDebugInfo sequenceDebugInfo;
+    StepOverInfo stepOverInfo;
+    boolean isStepOver;
 
     public SequenceVisitor(NamedSequence syntaxTree, List<Breakpoint> breakpoints,
                            HashMap<Breakpoint, IDebugInfo> breakpointInfoMap) {
@@ -39,6 +42,15 @@ public class SequenceVisitor implements Visitor {
         this.syntaxTree = syntaxTree;
         this.breakpoints = breakpoints;
         this.breakpointInfoMap = breakpointInfoMap;
+        this.isStepOver = false;
+    }
+
+    public SequenceVisitor(NamedSequence syntaxTree, List<Breakpoint> breakpoints, StepOverInfo stepOverInfo) {
+
+        this.syntaxTree = syntaxTree;
+        this.breakpoints = breakpoints;
+        this.stepOverInfo = stepOverInfo;
+        this.isStepOver = true;
     }
 
     @Override
@@ -56,18 +68,25 @@ public class SequenceVisitor implements Visitor {
         if (syntaxTree == null) {
             return;
         }
-        if (VisitorUtils.checkNodeInRange(syntaxTree, breakpoint)) {
-            sequenceDebugInfo.setSequenceKey(syntaxTree.getName());
-            MediatorVisitor mediatorVisitor = new MediatorVisitor(breakpoints, sequenceDebugInfo);
-            VisitorUtils.visitMediators(syntaxTree.getMediatorList(), mediatorVisitor, breakpointInfoMap);
-            if (!mediatorVisitor.isDone()) {
-                breakpoints.remove(mediatorVisitor.breakpoint);
-                sequenceDebugInfo.setValid(false);
-                sequenceDebugInfo.setError("Invalid breakpoint in Sequence");
-                breakpointInfoMap.put(mediatorVisitor.breakpoint, sequenceDebugInfo);
+        if (!isStepOver) {
+            if (VisitorUtils.checkNodeInRange(syntaxTree, breakpoint)) {
+                sequenceDebugInfo.setSequenceKey(syntaxTree.getName());
+                BreakpointMediatorVisitor mediatorVisitor = new BreakpointMediatorVisitor(breakpoints,
+                        sequenceDebugInfo);
+                VisitorUtils.visitMediators(syntaxTree.getMediatorList(), mediatorVisitor, breakpointInfoMap);
+                if (!mediatorVisitor.isDone()) {
+                    breakpoints.remove(mediatorVisitor.breakpoint);
+                    sequenceDebugInfo.setValid(false);
+                    sequenceDebugInfo.setError("Invalid breakpoint in Sequence");
+                    breakpointInfoMap.put(mediatorVisitor.breakpoint, sequenceDebugInfo);
+                }
+            } else {
+                markAsInvalid(breakpoint, "Breakpoint is not in the range of the sequence");
             }
         } else {
-            markAsInvalid(breakpoint, "Breakpoint is not in the range of the sequence");
+            breakpoints.remove(0);
+            StepOverMediatorVisitor mediatorVisitor = new StepOverMediatorVisitor(breakpoint, stepOverInfo);
+            VisitorUtils.visitMediators(syntaxTree.getMediatorList(), mediatorVisitor);
         }
     }
 

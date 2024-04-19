@@ -18,11 +18,30 @@
 
 package org.eclipse.lemminx.customservice.synapse.debugger.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class BreakpointsRequest {
+public class StepOverInfo {
 
-    public String filePath;
-    public List<Breakpoint> breakpoints;
-    public Breakpoint breakpoint;
+    List<Breakpoint> stepOverBreakpoints;
+
+    public StepOverInfo() {
+
+        this.stepOverBreakpoints = new ArrayList<>();
+    }
+
+    public void add(Breakpoint breakpoint) {
+
+        this.stepOverBreakpoints.add(breakpoint);
+    }
+
+    public boolean isEmpty() {
+
+        return this.stepOverBreakpoints.isEmpty();
+    }
+
+    public int size() {
+
+        return this.stepOverBreakpoints.size();
+    }
 }

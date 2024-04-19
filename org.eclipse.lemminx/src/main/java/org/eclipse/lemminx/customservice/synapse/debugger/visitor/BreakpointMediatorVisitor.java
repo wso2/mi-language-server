@@ -79,7 +79,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transf
 
 import java.util.List;
 
-public class MediatorVisitor extends AbstractMediatorVisitor {
+public class BreakpointMediatorVisitor extends AbstractMediatorVisitor {
 
     List<Breakpoint> breakpoints;
     Breakpoint breakpoint;
@@ -88,7 +88,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
     int mediatorCount;
     boolean done;
 
-    public MediatorVisitor(List<Breakpoint> breakpoints, IDebugInfo debugInfo) {
+    public BreakpointMediatorVisitor(List<Breakpoint> breakpoints, IDebugInfo debugInfo) {
 
         this.breakpoints = breakpoints;
         this.breakpoint = breakpoints.get(0);
@@ -97,7 +97,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
         this.done = false;
     }
 
-    public MediatorVisitor(Breakpoint breakpoint) {
+    public BreakpointMediatorVisitor(Breakpoint breakpoint) {
 
         this.breakpoint = breakpoint;
         this.debugInfo = new DebugInfo();
@@ -216,7 +216,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
             if (VisitorUtils.checkValidBreakpoint(node, breakpoint)) {
                 debugInfo.setMediatorPosition(mediatorPosition);
             } else {
-                MediatorVisitor visitor = new MediatorVisitor(breakpoint);
+                BreakpointMediatorVisitor visitor = new BreakpointMediatorVisitor(breakpoint);
                 if (VisitorUtils.checkNodeInRange(node.getOnReject(), breakpoint)) {
                     mediatorPosition += " " + "0";
                     VisitorUtils.visitMediators(node.getOnReject().getMediatorList(), visitor);
@@ -251,7 +251,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
             if (VisitorUtils.checkValidBreakpoint(node, breakpoint)) {
                 debugInfo.setMediatorPosition(mediatorPosition);
             } else {
-                MediatorVisitor visitor = new MediatorVisitor(breakpoint);
+                BreakpointMediatorVisitor visitor = new BreakpointMediatorVisitor(breakpoint);
                 if (VisitorUtils.checkNodeInRange(node.getOnReject(), breakpoint)) {
                     mediatorPosition += " " + "0";
                     VisitorUtils.visitMediators(node.getOnReject().getMediatorList(), visitor);
@@ -280,7 +280,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
             if (VisitorUtils.checkValidBreakpoint(node, breakpoint)) {
                 debugInfo.setMediatorPosition(mediatorPosition);
             } else {
-                MediatorVisitor visitor = new MediatorVisitor(breakpoint);
+                BreakpointMediatorVisitor visitor = new BreakpointMediatorVisitor(breakpoint);
                 if (VisitorUtils.checkNodeInRange(node.getOnCacheHit(), breakpoint)) {
                     VisitorUtils.visitMediators(node.getOnCacheHit().getMediatorList(), visitor);
                 }
@@ -341,7 +341,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
             if (VisitorUtils.checkValidBreakpoint(node, breakpoint)) {
                 debugInfo.setMediatorPosition(mediatorPosition);
             } else {
-                MediatorVisitor visitor = new MediatorVisitor(breakpoint);
+                BreakpointMediatorVisitor visitor = new BreakpointMediatorVisitor(breakpoint);
                 if (VisitorUtils.checkNodeInRange(node.get_default(), breakpoint)) {
                     mediatorPosition += " " + "0";
                     VisitorUtils.visitMediators(node.get_default().getMediatorList(), visitor);
@@ -385,7 +385,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
             if (VisitorUtils.checkValidBreakpoint(node, breakpoint)) {
                 debugInfo.setMediatorPosition(mediatorPosition);
             } else {
-                MediatorVisitor visitor = new MediatorVisitor(breakpoint);
+                BreakpointMediatorVisitor visitor = new BreakpointMediatorVisitor(breakpoint);
                 if (VisitorUtils.checkNodeInRange(node.getChildMediators(), breakpoint)) {
                     VisitorUtils.visitMediators(node.getChildMediators().getMediatorList(), visitor);
                 }
@@ -428,7 +428,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
             if (VisitorUtils.checkValidBreakpoint(node, breakpoint)) {
                 debugInfo.setMediatorPosition(mediatorPosition);
             } else {
-                MediatorVisitor visitor = new MediatorVisitor(breakpoint);
+                BreakpointMediatorVisitor visitor = new BreakpointMediatorVisitor(breakpoint);
                 if (VisitorUtils.checkNodeInRange(node.getOnFail(), breakpoint)) {
                     VisitorUtils.visitMediators(node.getOnFail().getMediatorList(), visitor);
                 }
@@ -453,7 +453,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
             if (VisitorUtils.checkValidBreakpoint(node, breakpoint)) {
                 debugInfo.setMediatorPosition(mediatorPosition);
             } else {
-                MediatorVisitor visitor = new MediatorVisitor(breakpoint);
+                BreakpointMediatorVisitor visitor = new BreakpointMediatorVisitor(breakpoint);
                 if (VisitorUtils.checkNodeInRange(node.getThen(), breakpoint)) {
                     mediatorPosition += " " + "1";
                     VisitorUtils.visitMediators(node.getThen().getMediatorList(), visitor);
@@ -488,7 +488,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
             if (VisitorUtils.checkValidBreakpoint(node, breakpoint)) {
                 debugInfo.setMediatorPosition(mediatorPosition);
             } else {
-                MediatorVisitor visitor = new MediatorVisitor(breakpoint);
+                BreakpointMediatorVisitor visitor = new BreakpointMediatorVisitor(breakpoint);
                 CloneTarget[] targets = node.getTarget();
                 if (targets != null) {
                     for (int i = 0; i < targets.length; i++) {
@@ -526,7 +526,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
             if (VisitorUtils.checkValidBreakpoint(node, breakpoint)) {
                 debugInfo.setMediatorPosition(mediatorPosition);
             } else {
-                MediatorVisitor visitor = new MediatorVisitor(breakpoint);
+                BreakpointMediatorVisitor visitor = new BreakpointMediatorVisitor(breakpoint);
                 if (VisitorUtils.checkNodeInRange(node.getCorrelateOnOrCompleteConditionOrOnComplete().getOnComplete().get(), breakpoint)) {
                     VisitorUtils.visitMediators(node.getCorrelateOnOrCompleteConditionOrOnComplete().getOnComplete().get().getMediatorList(), visitor);
                 }
@@ -587,7 +587,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
             if (VisitorUtils.checkValidBreakpoint(node, breakpoint)) {
                 debugInfo.setMediatorPosition(mediatorPosition);
             } else {
-                MediatorVisitor visitor = new MediatorVisitor(breakpoint);
+                BreakpointMediatorVisitor visitor = new BreakpointMediatorVisitor(breakpoint);
                 if (VisitorUtils.checkNodeInRange(node.getTarget(), breakpoint)) {
                     VisitorUtils.visitMediators(node.getTarget().getSequence().getMediatorList(), visitor);
                 }
@@ -618,7 +618,7 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
             if (VisitorUtils.checkValidBreakpoint(node, breakpoint)) {
                 debugInfo.setMediatorPosition(mediatorPosition);
             } else {
-                MediatorVisitor visitor = new MediatorVisitor(breakpoint);
+                BreakpointMediatorVisitor visitor = new BreakpointMediatorVisitor(breakpoint);
                 if (VisitorUtils.checkNodeInRange(node.getSequence(), breakpoint)) {
                     VisitorUtils.visitMediators(node.getSequence().getMediatorList(), visitor);
                 }

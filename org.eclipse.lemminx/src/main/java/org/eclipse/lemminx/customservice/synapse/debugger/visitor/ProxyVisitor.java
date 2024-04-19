@@ -21,6 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.debugger.visitor;
 import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.IDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.ProxyDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.proxy.Proxy;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.proxy.ProxyTarget;
@@ -34,6 +35,8 @@ public class ProxyVisitor implements Visitor {
     List<Breakpoint> breakpoints;
     HashMap<Breakpoint, IDebugInfo> breakpointInfoMap;
     ProxyDebugInfo proxyDebugInfo;
+    StepOverInfo stepOverInfo;
+    boolean isStepOver;
 
     public ProxyVisitor(Proxy syntaxTree, List<Breakpoint> breakpoints,
                         HashMap<Breakpoint, IDebugInfo> breakpointInfoMap) {
@@ -41,6 +44,15 @@ public class ProxyVisitor implements Visitor {
         this.syntaxTree = syntaxTree;
         this.breakpoints = breakpoints;
         this.breakpointInfoMap = breakpointInfoMap;
+        this.isStepOver = false;
+    }
+
+    public ProxyVisitor(Proxy syntaxTree, List<Breakpoint> breakpoints, StepOverInfo stepOverInfo) {
+
+        this.syntaxTree = syntaxTree;
+        this.breakpoints = breakpoints;
+        this.stepOverInfo = stepOverInfo;
+        this.isStepOver = true;
     }
 
     @Override
@@ -84,11 +96,18 @@ public class ProxyVisitor implements Visitor {
 
     private void visitMediationSequence(Sequence sequence) {
 
-        proxyDebugInfo.setSequenceType("proxy_" + sequence.getTag().substring(0, sequence.getTag().length() - 5).toLowerCase());
-        MediatorVisitor mediatorVisitor = new MediatorVisitor(breakpoints, proxyDebugInfo);
-        VisitorUtils.visitMediators(sequence.getMediatorList(), mediatorVisitor, breakpointInfoMap);
-        if (!mediatorVisitor.isDone()) {
-            markAsInvalid(mediatorVisitor.breakpoint, "Invalid breakpoint in Proxy");
+        if (!isStepOver) {
+            proxyDebugInfo.setSequenceType("proxy_" + sequence.getTag().substring(0, sequence.getTag().length() - 5).toLowerCase());
+            BreakpointMediatorVisitor mediatorVisitor = new BreakpointMediatorVisitor(breakpoints, proxyDebugInfo);
+            VisitorUtils.visitMediators(sequence.getMediatorList(), mediatorVisitor, breakpointInfoMap);
+            if (!mediatorVisitor.isDone()) {
+                markAsInvalid(mediatorVisitor.breakpoint, "Invalid breakpoint in Proxy");
+            }
+        } else {
+            Breakpoint breakpoint = breakpoints.get(0);
+            breakpoints.remove(0);
+            StepOverMediatorVisitor mediatorVisitor = new StepOverMediatorVisitor(breakpoint, stepOverInfo);
+            VisitorUtils.visitMediators(sequence.getMediatorList(), mediatorVisitor);
         }
     }
 

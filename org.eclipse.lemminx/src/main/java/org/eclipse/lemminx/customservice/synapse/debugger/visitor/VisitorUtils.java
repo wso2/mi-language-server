@@ -82,12 +82,12 @@ public class VisitorUtils {
     }
 
     /**
-     * Visit the mediators in the list.
+     * Visit the mediators in the list and get the debug info.
      *
      * @param mediators The list of mediators to visit.
      * @param visitor   The visitor to visit the mediators.
      */
-    public static void visitMediators(List<Mediator> mediators, MediatorVisitor visitor) {
+    public static void visitMediators(List<Mediator> mediators, BreakpointMediatorVisitor visitor) {
 
         visitMediators(mediators, visitor, new HashMap<>());
     }
@@ -101,7 +101,7 @@ public class VisitorUtils {
      * @param visitor    The visitor to visit the mediators.
      * @param debugInfos The map to store the debug info of the mediators.
      */
-    public static void visitMediators(List<Mediator> mediators, MediatorVisitor visitor, HashMap<Breakpoint,
+    public static void visitMediators(List<Mediator> mediators, BreakpointMediatorVisitor visitor, HashMap<Breakpoint,
             IDebugInfo> debugInfos) {
 
         if (mediators != null && mediators.size() > 0) {
@@ -126,12 +126,30 @@ public class VisitorUtils {
     }
 
     /**
+     * Visit the mediators in the list and get the next step over breakpoints.
+     *
+     * @param mediators The list of mediators to visit.
+     * @param visitor   The visitor to visit the mediators.
+     */
+    public static void visitMediators(List<Mediator> mediators, StepOverMediatorVisitor visitor) {
+
+        if (mediators != null && mediators.size() > 0) {
+            for (int i = 0; i < mediators.size(); i++) {
+                visitMediator(mediators.get(i), visitor);
+                if (visitor.isDone()) {
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
      * Visit the mediator node.
      *
      * @param node    The mediator node to visit.
      * @param visitor The visitor to visit the mediator.
      */
-    public static void visitMediator(Mediator node, MediatorVisitor visitor) {
+    public static void visitMediator(Mediator node, AbstractMediatorVisitor visitor) {
 
         String tag = node.getTag();
         tag = sanitizeTag(tag);
@@ -139,7 +157,7 @@ public class VisitorUtils {
         String visitFn;
         visitFn = "visit" + tag.substring(0, 1).toUpperCase() + tag.substring(1);
         try {
-            Method method = MediatorVisitor.class.getDeclaredMethod(visitFn, node.getClass());
+            Method method = AbstractMediatorVisitor.class.getDeclaredMethod(visitFn, node.getClass());
             method.setAccessible(true);
             method.invoke(visitor, node);
         } catch (NoSuchMethodException e) {

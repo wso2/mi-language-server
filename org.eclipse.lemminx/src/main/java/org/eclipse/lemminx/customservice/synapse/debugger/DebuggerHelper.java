@@ -22,6 +22,7 @@ import com.google.gson.JsonElement;
 import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.IDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointValidity;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.visitor.ApiVisitor;
 import org.eclipse.lemminx.customservice.synapse.debugger.visitor.InboundEndpointVisitor;
 import org.eclipse.lemminx.customservice.synapse.debugger.visitor.ProxyVisitor;
@@ -41,6 +42,7 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -147,6 +149,38 @@ public class DebuggerHelper {
             debugInfos[index] = debugInfo;
         }
         return List.of(debugInfos);
+    }
+
+    /**
+     * This method is used to get the step over breakpoints.
+     *
+     * @param breakpoint breakpoint
+     * @return step over info
+     */
+    public StepOverInfo getStepOverBreakpoints(Breakpoint breakpoint) {
+
+        String tag = syntaxTree.getTag();
+        List<Breakpoint> breakpointsCopy = new ArrayList<>(Arrays.asList(breakpoint));
+        StepOverInfo stepOverInfo = new StepOverInfo();
+        if (Constant.API.equalsIgnoreCase(tag)) {
+            ApiVisitor apiVisitor = new ApiVisitor((API) syntaxTree, breakpointsCopy, stepOverInfo);
+            apiVisitor.startVisit();
+        } else if (Constant.PROXY.equalsIgnoreCase(tag)) {
+            ProxyVisitor proxyVisitor = new ProxyVisitor((Proxy) syntaxTree, breakpointsCopy, stepOverInfo);
+            proxyVisitor.startVisit();
+        } else if (Constant.SEQUENCE.equalsIgnoreCase(tag)) {
+            SequenceVisitor sequenceVisitor = new SequenceVisitor((NamedSequence) syntaxTree, breakpointsCopy,
+                    stepOverInfo);
+            sequenceVisitor.startVisit();
+        } else if (Constant.INBOUND_ENDPOINT.equalsIgnoreCase(tag)) {
+            InboundEndpointVisitor inboundEndpointVisitor = new InboundEndpointVisitor((InboundEndpoint) syntaxTree,
+                    breakpointsCopy, stepOverInfo);
+            inboundEndpointVisitor.startVisit();
+        } else if (Constant.TEMPLATE.equalsIgnoreCase(tag)) {
+            TemplateVisitor templateVisitor = new TemplateVisitor((Template) syntaxTree, breakpointsCopy, stepOverInfo);
+            templateVisitor.startVisit();
+        }
+        return stepOverInfo;
     }
 
     private STNode getSyntaxTree() throws IOException {
