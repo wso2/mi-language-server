@@ -361,4 +361,15 @@ public class Utils {
         }
         return hexText;
     }
+
+    public static DOMElement getFirstElement(DOMElement element) {
+
+        List<DOMNode> children = element.getChildren();
+        for (DOMNode child : children) {
+            if (child instanceof DOMElement) {
+                return (DOMElement) child;
+            }
+        }
+        return null;
+    }
 }

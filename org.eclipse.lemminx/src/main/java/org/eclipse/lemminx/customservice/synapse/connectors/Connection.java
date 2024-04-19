@@ -16,30 +16,19 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.resourceFinder;
+package org.eclipse.lemminx.customservice.synapse.connectors;
 
-public class ArtifactsResource extends Resource {
+public class Connection {
 
-    private String artifactPath;
-    private String absolutePath;
+    String name;
+    String connectionType;
+    String path;
 
-    public String getArtifactPath() {
+    public Connection(String name, String connectionType, String path) {
 
-        return artifactPath;
-    }
+        this.name = name;
+        this.connectionType = connectionType;
+        this.path = path;
 
-    public void setArtifactPath(String artifactPath) {
-
-        this.artifactPath = artifactPath;
-    }
-
-    public String getAbsolutePath() {
-
-        return absolutePath;
-    }
-
-    public void setAbsolutePath(String absolutePath) {
-
-        this.absolutePath = absolutePath;
     }
 }

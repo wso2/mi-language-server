@@ -16,30 +16,12 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.resourceFinder;
+package org.eclipse.lemminx.customservice.synapse.connectors;
 
-public class ArtifactsResource extends Resource {
+import org.eclipse.lsp4j.TextDocumentIdentifier;
 
-    private String artifactPath;
-    private String absolutePath;
+public class ConnectorParam {
 
-    public String getArtifactPath() {
-
-        return artifactPath;
-    }
-
-    public void setArtifactPath(String artifactPath) {
-
-        this.artifactPath = artifactPath;
-    }
-
-    public String getAbsolutePath() {
-
-        return absolutePath;
-    }
-
-    public void setAbsolutePath(String absolutePath) {
-
-        this.absolutePath = absolutePath;
-    }
+    public TextDocumentIdentifier documentIdentifier;
+    public String connectorName;
 }

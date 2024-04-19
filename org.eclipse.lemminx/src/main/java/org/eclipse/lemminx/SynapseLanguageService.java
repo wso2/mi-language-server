@@ -21,7 +21,9 @@ package org.eclipse.lemminx;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.ISynapseLanguageService;
-import org.eclipse.lemminx.customservice.synapse.connectors.AvailableConnectorParam;
+import org.eclipse.lemminx.customservice.synapse.connectors.Connections;
+import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorParam;
+import org.eclipse.lemminx.customservice.synapse.connectors.ConnectionFinder;
 import org.eclipse.lemminx.customservice.synapse.connectors.Connector;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ArtifactFileScanner;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.RegistryFileScanner;
@@ -50,11 +52,13 @@ import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceFolder;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.messages.Either3;
 
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class SynapseLanguageService implements ISynapseLanguageService {
@@ -130,7 +134,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     }
 
     @Override
-    public CompletableFuture<Either3<ConnectorHolder, Connector, Boolean>> availableConnectors(AvailableConnectorParam param) {
+    public CompletableFuture<Either3<ConnectorHolder, Connector, Boolean>> availableConnectors(ConnectorParam param) {
 
         return xmlTextDocumentService.computeDOMAsync(param.documentIdentifier, (xmlDocument, cancelChecker) -> {
             ConnectorLoader connectorLoader = new ConnectorLoader();
@@ -198,6 +202,14 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         List<BreakpointValidity> validityList = debuggerHelper.validateBreakpoints(breakPointRequest.breakpoints);
         ValidationResponse validationResponse = new ValidationResponse(validityList);
         return CompletableFuture.supplyAsync(() -> validationResponse);
+    }
+
+    @Override
+    public CompletableFuture<Either<Connections, Map<String, Connections>>> connectorConnections(ConnectorParam param) {
+
+        Either<Connections, Map<String, Connections>> connections =
+                ConnectionFinder.findConnections(param.documentIdentifier.getUri(), param.connectorName);
+        return CompletableFuture.supplyAsync(() -> connections);
     }
 
     public static String getExtensionPath() {

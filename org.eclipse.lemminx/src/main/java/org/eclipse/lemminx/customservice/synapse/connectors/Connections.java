@@ -18,10 +18,20 @@
 
 package org.eclipse.lemminx.customservice.synapse.connectors;
 
-import org.eclipse.lsp4j.TextDocumentIdentifier;
+import java.util.ArrayList;
+import java.util.List;
 
-public class AvailableConnectorParam {
+public class Connections {
 
-    public TextDocumentIdentifier documentIdentifier;
-    public String connectorName;
+    List<Connection> connections;
+
+    public Connections() {
+
+        this.connections = new ArrayList<>();
+    }
+
+    public void addConnection(Connection connection) {
+
+        connections.add(connection);
+    }
 }
