@@ -116,7 +116,7 @@ public class VisitorUtils {
                         LOGGER.log(Level.SEVERE, "Error while cloning debug info", e);
                     }
                     debugInfos.put(visitor.breakpoint, debugInfo);
-                    if (visitor.breakpoints != null) {
+                    if (visitor.breakpoints != null && visitor.breakpoints.size() > 0) {
                         visitor.nextBreakpoint();
                         i--;
                     }
@@ -143,11 +143,11 @@ public class VisitorUtils {
             method.setAccessible(true);
             method.invoke(visitor, node);
         } catch (NoSuchMethodException e) {
-            LOGGER.warning("No visit method found for mediator: " + tag);
+            LOGGER.log(Level.SEVERE, "No visit method found for mediator: " + tag, e);
         } catch (InvocationTargetException e) {
-            LOGGER.warning("Error while invoking visit method for mediator: " + tag);
+            LOGGER.log(Level.SEVERE, "Error while invoking visit method for mediator: " + tag, e);
         } catch (IllegalAccessException e) {
-            LOGGER.warning("Error while accessing visit method for mediator: " + tag);
+            LOGGER.log(Level.SEVERE, "Error while accessing visit method for mediator: " + tag, e);
         }
     }
 
