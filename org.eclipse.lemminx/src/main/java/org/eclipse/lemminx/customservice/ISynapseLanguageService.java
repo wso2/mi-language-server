@@ -69,6 +69,9 @@ public interface ISynapseLanguageService {
     CompletableFuture<List<String>> getRegistryFiles(TextDocumentIdentifier param);
 
     @JsonRequest
+    CompletableFuture<List<String>> getArtifactFiles(TextDocumentIdentifier param);
+
+    @JsonRequest
     CompletableFuture<BreakpointInfoResponse> getBreakpointInfo(BreakpointsRequest breakPointRequest);
 
     @JsonRequest

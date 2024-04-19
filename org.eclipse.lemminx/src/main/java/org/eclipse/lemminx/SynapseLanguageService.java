@@ -23,6 +23,7 @@ import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.ISynapseLanguageService;
 import org.eclipse.lemminx.customservice.synapse.connectors.AvailableConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.Connector;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.ArtifactFileScanner;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.RegistryFileScanner;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointInfoResponse;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointsRequest;
@@ -172,6 +173,13 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
         List<String> registryFiles = RegistryFileScanner.scanRegistryFiles(param.getUri());
         return CompletableFuture.supplyAsync(() -> registryFiles);
+    }
+
+    @Override
+    public CompletableFuture<List<String>> getArtifactFiles(TextDocumentIdentifier param) {
+
+        List<String> artifactFiles = ArtifactFileScanner.scanArtifactFiles(param.getUri());
+        return CompletableFuture.supplyAsync(() -> artifactFiles);
     }
 
     @Override
