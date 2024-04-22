@@ -18,6 +18,8 @@
 
 package org.eclipse.lemminx.customservice.synapse.connectors;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
@@ -26,7 +28,6 @@ import org.eclipse.lemminx.dom.DOMNode;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -168,6 +169,7 @@ public class ConnectorLoader {
                 connector.setIconPath(connectorPath + File.separator + "icon");
                 connector.setUiSchemaPath(connectorPath + File.separator + "uischema");
                 populateConnectorActions(connector, componentElement);
+                populateConnectionUiSchema(connector);
             } catch (IOException e) {
                 log.log(Level.SEVERE, "Error reading connector file", e);
             }
@@ -189,6 +191,40 @@ public class ConnectorLoader {
 
         List<String> dependencies = getDependencies(componentElement);
         readDependencies(connector, dependencies);
+    }
+
+    private void populateConnectionUiSchema(Connector connector) {
+
+        File uiSchemaFolder = new File(connector.getUiSchemaPath());
+        if (uiSchemaFolder.exists()) {
+            File[] files = uiSchemaFolder.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    String connectionName = getConnectionSchemaName(file);
+                    if (connectionName != null) {
+                        connector.addConnectionUiSchema(connectionName, file.getAbsolutePath());
+                    }
+                }
+            }
+        }
+    }
+
+    private String getConnectionSchemaName(File file) {
+
+        String connectionName = null;
+        try {
+            String schema = Utils.readFile(file);
+            JsonObject uiJson = Utils.getJsonObject(schema);
+            if (uiJson != null) {
+                JsonElement connectionNameEle = uiJson.get("connectionName");
+                if (connectionNameEle != null) {
+                    connectionName = connectionNameEle.getAsString();
+                }
+            }
+        } catch (IOException e) {
+            log.log(Level.WARNING, "Error while reading connection ui schema file", e);
+        }
+        return connectionName;
     }
 
     private List<String> getDependencies(DOMNode connectorElement) {

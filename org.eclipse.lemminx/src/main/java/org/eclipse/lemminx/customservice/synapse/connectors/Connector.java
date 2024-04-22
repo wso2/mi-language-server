@@ -19,7 +19,9 @@
 package org.eclipse.lemminx.customservice.synapse.connectors;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Connector {
 
@@ -27,12 +29,14 @@ public class Connector {
     private String path;
     private String version;
     private List<ConnectorAction> actions;
+    private Map<String, String> connectionUiSchema;
     private String iconPath;
     private String uiSchemaPath;
 
     public Connector() {
 
         this.actions = new ArrayList<>();
+        this.connectionUiSchema = new HashMap<>();
     }
 
     public String getName() {
@@ -68,6 +72,21 @@ public class Connector {
     public void setActions(List<ConnectorAction> actions) {
 
         this.actions = actions;
+    }
+
+    public void addConnectionUiSchema(String key, String value) {
+
+        connectionUiSchema.put(key, value);
+    }
+
+    public Map<String, String> getConnectionUiSchema() {
+
+        return connectionUiSchema;
+    }
+
+    public void setConnectionUiSchema(Map<String, String> connectionUiSchema) {
+
+        this.connectionUiSchema = connectionUiSchema;
     }
 
     public String getVersion() {

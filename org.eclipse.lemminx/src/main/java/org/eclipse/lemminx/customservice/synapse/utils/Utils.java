@@ -18,6 +18,9 @@
 
 package org.eclipse.lemminx.customservice.synapse.utils;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.legacyBuilder.utils.ProjectType;
@@ -27,9 +30,11 @@ import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.dom.DOMParser;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Files;
@@ -369,6 +374,40 @@ public class Utils {
             if (child instanceof DOMElement) {
                 return (DOMElement) child;
             }
+        }
+        return null;
+    }
+
+    /**
+     * Read the content of the given file
+     *
+     * @param file the file
+     * @return the content of the given file
+     * @throws IOException if an error occurs while reading the file
+     */
+    public static String readFile(File file) throws IOException {
+
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
+        StringBuilder stringBuilder = new StringBuilder();
+        String line;
+        while ((line = bufferedReader.readLine()) != null) {
+            stringBuilder.append(line);
+        }
+        bufferedReader.close();
+        return stringBuilder.toString();
+    }
+
+    /**
+     * Get the JSON object from the given content
+     *
+     * @param content the content
+     * @return the JSON object from the given content
+     */
+    public static JsonObject getJsonObject(String content) {
+
+        JsonElement jsonElement = JsonParser.parseString(content);
+        if (jsonElement.isJsonObject()) {
+            return jsonElement.getAsJsonObject();
         }
         return null;
     }
