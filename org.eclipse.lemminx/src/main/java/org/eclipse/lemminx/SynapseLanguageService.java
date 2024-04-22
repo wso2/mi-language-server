@@ -67,6 +67,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     private XMLLanguageServer xmlLanguageServer;
     private static String extensionPath;
     private String projectUri;
+    private static ConnectorHolder connectorHolder;
 
     public SynapseLanguageService(XMLTextDocumentService xmlTextDocumentService, XMLLanguageServer xmlLanguageServer) {
 
@@ -143,17 +144,14 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     public CompletableFuture<Either3<ConnectorHolder, Connector, Boolean>> availableConnectors(ConnectorParam param) {
 
         return xmlTextDocumentService.computeDOMAsync(param.documentIdentifier, (xmlDocument, cancelChecker) -> {
-            ConnectorLoader connectorLoader = new ConnectorLoader();
-            connectorLoader.updateConnectorLoader(xmlDocument.getDocumentURI());
-            ConnectorHolder availableConnectors = connectorLoader.loadConnector();
             if (param.connectorName != null && !param.connectorName.isEmpty()) {
-                Connector connector = availableConnectors.getConnector(param.connectorName);
+                Connector connector = connectorHolder.getConnector(param.connectorName);
                 if (connector == null) {
                     return Either3.forThird(Boolean.FALSE);
                 }
                 return Either3.forSecond(connector);
             }
-            return Either3.forFirst(availableConnectors);
+            return Either3.forFirst(connectorHolder);
         });
     }
 
@@ -166,16 +164,15 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
     public static void updateConnectors(String uri) {
 
-        MediatorFactoryFinder.getInstance().updateConnectors(uri);
-
-        //Generate xsd schema for the available connectors and write it to the schema file.
         ConnectorLoader connectorLoader = new ConnectorLoader();
         connectorLoader.updateConnectorLoader(uri);
-        ConnectorHolder holder = connectorLoader.loadConnector();
+        connectorHolder = connectorLoader.loadConnector();
+
+        //Generate xsd schema for the available connectors and write it to the schema file.
         String connectorPath =
                 extensionPath + File.separator + "synapse-schemas" + File.separator +
                         "mediators" + File.separator + "connectors.xsd";
-        SchemaGenerate.generate(holder, connectorPath);
+        SchemaGenerate.generate(connectorHolder, connectorPath);
     }
 
     @Override
@@ -221,6 +218,11 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     public String getProjectUri() {
 
         return projectUri;
+    }
+
+    public static ConnectorHolder getConnectorHolder() {
+
+        return connectorHolder;
     }
 
     public static String getExtensionPath() {

@@ -18,8 +18,8 @@
 
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators;
 
+import org.eclipse.lemminx.SynapseLanguageService;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
-import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorLoader;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.advanced.CacheFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.advanced.CloneFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.advanced.DBLookupFactory;
@@ -144,8 +144,6 @@ public class MediatorFactoryFinder {
     private final static MediatorFactoryFinder instance = new MediatorFactoryFinder();
     private static Map<String, AbstractMediatorFactory> factoryMap = new HashMap<>();
     private static boolean initialized = false;
-    private static ConnectorLoader connectorLoader;
-    private ConnectorHolder connectorHolder;
 
     public static synchronized MediatorFactoryFinder getInstance() {
 
@@ -157,8 +155,6 @@ public class MediatorFactoryFinder {
 
     private MediatorFactoryFinder() {
 
-        connectorLoader = new ConnectorLoader();
-        connectorHolder = new ConnectorHolder();
     }
 
     private static void loadMediatorFactories() {
@@ -178,6 +174,7 @@ public class MediatorFactoryFinder {
 
         if (!node.getNodeName().equalsIgnoreCase(Constant.COMMENT)) {
             String mediatorName = node.getNodeName().toLowerCase();
+            ConnectorHolder connectorHolder = getConnectorHolder();
             if (mediatorName.contains(Constant.DOT) && connectorHolder.isValidConnector(mediatorName)) {
                 mediatorName = Constant.CONNECTOR;
             }
@@ -191,14 +188,8 @@ public class MediatorFactoryFinder {
         return null;
     }
 
-    public void updateConnectors(String projectPath) {
-
-        connectorLoader.updateConnectorLoader(projectPath);
-        connectorHolder = connectorLoader.loadConnector();
-    }
-
     public ConnectorHolder getConnectorHolder() {
 
-        return connectorHolder;
+        return SynapseLanguageService.getConnectorHolder();
     }
 }
