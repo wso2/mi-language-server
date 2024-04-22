@@ -66,6 +66,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     private XMLTextDocumentService xmlTextDocumentService;
     private XMLLanguageServer xmlLanguageServer;
     private static String extensionPath;
+    private String projectUri;
 
     public SynapseLanguageService(XMLTextDocumentService xmlTextDocumentService, XMLLanguageServer xmlLanguageServer) {
 
@@ -79,6 +80,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
             extensionPath = ((JsonObject) settings).get("extensionPath").getAsString();
         }
         if (projectUri != null) {
+            this.projectUri = projectUri;
             updateConnectors(projectUri);
         }
     }
@@ -128,7 +130,11 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     @Override
     public CompletableFuture<ResourceResponse> availableResources(ResourceParam param) {
 
-        ResourceResponse response = ResourceFinder.getAvailableResources(param.documentIdentifier.getUri(),
+        String uri = param.documentIdentifier.getUri();
+        if (uri == null) {
+            uri = projectUri;
+        }
+        ResourceResponse response = ResourceFinder.getAvailableResources(uri,
                 param.resourceType);
         return CompletableFuture.supplyAsync(() -> response);
     }
@@ -210,6 +216,11 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         Either<Connections, Map<String, Connections>> connections =
                 ConnectionFinder.findConnections(param.documentIdentifier.getUri(), param.connectorName);
         return CompletableFuture.supplyAsync(() -> connections);
+    }
+
+    public String getProjectUri() {
+
+        return projectUri;
     }
 
     public static String getExtensionPath() {
