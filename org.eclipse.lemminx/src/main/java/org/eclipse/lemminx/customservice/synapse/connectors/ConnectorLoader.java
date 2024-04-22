@@ -61,7 +61,7 @@ public class ConnectorLoader {
         ConnectorHolder holder = new ConnectorHolder();
         projectId = Utils.getHash(connectorsFolderPath);
         String tempFolderPath =
-                System.getProperty("java.io.tmpdir") + "org.wso2.integrationstudio" + File.separator + "connectors"
+                System.getProperty("user.home") + File.separator + ".wso2-mi" + File.separator + "connectors"
                         + File.separator + projectId;
         File tempFolder = new File(tempFolderPath);
 
