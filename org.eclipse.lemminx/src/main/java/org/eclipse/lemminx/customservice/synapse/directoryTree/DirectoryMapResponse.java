@@ -20,6 +20,7 @@ package org.eclipse.lemminx.customservice.synapse.directoryTree;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.legacyBuilder.DirectoryMap;
@@ -74,6 +75,7 @@ public class DirectoryMapResponse {
         String[] artifactNames = {"apis", "endpoints", "sequences", "proxyServices", "inboundEndpoints",
                 "messageStores", "messageProcessors", "tasks", "localEntries", "templates", "dataServices",
                 "dataSources"};
+        processLocalEntries(jsonObject);
         for (String element : artifactNames) {
             artifacts.add(element, jsonObject.get(element));
         }
@@ -92,6 +94,51 @@ public class DirectoryMapResponse {
 
         convertedObject.add("src", src);
         return convertedObject;
+    }
+
+    private void processLocalEntries(JsonObject jsonElement) {
+
+        JsonElement localEntries = jsonElement.get("localEntries");
+        JsonObject connectionEntries = new JsonObject();
+        JsonArray otherEntries = new JsonArray();
+        localEntries.getAsJsonArray().forEach(localEntry -> {
+            JsonObject localEntryObject = localEntry.getAsJsonObject();
+            JsonElement connectorNameEle = localEntryObject.get("connectorName");
+            if (connectorNameEle != null) {
+                addToProcessedLocalEntries(connectionEntries, localEntryObject, connectorNameEle);
+            } else {
+                otherEntries.getAsJsonArray().add(localEntryObject);
+            }
+        });
+        JsonElement processedLocalEntries = combineLocalEntries(connectionEntries, otherEntries);
+        jsonElement.add("localEntries", processedLocalEntries);
+    }
+
+    private void addToProcessedLocalEntries(JsonObject connectionEntries, JsonObject localEntryObject,
+                                            JsonElement connectorNameEle) {
+
+        String connectorName = connectorNameEle.getAsString();
+        if (!connectorName.isEmpty()) {
+            JsonElement connectorElement = connectionEntries.get(connectorName);
+            if (connectorElement != null) {
+                connectorElement.getAsJsonArray().add(localEntryObject);
+            } else {
+                connectionEntries.add(connectorName, new JsonArray());
+                connectionEntries.get(connectorName).getAsJsonArray().add(localEntryObject);
+            }
+        }
+    }
+
+    private JsonElement combineLocalEntries(JsonObject connectionEntries, JsonArray otherEntries) {
+
+        JsonArray localEntriesArray = new JsonArray();
+        localEntriesArray.addAll(otherEntries);
+        connectionEntries.entrySet().forEach(entry -> {
+            JsonObject connectorObject = new JsonObject();
+            connectorObject.add(entry.getKey(), entry.getValue());
+            localEntriesArray.add(connectorObject);
+        });
+        return localEntriesArray;
     }
 
     public JsonElement getDirectoryMap() {

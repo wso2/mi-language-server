@@ -21,6 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.directoryTree;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.node.APINode;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.node.APIResource;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.node.AdvancedNode;
+import org.eclipse.lemminx.customservice.synapse.directoryTree.node.ConnectionNode;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.node.FileNode;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.node.FolderNode;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.node.Node;
@@ -49,6 +50,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DirectoryTreeBuilder {
 
@@ -351,29 +354,13 @@ public class DirectoryTreeBuilder {
         Node component = new Node(nodeType, artifactName, path);
         if (Constant.API.equalsIgnoreCase(type) || Constant.SEQUENCE.equalsIgnoreCase(type) ||
                 Constant.PROXY_SERVICE.equalsIgnoreCase(type) || Constant.INBOUND_ENDPOINT.equalsIgnoreCase(type)) {
-            AdvancedNode advancedNode;
-            if (Constant.API.equalsIgnoreCase(type)) {
-                String context = getApiContext(path);
-                advancedNode = new APINode(component);
-                ((APINode) advancedNode).setContext(context);
-            } else {
-                advancedNode = new AdvancedNode(component);
-            }
-            File file = new File(path);
-            if (file.isFile() && !file.isHidden()) {
-                DOMDocument domDocument = null;
-                try {
-                    domDocument = Utils.getDOMDocument(file);
-                } catch (IOException e) {
-                    LOGGER.log(Level.WARNING, "Error while reading file content", e);
-                }
-                DOMElement rootElement = Utils.getRootElementFromConfigXml(domDocument);
-                if (Constant.API.equalsIgnoreCase(type)) {
-                    addResources(rootElement, advancedNode);
-                }
-            }
+            AdvancedNode advancedNode = createAdvancedEsbComponent(component, type, path);
             return advancedNode;
+        } else if (Constant.LOCAL_ENTRY.equalsIgnoreCase(type)) {
+            Node localEntry = createLocalEntry(component, path);
+            return localEntry;
         }
+
         if (Constant.ENDPOINT.equalsIgnoreCase(type)) {
             String endpointType = getEndpointType(path);
             component.setSubType(endpointType);
@@ -382,6 +369,74 @@ public class DirectoryTreeBuilder {
             component.setSubType(templateType);
         }
         return component;
+    }
+
+    private static AdvancedNode createAdvancedEsbComponent(Node component, String type, String path) {
+
+        AdvancedNode advancedNode;
+        if (Constant.API.equalsIgnoreCase(type)) {
+            String context = getApiContext(path);
+            advancedNode = new APINode(component);
+            ((APINode) advancedNode).setContext(context);
+        } else {
+            advancedNode = new AdvancedNode(component);
+        }
+        File file = new File(path);
+        if (file.isFile() && !file.isHidden()) {
+            DOMDocument domDocument = null;
+            try {
+                domDocument = Utils.getDOMDocument(file);
+            } catch (IOException e) {
+                LOGGER.log(Level.WARNING, "Error while reading file content", e);
+            }
+            DOMElement rootElement = Utils.getRootElementFromConfigXml(domDocument);
+            if (Constant.API.equalsIgnoreCase(type)) {
+                addResources(rootElement, advancedNode);
+            }
+        }
+        return advancedNode;
+    }
+
+    private static Node createLocalEntry(Node component, String path) {
+
+        File file = new File(path);
+        try {
+            DOMDocument domDocument = Utils.getDOMDocument(file);
+            if (domDocument != null) {
+                DOMElement rootElement = domDocument.getDocumentElement();
+                String key = rootElement.getAttribute(Constant.KEY);
+                DOMElement childElement = Utils.getFirstElement(rootElement);
+                if (childElement != null) {
+                    String entryTag = childElement.getNodeName();
+                    Pattern pattern = Pattern.compile("(.*)\\.init");
+                    Matcher matcher = pattern.matcher(entryTag);
+                    if (matcher.find()) {
+                        String connectorName = matcher.group(1);
+                        String connectionType = getConnectionType(childElement);
+                        ConnectionNode connectionNode = new ConnectionNode(key, path, connectorName, connectionType);
+                        return connectionNode;
+                    }
+                }
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Error while reading file content", e);
+        }
+        return component;
+    }
+
+    private static String getConnectionType(DOMElement element) {
+
+        List<DOMNode> children = element.getChildren();
+        if (children != null) {
+            for (DOMNode child : children) {
+                String nodeName = child.getNodeName();
+                if ("connectionType".equals(nodeName)) {
+                    String connectionType = Utils.getInlineString(child.getFirstChild());
+                    return connectionType;
+                }
+            }
+        }
+        return null;
     }
 
     private static String getTemplateType(String path) {

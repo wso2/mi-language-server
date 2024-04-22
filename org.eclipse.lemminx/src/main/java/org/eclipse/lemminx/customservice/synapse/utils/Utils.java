@@ -365,9 +365,11 @@ public class Utils {
     public static DOMElement getFirstElement(DOMElement element) {
 
         List<DOMNode> children = element.getChildren();
-        for (DOMNode child : children) {
-            if (child instanceof DOMElement) {
-                return (DOMElement) child;
+        if (children != null) {
+            for (DOMNode child : children) {
+                if (child instanceof DOMElement) {
+                    return (DOMElement) child;
+                }
             }
         }
         return null;
