@@ -69,8 +69,8 @@ public class ConnectorLoader {
             tempFolder.mkdirs();
         }
         List<File> connectorZips = new ArrayList<>();
-        if (connectorsFolderPath != null) {
-            File folder = new File(connectorsFolderPath);
+        File folder = new File(connectorsFolderPath);
+        if (connectorsFolderPath != null && folder.exists()) {
             File[] files = folder.listFiles();
             for (File f : files) {
                 if (Utils.isZipFile(f)) {
