@@ -42,6 +42,11 @@ public class EndpointUtils {
 
         EndpointEnableSec enableSec = new EndpointEnableSec();
         enableSec.elementNode((DOMElement) node);
+
+        String policy = node.getAttribute(Constant.POLICY);
+        if (policy != null && !policy.isEmpty()) {
+            enableSec.setPolicy(policy);
+        }
         String inboundPolicy = node.getAttribute(Constant.INBOUND_POLICY);
         if (inboundPolicy != null && !inboundPolicy.isEmpty()) {
             enableSec.setInboundPolicy(inboundPolicy);

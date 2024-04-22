@@ -22,8 +22,19 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 
 public class EndpointEnableSec extends STNode {
 
+    String policy;
     String inboundPolicy;
     String outboundPolicy;
+
+    public String getPolicy() {
+
+        return policy;
+    }
+
+    public void setPolicy(String policy) {
+
+        this.policy = policy;
+    }
 
     public String getInboundPolicy() {
 
