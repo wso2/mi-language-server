@@ -18,11 +18,11 @@
 
 package org.eclipse.lemminx.customservice.synapse.connectors;
 
+import org.eclipse.lemminx.SynapseLanguageService;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ArtifactsResource;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.Resource;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceFinder;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceResponse;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.MediatorFactoryFinder;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -32,7 +32,6 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +72,7 @@ public class ConnectionFinder {
 
     private static void populateConnectors(Map<String, Connections> connections) {
 
-        ConnectorHolder connectors = MediatorFactoryFinder.getInstance().getConnectorHolder();
+        ConnectorHolder connectors = SynapseLanguageService.getConnectorHolder();
         if (connectors != null) {
             List<Connector> connectorList = connectors.getConnectors();
             for (Connector connector : connectorList) {
