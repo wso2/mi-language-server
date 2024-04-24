@@ -458,10 +458,10 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
             } else {
                 MediatorVisitor visitor = new MediatorVisitor(breakpoint);
                 if (VisitorUtils.checkNodeInRange(node.getThen(), breakpoint)) {
-                    mediatorPosition += " " + "0";
+                    mediatorPosition += " " + "1";
                     VisitorUtils.visitMediators(node.getThen().getMediatorList(), visitor);
                 } else if (VisitorUtils.checkNodeInRange(node.getElse_(), breakpoint)) {
-                    mediatorPosition += " " + "1";
+                    mediatorPosition += " " + "0";
                     VisitorUtils.visitMediators(node.getElse_().getMediatorList(), visitor);
                 }
                 if (visitor.mediatorPosition != null) {
