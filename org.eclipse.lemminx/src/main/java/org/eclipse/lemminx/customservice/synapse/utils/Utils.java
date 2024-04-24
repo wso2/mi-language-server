@@ -252,6 +252,7 @@ public class Utils {
 
     public static void extractZip(File zip, File extractTo) throws IOException {
 
+        waitForDownload(zip);
         byte[] buffer = new byte[1024];
         ZipInputStream zis = new ZipInputStream(new FileInputStream(zip));
         ZipEntry zipEntry = zis.getNextEntry();
@@ -280,6 +281,47 @@ public class Utils {
         zis.closeEntry();
         zis.close();
 
+    }
+
+    private static void waitForDownload(File file) {
+
+        boolean isDownloaded = false;
+        long fileSize = getFileSize(file);
+        int waiting = 0;
+        int oldTime = 1000000;
+        boolean isOldFile = isOldFile(file, oldTime);
+        while (!isDownloaded && !isOldFile) {
+            try {
+                waiting++;
+                Thread.sleep(1000);
+                long newFileSize = getFileSize(file);
+                // If the file size is not changing, then the download is complete.
+                // Or if the waiting time is more than 100 seconds, then the waiting is forced to stop.
+                if (newFileSize == fileSize || waiting > oldTime / 1000) {
+                    isDownloaded = true;
+                } else {
+                    fileSize = newFileSize;
+                }
+            } catch (InterruptedException e) {
+                break;
+            }
+        }
+    }
+
+    private static boolean isOldFile(File file, int oldTime) {
+
+        long lastModified = file.lastModified();
+        long currentTime = System.currentTimeMillis();
+        return currentTime - lastModified > oldTime;
+    }
+
+    private static long getFileSize(File file) {
+
+        try {
+            return Files.size(file.toPath());
+        } catch (IOException e) {
+            return -1;
+        }
     }
 
     public static File newFile(File destinationDir, ZipEntry zipEntry) throws IOException {
