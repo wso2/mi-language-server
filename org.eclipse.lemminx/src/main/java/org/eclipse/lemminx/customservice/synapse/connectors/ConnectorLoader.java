@@ -157,21 +157,23 @@ public class ConnectorLoader {
         Connector connector = null;
         if (connectorPath != null) {
             File connectorFile = new File(connectorPath + File.separator + "connector.xml");
-            try {
-                DOMDocument connectorDocument = Utils.getDOMDocument(connectorFile);
-                DOMNode connectorElement = Utils.getChildNodeByName(connectorDocument, "connector");
-                DOMNode componentElement = Utils.getChildNodeByName(connectorElement, "component");
-                String name = componentElement.getAttribute(Constant.NAME);
-                connector = new Connector();
-                connector.setName(name);
-                connector.setPath(connectorPath);
-                connector.setVersion(getConnectorVersion(connectorPath));
-                connector.setIconPath(connectorPath + File.separator + "icon");
-                connector.setUiSchemaPath(connectorPath + File.separator + "uischema");
-                populateConnectorActions(connector, componentElement);
-                populateConnectionUiSchema(connector);
-            } catch (IOException e) {
-                log.log(Level.SEVERE, "Error reading connector file", e);
+            if (connectorFile.exists()) {
+                try {
+                    DOMDocument connectorDocument = Utils.getDOMDocument(connectorFile);
+                    DOMNode connectorElement = Utils.getChildNodeByName(connectorDocument, "connector");
+                    DOMNode componentElement = Utils.getChildNodeByName(connectorElement, "component");
+                    String name = componentElement.getAttribute(Constant.NAME);
+                    connector = new Connector();
+                    connector.setName(name);
+                    connector.setPath(connectorPath);
+                    connector.setVersion(getConnectorVersion(connectorPath));
+                    connector.setIconPath(connectorPath + File.separator + "icon");
+                    connector.setUiSchemaPath(connectorPath + File.separator + "uischema");
+                    populateConnectorActions(connector, componentElement);
+                    populateConnectionUiSchema(connector);
+                } catch (IOException e) {
+                    log.log(Level.SEVERE, "Error reading connector file", e);
+                }
             }
         }
         return connector;
@@ -245,8 +247,9 @@ public class ConnectorLoader {
         for (String dependency : dependencies) {
             File dependencyFile = new File(connector.getPath() + File.separator + dependency + File.separator +
                     "component.xml");
-            readSubComponents(connector, dependencyFile);
-
+            if (dependencyFile.exists()) {
+                readSubComponents(connector, dependencyFile);
+            }
         }
     }
 
@@ -292,23 +295,39 @@ public class ConnectorLoader {
 
     private void populateParameters(ConnectorAction action, String actionPath) {
 
-        File actionFile = new File(actionPath);
-        try {
-            DOMDocument actionDom = Utils.getDOMDocument(actionFile);
-            DOMNode templateNode = Utils.getChildNodeByName(actionDom, "template");
-            if (templateNode != null) {
-                List<DOMNode> children = templateNode.getChildren();
-                for (DOMNode child : children) {
-                    if ("parameter".equalsIgnoreCase(child.getNodeName())) {
-                        String name = child.getAttribute("name");
-                        action.addParameter(name);
+        File actionFile = getActionPath(actionPath);
+        if (actionFile != null) {
+            try {
+                DOMDocument actionDom = Utils.getDOMDocument(actionFile);
+                DOMNode templateNode = Utils.getChildNodeByName(actionDom, "template");
+                if (templateNode != null) {
+                    List<DOMNode> children = templateNode.getChildren();
+                    for (DOMNode child : children) {
+                        if ("parameter".equalsIgnoreCase(child.getNodeName())) {
+                            String name = child.getAttribute("name");
+                            action.addParameter(name);
+                        }
                     }
                 }
+            } catch (IOException e) {
+                log.log(Level.WARNING, "Error while reading " + action.getName() + " connector action", e);
             }
-        } catch (IOException e) {
-            log.log(Level.WARNING, "Error while reading " + action.getName() + " connector action", e);
         }
+    }
 
+    private File getActionPath(String actionPath) {
+
+        String dependencyPath = actionPath.substring(0, actionPath.lastIndexOf(File.separator));
+        File dependencyFolder = new File(dependencyPath);
+        File[] files = dependencyFolder.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (actionPath.equalsIgnoreCase(file.getAbsolutePath())) {
+                    return file;
+                }
+            }
+        }
+        return null;
     }
 
     public void updateConnectorLoader(String projectPath) {
