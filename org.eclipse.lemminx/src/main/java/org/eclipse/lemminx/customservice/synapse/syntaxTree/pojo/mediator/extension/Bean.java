@@ -26,6 +26,7 @@ public class Bean extends Mediator {
     String var;
     String clazz;
     String property;
+    String target;
     String value;
     String description;
 
@@ -77,6 +78,16 @@ public class Bean extends Mediator {
     public void setValue(String value) {
 
         this.value = value;
+    }
+
+    public String getTarget() {
+
+        return target;
+    }
+
+    public void setTarget(String target) {
+
+        this.target = target;
     }
 
     public String getDescription() {

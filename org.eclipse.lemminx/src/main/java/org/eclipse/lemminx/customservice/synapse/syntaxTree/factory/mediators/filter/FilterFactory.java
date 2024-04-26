@@ -48,8 +48,6 @@ public class FilterFactory extends AbstractMediatorFactory {
                     filter.setThen((FilterThen) createThenElse(child));
                 } else if (child.getNodeName().equalsIgnoreCase(Constant.ELSE)) {
                     filter.setElse_((FilterElse) createThenElse(child));
-                } else {
-                    filter.addToMediatorList(SyntaxTreeUtils.createMediator(child));
                 }
             }
         }

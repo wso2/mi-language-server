@@ -97,6 +97,18 @@ public class ValidateFactory extends AbstractMediatorFactory {
     @Override
     public void populateAttributes(STNode node, DOMElement element) {
 
+        String description = element.getAttribute(Constant.DESCRIPTION);
+        if (description != null) {
+            ((Validate) node).setDescription(description);
+        }
+        String source = element.getAttribute(Constant.SOURCE);
+        if (source != null) {
+            ((Validate) node).setSource(source);
+        }
+        String cacheSchema = element.getAttribute(Constant.CACHE_SCHEMA);
+        if (cacheSchema != null) {
+            ((Validate) node).setCacheSchema(Boolean.parseBoolean(cacheSchema));
+        }
     }
 
     private void populatePropertyAttributes(ValidateProperty validateProperty, DOMElement node) {

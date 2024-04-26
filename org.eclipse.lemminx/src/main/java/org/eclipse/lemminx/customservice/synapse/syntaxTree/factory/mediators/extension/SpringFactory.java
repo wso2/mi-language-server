@@ -27,7 +27,7 @@ import org.eclipse.lemminx.dom.DOMElement;
 
 public class SpringFactory extends AbstractMediatorFactory {
 
-    private static final String SPRING = "spring";
+    private static final String SPRING = "spring:spring";
 
     @Override
     public Mediator createSpecificMediator(DOMElement element) {
