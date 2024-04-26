@@ -437,4 +437,5 @@ public class Constant {
     public static final String XSLT_PATH = "xsltPath";
     public static final String RDF_BASE_URI = "rdfBaseURI";
     public static final String DATA_SERVICE = "dataService";
+    public static final String CACHE_SCHEMA = "cache-schema";
 }

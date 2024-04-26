@@ -24,7 +24,7 @@ public class EndpointLoadbalance extends STNode {
 
     EndpointOrMember[] endpointOrMember;
     String algorithm;
-    boolean failover;
+    boolean failover = true;
     String policy;
     boolean buildMessage;
 

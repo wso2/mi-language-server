@@ -61,6 +61,10 @@ public class BeanFactory extends AbstractMediatorFactory {
         if (value != null) {
             ((Bean) node).setValue(value);
         }
+        String target = element.getAttribute(Constant.TARGET);
+        if (target != null) {
+            ((Bean) node).setTarget(target);
+        }
         String description = element.getAttribute(Constant.DESCRIPTION);
         if (description != null) {
             ((Bean) node).setDescription(description);
