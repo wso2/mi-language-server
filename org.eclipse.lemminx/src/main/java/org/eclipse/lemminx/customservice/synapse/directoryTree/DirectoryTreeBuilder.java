@@ -80,6 +80,7 @@ public class DirectoryTreeBuilder {
             if (Constant.INTEGRATION_PROJECT.equalsIgnoreCase(projectType)) {
                 directoryTree = new IntegrationDirectoryTree(projectPath, projectType);
                 analyzeIntegrationProject((IntegrationDirectoryTree) directoryTree);
+                ((IntegrationDirectoryTree) directoryTree).sort();
             } else if (Constant.DOCKER_PROJECT.equalsIgnoreCase(projectType) || Constant.KUBERNETES_PROJECT.
                     equalsIgnoreCase(projectType)) {
                 directoryTree = new DistributionDirectoryTree(projectPath, projectType);

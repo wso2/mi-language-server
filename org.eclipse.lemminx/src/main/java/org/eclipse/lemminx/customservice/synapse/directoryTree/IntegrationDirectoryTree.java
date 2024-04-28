@@ -25,6 +25,7 @@ import org.eclipse.lemminx.customservice.synapse.directoryTree.node.Node;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.node.TestFolder;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 // Directory tree class for integration projects
@@ -146,5 +147,21 @@ public class IntegrationDirectoryTree implements Tree {
     public void setTests(TestFolder tests) {
 
         this.tests = tests;
+    }
+
+    public void sort() {
+
+        apis.sort(Comparator.comparing(Node::getName));
+        endpoints.sort(Comparator.comparing(Node::getName));
+        inboundEndpoints.sort(Comparator.comparing(Node::getName));
+        localEntries.sort(Comparator.comparing(Node::getName));
+        messageProcessors.sort(Comparator.comparing(Node::getName));
+        messageStores.sort(Comparator.comparing(Node::getName));
+        proxyServices.sort(Comparator.comparing(Node::getName));
+        sequences.sort(Comparator.comparing(Node::getName));
+        tasks.sort(Comparator.comparing(Node::getName));
+        templates.sort(Comparator.comparing(Node::getName));
+        dataServices.sort(Comparator.comparing(Node::getName));
+        dataSources.sort(Comparator.comparing(Node::getName));
     }
 }

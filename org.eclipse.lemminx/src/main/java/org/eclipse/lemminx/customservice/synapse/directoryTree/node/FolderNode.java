@@ -19,6 +19,7 @@
 package org.eclipse.lemminx.customservice.synapse.directoryTree.node;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class FolderNode {
@@ -40,6 +41,15 @@ public class FolderNode {
 
         java.io.File file = new java.io.File(path);
         java.io.File[] files = file.listFiles();
+        Arrays.sort(files, (f1, f2) -> {
+            if (f1.isDirectory() && !f2.isDirectory()) {
+                return -1;
+            } else if (!f1.isDirectory() && f2.isDirectory()) {
+                return 1;
+            } else {
+                return f1.getName().compareTo(f2.getName());
+            }
+        });
         return files;
     }
 
