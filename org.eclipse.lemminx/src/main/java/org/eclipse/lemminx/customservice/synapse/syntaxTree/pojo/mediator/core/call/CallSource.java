@@ -22,16 +22,16 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 
 public class CallSource extends STNode {
 
-    Object[] content;
+    Object content;
     String contentType;
     String type;
 
-    public Object[] getContent() {
+    public Object getContent() {
 
         return content;
     }
 
-    public void setContent(Object[] content) {
+    public void setContent(Object content) {
 
         this.content = content;
     }
