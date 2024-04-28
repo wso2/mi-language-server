@@ -19,10 +19,14 @@
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo;
 
 import org.eclipse.lemminx.commons.BadLocationException;
+import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lsp4j.Position;
+
+import java.util.HashMap;
+import java.util.List;
 
 public class STNode {
 
@@ -31,6 +35,7 @@ public class STNode {
     String textNode;
     boolean selfClosed;
     String tag;
+    HashMap<String, String> namespaces;
 
     public void elementNode(DOMElement node) {
 
@@ -42,6 +47,8 @@ public class STNode {
             this.hasTextNode = firstChild.isText();
             this.textNode = firstChild.getTextContent();
         }
+        namespaces = new HashMap<>();
+        populateNamespaces(node);
     }
 
     private Range findRange(DOMElement node) {
@@ -67,6 +74,18 @@ public class STNode {
         TagRange endTagRange = new TagRange(endTagOpenPosition, endTagClosePosition);
 
         return new Range(startTagRange, endTagRange);
+    }
+
+    private void populateNamespaces(DOMElement node) {
+
+        List<DOMAttr> attributes = node.getAttributeNodes();
+        if (attributes != null) {
+            for (DOMAttr attribute : attributes) {
+                if (attribute.getName().startsWith("xmlns")) {
+                    namespaces.put(attribute.getName(), attribute.getValue());
+                }
+            }
+        }
     }
 
     public Range getRange() {
