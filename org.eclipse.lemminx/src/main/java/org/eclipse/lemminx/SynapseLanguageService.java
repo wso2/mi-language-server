@@ -91,6 +91,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
         return xmlTextDocumentService.computeDOMAsync(param, (xmlDocument, cancelChecker) -> {
             SyntaxTreeGenerator generator = new SyntaxTreeGenerator();
+            generator.setProjectPath(projectUri);
             return generator.getSyntaxTree(xmlDocument);
         });
     }
@@ -123,7 +124,8 @@ public class SynapseLanguageService implements ISynapseLanguageService {
             DefinitionParams params) {
 
         return xmlTextDocumentService.computeDOMAsync(params.getTextDocument(), (xmlDocument, cancelChecker) -> {
-            Location location = SynapseDefinitionProvider.definition(xmlDocument, params.getPosition(), cancelChecker);
+            Location location = SynapseDefinitionProvider.definition(xmlDocument, params.getPosition(), projectUri,
+                    cancelChecker);
             return location;
         });
     }
@@ -131,12 +133,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     @Override
     public CompletableFuture<ResourceResponse> availableResources(ResourceParam param) {
 
-        String uri = param.documentIdentifier.getUri();
-        if (uri == null) {
-            uri = projectUri;
-        }
-        ResourceResponse response = ResourceFinder.getAvailableResources(uri,
-                param.resourceType);
+        ResourceResponse response = ResourceFinder.getAvailableResources(projectUri, param.resourceType);
         return CompletableFuture.supplyAsync(() -> response);
     }
 
@@ -178,14 +175,14 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     @Override
     public CompletableFuture<List<String>> getRegistryFiles(TextDocumentIdentifier param) {
 
-        List<String> registryFiles = RegistryFileScanner.scanRegistryFiles(param.getUri());
+        List<String> registryFiles = RegistryFileScanner.scanRegistryFiles(projectUri);
         return CompletableFuture.supplyAsync(() -> registryFiles);
     }
 
     @Override
     public CompletableFuture<List<String>> getArtifactFiles(TextDocumentIdentifier param) {
 
-        List<String> artifactFiles = ArtifactFileScanner.scanArtifactFiles(param.getUri());
+        List<String> artifactFiles = ArtifactFileScanner.scanArtifactFiles(projectUri);
         return CompletableFuture.supplyAsync(() -> artifactFiles);
     }
 
@@ -211,7 +208,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     public CompletableFuture<Either<Connections, Map<String, Connections>>> connectorConnections(ConnectorParam param) {
 
         Either<Connections, Map<String, Connections>> connections =
-                ConnectionFinder.findConnections(param.documentIdentifier.getUri(), param.connectorName);
+                ConnectionFinder.findConnections(projectUri, param.connectorName);
         return CompletableFuture.supplyAsync(() -> connections);
     }
 
