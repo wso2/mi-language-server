@@ -217,18 +217,18 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
                 debugInfo.setMediatorPosition(mediatorPosition);
             } else {
                 MediatorVisitor visitor = new MediatorVisitor(breakpoint);
-                if (VisitorUtils.checkNodeInRange(node.getOnAccept(), breakpoint)) {
+                if (VisitorUtils.checkNodeInRange(node.getOnReject(), breakpoint)) {
                     mediatorPosition += " " + "0";
-                    VisitorUtils.visitMediators(node.getOnAccept().getMediatorList(), visitor);
-                } else if (VisitorUtils.checkNodeInRange(node.getOnReject(), breakpoint)) {
-                    mediatorPosition += " " + "1";
                     VisitorUtils.visitMediators(node.getOnReject().getMediatorList(), visitor);
-                } else if (VisitorUtils.checkNodeInRange(node.getAdvice(), breakpoint)) {
-                    mediatorPosition += " " + "2";
-                    VisitorUtils.visitMediators(node.getAdvice().getMediatorList(), visitor);
+                } else if (VisitorUtils.checkNodeInRange(node.getOnAccept(), breakpoint)) {
+                    mediatorPosition += " " + "1";
+                    VisitorUtils.visitMediators(node.getOnAccept().getMediatorList(), visitor);
                 } else if (VisitorUtils.checkNodeInRange(node.getObligations(), breakpoint)) {
-                    mediatorPosition += " " + "3";
+                    mediatorPosition += " " + "2";
                     VisitorUtils.visitMediators(node.getObligations().getMediatorList(), visitor);
+                } else if (VisitorUtils.checkNodeInRange(node.getAdvice(), breakpoint)) {
+                    mediatorPosition += " " + "3";
+                    VisitorUtils.visitMediators(node.getAdvice().getMediatorList(), visitor);
                 }
                 if (visitor.mediatorPosition != null) {
                     mediatorPosition += " " + visitor.mediatorPosition;
@@ -252,12 +252,12 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
                 debugInfo.setMediatorPosition(mediatorPosition);
             } else {
                 MediatorVisitor visitor = new MediatorVisitor(breakpoint);
-                if (VisitorUtils.checkNodeInRange(node.getOnAccept(), breakpoint)) {
+                if (VisitorUtils.checkNodeInRange(node.getOnReject(), breakpoint)) {
                     mediatorPosition += " " + "0";
-                    VisitorUtils.visitMediators(node.getOnAccept().getMediatorList(), visitor);
-                } else if (VisitorUtils.checkNodeInRange(node.getOnReject(), breakpoint)) {
-                    mediatorPosition += " " + "1";
                     VisitorUtils.visitMediators(node.getOnReject().getMediatorList(), visitor);
+                } else if (VisitorUtils.checkNodeInRange(node.getOnAccept(), breakpoint)) {
+                    mediatorPosition += " " + "1";
+                    VisitorUtils.visitMediators(node.getOnAccept().getMediatorList(), visitor);
                 }
                 if (visitor.mediatorPosition != null) {
                     mediatorPosition += " " + visitor.mediatorPosition;
@@ -282,7 +282,6 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
             } else {
                 MediatorVisitor visitor = new MediatorVisitor(breakpoint);
                 if (VisitorUtils.checkNodeInRange(node.getOnCacheHit(), breakpoint)) {
-                    mediatorPosition += " " + "0";
                     VisitorUtils.visitMediators(node.getOnCacheHit().getMediatorList(), visitor);
                 }
                 if (visitor.mediatorPosition != null) {
@@ -388,7 +387,6 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
             } else {
                 MediatorVisitor visitor = new MediatorVisitor(breakpoint);
                 if (VisitorUtils.checkNodeInRange(node.getChildMediators(), breakpoint)) {
-                    mediatorPosition += " " + "0";
                     VisitorUtils.visitMediators(node.getChildMediators().getMediatorList(), visitor);
                 }
                 if (visitor.mediatorPosition != null) {
@@ -432,7 +430,6 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
             } else {
                 MediatorVisitor visitor = new MediatorVisitor(breakpoint);
                 if (VisitorUtils.checkNodeInRange(node.getOnFail(), breakpoint)) {
-                    mediatorPosition += " " + "0";
                     VisitorUtils.visitMediators(node.getOnFail().getMediatorList(), visitor);
                 }
                 if (visitor.mediatorPosition != null) {
@@ -531,7 +528,6 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
             } else {
                 MediatorVisitor visitor = new MediatorVisitor(breakpoint);
                 if (VisitorUtils.checkNodeInRange(node.getCorrelateOnOrCompleteConditionOrOnComplete().getOnComplete().get(), breakpoint)) {
-                    mediatorPosition += " " + "0";
                     VisitorUtils.visitMediators(node.getCorrelateOnOrCompleteConditionOrOnComplete().getOnComplete().get().getMediatorList(), visitor);
                 }
                 if (visitor.mediatorPosition != null) {
@@ -593,7 +589,6 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
             } else {
                 MediatorVisitor visitor = new MediatorVisitor(breakpoint);
                 if (VisitorUtils.checkNodeInRange(node.getTarget(), breakpoint)) {
-                    mediatorPosition += " " + "0";
                     VisitorUtils.visitMediators(node.getTarget().getSequence().getMediatorList(), visitor);
                 }
                 if (visitor.mediatorPosition != null) {
@@ -625,7 +620,6 @@ public class MediatorVisitor extends AbstractMediatorVisitor {
             } else {
                 MediatorVisitor visitor = new MediatorVisitor(breakpoint);
                 if (VisitorUtils.checkNodeInRange(node.getSequence(), breakpoint)) {
-                    mediatorPosition += " " + "0";
                     VisitorUtils.visitMediators(node.getSequence().getMediatorList(), visitor);
                 }
                 if (visitor.mediatorPosition != null) {
