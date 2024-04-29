@@ -27,6 +27,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.c
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.call.CallSource;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.call.CallTarget;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 
@@ -46,9 +47,7 @@ public class CallFactory extends AbstractMediatorFactory {
         if (children != null && !children.isEmpty()) {
             for (DOMNode node : children) {
                 if (node.getNodeName().equalsIgnoreCase(Constant.SOURCE)) {
-                    CallSource callSource = new CallSource();
-                    callSource.elementNode((DOMElement) node);
-                    populateSourceAttributes(callSource, (DOMElement) node);
+                    CallSource callSource = createCallSource((DOMElement) node);
                     call.setSource(callSource);
                 } else if (node.getNodeName().equalsIgnoreCase(Constant.TARGET)) {
                     CallTarget callTarget = new CallTarget();
@@ -84,7 +83,14 @@ public class CallFactory extends AbstractMediatorFactory {
         }
     }
 
-    private void populateSourceAttributes(CallSource callSource, DOMElement element) {
+    private CallSource createCallSource(DOMElement element) {
+
+        CallSource callSource = new CallSource();
+        callSource.elementNode(element);
+        if (element.getFirstChild() != null) {
+            String content = Utils.getInlineString(element.getFirstChild());
+            callSource.setContent(content);
+        }
 
         String contentType = element.getAttribute(Constant.CONTENT_TYPE);
         if (contentType != null) {
@@ -94,6 +100,7 @@ public class CallFactory extends AbstractMediatorFactory {
         if (type != null) {
             callSource.setType(type);
         }
+        return callSource;
     }
 
     private void populateTargetAttributes(CallTarget callTarget, DOMElement element) {
