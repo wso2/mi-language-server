@@ -69,7 +69,10 @@ public class DirectoryTreeBuilder {
             return LegacyDirectoryTreeBuilder.buildDirectoryTree(projectFolder);
         }
         try {
-            String encodedPath = projectFolder.getUri().substring(7);
+            String encodedPath = projectFolder.getUri();
+            if (encodedPath.startsWith(Constant.FILE_PREFIX)) {
+                encodedPath = encodedPath.substring(7);
+            }
             projectPath = URLDecoder.decode(encodedPath, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             LOGGER.log(Level.SEVERE, "Could not decode the file path.", e);
