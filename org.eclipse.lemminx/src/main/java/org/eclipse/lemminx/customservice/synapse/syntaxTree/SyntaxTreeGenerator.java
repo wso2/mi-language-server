@@ -63,7 +63,6 @@ public class SyntaxTreeGenerator {
 
     public SyntaxTreeResponse getSyntaxTree(DOMDocument document) {
 
-        setProjectPath(document.getDocumentURI());
         SyntaxTreeResponse response = new SyntaxTreeResponse(null, document.getDocumentURI());
         DOMElement rootElement = getRootElement(document);
         STNode tree = buildTree(rootElement);
@@ -82,17 +81,9 @@ public class SyntaxTreeGenerator {
         return response;
     }
 
-    private void setProjectPath(String documentURI) {
+    public void setProjectPath(String path) {
 
-        if (documentURI != null) {
-            String tempUri = documentURI.replace(Constant.FILE_PREFIX, Constant.EMPTY_STRING);
-            Boolean isLegacy = Utils.isLegacyProject(tempUri);
-            try {
-                projectPath = Utils.findProjectRootPath(tempUri, isLegacy);
-            } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, "Error occurred while finding the project root path.", e);
-            }
-        }
+        projectPath = path;
     }
 
     private DOMElement getRootElement(DOMDocument document) {

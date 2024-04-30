@@ -82,13 +82,8 @@ public class ResourceFinder {
 
         ResourceResponse response = null;
         Boolean isLegacyProject = Utils.isLegacyProject(uri);
-        try {
-            String projectRootPath = Utils.findProjectRootPath(uri, isLegacyProject);
-            if (projectRootPath != null) {
-                response = findResources(projectRootPath, resourceType, isLegacyProject);
-            }
-        } catch (IOException e) {
-            LOGGER.warning("Error while finding project root path");
+        if (uri != null) {
+            response = findResources(uri, resourceType, isLegacyProject);
         }
         return response;
     }

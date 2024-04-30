@@ -45,7 +45,8 @@ public class SynapseDefinitionProvider {
             , "onAccept", "onReject", "obligation", "advice", "onError");
     private static List<String> endpointAttributes = List.of("endpointKey", "targetEndpoint", "endpoint");
 
-    public static Location definition(DOMDocument document, Position position, CancelChecker cancelChecker) {
+    public static Location definition(DOMDocument document, Position position, String projectPath,
+                                      CancelChecker cancelChecker) {
 
         cancelChecker.checkCanceled();
         int offset;
@@ -58,31 +59,27 @@ public class SynapseDefinitionProvider {
 
         KeyAndTypeHolder keyAndType = getKeyAndType(document, offset);
         if (!keyAndType.isNull()) {
-            Boolean isLegacyProject = Utils.isLegacyProject(document);
+            Boolean isLegacyProject = Utils.isLegacyProject(projectPath);
+
+            String path = null;
             try {
-                String projectPath = Utils.findProjectRootPath(document.getDocumentURI(), isLegacyProject);
-                String path = null;
-                try {
-                    if (isLegacyProject) {
-                        path = LegacyConfigFinder.findEsbComponentPath(keyAndType.getKey(), keyAndType.getType(),
-                                projectPath);
-                    } else {
-                        path = ConfigFinder.findEsbComponentPath(keyAndType.getKey(), keyAndType.getType(),
-                                projectPath);
-                    }
-                } catch (IOException e) {
-                    LOGGER.log(Level.WARNING, "Error while reading file content", e);
+                if (isLegacyProject) {
+                    path = LegacyConfigFinder.findEsbComponentPath(keyAndType.getKey(), keyAndType.getType(),
+                            projectPath);
+                } else {
+                    path = ConfigFinder.findEsbComponentPath(keyAndType.getKey(), keyAndType.getType(),
+                            projectPath);
                 }
-                if (path == null) {
-                    return null;
-                }
-                String filePath = Constant.FILE_PREFIX + path;
-                Range range = getDefinitionRange(path);
-                Location location = new Location(filePath, range);
-                return location;
             } catch (IOException e) {
                 LOGGER.log(Level.WARNING, "Error while reading file content", e);
             }
+            if (path == null) {
+                return null;
+            }
+            String filePath = Constant.FILE_PREFIX + path;
+            Range range = getDefinitionRange(path);
+            Location location = new Location(filePath, range);
+            return location;
         }
         return null;
     }
@@ -126,6 +123,9 @@ public class SynapseDefinitionProvider {
         try {
             DOMDocument document = Utils.getDOMDocument(file);
             DOMNode node = Utils.getRootElementFromConfigXml(document);
+            if (node == null) {
+                return new Range(new Position(0, 0), new Position(0, 1));
+            }
             Position start = document.positionAt(node.getStart());
             Position end = document.positionAt(node.getEnd());
             range = new Range(start, end);

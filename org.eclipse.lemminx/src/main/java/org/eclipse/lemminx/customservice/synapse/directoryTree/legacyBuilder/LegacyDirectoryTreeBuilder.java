@@ -46,15 +46,9 @@ public class LegacyDirectoryTreeBuilder {
 
     public static DirectoryMapResponse buildDirectoryTree(WorkspaceFolder workspaceFolder) {
 
-        String currentPath = workspaceFolder.getUri();
+        String rootPath = workspaceFolder.getUri();
         DirectoryMap directoryMap = new DirectoryMap();
 
-        String rootPath = null;
-        try {
-            rootPath = Utils.findProjectRootPath(currentPath, Boolean.TRUE);
-        } catch (IOException e) {
-            LOGGER.log(Level.WARNING, "Error while reading file content", e);
-        }
         projectPath = rootPath;
         if (projectPath != null) {
             analyze(directoryMap);

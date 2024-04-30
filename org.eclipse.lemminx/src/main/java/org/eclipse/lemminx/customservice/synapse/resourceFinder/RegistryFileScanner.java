@@ -18,8 +18,6 @@
 
 package org.eclipse.lemminx.customservice.synapse.resourceFinder;
 
-import org.eclipse.lemminx.customservice.synapse.utils.Utils;
-
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -69,9 +67,8 @@ public class RegistryFileScanner {
         return "";
     }
 
-    private static String getRegistryPath(String path) {
+    private static String getRegistryPath(String projectPath) {
 
-        String projectPath = Utils.findProjectRootPath(path);
         if (projectPath != null) {
             Path registryPath = Path.of(projectPath, "src", "main", "wso2mi", "resources", "registry");
             return registryPath.toString();

@@ -345,9 +345,8 @@ public class ConnectorLoader {
         }
     }
 
-    private void setConnectorsFolderPath(String projectPath) {
+    private void setConnectorsFolderPath(String projectRoot) {
 
-        String projectRoot = Utils.findProjectRootPath(projectPath);
         if (projectRoot != null) {
             if (legacyMode) {
                 File projectFile = new File(projectRoot);

@@ -18,8 +18,6 @@
 
 package org.eclipse.lemminx.customservice.synapse.resourceFinder;
 
-import org.eclipse.lemminx.customservice.synapse.utils.Utils;
-
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -29,9 +27,8 @@ import java.util.regex.Pattern;
 
 public class ArtifactFileScanner {
 
-    public static List<String> scanArtifactFiles(String path) {
+    public static List<String> scanArtifactFiles(String projectPath) {
 
-        String projectPath = Utils.findProjectRootPath(path);
         List<String> artifactFiles = new ArrayList<>();
         if (projectPath != null) {
             String artifactPath = Path.of(projectPath, "src", "main", "wso2mi", "artifacts").toString();

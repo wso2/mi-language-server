@@ -120,82 +120,30 @@ public class Utils {
         return list.stream().anyMatch(s -> s.equalsIgnoreCase(elementName));
     }
 
-    public static boolean isLegacyProject(DOMDocument document) {
-
-        String documentPath = document.getDocumentURI();
-        return isLegacyProject(documentPath);
-    }
-
     public static boolean isLegacyProject(String path) {
-        String projectPath = null;
-        try {
-            projectPath = findLegacyProjectRootPath(path);
-        } catch (IOException e) {
-        }
 
-        if(projectPath != null) {
-            return Boolean.TRUE;
-        }
-        return Boolean.FALSE;
-    }
-
-    public static String findProjectRootPath(String currentPath,boolean isLegacyProject) throws IOException {
-        if(isLegacyProject) {
-            return findLegacyProjectRootPath(currentPath);
-        } else {
-            return findProjectRootPath(currentPath);
-        }
-    }
-
-    public static String findLegacyProjectRootPath(String currentPath) throws IOException {
-
-        if (currentPath.contains(Constant.FILE_PREFIX)) {
-            currentPath = currentPath.substring(7);
-        }
-        if (currentPath == null || currentPath.isEmpty()) {
-            return null;
-        }
-        String prevFolderPath = currentPath.substring(0, currentPath.lastIndexOf(File.separator));
-        String dotProjectPath = currentPath + File.separator + Constant.DOT_PROJECT;
+        String dotProjectPath = path + File.separator + Constant.DOT_PROJECT;
         File dotProjectFile = new File(dotProjectPath);
         if (dotProjectFile != null && dotProjectFile.exists()) {
-            DOMDocument projectDOM = Utils.getDOMDocument(dotProjectFile);
-            DOMNode descriptionNode = findDescriptionNode(projectDOM);
-            if (descriptionNode != null) {
-                DOMNode naturesNode = findNaturesNode(descriptionNode);
-                if (naturesNode != null) {
-                    List<DOMNode> children = naturesNode.getChildren();
-                    for (DOMNode child : children) {
-                        String nature = Utils.getInlineString(child.getFirstChild());
-                        if (ProjectType.ROOT_PROJECT.value.equalsIgnoreCase(nature)) {
-                            return currentPath;
+            try {
+                DOMDocument projectDOM = Utils.getDOMDocument(dotProjectFile);
+                DOMNode descriptionNode = findDescriptionNode(projectDOM);
+                if (descriptionNode != null) {
+                    DOMNode naturesNode = findNaturesNode(descriptionNode);
+                    if (naturesNode != null) {
+                        List<DOMNode> children = naturesNode.getChildren();
+                        for (DOMNode child : children) {
+                            String nature = Utils.getInlineString(child.getFirstChild());
+                            if (ProjectType.ROOT_PROJECT.value.equalsIgnoreCase(nature)) {
+                                return Boolean.TRUE;
+                            }
                         }
                     }
-                    return findLegacyProjectRootPath(prevFolderPath);
                 }
+            } catch (IOException e) {
             }
-        } else {
-            return findLegacyProjectRootPath(prevFolderPath);
         }
-        return null;
-    }
-
-    public static String findProjectRootPath(String currentPath) {
-
-        if (currentPath.contains(Constant.FILE_PREFIX)) {
-            currentPath = currentPath.substring(7);
-        }
-        if (currentPath == null || currentPath.isEmpty()) {
-            return null;
-        }
-        String prevFolderPath = currentPath.substring(0, currentPath.lastIndexOf(File.separator));
-        String pomPath = currentPath + File.separator + Constant.POM;
-        File pomFile = new File(pomPath);
-        if (pomFile != null && pomFile.exists()) {
-            return currentPath;
-        } else {
-            return findProjectRootPath(prevFolderPath);
-        }
+        return Boolean.FALSE;
     }
 
     public static DOMNode findDescriptionNode(DOMDocument projectDOM) {
