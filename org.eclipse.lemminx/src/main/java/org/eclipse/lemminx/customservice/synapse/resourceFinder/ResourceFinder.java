@@ -314,15 +314,12 @@ public class ResourceFinder {
 
         Resource registry = new RegistryResource();
         String name = getArtifactName(rootElement);
-        if (name != null) {
-            registry.setName(name);
-            registry.setType(Utils.addUnderscoreBetweenWords(type).toUpperCase());
-            registry.setFrom(REGISTRY);
-            ((RegistryResource) registry).setRegistryPath(file.getAbsolutePath());
-            ((RegistryResource) registry).setRegistryKey(getRegistryKey(file));
-            return registry;
-        }
-        return null;
+        registry.setName(name);
+        registry.setType(Utils.addUnderscoreBetweenWords(type).toUpperCase());
+        registry.setFrom(REGISTRY);
+        ((RegistryResource) registry).setRegistryPath(file.getAbsolutePath());
+        ((RegistryResource) registry).setRegistryKey(getRegistryKey(file));
+        return registry;
     }
 
     private static String getArtifactName(DOMElement rootElement) {
