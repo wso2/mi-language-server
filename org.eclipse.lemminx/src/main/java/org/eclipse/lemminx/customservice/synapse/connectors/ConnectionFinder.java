@@ -46,11 +46,13 @@ public class ConnectionFinder {
      * Find connections for a given uri and name. If the name is null, it will return all the connections.
      * Otherwise, it will return the connections for the given connector.
      *
-     * @param uri  uri of the file
-     * @param name name of the connection (Optional)
+     * @param uri             uri of the file
+     * @param name            name of the connection (Optional)
+     * @param connectorHolder available connectors
      * @return connections
      */
-    public static Either<Connections, Map<String, Connections>> findConnections(String uri, String name) {
+    public static Either<Connections, Map<String, Connections>> findConnections(String uri, String name,
+                                                                                ConnectorHolder connectorHolder) {
 
         if (uri != null) {
             ResourceResponse response = ResourceFinder.getAvailableResources(uri, Constant.LOCAL_ENTRY);
@@ -61,7 +63,7 @@ public class ConnectionFinder {
                     return Either.forLeft(connections);
                 } else {
                     Map<String, Connections> connections = new HashMap<>();
-                    populateConnectors(connections);
+                    populateConnectors(connectorHolder, connections);
                     getConnections(connections, resources);
                     return Either.forRight(connections);
                 }
@@ -70,9 +72,8 @@ public class ConnectionFinder {
         return null;
     }
 
-    private static void populateConnectors(Map<String, Connections> connections) {
+    private static void populateConnectors(ConnectorHolder connectors, Map<String, Connections> connections) {
 
-        ConnectorHolder connectors = SynapseLanguageService.getConnectorHolder();
         if (connectors != null) {
             List<Connector> connectorList = connectors.getConnectors();
             for (Connector connector : connectorList) {

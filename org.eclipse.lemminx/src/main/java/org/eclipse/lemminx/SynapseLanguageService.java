@@ -21,6 +21,7 @@ package org.eclipse.lemminx;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.ISynapseLanguageService;
+import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
 import org.eclipse.lemminx.customservice.synapse.connectors.Connections;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectionFinder;
@@ -65,18 +66,21 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
     private XMLTextDocumentService xmlTextDocumentService;
     private XMLLanguageServer xmlLanguageServer;
+    private SynapseLanguageClientAPI languageClient;
     private static String extensionPath;
     private String projectUri;
-    private static ConnectorHolder connectorHolder;
+    private ConnectorHolder connectorHolder;
 
     public SynapseLanguageService(XMLTextDocumentService xmlTextDocumentService, XMLLanguageServer xmlLanguageServer) {
 
         this.xmlTextDocumentService = xmlTextDocumentService;
         this.xmlLanguageServer = xmlLanguageServer;
+        this.connectorHolder = new ConnectorHolder();
     }
 
-    public void init(String projectUri, Object settings) {
+    public void init(String projectUri, Object settings, SynapseLanguageClientAPI languageClient) {
 
+        this.languageClient = languageClient;
         if (settings != null) {
             extensionPath = ((JsonObject) settings).get("extensionPath").getAsString();
         }
@@ -84,6 +88,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
             this.projectUri = projectUri;
             updateConnectors(projectUri);
         }
+        MediatorFactoryFinder.getInstance().setConnectorHolder(connectorHolder);
     }
 
     @Override
@@ -159,11 +164,11 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         updateConnectors(uri);
     }
 
-    public static void updateConnectors(String uri) {
+    public void updateConnectors(String uri) {
 
-        ConnectorLoader connectorLoader = new ConnectorLoader();
+        ConnectorLoader connectorLoader = new ConnectorLoader(languageClient, connectorHolder);
         connectorLoader.updateConnectorLoader(uri);
-        connectorHolder = connectorLoader.loadConnector();
+        connectorLoader.loadConnector();
 
         //Generate xsd schema for the available connectors and write it to the schema file.
         String connectorPath =
@@ -208,7 +213,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     public CompletableFuture<Either<Connections, Map<String, Connections>>> connectorConnections(ConnectorParam param) {
 
         Either<Connections, Map<String, Connections>> connections =
-                ConnectionFinder.findConnections(projectUri, param.connectorName);
+                ConnectionFinder.findConnections(projectUri, param.connectorName, connectorHolder);
         return CompletableFuture.supplyAsync(() -> connections);
     }
 
@@ -217,7 +222,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         return projectUri;
     }
 
-    public static ConnectorHolder getConnectorHolder() {
+    public ConnectorHolder getConnectorHolder() {
 
         return connectorHolder;
     }

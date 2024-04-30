@@ -23,6 +23,7 @@ import java.util.concurrent.Future;
 import java.util.function.Function;
 
 import org.eclipse.lemminx.commons.ParentProcessWatcher;
+import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
 import org.eclipse.lemminx.customservice.XMLLanguageClientAPI;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.jsonrpc.MessageConsumer;
@@ -119,7 +120,7 @@ public class XMLServerLauncher {
 			ExecutorService executorService, Function<MessageConsumer, MessageConsumer> wrapper) {
 		return new Builder<LanguageClient>().
 				setLocalService(server)
-				.setRemoteInterface(XMLLanguageClientAPI.class) // Set client as XML language client
+				.setRemoteInterface(SynapseLanguageClientAPI.class) // Set client as XML language client
 				.setInput(in)
 				.setOutput(out)
 				.setExecutorService(executorService)

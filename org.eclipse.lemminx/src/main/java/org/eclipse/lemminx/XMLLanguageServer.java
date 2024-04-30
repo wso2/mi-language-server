@@ -35,6 +35,7 @@ import org.eclipse.lemminx.customservice.AutoCloseTagResponse;
 import org.eclipse.lemminx.customservice.LogMediatorSnippetRequest;
 import org.eclipse.lemminx.customservice.SnippetCompletionResponse;
 import org.eclipse.lemminx.customservice.ISynapseLanguageService;
+import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
 import org.eclipse.lemminx.customservice.XMLLanguageClientAPI;
 import org.eclipse.lemminx.customservice.XMLLanguageServerAPI;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -90,7 +91,7 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 	private final XMLLanguageService xmlLanguageService;
 	private final XMLTextDocumentService xmlTextDocumentService;
 	private final XMLWorkspaceService xmlWorkspaceService;
-	private XMLLanguageClientAPI languageClient;
+	private SynapseLanguageClientAPI languageClient;
 	private final ScheduledExecutorService delayer;
 	private Integer parentProcessId;
 	private XMLCapabilityManager capabilityManager;
@@ -139,7 +140,7 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 		ServerCapabilities nonDynamicServerCapabilities = ServerCapabilitiesInitializer.getNonDynamicServerCapabilities(
 				capabilityManager.getClientCapabilities(), xmlTextDocumentService.isIncrementalSupport());
 
-		synapseLanguageService.init(params.getRootPath(), xmlSettings);
+		synapseLanguageService.init(params.getRootPath(), xmlSettings,languageClient);
 		return CompletableFuture.completedFuture(new InitializeResult(nonDynamicServerCapabilities));
 	}
 
@@ -277,7 +278,7 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 	}
 
 	public void setClient(LanguageClient languageClient) {
-		this.languageClient = (XMLLanguageClientAPI) languageClient;
+		this.languageClient = (SynapseLanguageClientAPI) languageClient;
 		capabilityManager = new XMLCapabilityManager(this.languageClient, xmlTextDocumentService, xmlWorkspaceService);
 		telemetryManager = new TelemetryManager(languageClient);
 	}
