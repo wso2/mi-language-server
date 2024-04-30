@@ -20,7 +20,9 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.lemminx.XMLLanguageServer;
+import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
 import org.eclipse.lemminx.customservice.XMLLanguageClientAPI;
+import org.eclipse.lemminx.customservice.synapse.ConnectionStatusNotification;
 import org.eclipse.lemminx.utils.platform.Platform;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializedParams;
@@ -79,7 +81,7 @@ public class TelemetryInitializationTest {
 	private static XMLLanguageServer createServer(List<TelemetryEvent> actualTelementryEvents) {
 		// Create XML Language Server
 		XMLLanguageServer languageServer = new XMLLanguageServer();
-		XMLLanguageClientAPI client = new XMLLanguageClientAPI() {
+		SynapseLanguageClientAPI client = new SynapseLanguageClientAPI() {
 
 			@Override
 			public void telemetryEvent(Object object) {
@@ -103,6 +105,16 @@ public class TelemetryInitializationTest {
 
 			@Override
 			public void logMessage(MessageParams message) {
+
+			}
+
+			@Override
+			public void addConnectionStatus(ConnectionStatusNotification message) {
+
+			}
+
+			@Override
+			public void removeConnectionStatus(ConnectionStatusNotification message) {
 
 			}
 		};

@@ -16,7 +16,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.lemminx.customservice.ActionableNotification;
-import org.eclipse.lemminx.customservice.XMLLanguageClientAPI;
+import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
+import org.eclipse.lemminx.customservice.synapse.ConnectionStatusNotification;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.MessageActionItem;
 import org.eclipse.lsp4j.MessageParams;
@@ -32,7 +33,7 @@ import org.eclipse.lsp4j.UnregistrationParams;
  * @author Angelo ZERR
  *
  */
-public class MockXMLLanguageClient implements XMLLanguageClientAPI {
+public class MockXMLLanguageClient implements SynapseLanguageClientAPI {
 
 	private final List<PublishDiagnosticsParams> publishDiagnostics;
 
@@ -110,4 +111,13 @@ public class MockXMLLanguageClient implements XMLLanguageClientAPI {
 		return actionableNotifications;
 	}
 
+	@Override
+	public void addConnectionStatus(ConnectionStatusNotification message) {
+
+	}
+
+	@Override
+	public void removeConnectionStatus(ConnectionStatusNotification message) {
+
+	}
 }
