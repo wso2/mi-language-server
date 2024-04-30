@@ -175,7 +175,8 @@ public class ConnectorLoader {
                     notifyAddConnection(connector.getName(), true, "Connector added successfully");
                     continue;
                 }
-                notifyAddConnection(connector.getName(), false, "Failed to add connector. Corrupted connector file");
+                notifyAddConnection(connectorName, false, "Failed to add connector. " +
+                        "Corrupted connector file");
             }
         }
     }
