@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.lemminx.customservice.ActionableNotification;
 import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
-import org.eclipse.lemminx.customservice.synapse.ConnectionStatusNotification;
+import org.eclipse.lemminx.customservice.synapse.ConnectorStatusNotification;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.MessageActionItem;
 import org.eclipse.lsp4j.MessageParams;
@@ -112,12 +112,12 @@ public class MockXMLLanguageClient implements SynapseLanguageClientAPI {
 	}
 
 	@Override
-	public void addConnectionStatus(ConnectionStatusNotification message) {
+	public void addConnectorStatus(ConnectorStatusNotification message) {
 
 	}
 
 	@Override
-	public void removeConnectionStatus(ConnectionStatusNotification message) {
+	public void removeConnectorStatus(ConnectorStatusNotification message) {
 
 	}
 }

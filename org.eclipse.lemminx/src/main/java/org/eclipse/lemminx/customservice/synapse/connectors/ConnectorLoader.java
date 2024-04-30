@@ -22,7 +22,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
-import org.eclipse.lemminx.customservice.synapse.ConnectionStatusNotification;
+import org.eclipse.lemminx.customservice.synapse.ConnectorStatusNotification;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -101,7 +101,7 @@ public class ConnectorLoader {
                 connectorHolder.removeConnector(getConnectorName(connectorFolder));
                 try {
                     FileUtils.deleteDirectory(connectorFolder);
-                    notifyRemoveConnection(connectorName, true, "Connector deleted successfully");
+                    notifyRemoveConnector(connectorName, true, "Connector deleted successfully");
                 } catch (IOException e) {
                     log.log(Level.WARNING, "Failed to delete connector folder:" + connectorName, e);
                 }
@@ -156,7 +156,7 @@ public class ConnectorLoader {
                 try {
                     Utils.extractZip(zip, extractToFolder);
                 } catch (IOException e) {
-                    notifyAddConnection(zipName, false, "Failed to extract connector zip");
+                    notifyAddConnector(zipName, false, "Failed to extract connector zip");
                     log.log(Level.WARNING, "Failed to extract connector zip:" + zipName, e);
                 }
             }
@@ -172,10 +172,10 @@ public class ConnectorLoader {
                 Connector connector = readConnector(f.getAbsolutePath());
                 if (connector != null) {
                     connectorHolder.addConnector(connector);
-                    notifyAddConnection(connector.getName(), true, "Connector added successfully");
+                    notifyAddConnector(connector.getName(), true, "Connector added successfully");
                     continue;
                 }
-                notifyAddConnection(connectorName, false, "Failed to add connector. " +
+                notifyAddConnector(connectorName, false, "Failed to add connector. " +
                         "Corrupted connector file");
             }
         }
@@ -392,15 +392,15 @@ public class ConnectorLoader {
         }
     }
 
-    private void notifyAddConnection(String connector, boolean isSuccessful, String message) {
+    private void notifyAddConnector(String connector, boolean isSuccessful, String message) {
 
-        ConnectionStatusNotification status = new ConnectionStatusNotification(connector, isSuccessful, message);
-        languageClient.addConnectionStatus(status);
+        ConnectorStatusNotification status = new ConnectorStatusNotification(connector, isSuccessful, message);
+        languageClient.addConnectorStatus(status);
     }
 
-    private void notifyRemoveConnection(String connector, boolean isSuccessful, String message) {
+    private void notifyRemoveConnector(String connector, boolean isSuccessful, String message) {
 
-        ConnectionStatusNotification status = new ConnectionStatusNotification(connector, isSuccessful, message);
-        languageClient.removeConnectionStatus(status);
+        ConnectorStatusNotification status = new ConnectorStatusNotification(connector, isSuccessful, message);
+        languageClient.removeConnectorStatus(status);
     }
 }

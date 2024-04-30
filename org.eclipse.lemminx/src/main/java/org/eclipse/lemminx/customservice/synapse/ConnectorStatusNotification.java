@@ -18,13 +18,13 @@
 
 package org.eclipse.lemminx.customservice.synapse;
 
-public class ConnectionStatusNotification {
+public class ConnectorStatusNotification {
 
     String connector;
     boolean isSuccess;
     String message;
 
-    public ConnectionStatusNotification(String connector, boolean isSuccess, String message) {
+    public ConnectorStatusNotification(String connector, boolean isSuccess, String message) {
 
         this.connector = connector;
         this.isSuccess = isSuccess;

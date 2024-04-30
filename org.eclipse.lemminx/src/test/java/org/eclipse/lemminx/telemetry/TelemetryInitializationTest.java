@@ -21,8 +21,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.lemminx.XMLLanguageServer;
 import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
-import org.eclipse.lemminx.customservice.XMLLanguageClientAPI;
-import org.eclipse.lemminx.customservice.synapse.ConnectionStatusNotification;
+import org.eclipse.lemminx.customservice.synapse.ConnectorStatusNotification;
 import org.eclipse.lemminx.utils.platform.Platform;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializedParams;
@@ -109,12 +108,12 @@ public class TelemetryInitializationTest {
 			}
 
 			@Override
-			public void addConnectionStatus(ConnectionStatusNotification message) {
+			public void addConnectorStatus(ConnectorStatusNotification message) {
 
 			}
 
 			@Override
-			public void removeConnectionStatus(ConnectionStatusNotification message) {
+			public void removeConnectorStatus(ConnectorStatusNotification message) {
 
 			}
 		};

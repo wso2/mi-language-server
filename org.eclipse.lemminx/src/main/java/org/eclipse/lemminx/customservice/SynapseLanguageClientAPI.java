@@ -12,7 +12,7 @@
  */
 package org.eclipse.lemminx.customservice;
 
-import org.eclipse.lemminx.customservice.synapse.ConnectionStatusNotification;
+import org.eclipse.lemminx.customservice.synapse.ConnectorStatusNotification;
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
@@ -28,15 +28,15 @@ public interface SynapseLanguageClientAPI extends XMLLanguageClientAPI {
      *
      * @param message the connection status notification
      */
-    @JsonNotification("addConnectionStatus")
-    void addConnectionStatus(ConnectionStatusNotification message);
+    @JsonNotification("addConnectorStatus")
+    void addConnectorStatus(ConnectorStatusNotification message);
 
     /**
      * Notification to be sent to the client when a connector is removed
      *
      * @param message the connection status notification
      */
-    @JsonNotification("removeConnectionStatus")
-    void removeConnectionStatus(ConnectionStatusNotification message);
+    @JsonNotification("removeConnectorStatus")
+    void removeConnectorStatus(ConnectorStatusNotification message);
 
 }
