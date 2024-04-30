@@ -42,7 +42,7 @@ public class ResourceFinder {
     private static final String ARTIFACTS = "ARTIFACTS";
     private static final String REGISTRY = "REGISTRY";
     private static final List<String> resourceFromRegistryOnly = List.of("dataMapper", "js", "json", "smooksConfig",
-            "wsdl", "ws_policy", "xsd", "xsl", "xslt", "yaml");
+            "wsdl", "ws_policy", "xsd", "xsl", "xslt", "yaml", "registry");
 
     // This has the extension mapping for the non-xml types in the registry
     private static final Map<String, String> nonXmlTypeToExtensionMap = new HashMap<>();
@@ -168,8 +168,20 @@ public class ResourceFinder {
         if (listOfFiles != null) {
             for (File file : listOfFiles) {
                 if (file.isDirectory()) {
-                    traverseFolder(file, type, resources);
+                    if (!".meta".equals(file.getName())) {
+                        traverseFolder(file, type, resources);
+                    }
                 } else if (file.isFile()) {
+                    if (Constant.REGISTRY.equalsIgnoreCase(type)) {
+                        if (file.getAbsolutePath().contains(Constant.GOV) ||
+                                file.getAbsolutePath().contains(Constant.CONF)) {
+                            Resource resource = createNonXmlResource(file, type, REGISTRY);
+                            if (resource != null) {
+                                resources.add(resource);
+                            }
+                        }
+                        continue;
+                    }
                     if (nonXmlTypeToExtensionMap.containsKey(type)) {
                         String extension = nonXmlTypeToExtensionMap.get(type);
                         if (file.getName().endsWith(extension)) {
@@ -302,15 +314,12 @@ public class ResourceFinder {
 
         Resource registry = new RegistryResource();
         String name = getArtifactName(rootElement);
-        if (name != null) {
-            registry.setName(name);
-            registry.setType(Utils.addUnderscoreBetweenWords(type).toUpperCase());
-            registry.setFrom(REGISTRY);
-            ((RegistryResource) registry).setRegistryPath(file.getAbsolutePath());
-            ((RegistryResource) registry).setRegistryKey(getRegistryKey(file));
-            return registry;
-        }
-        return null;
+        registry.setName(name);
+        registry.setType(Utils.addUnderscoreBetweenWords(type).toUpperCase());
+        registry.setFrom(REGISTRY);
+        ((RegistryResource) registry).setRegistryPath(file.getAbsolutePath());
+        ((RegistryResource) registry).setRegistryKey(getRegistryKey(file));
+        return registry;
     }
 
     private static String getArtifactName(DOMElement rootElement) {
