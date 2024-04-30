@@ -28,6 +28,8 @@ import org.eclipse.lemminx.customservice.synapse.debugger.entity.ValidationRespo
 import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryMapResponse;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceResponse;
+import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGenRequest;
+import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGenResponse;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeResponse;
 import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.Location;
@@ -82,4 +84,7 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<Either<Connections, Map<String, Connections>>> connectorConnections(ConnectorParam param);
+
+    @JsonRequest
+    CompletableFuture<SchemaGenResponse> generateSchema(SchemaGenRequest schemaGenRequest);
 }
