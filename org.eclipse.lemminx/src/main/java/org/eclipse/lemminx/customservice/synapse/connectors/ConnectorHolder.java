@@ -97,4 +97,9 @@ public class ConnectorHolder {
             }
         }
     }
+
+    public void clearConnectors() {
+
+        connectors.clear();
+    }
 }

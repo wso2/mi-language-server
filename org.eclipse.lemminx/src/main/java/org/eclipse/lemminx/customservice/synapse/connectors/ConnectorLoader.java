@@ -57,6 +57,7 @@ public class ConnectorLoader {
 
         if (legacyMode) {
             loadConnectorInLegacyMode();
+            return;
         }
         loadConnectorInNonLegacyMode();
 
@@ -128,18 +129,21 @@ public class ConnectorLoader {
 
     public void loadConnectorInLegacyMode() {
 
-        ConnectorHolder holder = new ConnectorHolder();
+        connectorHolder.clearConnectors();
         File connectorFolder = new File(connectorsFolderPath);
         if (connectorsFolderPath != null && connectorFolder.exists()) {
             File[] connectors = connectorFolder.listFiles(File::isDirectory);
             for (File connectorFile : connectors) {
                 Connector connector = readConnector(connectorFile.getPath());
                 if (connector != null) {
-                    holder.addConnector(connector);
+                    connectorHolder.addConnector(connector);
+                    notifyAddConnector(connector.getName(), true, "Connector added successfully");
+                    continue;
                 }
+                notifyAddConnector(connectorFile.getName(), false, "Failed to add connector. " +
+                        "Corrupted connector file");
             }
         }
-        connectorHolder = holder;
     }
 
     private void extractZips(List<File> connectorZips, File tempFolder) {
