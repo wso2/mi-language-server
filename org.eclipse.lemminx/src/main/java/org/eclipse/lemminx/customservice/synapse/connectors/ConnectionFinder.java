@@ -18,7 +18,9 @@
 
 package org.eclipse.lemminx.customservice.synapse.connectors;
 
-import org.eclipse.lemminx.SynapseLanguageService;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connection;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connections;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ArtifactsResource;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.Resource;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceFinder;

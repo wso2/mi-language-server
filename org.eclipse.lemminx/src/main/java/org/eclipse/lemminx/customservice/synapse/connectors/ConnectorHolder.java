@@ -18,6 +18,9 @@
 
 package org.eclipse.lemminx.customservice.synapse.connectors;
 
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorAction;
+
 import java.util.ArrayList;
 import java.util.List;
 

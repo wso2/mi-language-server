@@ -22,10 +22,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.ISynapseLanguageService;
 import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
-import org.eclipse.lemminx.customservice.synapse.connectors.Connections;
-import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorParam;
+import org.eclipse.lemminx.customservice.synapse.connectors.NewProjectConnectorLoader;
+import org.eclipse.lemminx.customservice.synapse.connectors.OldProjectConnectorLoader;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connections;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectionFinder;
-import org.eclipse.lemminx.customservice.synapse.connectors.Connector;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ArtifactFileScanner;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.RegistryFileScanner;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointInfoResponse;
@@ -37,7 +39,7 @@ import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceFinder;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceResponse;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
-import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorLoader;
+import org.eclipse.lemminx.customservice.synapse.connectors.AbstractConnectorLoader;
 import org.eclipse.lemminx.customservice.synapse.connectors.SchemaGenerate;
 import org.eclipse.lemminx.customservice.synapse.definition.SynapseDefinitionProvider;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryMapResponse;
@@ -49,6 +51,7 @@ import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGeneratorH
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeGenerator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeResponse;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.MediatorFactoryFinder;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.DefinitionParams;
@@ -65,14 +68,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class SynapseLanguageService implements ISynapseLanguageService {
-
+    private static final Logger log = Logger.getLogger(SynapseLanguageService.class.getName());
     private XMLTextDocumentService xmlTextDocumentService;
     private XMLLanguageServer xmlLanguageServer;
     private SynapseLanguageClientAPI languageClient;
+    private AbstractConnectorLoader connectorLoader;
     private static String extensionPath;
     private String projectUri;
+    private boolean isLegacyProject;
     private ConnectorHolder connectorHolder;
 
     public SynapseLanguageService(XMLTextDocumentService xmlTextDocumentService, XMLLanguageServer xmlLanguageServer) {
@@ -90,9 +97,22 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         }
         if (projectUri != null) {
             this.projectUri = projectUri;
-            updateConnectors(projectUri);
+            this.isLegacyProject = Utils.isLegacyProject(projectUri);
+            initializeConnectorLoader();
+            MediatorFactoryFinder.getInstance().setConnectorHolder(connectorHolder);
+        } else{
+            log.log(Level.SEVERE, "Project path is null. Language server initialization failed.");
         }
-        MediatorFactoryFinder.getInstance().setConnectorHolder(connectorHolder);
+    }
+
+    private void initializeConnectorLoader(){
+        if(isLegacyProject){
+            connectorLoader = new OldProjectConnectorLoader(languageClient,connectorHolder);
+        } else{
+            connectorLoader = new NewProjectConnectorLoader(languageClient,connectorHolder);
+        }
+        connectorLoader.init(projectUri);
+        updateConnectors();
     }
 
     @Override
@@ -149,7 +169,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     @Override
     public CompletableFuture<Either3<ConnectorHolder, Connector, Boolean>> availableConnectors(ConnectorParam param) {
 
-        return xmlTextDocumentService.computeDOMAsync(param.documentIdentifier, (xmlDocument, cancelChecker) -> {
+        return CompletableFuture.supplyAsync(() -> {
             if (param.connectorName != null && !param.connectorName.isEmpty()) {
                 Connector connector = connectorHolder.getConnector(param.connectorName);
                 if (connector == null) {
@@ -161,17 +181,8 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         });
     }
 
-    @Override
-    public void updateConnectors(TextDocumentIdentifier param) {
+    public void updateConnectors() {
 
-        String uri = param.getUri();
-        updateConnectors(uri);
-    }
-
-    public void updateConnectors(String uri) {
-
-        ConnectorLoader connectorLoader = new ConnectorLoader(languageClient, connectorHolder);
-        connectorLoader.updateConnectorLoader(uri);
         connectorLoader.loadConnector();
 
         //Generate xsd schema for the available connectors and write it to the schema file.
