@@ -156,7 +156,6 @@ public class ConnectorLoader {
                 try {
                     Utils.extractZip(zip, extractToFolder);
                 } catch (IOException e) {
-                    notifyAddConnector(zipName, false, "Failed to extract connector zip");
                     log.log(Level.WARNING, "Failed to extract connector zip:" + zipName, e);
                 }
             }
