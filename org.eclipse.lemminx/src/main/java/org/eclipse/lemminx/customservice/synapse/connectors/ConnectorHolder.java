@@ -45,6 +45,16 @@ public class ConnectorHolder {
         return false;
     }
 
+    public boolean isAlreadyExist(String connectorName) {
+
+        for (Connector connector : connectors) {
+            if (connector.getName().equalsIgnoreCase(connectorName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public List<Connector> getConnectors() {
 
         return connectors;
@@ -74,5 +84,22 @@ public class ConnectorHolder {
             }
         }
         return Boolean.FALSE;
+    }
+
+    public void removeConnector(String connectorName) {
+
+        if (connectorName != null) {
+            for (Connector connector : connectors) {
+                if (connector.getName().equalsIgnoreCase(connectorName)) {
+                    connectors.remove(connector);
+                    break;
+                }
+            }
+        }
+    }
+
+    public void clearConnectors() {
+
+        connectors.clear();
     }
 }

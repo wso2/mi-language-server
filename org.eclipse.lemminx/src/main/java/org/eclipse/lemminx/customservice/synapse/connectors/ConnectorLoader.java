@@ -21,6 +21,8 @@ package org.eclipse.lemminx.customservice.synapse.connectors;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.apache.commons.io.FileUtils;
+import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
+import org.eclipse.lemminx.customservice.synapse.ConnectorStatusNotification;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -39,27 +41,30 @@ import java.util.stream.Collectors;
 public class ConnectorLoader {
 
     private static final Logger log = Logger.getLogger(ConnectorLoader.class.getName());
-
+    private SynapseLanguageClientAPI languageClient;
+    private ConnectorHolder connectorHolder;
     private String connectorsFolderPath;
     private Boolean legacyMode;
     String projectId;
 
-    public ConnectorLoader() {
+    public ConnectorLoader(SynapseLanguageClientAPI languageClient, ConnectorHolder connectorHolder) {
 
+        this.languageClient = languageClient;
+        this.connectorHolder = connectorHolder;
     }
 
-    public ConnectorHolder loadConnector() {
+    public void loadConnector() {
 
         if (legacyMode) {
-            return loadConnectorInLegacyMode();
+            loadConnectorInLegacyMode();
+            return;
         }
-        return loadConnectorInNonLegacyMode();
+        loadConnectorInNonLegacyMode();
 
     }
 
-    private ConnectorHolder loadConnectorInNonLegacyMode() {
+    private void loadConnectorInNonLegacyMode() {
 
-        ConnectorHolder holder = new ConnectorHolder();
         projectId = Utils.getHash(connectorsFolderPath);
         String tempFolderPath =
                 System.getProperty("user.home") + File.separator + ".wso2-mi" + File.separator + "connectors"
@@ -71,7 +76,7 @@ public class ConnectorLoader {
         }
         List<File> connectorZips = new ArrayList<>();
         File folder = new File(connectorsFolderPath);
-        if (connectorsFolderPath != null && folder.exists()) {
+        if (folder.exists()) {
             File[] files = folder.listFiles();
             for (File f : files) {
                 if (Utils.isZipFile(f)) {
@@ -81,8 +86,7 @@ public class ConnectorLoader {
         }
         removeOldConnectors(tempFolder, connectorZips);
         extractZips(connectorZips, tempFolder);
-        readTempFolder(tempFolder, holder);
-        return holder;
+        readTempFolder(tempFolder);
     }
 
     private void removeOldConnectors(File tempFolder, List<File> connectorZips) {
@@ -95,8 +99,10 @@ public class ConnectorLoader {
                     connectorZips.stream().anyMatch(file -> file.getName().contains(connectorName));
             if (!isConnectorAvailable) {
                 File connectorFolder = new File(tempFolder.getAbsolutePath() + File.separator + connectorName);
+                connectorHolder.removeConnector(getConnectorName(connectorFolder));
                 try {
                     FileUtils.deleteDirectory(connectorFolder);
+                    notifyRemoveConnector(connectorName, true, "Connector deleted successfully");
                 } catch (IOException e) {
                     log.log(Level.WARNING, "Failed to delete connector folder:" + connectorName, e);
                 }
@@ -104,21 +110,40 @@ public class ConnectorLoader {
         }
     }
 
-    public ConnectorHolder loadConnectorInLegacyMode() {
+    private String getConnectorName(File connectorFolder) {
 
-        ConnectorHolder holder = new ConnectorHolder();
+        String connectorName = null;
+        File connectorFile = new File(connectorFolder.getAbsolutePath() + File.separator + "connector.xml");
+        if (connectorFile.exists()) {
+            try {
+                DOMDocument connectorDocument = Utils.getDOMDocument(connectorFile);
+                DOMNode connectorElement = Utils.getChildNodeByName(connectorDocument, "connector");
+                DOMNode componentElement = Utils.getChildNodeByName(connectorElement, "component");
+                connectorName = componentElement.getAttribute(Constant.NAME);
+            } catch (Exception e) {
+                log.log(Level.WARNING, "Error reading connector file", e);
+            }
+        }
+        return connectorName;
+    }
+
+    public void loadConnectorInLegacyMode() {
+
+        connectorHolder.clearConnectors();
         File connectorFolder = new File(connectorsFolderPath);
         if (connectorsFolderPath != null && connectorFolder.exists()) {
             File[] connectors = connectorFolder.listFiles(File::isDirectory);
             for (File connectorFile : connectors) {
                 Connector connector = readConnector(connectorFile.getPath());
                 if (connector != null) {
-                    holder.addConnector(connector);
+                    connectorHolder.addConnector(connector);
+                    notifyAddConnector(connector.getName(), true, "Connector added successfully");
+                    continue;
                 }
+                notifyAddConnector(connectorFile.getName(), false, "Failed to add connector. " +
+                        "Corrupted connector file");
             }
         }
-
-        return holder;
     }
 
     private void extractZips(List<File> connectorZips, File tempFolder) {
@@ -141,13 +166,20 @@ public class ConnectorLoader {
         }
     }
 
-    private void readTempFolder(File tempFolder, ConnectorHolder holder) {
+    private void readTempFolder(File tempFolder) {
 
         File[] files = tempFolder.listFiles(File::isDirectory);
         for (File f : files) {
-            Connector connector = readConnector(f.getAbsolutePath());
-            if (connector != null) {
-                holder.addConnector(connector);
+            String connectorName = getConnectorName(f);
+            if (!connectorHolder.isAlreadyExist(connectorName)) {
+                Connector connector = readConnector(f.getAbsolutePath());
+                if (connector != null) {
+                    connectorHolder.addConnector(connector);
+                    notifyAddConnector(connector.getName(), true, "Connector added successfully");
+                    continue;
+                }
+                notifyAddConnector(connectorName, false, "Failed to add connector. " +
+                        "Corrupted connector file");
             }
         }
     }
@@ -171,7 +203,7 @@ public class ConnectorLoader {
                     connector.setUiSchemaPath(connectorPath + File.separator + "uischema");
                     populateConnectorActions(connector, componentElement);
                     populateConnectionUiSchema(connector);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     log.log(Level.SEVERE, "Error reading connector file", e);
                 }
             }
@@ -361,5 +393,17 @@ public class ConnectorLoader {
             // To avoid null pointer exception.
             connectorsFolderPath = "";
         }
+    }
+
+    private void notifyAddConnector(String connector, boolean isSuccessful, String message) {
+
+        ConnectorStatusNotification status = new ConnectorStatusNotification(connector, isSuccessful, message);
+        languageClient.addConnectorStatus(status);
+    }
+
+    private void notifyRemoveConnector(String connector, boolean isSuccessful, String message) {
+
+        ConnectorStatusNotification status = new ConnectorStatusNotification(connector, isSuccessful, message);
+        languageClient.removeConnectorStatus(status);
     }
 }

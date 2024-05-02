@@ -18,7 +18,6 @@
 
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators;
 
-import org.eclipse.lemminx.SynapseLanguageService;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.advanced.CacheFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.advanced.CloneFactory;
@@ -143,6 +142,7 @@ public class MediatorFactoryFinder {
 
     private final static MediatorFactoryFinder instance = new MediatorFactoryFinder();
     private static Map<String, AbstractMediatorFactory> factoryMap = new HashMap<>();
+    private ConnectorHolder connectorHolder;
     private static boolean initialized = false;
 
     public static synchronized MediatorFactoryFinder getInstance() {
@@ -174,7 +174,6 @@ public class MediatorFactoryFinder {
 
         if (!node.getNodeName().equalsIgnoreCase(Constant.COMMENT)) {
             String mediatorName = node.getNodeName().toLowerCase();
-            ConnectorHolder connectorHolder = getConnectorHolder();
             if (mediatorName.contains(Constant.DOT) && connectorHolder.isValidConnector(mediatorName)) {
                 mediatorName = Constant.CONNECTOR;
             }
@@ -188,8 +187,8 @@ public class MediatorFactoryFinder {
         return null;
     }
 
-    public ConnectorHolder getConnectorHolder() {
+    public void setConnectorHolder(ConnectorHolder connectorHolder) {
 
-        return SynapseLanguageService.getConnectorHolder();
+        this.connectorHolder = connectorHolder;
     }
 }
