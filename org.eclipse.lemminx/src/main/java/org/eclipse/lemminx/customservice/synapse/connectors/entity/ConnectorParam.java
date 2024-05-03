@@ -16,19 +16,12 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.connectors;
+package org.eclipse.lemminx.customservice.synapse.connectors.entity;
 
-public class Connection {
+import org.eclipse.lsp4j.TextDocumentIdentifier;
 
-    String name;
-    String connectionType;
-    String path;
+public class ConnectorParam {
 
-    public Connection(String name, String connectionType, String path) {
-
-        this.name = name;
-        this.connectionType = connectionType;
-        this.path = path;
-
-    }
+    public TextDocumentIdentifier documentIdentifier;
+    public String connectorName;
 }

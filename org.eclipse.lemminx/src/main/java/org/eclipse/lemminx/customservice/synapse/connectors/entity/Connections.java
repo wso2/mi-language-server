@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.connectors;
+package org.eclipse.lemminx.customservice.synapse.connectors.entity;
 
 import java.util.ArrayList;
 import java.util.List;

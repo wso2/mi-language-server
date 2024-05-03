@@ -18,9 +18,9 @@
 
 package org.eclipse.lemminx.customservice;
 
-import org.eclipse.lemminx.customservice.synapse.connectors.Connections;
-import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorParam;
-import org.eclipse.lemminx.customservice.synapse.connectors.Connector;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connections;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorParam;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointInfoResponse;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointsRequest;
@@ -66,9 +66,6 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<Either3<ConnectorHolder, Connector, Boolean>> availableConnectors(ConnectorParam param);
-
-    @JsonNotification
-    void updateConnectors(TextDocumentIdentifier param);
 
     @JsonRequest
     CompletableFuture<List<String>> getRegistryFiles(TextDocumentIdentifier param);
