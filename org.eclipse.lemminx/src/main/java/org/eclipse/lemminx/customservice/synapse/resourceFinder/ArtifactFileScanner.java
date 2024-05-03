@@ -56,7 +56,7 @@ public class ArtifactFileScanner {
     private static String extractArtifactFile(File file) {
 
         String artifactFilePath = file.getAbsolutePath();
-        Pattern pattern = Pattern.compile(".*" + File.separator + "(.*)\\.(xml|dbs)");
+        Pattern pattern = Pattern.compile(".*" + Pattern.quote(File.separator) + "(.*)\\.(xml|dbs)");
         Matcher matcher = pattern.matcher(artifactFilePath);
         if (matcher.find()) {
             artifactFilePath = matcher.group(1);
