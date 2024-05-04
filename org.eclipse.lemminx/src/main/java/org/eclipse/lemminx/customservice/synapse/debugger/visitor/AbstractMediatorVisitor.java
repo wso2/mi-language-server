@@ -71,111 +71,111 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transf
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.smooks.Smooks;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.xslt.Xslt;
 
-abstract class AbstractMediatorVisitor {
+public abstract class AbstractMediatorVisitor {
 
-    abstract void visitConnector(Connector node);
+    protected abstract void visitConnector(Connector node);
 
-    abstract void visitPropertyGroup(PropertyGroup node);
+    protected abstract void visitPropertyGroup(PropertyGroup node);
 
-    abstract void visitJsontransform(Jsontransform node);
+    protected abstract void visitJsontransform(Jsontransform node);
 
-    abstract void visitMakefault(Makefault node);
+    protected abstract void visitMakefault(Makefault node);
 
-    abstract void visitSmooks(Smooks node);
+    protected abstract void visitSmooks(Smooks node);
 
-    abstract void visitHeader(Header node);
+    protected abstract void visitHeader(Header node);
 
-    abstract void visitDataServiceCall(DataServiceCall node);
+    protected abstract void visitDataServiceCall(DataServiceCall node);
 
-    abstract void visitTransaction(Transaction node);
+    protected abstract void visitTransaction(Transaction node);
 
-    abstract void visitDatamapper(Datamapper node);
+    protected abstract void visitDatamapper(Datamapper node);
 
-    abstract void visitPojoCommand(PojoCommand node);
+    protected abstract void visitPojoCommand(PojoCommand node);
 
-    abstract void visitPayloadFactory(PayloadFactory node);
+    protected abstract void visitPayloadFactory(PayloadFactory node);
 
-    abstract void visitEntitlementService(EntitlementService node);
+    protected abstract void visitEntitlementService(EntitlementService node);
 
-    abstract void visitThrottle(Throttle node);
+    protected abstract void visitThrottle(Throttle node);
 
-    abstract void visitCache(Cache node);
+    protected abstract void visitCache(Cache node);
 
-    abstract void visitEnqueue(Enqueue node);
+    protected abstract void visitEnqueue(Enqueue node);
 
-    abstract void visitDbreport(DbMediator node);
+    protected abstract void visitDbreport(DbMediator node);
 
-    abstract void visitDblookup(DbMediator node);
+    protected abstract void visitDblookup(DbMediator node);
 
-    abstract void visitEvent(Event node);
+    protected abstract void visitEvent(Event node);
 
-    abstract void visitRespond(Respond node);
+    protected abstract void visitRespond(Respond node);
 
-    abstract void visitPublishEvent(PublishEvent node);
+    protected abstract void visitPublishEvent(PublishEvent node);
 
-    abstract void visitSwitch(Switch node);
+    protected abstract void visitSwitch(Switch node);
 
-    abstract void visitSpring(Spring node);
+    protected abstract void visitSpring(Spring node);
 
-    abstract void visitRule(Rule node);
+    protected abstract void visitRule(Rule node);
 
-    abstract void visitConditionalRouter(ConditionalRouter node);
+    protected abstract void visitConditionalRouter(ConditionalRouter node);
 
-    abstract void visitLoopback(Loopback node);
+    protected abstract void visitLoopback(Loopback node);
 
-    abstract void visitStore(Store node);
+    protected abstract void visitStore(Store node);
 
-    abstract void visitValidate(Validate node);
+    protected abstract void visitValidate(Validate node);
 
-    abstract void visitFilter(Filter node);
+    protected abstract void visitFilter(Filter node);
 
-    abstract void visitSend(Send node);
+    protected abstract void visitSend(Send node);
 
-    abstract void visitClone(Clone node);
+    protected abstract void visitClone(Clone node);
 
-    abstract void visitClass(Class node);
+    protected abstract void visitClass(Class node);
 
-    abstract void visitAggregate(Aggregate node);
+    protected abstract void visitAggregate(Aggregate node);
 
-    abstract void visitLog(Log node);
+    protected abstract void visitLog(Log node);
 
-    abstract void visitEjb(Ejb node);
+    protected abstract void visitEjb(Ejb node);
 
-    abstract void visitNTLM(Ntlm node);
+    protected abstract void visitNTLM(Ntlm node);
 
-    abstract void visitRewrite(Rewrite node);
+    protected abstract void visitRewrite(Rewrite node);
 
-    abstract void visitCallTemplate(CallTemplate node);
+    protected abstract void visitCallTemplate(CallTemplate node);
 
-    abstract void visitCall(Call node);
+    protected abstract void visitCall(Call node);
 
-    abstract void visitIterate(Iterate node);
+    protected abstract void visitIterate(Iterate node);
 
-    abstract void visitProperty(Property node);
+    protected abstract void visitProperty(Property node);
 
-    abstract void visitForeach(Foreach node);
+    protected abstract void visitForeach(Foreach node);
 
-    abstract void visitEnrich(Enrich node);
+    protected abstract void visitEnrich(Enrich node);
 
-    abstract void visitScript(Script node);
+    protected abstract void visitScript(Script node);
 
-    abstract void visitBean(Bean node);
+    protected abstract void visitBean(Bean node);
 
-    abstract void visitXquery(Xquery node);
+    protected abstract void visitXquery(Xquery node);
 
-    abstract void visitBuilder(Builder node);
+    protected abstract void visitBuilder(Builder node);
 
-    abstract void visitDrop(Drop node);
+    protected abstract void visitDrop(Drop node);
 
-    abstract void visitXslt(Xslt node);
+    protected abstract void visitXslt(Xslt node);
 
-    abstract void visitBam(Bam node);
+    protected abstract void visitBam(Bam node);
 
-    abstract void visitFastXSLT(FastXSLT node);
+    protected abstract void visitFastXSLT(FastXSLT node);
 
-    abstract void visitOauthService(OauthService node);
+    protected abstract void visitOauthService(OauthService node);
 
-    abstract void visitCallout(Callout node);
+    protected abstract void visitCallout(Callout node);
 
-    abstract void visitSequence(FilterSequence node);
+    protected abstract void visitSequence(FilterSequence node);
 }

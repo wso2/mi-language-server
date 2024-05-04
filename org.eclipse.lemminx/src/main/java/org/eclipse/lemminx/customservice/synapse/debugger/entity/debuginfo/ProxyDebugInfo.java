@@ -16,27 +16,19 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.debugger.debuginfo;
+package org.eclipse.lemminx.customservice.synapse.debugger.entity.debuginfo;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-public class ApiDebugInfo extends DebugInfo {
+public class ProxyDebugInfo extends DebugInfo {
 
-    String apiKey;
-    String method;
-    String uriTemplate;
-    String urlMapping;
+    String proxyKey;
     String sequenceType;
 
-    public void setApiKey(String apiKey) {
+    public void setProxyKey(String proxyKey) {
 
-        this.apiKey = apiKey;
-    }
-
-    public void setMethod(String method) {
-
-        this.method = method;
+        this.proxyKey = proxyKey;
     }
 
     public void setSequenceType(String sequenceType) {
@@ -44,33 +36,16 @@ public class ApiDebugInfo extends DebugInfo {
         this.sequenceType = sequenceType;
     }
 
-    public void setUriTemplate(String uriTemplate) {
-
-        this.uriTemplate = uriTemplate;
-    }
-
-    public void setUrlMapping(String urlMapping) {
-
-        this.urlMapping = urlMapping;
-    }
-
+    @Override
     public JsonElement toJson() {
 
         JsonObject rootNode = new JsonObject();
         JsonObject sequence = new JsonObject();
-        JsonObject api = new JsonObject();
-        api.addProperty("api-key", apiKey);
-        JsonObject resource = new JsonObject();
-        resource.addProperty("method", method);
-        if (uriTemplate != null) {
-            resource.addProperty("uri-template", uriTemplate);
-        } else {
-            resource.addProperty("url-mapping", urlMapping);
-        }
-        api.add("resource", resource);
-        api.addProperty("sequence-type", sequenceType);
-        api.addProperty("mediator-position", mediatorPosition);
-        sequence.add("api", api);
+        JsonObject proxy = new JsonObject();
+        proxy.addProperty("proxy-key", proxyKey);
+        proxy.addProperty("sequence-type", sequenceType);
+        proxy.addProperty("mediator-position", mediatorPosition);
+        sequence.add("proxy", proxy);
         rootNode.add("sequence", sequence);
 
         rootNode.addProperty("mediation-component", "sequence");

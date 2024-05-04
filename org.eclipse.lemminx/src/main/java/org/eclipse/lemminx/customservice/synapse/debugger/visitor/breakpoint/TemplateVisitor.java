@@ -16,12 +16,13 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.debugger.visitor;
+package org.eclipse.lemminx.customservice.synapse.debugger.visitor.breakpoint;
 
-import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.IDebugInfo;
-import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.TemplateDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
-import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.debuginfo.IDebugInfo;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.debuginfo.TemplateDebugInfo;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.Visitor;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.VisitorUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.template.Template;
 
 import java.util.HashMap;
@@ -33,8 +34,6 @@ public class TemplateVisitor implements Visitor {
     List<Breakpoint> breakpoints;
     HashMap<Breakpoint, IDebugInfo> breakpointInfoMap;
     TemplateDebugInfo templateDebugInfo;
-    StepOverInfo stepOverInfo;
-    boolean isStepOver;
 
     public TemplateVisitor(Template syntaxTree, List<Breakpoint> breakpoints,
                            HashMap<Breakpoint, IDebugInfo> breakpointInfoMap) {
@@ -42,15 +41,6 @@ public class TemplateVisitor implements Visitor {
         this.syntaxTree = syntaxTree;
         this.breakpoints = breakpoints;
         this.breakpointInfoMap = breakpointInfoMap;
-        this.isStepOver = false;
-    }
-
-    public TemplateVisitor(Template syntaxTree, List<Breakpoint> breakpoints, StepOverInfo stepOverInfo) {
-
-        this.syntaxTree = syntaxTree;
-        this.breakpoints = breakpoints;
-        this.stepOverInfo = stepOverInfo;
-        this.isStepOver = true;
     }
 
     @Override
@@ -68,25 +58,19 @@ public class TemplateVisitor implements Visitor {
         if (syntaxTree == null) {
             return;
         }
-        if (!isStepOver) {
-            if (VisitorUtils.checkNodeInRange(syntaxTree, breakpoint)) {
-                templateDebugInfo.setTemplateKey(syntaxTree.getName());
-                if (syntaxTree.getSequence() != null) {
-                    BreakpointMediatorVisitor mediatorVisitor = new BreakpointMediatorVisitor(breakpoints,
-                            templateDebugInfo);
-                    VisitorUtils.visitMediators(syntaxTree.getSequence().getMediatorList(), mediatorVisitor,
-                            breakpointInfoMap);
-                    if (!mediatorVisitor.isDone()) {
-                        markAsInvalid(mediatorVisitor.breakpoint, "Invalid breakpoint in Template");
-                    }
+        if (VisitorUtils.checkNodeInRange(syntaxTree, breakpoint)) {
+            templateDebugInfo.setTemplateKey(syntaxTree.getName());
+            if (syntaxTree.getSequence() != null) {
+                BreakpointMediatorVisitor mediatorVisitor = new BreakpointMediatorVisitor(breakpoints,
+                        templateDebugInfo);
+                VisitorUtils.visitMediators(syntaxTree.getSequence().getMediatorList(), mediatorVisitor,
+                        breakpointInfoMap);
+                if (!mediatorVisitor.isDone()) {
+                    markAsInvalid(mediatorVisitor.breakpoint, "Invalid breakpoint in Template");
                 }
-            } else {
-                markAsInvalid(breakpoint, "Breakpoint is not in the range of the template");
             }
         } else {
-            breakpoints.remove(0);
-            StepOverMediatorVisitor mediatorVisitor = new StepOverMediatorVisitor(breakpoint, stepOverInfo);
-            VisitorUtils.visitMediators(syntaxTree.getSequence().getMediatorList(), mediatorVisitor);
+            markAsInvalid(breakpoint, "Breakpoint is not in the range of the template");
         }
     }
 

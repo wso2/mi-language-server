@@ -18,8 +18,10 @@
 
 package org.eclipse.lemminx.customservice.synapse.debugger.visitor;
 
-import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.IDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.debuginfo.IDebugInfo;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.breakpoint.BreakpointMediatorVisitor;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.stepover.StepOverMediatorVisitor;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 
@@ -111,12 +113,12 @@ public class VisitorUtils {
                 if (visitor.isDone()) {
                     IDebugInfo debugInfo = null;
                     try {
-                        debugInfo = visitor.debugInfo.clone();
+                        debugInfo = visitor.getDebugInfo().clone();
                     } catch (CloneNotSupportedException e) {
                         LOGGER.log(Level.SEVERE, "Error while cloning debug info", e);
                     }
-                    debugInfos.put(visitor.breakpoint, debugInfo);
-                    if (visitor.breakpoints != null && visitor.breakpoints.size() > 0) {
+                    debugInfos.put(visitor.getBreakpoint(), debugInfo);
+                    if (visitor.getBreakpoints() != null && visitor.getBreakpoints().size() > 0) {
                         visitor.nextBreakpoint();
                         i--;
                     }

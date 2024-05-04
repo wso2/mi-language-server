@@ -16,12 +16,13 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.debugger.visitor;
+package org.eclipse.lemminx.customservice.synapse.debugger.visitor.breakpoint;
 
-import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.ApiDebugInfo;
-import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.IDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
-import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.debuginfo.ApiDebugInfo;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.debuginfo.IDebugInfo;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.Visitor;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.VisitorUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.API;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.APIResource;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
@@ -35,23 +36,12 @@ public class ApiVisitor implements Visitor {
     List<Breakpoint> breakpoints;
     HashMap<Breakpoint, IDebugInfo> breakpointInfoMap;
     ApiDebugInfo apiDebugInfo;
-    StepOverInfo stepOverInfo;
-    boolean isStepOver;
 
     public ApiVisitor(API syntaxTree, List<Breakpoint> breakpoints, HashMap<Breakpoint, IDebugInfo> breakpointInfoMap) {
 
         this.syntaxTree = syntaxTree;
         this.breakpoints = breakpoints;
         this.breakpointInfoMap = breakpointInfoMap;
-        this.isStepOver = false;
-    }
-
-    public ApiVisitor(API syntaxTree, List<Breakpoint> breakpoints, StepOverInfo stepOverInfo) {
-
-        this.syntaxTree = syntaxTree;
-        this.breakpoints = breakpoints;
-        this.stepOverInfo = stepOverInfo;
-        this.isStepOver = true;
     }
 
     @Override
@@ -100,18 +90,11 @@ public class ApiVisitor implements Visitor {
 
     private void visitMediationSequence(Sequence sequence) {
 
-        if (!isStepOver) {
-            apiDebugInfo.setSequenceType("api_" + sequence.getTag().substring(0, sequence.getTag().length() - 5).toLowerCase());
-            BreakpointMediatorVisitor mediatorVisitor = new BreakpointMediatorVisitor(breakpoints, apiDebugInfo);
-            VisitorUtils.visitMediators(sequence.getMediatorList(), mediatorVisitor, breakpointInfoMap);
-            if (!mediatorVisitor.isDone()) {
-                markAsInvalid(mediatorVisitor.breakpoint, "Invalid breakpoint in API");
-            }
-        } else {
-            Breakpoint breakpoint = breakpoints.get(0);
-            breakpoints.remove(0);
-            StepOverMediatorVisitor mediatorVisitor = new StepOverMediatorVisitor(breakpoint, stepOverInfo);
-            VisitorUtils.visitMediators(sequence.getMediatorList(), mediatorVisitor);
+        apiDebugInfo.setSequenceType("api_" + sequence.getTag().substring(0, sequence.getTag().length() - 5).toLowerCase());
+        BreakpointMediatorVisitor mediatorVisitor = new BreakpointMediatorVisitor(breakpoints, apiDebugInfo);
+        VisitorUtils.visitMediators(sequence.getMediatorList(), mediatorVisitor, breakpointInfoMap);
+        if (!mediatorVisitor.isDone()) {
+            markAsInvalid(mediatorVisitor.breakpoint, "Invalid breakpoint in API");
         }
     }
 

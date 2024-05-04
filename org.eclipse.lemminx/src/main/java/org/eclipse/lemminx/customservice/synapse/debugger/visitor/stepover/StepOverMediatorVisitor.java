@@ -16,10 +16,12 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.debugger.visitor;
+package org.eclipse.lemminx.customservice.synapse.debugger.visitor.stepover;
 
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.AbstractMediatorVisitor;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.VisitorUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Connector;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.FilterSequence;
@@ -59,7 +61,11 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.extens
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.extension.ejb.Ejb;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.condRouter.ConditionalRouter;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.filter.Filter;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.filter.FilterElse;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.filter.FilterThen;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.switchMediator.Switch;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.switchMediator.SwitchCase;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.switchMediator.SwitchDefault;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle.Throttle;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.other.OauthService;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.other.bam.Bam;
@@ -81,6 +87,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transf
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.targets.Target;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
@@ -135,73 +142,73 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
     }
 
     @Override
-    void visitConnector(Connector node) {
+    protected void visitConnector(Connector node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitPropertyGroup(PropertyGroup node) {
+    protected void visitPropertyGroup(PropertyGroup node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitJsontransform(Jsontransform node) {
+    protected void visitJsontransform(Jsontransform node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitMakefault(Makefault node) {
+    protected void visitMakefault(Makefault node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitSmooks(Smooks node) {
+    protected void visitSmooks(Smooks node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitHeader(Header node) {
+    protected void visitHeader(Header node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitDataServiceCall(DataServiceCall node) {
+    protected void visitDataServiceCall(DataServiceCall node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitTransaction(Transaction node) {
+    protected void visitTransaction(Transaction node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitDatamapper(Datamapper node) {
+    protected void visitDatamapper(Datamapper node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitPojoCommand(PojoCommand node) {
+    protected void visitPojoCommand(PojoCommand node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitPayloadFactory(PayloadFactory node) {
+    protected void visitPayloadFactory(PayloadFactory node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitEntitlementService(EntitlementService node) {
+    protected void visitEntitlementService(EntitlementService node) {
 
         if (isFound) {
             int line = node.getRange().getStartTagRange().getStart().getLine();
@@ -241,7 +248,7 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
     }
 
     @Override
-    void visitThrottle(Throttle node) {
+    protected void visitThrottle(Throttle node) {
 
         if (isFound) {
             int line = node.getRange().getStartTagRange().getStart().getLine();
@@ -273,7 +280,7 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
     }
 
     @Override
-    void visitCache(Cache node) {
+    protected void visitCache(Cache node) {
 
         if (isFound) {
             int line = node.getRange().getStartTagRange().getStart().getLine();
@@ -300,78 +307,116 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
     }
 
     @Override
-    void visitEnqueue(Enqueue node) {
+    protected void visitEnqueue(Enqueue node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitDbreport(DbMediator node) {
+    protected void visitDbreport(DbMediator node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitDblookup(DbMediator node) {
+    protected void visitDblookup(DbMediator node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitEvent(Event node) {
+    protected void visitEvent(Event node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitRespond(Respond node) {
+    protected void visitRespond(Respond node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitPublishEvent(PublishEvent node) {
+    protected void visitPublishEvent(PublishEvent node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitSwitch(Switch node) {
+    protected void visitSwitch(Switch node) {
 
+        if (isFound) {
+            int line = node.getRange().getStartTagRange().getStart().getLine();
+            Breakpoint nextBreakpoint = new Breakpoint(line);
+            stepOverInfo.add(nextBreakpoint);
+            done = true;
+        } else {
+            if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
+                SwitchCase[] cases = node.get_case();
+                SwitchDefault default_ = node.get_default();
+                if (cases != null || default_ != null) {
+                    if (VisitorUtils.checkValidBreakpoint(node, breakpoint)) {
+                        addToNextBreakpoints(getFirstMediatorBreakpoint(default_.getMediatorList()));
+                        for (SwitchCase switchCase : cases) {
+                            addToNextBreakpoints(getFirstMediatorBreakpoint(switchCase.getMediatorList()));
+                        }
+                        int casesLength = 1;
+                        if (cases != null) {
+                            casesLength = cases.length + 1;
+                        }
+                        if (!stepOverInfo.isEmpty() && stepOverInfo.size() == casesLength) {
+                            done = true;
+                        }
+                    } else {
+                        for (SwitchCase switchCase : cases) {
+                            if (switchCase != null && VisitorUtils.checkNodeInRange(switchCase, breakpoint)) {
+                                VisitorUtils.visitMediators(switchCase.getMediatorList(), this);
+                            }
+                        }
+                        if (default_ != null && VisitorUtils.checkNodeInRange(default_, breakpoint)) {
+                            VisitorUtils.visitMediators(default_.getMediatorList(), this);
+                        }
+                    }
+                }
+                if (!done) {
+                    isFound = true;
+                }
+            }
+        }
     }
 
     @Override
-    void visitSpring(Spring node) {
+    protected void visitSpring(Spring node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitRule(Rule node) {
+    protected void visitRule(Rule node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitConditionalRouter(ConditionalRouter node) {
+    protected void visitConditionalRouter(ConditionalRouter node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitLoopback(Loopback node) {
+    protected void visitLoopback(Loopback node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitStore(Store node) {
+    protected void visitStore(Store node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitValidate(Validate node) {
+    protected void visitValidate(Validate node) {
 
         if (isFound) {
             int line = node.getRange().getStartTagRange().getStart().getLine();
@@ -384,9 +429,6 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
                 if (onFail != null && onFail.getMediatorList() != null) {
                     if (VisitorUtils.checkValidBreakpoint(node, breakpoint)) {
                         addToNextBreakpoints(getFirstMediatorBreakpoint(onFail.getMediatorList()));
-                        if (!stepOverInfo.isEmpty()) {
-                            done = true;
-                        }
                     } else {
                         if (VisitorUtils.checkNodeInRange(onFail, breakpoint)) {
                             VisitorUtils.visitMediators(onFail.getMediatorList(), this);
@@ -401,23 +443,36 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
     }
 
     @Override
-    void visitFilter(Filter node) {
+    protected void visitFilter(Filter node) {
 
         if (isFound) {
             int line = node.getRange().getStartTagRange().getStart().getLine();
             Breakpoint nextBreakpoint = new Breakpoint(line);
             stepOverInfo.add(nextBreakpoint);
-            if (stepOverInfo.size() == 2) {
-                done = true;
-            }
+            done = true;
         } else {
             if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
-                if (node.getMediatorList() != null) {
-                    if (VisitorUtils.checkValidBreakpoint(node, breakpoint)) {
-                        addToNextBreakpoints(getFirstMediatorBreakpoint(node.getMediatorList()));
+                FilterThen then = node.getThen();
+                FilterElse else_ = node.getElse_();
+                if (VisitorUtils.checkValidBreakpoint(node, breakpoint)) {
+                    List<Mediator> thenMediators = new ArrayList<>();
+                    List<Mediator> elseMediators = new ArrayList<>();
+                    if (then != null && then.getMediatorList() != null) {
+                        thenMediators = then.getMediatorList();
+                    }
+                    if (else_ != null && else_.getMediatorList() != null) {
+                        elseMediators = else_.getMediatorList();
+                    }
+                    addToNextBreakpoints(getFirstMediatorBreakpoint(thenMediators));
+                    addToNextBreakpoints(getFirstMediatorBreakpoint(elseMediators));
+                    if (stepOverInfo.size() == 2) {
                         done = true;
-                    } else {
-                        VisitorUtils.visitMediators(node.getMediatorList(), this);
+                    }
+                } else {
+                    if (VisitorUtils.checkNodeInRange(then, breakpoint)) {
+                        VisitorUtils.visitMediators(then.getMediatorList(), this);
+                    } else if (VisitorUtils.checkNodeInRange(else_, breakpoint)) {
+                        VisitorUtils.visitMediators(else_.getMediatorList(), this);
                     }
                 }
                 if (!done) {
@@ -428,13 +483,13 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
     }
 
     @Override
-    void visitSend(Send node) {
+    protected void visitSend(Send node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitClone(Clone node) {
+    protected void visitClone(Clone node) {
 
         if (isFound) {
             int line = node.getRange().getStartTagRange().getStart().getLine();
@@ -449,7 +504,7 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
                         for (CloneTarget target : targets) {
                             addToNextBreakpoints(getFirstMediatorBreakpoint(target.getSequence()));
                         }
-                        if (!stepOverInfo.isEmpty()) {
+                        if (!stepOverInfo.isEmpty() && stepOverInfo.size() == targets.length) {
                             done = true;
                         }
                     } else {
@@ -468,13 +523,13 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
     }
 
     @Override
-    void visitClass(Class node) {
+    protected void visitClass(Class node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitAggregate(Aggregate node) {
+    protected void visitAggregate(Aggregate node) {
 
         if (isFound) {
             int line = node.getRange().getStartTagRange().getStart().getLine();
@@ -487,9 +542,6 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
                 if (onComplete != null) {
                     if (VisitorUtils.checkValidBreakpoint(node, breakpoint)) {
                         addToNextBreakpoints(getFirstMediatorBreakpoint(onComplete.getMediatorList()));
-                        if (!stepOverInfo.isEmpty()) {
-                            done = true;
-                        }
                     } else {
                         if (VisitorUtils.checkNodeInRange(onComplete, breakpoint)) {
                             VisitorUtils.visitMediators(onComplete.getMediatorList(), this);
@@ -504,43 +556,43 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
     }
 
     @Override
-    void visitLog(Log node) {
+    protected void visitLog(Log node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitEjb(Ejb node) {
+    protected void visitEjb(Ejb node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitNTLM(Ntlm node) {
+    protected void visitNTLM(Ntlm node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitRewrite(Rewrite node) {
+    protected void visitRewrite(Rewrite node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitCallTemplate(CallTemplate node) {
+    protected void visitCallTemplate(CallTemplate node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitCall(Call node) {
+    protected void visitCall(Call node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitIterate(Iterate node) {
+    protected void visitIterate(Iterate node) {
 
         if (isFound) {
             int line = node.getRange().getStartTagRange().getStart().getLine();
@@ -570,13 +622,13 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
     }
 
     @Override
-    void visitProperty(Property node) {
+    protected void visitProperty(Property node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitForeach(Foreach node) {
+    protected void visitForeach(Foreach node) {
 
         if (isFound) {
             int line = node.getRange().getStartTagRange().getStart().getLine();
@@ -606,73 +658,73 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
     }
 
     @Override
-    void visitEnrich(Enrich node) {
+    protected void visitEnrich(Enrich node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitScript(Script node) {
+    protected void visitScript(Script node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitBean(Bean node) {
+    protected void visitBean(Bean node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitXquery(Xquery node) {
+    protected void visitXquery(Xquery node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitBuilder(Builder node) {
+    protected void visitBuilder(Builder node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitDrop(Drop node) {
+    protected void visitDrop(Drop node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitXslt(Xslt node) {
+    protected void visitXslt(Xslt node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitBam(Bam node) {
+    protected void visitBam(Bam node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitFastXSLT(FastXSLT node) {
+    protected void visitFastXSLT(FastXSLT node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitOauthService(OauthService node) {
+    protected void visitOauthService(OauthService node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitCallout(Callout node) {
+    protected void visitCallout(Callout node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitSequence(FilterSequence node) {
+    protected void visitSequence(FilterSequence node) {
 
         visitSimpleMediator(node);
     }

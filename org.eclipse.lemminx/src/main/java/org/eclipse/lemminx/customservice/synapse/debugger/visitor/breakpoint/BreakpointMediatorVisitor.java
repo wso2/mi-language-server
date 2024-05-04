@@ -16,11 +16,13 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.debugger.visitor;
+package org.eclipse.lemminx.customservice.synapse.debugger.visitor.breakpoint;
 
-import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.DebugInfo;
-import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.IDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.debuginfo.DebugInfo;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.debuginfo.IDebugInfo;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.AbstractMediatorVisitor;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.VisitorUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Connector;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.FilterSequence;
@@ -126,6 +128,21 @@ public class BreakpointMediatorVisitor extends AbstractMediatorVisitor {
         debugInfo.setError(null);
     }
 
+    public List<Breakpoint> getBreakpoints() {
+
+        return breakpoints;
+    }
+
+    public Breakpoint getBreakpoint() {
+
+        return breakpoint;
+    }
+
+    public IDebugInfo getDebugInfo() {
+
+        return debugInfo;
+    }
+
     void visitSimpleMediator(STNode node) {
 
         if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
@@ -142,73 +159,73 @@ public class BreakpointMediatorVisitor extends AbstractMediatorVisitor {
     }
 
     @Override
-    void visitConnector(Connector node) {
+    protected void visitConnector(Connector node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitPropertyGroup(PropertyGroup node) {
+    protected void visitPropertyGroup(PropertyGroup node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitJsontransform(Jsontransform node) {
+    protected void visitJsontransform(Jsontransform node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitMakefault(Makefault node) {
+    protected void visitMakefault(Makefault node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitSmooks(Smooks node) {
+    protected void visitSmooks(Smooks node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitHeader(Header node) {
+    protected void visitHeader(Header node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitDataServiceCall(DataServiceCall node) {
+    protected void visitDataServiceCall(DataServiceCall node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitTransaction(Transaction node) {
+    protected void visitTransaction(Transaction node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitDatamapper(Datamapper node) {
+    protected void visitDatamapper(Datamapper node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitPojoCommand(PojoCommand node) {
+    protected void visitPojoCommand(PojoCommand node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitPayloadFactory(PayloadFactory node) {
+    protected void visitPayloadFactory(PayloadFactory node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitEntitlementService(EntitlementService node) {
+    protected void visitEntitlementService(EntitlementService node) {
 
         if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
             mediatorPosition = Integer.toString(mediatorCount);
@@ -243,7 +260,7 @@ public class BreakpointMediatorVisitor extends AbstractMediatorVisitor {
     }
 
     @Override
-    void visitThrottle(Throttle node) {
+    protected void visitThrottle(Throttle node) {
 
         if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
             mediatorPosition = Integer.toString(mediatorCount);
@@ -272,7 +289,7 @@ public class BreakpointMediatorVisitor extends AbstractMediatorVisitor {
     }
 
     @Override
-    void visitCache(Cache node) {
+    protected void visitCache(Cache node) {
 
         if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
             mediatorPosition = Integer.toString(mediatorCount);
@@ -297,43 +314,43 @@ public class BreakpointMediatorVisitor extends AbstractMediatorVisitor {
     }
 
     @Override
-    void visitEnqueue(Enqueue node) {
+    protected void visitEnqueue(Enqueue node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitDbreport(DbMediator node) {
+    protected void visitDbreport(DbMediator node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitDblookup(DbMediator node) {
+    protected void visitDblookup(DbMediator node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitEvent(Event node) {
+    protected void visitEvent(Event node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitRespond(Respond node) {
+    protected void visitRespond(Respond node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitPublishEvent(PublishEvent node) {
+    protected void visitPublishEvent(PublishEvent node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitSwitch(Switch node) {
+    protected void visitSwitch(Switch node) {
 
         if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
             mediatorPosition = Integer.toString(mediatorCount);
@@ -371,13 +388,13 @@ public class BreakpointMediatorVisitor extends AbstractMediatorVisitor {
     }
 
     @Override
-    void visitSpring(Spring node) {
+    protected void visitSpring(Spring node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitRule(Rule node) {
+    protected void visitRule(Rule node) {
 
         if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
             this.done = true;
@@ -402,25 +419,25 @@ public class BreakpointMediatorVisitor extends AbstractMediatorVisitor {
     }
 
     @Override
-    void visitConditionalRouter(ConditionalRouter node) {
+    protected void visitConditionalRouter(ConditionalRouter node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitLoopback(Loopback node) {
+    protected void visitLoopback(Loopback node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitStore(Store node) {
+    protected void visitStore(Store node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitValidate(Validate node) {
+    protected void visitValidate(Validate node) {
 
         if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
             this.done = true;
@@ -445,7 +462,7 @@ public class BreakpointMediatorVisitor extends AbstractMediatorVisitor {
     }
 
     @Override
-    void visitFilter(Filter node) {
+    protected void visitFilter(Filter node) {
 
         if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
             this.done = true;
@@ -474,13 +491,13 @@ public class BreakpointMediatorVisitor extends AbstractMediatorVisitor {
     }
 
     @Override
-    void visitSend(Send node) {
+    protected void visitSend(Send node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitClone(Clone node) {
+    protected void visitClone(Clone node) {
 
         if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
             mediatorPosition = Integer.toString(mediatorCount);
@@ -512,13 +529,13 @@ public class BreakpointMediatorVisitor extends AbstractMediatorVisitor {
     }
 
     @Override
-    void visitClass(Class node) {
+    protected void visitClass(Class node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitAggregate(Aggregate node) {
+    protected void visitAggregate(Aggregate node) {
 
         if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
             this.done = true;
@@ -543,43 +560,43 @@ public class BreakpointMediatorVisitor extends AbstractMediatorVisitor {
     }
 
     @Override
-    void visitLog(Log node) {
+    protected void visitLog(Log node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitEjb(Ejb node) {
+    protected void visitEjb(Ejb node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitNTLM(Ntlm node) {
+    protected void visitNTLM(Ntlm node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitRewrite(Rewrite node) {
+    protected void visitRewrite(Rewrite node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitCallTemplate(CallTemplate node) {
+    protected void visitCallTemplate(CallTemplate node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitCall(Call node) {
+    protected void visitCall(Call node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitIterate(Iterate node) {
+    protected void visitIterate(Iterate node) {
 
         if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
             this.done = true;
@@ -604,13 +621,13 @@ public class BreakpointMediatorVisitor extends AbstractMediatorVisitor {
     }
 
     @Override
-    void visitProperty(Property node) {
+    protected void visitProperty(Property node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitForeach(Foreach node) {
+    protected void visitForeach(Foreach node) {
 
         if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
             this.done = true;
@@ -635,73 +652,73 @@ public class BreakpointMediatorVisitor extends AbstractMediatorVisitor {
     }
 
     @Override
-    void visitEnrich(Enrich node) {
+    protected void visitEnrich(Enrich node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitScript(Script node) {
+    protected void visitScript(Script node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitBean(Bean node) {
+    protected void visitBean(Bean node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitXquery(Xquery node) {
+    protected void visitXquery(Xquery node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitBuilder(Builder node) {
+    protected void visitBuilder(Builder node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitDrop(Drop node) {
+    protected void visitDrop(Drop node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitXslt(Xslt node) {
+    protected void visitXslt(Xslt node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitBam(Bam node) {
+    protected void visitBam(Bam node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitFastXSLT(FastXSLT node) {
+    protected void visitFastXSLT(FastXSLT node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitOauthService(OauthService node) {
+    protected void visitOauthService(OauthService node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitCallout(Callout node) {
+    protected void visitCallout(Callout node) {
 
         visitSimpleMediator(node);
     }
 
     @Override
-    void visitSequence(FilterSequence node) {
+    protected void visitSequence(FilterSequence node) {
 
         visitSimpleMediator(node);
     }
