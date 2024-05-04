@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.debugger.debuginfo;
+package org.eclipse.lemminx.customservice.synapse.debugger.entity.debuginfo;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

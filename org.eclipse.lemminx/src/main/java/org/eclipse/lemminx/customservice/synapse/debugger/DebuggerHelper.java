@@ -19,14 +19,21 @@
 package org.eclipse.lemminx.customservice.synapse.debugger;
 
 import com.google.gson.JsonElement;
-import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.IDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointValidity;
-import org.eclipse.lemminx.customservice.synapse.debugger.visitor.ApiVisitor;
-import org.eclipse.lemminx.customservice.synapse.debugger.visitor.InboundEndpointVisitor;
-import org.eclipse.lemminx.customservice.synapse.debugger.visitor.ProxyVisitor;
-import org.eclipse.lemminx.customservice.synapse.debugger.visitor.SequenceVisitor;
-import org.eclipse.lemminx.customservice.synapse.debugger.visitor.TemplateVisitor;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.debuginfo.IDebugInfo;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.Visitor;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.breakpoint.ApiVisitor;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.breakpoint.InboundEndpointVisitor;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.breakpoint.ProxyVisitor;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.breakpoint.SequenceVisitor;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.breakpoint.TemplateVisitor;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.stepover.StepOverApiVisitor;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.stepover.StepOverInboundEndpointVisitor;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.stepover.StepOverProxyVisitor;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.stepover.StepOverSequenceVisitor;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.stepover.StepOverTemplateVisitor;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeGenerator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.NamedSequence;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
@@ -120,25 +127,26 @@ public class DebuggerHelper {
         for (Breakpoint breakpoint : breakPoints) {
             breakpointInfoMap.put(breakpoint, null);
         }
+        Visitor visitor;
         if (Constant.API.equalsIgnoreCase(tag)) {
-            ApiVisitor apiVisitor = new ApiVisitor((API) syntaxTree, breakpointsCopy, breakpointInfoMap);
-            apiVisitor.startVisit();
+            visitor = new ApiVisitor((API) syntaxTree, breakpointsCopy, breakpointInfoMap);
+            visitor.startVisit();
         } else if (Constant.PROXY.equalsIgnoreCase(tag)) {
-            ProxyVisitor proxyVisitor = new ProxyVisitor((Proxy) syntaxTree, breakpointsCopy,
+            visitor = new ProxyVisitor((Proxy) syntaxTree, breakpointsCopy,
                     breakpointInfoMap);
-            proxyVisitor.startVisit();
+            visitor.startVisit();
         } else if (Constant.SEQUENCE.equalsIgnoreCase(tag)) {
-            SequenceVisitor sequenceVisitor = new SequenceVisitor((NamedSequence) syntaxTree, breakpointsCopy,
+            visitor = new SequenceVisitor((NamedSequence) syntaxTree, breakpointsCopy,
                     breakpointInfoMap);
-            sequenceVisitor.startVisit();
+            visitor.startVisit();
         } else if (Constant.INBOUND_ENDPOINT.equalsIgnoreCase(tag)) {
-            InboundEndpointVisitor inboundEndpointVisitor = new InboundEndpointVisitor((InboundEndpoint) syntaxTree,
+            visitor = new InboundEndpointVisitor((InboundEndpoint) syntaxTree,
                     breakpointsCopy, breakpointInfoMap);
-            inboundEndpointVisitor.startVisit();
+            visitor.startVisit();
         } else if (Constant.TEMPLATE.equalsIgnoreCase(tag)) {
-            TemplateVisitor templateVisitor = new TemplateVisitor((Template) syntaxTree, breakpointsCopy,
+            visitor = new TemplateVisitor((Template) syntaxTree, breakpointsCopy,
                     breakpointInfoMap);
-            templateVisitor.startVisit();
+            visitor.startVisit();
         }
         IDebugInfo[] debugInfos = new IDebugInfo[breakPoints.size()];
         for (Breakpoint bp : breakPoints) {
@@ -147,6 +155,36 @@ public class DebuggerHelper {
             debugInfos[index] = debugInfo;
         }
         return List.of(debugInfos);
+    }
+
+    /**
+     * This method is used to get the step over breakpoints.
+     *
+     * @param breakpoint breakpoint
+     * @return step over info
+     */
+    public StepOverInfo getStepOverBreakpoints(Breakpoint breakpoint) {
+
+        String tag = syntaxTree.getTag();
+        StepOverInfo stepOverInfo = new StepOverInfo();
+        Visitor visitor;
+        if (Constant.API.equalsIgnoreCase(tag)) {
+            visitor = new StepOverApiVisitor((API) syntaxTree, breakpoint, stepOverInfo);
+            visitor.startVisit();
+        } else if (Constant.PROXY.equalsIgnoreCase(tag)) {
+            visitor = new StepOverProxyVisitor((Proxy) syntaxTree, breakpoint, stepOverInfo);
+            visitor.startVisit();
+        } else if (Constant.SEQUENCE.equalsIgnoreCase(tag)) {
+            visitor = new StepOverSequenceVisitor((NamedSequence) syntaxTree, breakpoint, stepOverInfo);
+            visitor.startVisit();
+        } else if (Constant.INBOUND_ENDPOINT.equalsIgnoreCase(tag)) {
+            visitor = new StepOverInboundEndpointVisitor((InboundEndpoint) syntaxTree, breakpoint, stepOverInfo);
+            visitor.startVisit();
+        } else if (Constant.TEMPLATE.equalsIgnoreCase(tag)) {
+            visitor = new StepOverTemplateVisitor((Template) syntaxTree, breakpoint, stepOverInfo);
+            visitor.startVisit();
+        }
+        return stepOverInfo;
     }
 
     private STNode getSyntaxTree() throws IOException {

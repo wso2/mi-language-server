@@ -16,11 +16,13 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.debugger.visitor;
+package org.eclipse.lemminx.customservice.synapse.debugger.visitor.breakpoint;
 
-import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.IDebugInfo;
-import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.TemplateDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.debuginfo.IDebugInfo;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.debuginfo.TemplateDebugInfo;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.Visitor;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.VisitorUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.template.Template;
 
 import java.util.HashMap;
@@ -59,7 +61,8 @@ public class TemplateVisitor implements Visitor {
         if (VisitorUtils.checkNodeInRange(syntaxTree, breakpoint)) {
             templateDebugInfo.setTemplateKey(syntaxTree.getName());
             if (syntaxTree.getSequence() != null) {
-                MediatorVisitor mediatorVisitor = new MediatorVisitor(breakpoints, templateDebugInfo);
+                BreakpointMediatorVisitor mediatorVisitor = new BreakpointMediatorVisitor(breakpoints,
+                        templateDebugInfo);
                 VisitorUtils.visitMediators(syntaxTree.getSequence().getMediatorList(), mediatorVisitor,
                         breakpointInfoMap);
                 if (!mediatorVisitor.isDone()) {

@@ -28,6 +28,7 @@ import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connections;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectionFinder;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ArtifactFileScanner;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.RegistryFileScanner;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointInfoResponse;
@@ -222,6 +223,14 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         List<BreakpointValidity> validityList = debuggerHelper.validateBreakpoints(breakPointRequest.breakpoints);
         ValidationResponse validationResponse = new ValidationResponse(validityList);
         return CompletableFuture.supplyAsync(() -> validationResponse);
+    }
+
+    @Override
+    public CompletableFuture<StepOverInfo> stepOverBreakpoint(BreakpointsRequest breakPointRequest) {
+
+        DebuggerHelper debuggerHelper = new DebuggerHelper(breakPointRequest.filePath);
+        StepOverInfo stepOverInfo = debuggerHelper.getStepOverBreakpoints(breakPointRequest.breakpoint);
+        return CompletableFuture.supplyAsync(() -> stepOverInfo);
     }
 
     @Override

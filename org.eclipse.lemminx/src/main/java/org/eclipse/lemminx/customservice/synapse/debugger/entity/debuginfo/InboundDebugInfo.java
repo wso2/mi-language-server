@@ -16,33 +16,15 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.debugger.debuginfo;
+package org.eclipse.lemminx.customservice.synapse.debugger.entity.debuginfo;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
-public class SequenceDebugInfo extends DebugInfo {
-
-    String sequenceKey;
-
-    public void setSequenceKey(String sequenceKey) {
-
-        this.sequenceKey = sequenceKey;
-    }
+public class InboundDebugInfo extends DebugInfo {
 
     @Override
     public JsonElement toJson() {
 
-        JsonObject rootNode = new JsonObject();
-        JsonObject sequence = new JsonObject();
-        sequence.addProperty("sequence-type", "named");
-        sequence.addProperty("sequence-key", sequenceKey);
-        sequence.addProperty("mediator-position", mediatorPosition);
-
-        rootNode.add("sequence", sequence);
-
-        rootNode.addProperty("mediation-component", "sequence");
-
-        return rootNode;
+        return null;
     }
 }

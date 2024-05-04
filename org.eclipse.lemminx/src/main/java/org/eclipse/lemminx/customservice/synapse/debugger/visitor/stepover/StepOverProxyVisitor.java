@@ -16,41 +16,34 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.debugger.visitor;
+package org.eclipse.lemminx.customservice.synapse.debugger.visitor.stepover;
 
-import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.IDebugInfo;
-import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.ProxyDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.Visitor;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.VisitorUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.proxy.Proxy;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.proxy.ProxyTarget;
 
-import java.util.HashMap;
-import java.util.List;
-
-public class ProxyVisitor implements Visitor {
+public class StepOverProxyVisitor implements Visitor {
 
     Proxy syntaxTree;
-    List<Breakpoint> breakpoints;
-    HashMap<Breakpoint, IDebugInfo> breakpointInfoMap;
-    ProxyDebugInfo proxyDebugInfo;
+    Breakpoint breakpoint;
+    StepOverInfo stepOverInfo;
 
-    public ProxyVisitor(Proxy syntaxTree, List<Breakpoint> breakpoints,
-                        HashMap<Breakpoint, IDebugInfo> breakpointInfoMap) {
+    public StepOverProxyVisitor(Proxy syntaxTree, Breakpoint breakpoint, StepOverInfo stepOverInfo) {
 
         this.syntaxTree = syntaxTree;
-        this.breakpoints = breakpoints;
-        this.breakpointInfoMap = breakpointInfoMap;
+        this.breakpoint = breakpoint;
+        this.stepOverInfo = stepOverInfo;
     }
 
     @Override
     public void startVisit() {
 
-        while (breakpoints.size() > 0) {
-            Breakpoint breakpoint = breakpoints.get(0);
-            proxyDebugInfo = new ProxyDebugInfo();
-            traverseNode(syntaxTree, breakpoint);
-        }
+        traverseNode(syntaxTree, breakpoint);
+
     }
 
     private void traverseNode(Proxy node, Breakpoint breakpoint) {
@@ -59,10 +52,7 @@ public class ProxyVisitor implements Visitor {
             return;
         }
         if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
-            proxyDebugInfo.setProxyKey(node.getName());
             visitTargetSequence(node.getTarget(), breakpoint);
-        } else {
-            markAsInvalid(breakpoint, "Breakpoint is not in the range of the proxy");
         }
     }
 
@@ -77,23 +67,12 @@ public class ProxyVisitor implements Visitor {
             visitMediationSequence(target.getOutSequence());
         } else if (VisitorUtils.checkNodeInRange(target.getFaultSequence(), breakpoint)) {
             visitMediationSequence(target.getFaultSequence());
-        } else {
-            markAsInvalid(breakpoint, "Breakpoint is not in the proxy target sequence");
         }
     }
 
     private void visitMediationSequence(Sequence sequence) {
 
-        proxyDebugInfo.setSequenceType("proxy_" + sequence.getTag().substring(0, sequence.getTag().length() - 5).toLowerCase());
-        MediatorVisitor mediatorVisitor = new MediatorVisitor(breakpoints, proxyDebugInfo);
-        VisitorUtils.visitMediators(sequence.getMediatorList(), mediatorVisitor, breakpointInfoMap);
-        if (!mediatorVisitor.isDone()) {
-            markAsInvalid(mediatorVisitor.breakpoint, "Invalid breakpoint in Proxy");
-        }
-    }
-
-    private void markAsInvalid(Breakpoint breakpoint, String error) {
-
-        VisitorUtils.markAsInvalid(breakpoint, error, proxyDebugInfo, breakpointInfoMap, breakpoints);
+        StepOverMediatorVisitor mediatorVisitor = new StepOverMediatorVisitor(breakpoint, stepOverInfo);
+        VisitorUtils.visitMediators(sequence.getMediatorList(), mediatorVisitor);
     }
 }

@@ -16,11 +16,13 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.debugger.visitor;
+package org.eclipse.lemminx.customservice.synapse.debugger.visitor.breakpoint;
 
-import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.IDebugInfo;
-import org.eclipse.lemminx.customservice.synapse.debugger.debuginfo.SequenceDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.debuginfo.IDebugInfo;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.debuginfo.SequenceDebugInfo;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.Visitor;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.VisitorUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.NamedSequence;
 
 import java.util.HashMap;
@@ -58,7 +60,8 @@ public class SequenceVisitor implements Visitor {
         }
         if (VisitorUtils.checkNodeInRange(syntaxTree, breakpoint)) {
             sequenceDebugInfo.setSequenceKey(syntaxTree.getName());
-            MediatorVisitor mediatorVisitor = new MediatorVisitor(breakpoints, sequenceDebugInfo);
+            BreakpointMediatorVisitor mediatorVisitor = new BreakpointMediatorVisitor(breakpoints,
+                    sequenceDebugInfo);
             VisitorUtils.visitMediators(syntaxTree.getMediatorList(), mediatorVisitor, breakpointInfoMap);
             if (!mediatorVisitor.isDone()) {
                 breakpoints.remove(mediatorVisitor.breakpoint);
