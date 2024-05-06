@@ -58,8 +58,9 @@ public class RegistryFileScanner {
     private static String extractRegistryFilePath(File file) {
 
         String path = file.getAbsolutePath();
-        Path regFolderPath = Path.of("src", "main", "wso2mi", "resources", "registry");
-        Pattern pattern = Pattern.compile(regFolderPath + File.separator + "(.*)");
+        String regFolderPath = Path.of("src", "main", "wso2mi", "resources", "registry").toString();
+        regFolderPath = regFolderPath.replace(File.separator, Pattern.quote(File.separator));
+        Pattern pattern = Pattern.compile(regFolderPath + Pattern.quote(File.separator) + "(.*)");
         Matcher matcher = pattern.matcher(path);
         if (matcher.find()) {
             return matcher.group(1);
