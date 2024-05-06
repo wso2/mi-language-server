@@ -19,15 +19,24 @@
 package org.eclipse.lemminx.customservice.synapse.connectors;
 
 import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
+import org.eclipse.lemminx.customservice.synapse.directoryTree.legacyBuilder.utils.ProjectType;
+import org.eclipse.lemminx.customservice.synapse.utils.LegacyConfigFinder;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Class to load connectors for old projects.
  */
 public class OldProjectConnectorLoader extends AbstractConnectorLoader {
+
+    private static final Logger log = Logger.getLogger(OldProjectConnectorLoader.class.getName());
 
     public OldProjectConnectorLoader(SynapseLanguageClientAPI languageClient, ConnectorHolder connectorHolder) {
 
@@ -53,6 +62,38 @@ public class OldProjectConnectorLoader extends AbstractConnectorLoader {
     @Override
     protected void cleanOldConnectors(File connectorExtractFolder, List<File> connectorZips) {
 
+    }
+
+    @Override
+    protected List<File> getConnectorZips() {
+
+        List<File> connectorZips = super.getConnectorZips();
+        List<File> connectorsFromExporters = getConnectorsFromExporters();
+        connectorZips.addAll(connectorsFromExporters);
+        return connectorZips;
+    }
+
+    private List<File> getConnectorsFromExporters() {
+
+        List<File> connectorZips = new ArrayList<>();
+        try {
+            List<String> connectorExporters = LegacyConfigFinder.getConfigPaths(projectUri,
+                    ProjectType.CONNECTOR_EXPORTER.value);
+            for (String connectorExporter : connectorExporters) {
+                File connectorExporterFolder = new File(connectorExporter);
+                File[] files = connectorExporterFolder.listFiles();
+                if (files != null) {
+                    for (File file : files) {
+                        if (Utils.isZipFile(file)) {
+                            connectorZips.add(file);
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            log.log(Level.SEVERE, "Error while reading connectors in the connector exporter projects.", e);
+        }
+        return connectorZips;
     }
 
     @Override

@@ -42,6 +42,7 @@ public abstract class AbstractConnectorLoader {
     private SynapseLanguageClientAPI languageClient;
     protected ConnectorHolder connectorHolder;
     private ConnectorReader connectorReader;
+    protected String projectUri;
     protected String connectorsZipFolderPath;
     private File connectorExtractFolder;
 
@@ -54,6 +55,7 @@ public abstract class AbstractConnectorLoader {
 
     public void init(String projectRoot) {
 
+        this.projectUri = projectRoot;
         setConnectorsZipFolderPath(projectRoot);
         connectorExtractFolder = getConnectorExtractFolder();
     }
@@ -74,7 +76,7 @@ public abstract class AbstractConnectorLoader {
 
     protected abstract boolean canContinue(File connectorExtractFolder);
 
-    private List<File> getConnectorZips() {
+    protected List<File> getConnectorZips() {
 
         List<File> connectorZips = new ArrayList<>();
         File folder = new File(connectorsZipFolderPath);
