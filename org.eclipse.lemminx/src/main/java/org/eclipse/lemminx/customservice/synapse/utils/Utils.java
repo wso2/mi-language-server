@@ -55,15 +55,19 @@ public class Utils {
                 inline = "<![CDATA[" + node.getTextContent() + "]]>";
             } else if (node.isText()) {
                 inline = node.getTextContent();
-            } else {
-                inline = "<" + node.getNodeName().concat(getAttributeXmlString(node)) + ">";
-                List<DOMNode> children = node.getChildren();
-                if (children != null && !children.isEmpty()) {
-                    for (DOMNode child : children) {
-                        inline += getInlineString(child);
+            } else if (node instanceof DOMElement) {
+                if (((DOMElement) node).isSelfClosed()) {
+                    inline = "<" + node.getNodeName().concat(getAttributeXmlString(node)) + "/>";
+                } else {
+                    inline = "<" + node.getNodeName().concat(getAttributeXmlString(node)) + ">";
+                    List<DOMNode> children = node.getChildren();
+                    if (children != null && !children.isEmpty()) {
+                        for (DOMNode child : children) {
+                            inline += getInlineString(child);
+                        }
                     }
+                    inline += "</" + StringEscapeUtils.escapeXml(node.getNodeName()) + ">";
                 }
-                inline += "</" + StringEscapeUtils.escapeXml(node.getNodeName()) + ">";
             }
         }
         return inline;

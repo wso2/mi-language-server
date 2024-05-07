@@ -31,6 +31,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.evaluators
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.evaluators.Or;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.utils.SyntaxTreeUtils;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 
@@ -104,6 +105,7 @@ public class RewriteFactory extends AbstractMediatorFactory {
 
         RewriteRewriteruleCondition condition = new RewriteRewriteruleCondition();
         condition.elementNode((DOMElement) element);
+        condition.setCondition(Utils.getInlineString(element.getFirstChild()));
         List<DOMNode> conditionChildren = element.getChildren();
         if (conditionChildren != null && !conditionChildren.isEmpty()) {
             for (DOMNode conditionChild : conditionChildren) {
