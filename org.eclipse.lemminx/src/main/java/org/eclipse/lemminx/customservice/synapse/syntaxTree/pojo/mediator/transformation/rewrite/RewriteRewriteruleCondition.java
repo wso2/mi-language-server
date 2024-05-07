@@ -30,6 +30,7 @@ public class RewriteRewriteruleCondition extends STNode {
     Or or;
     Equal equal;
     Not not;
+    String condition;
 
     public And getAnd() {
 
@@ -69,5 +70,15 @@ public class RewriteRewriteruleCondition extends STNode {
     public void setNot(Not not) {
 
         this.not = not;
+    }
+
+    public String getCondition() {
+
+        return condition;
+    }
+
+    public void setCondition(String condition) {
+
+        this.condition = condition;
     }
 }

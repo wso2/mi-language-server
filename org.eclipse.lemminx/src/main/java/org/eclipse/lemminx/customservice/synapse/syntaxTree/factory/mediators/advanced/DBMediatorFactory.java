@@ -182,6 +182,10 @@ public abstract class DBMediatorFactory extends AbstractMediatorFactory {
                 //invalid configuration
             }
         }
+        dbMediatorStatement.setParameter(dbMediatorStatementParameterList.toArray(
+                new DbMediatorStatementParameter[dbMediatorStatementParameterList.size()]));
+        dbMediatorStatement.setResult(dbMediatorStatementResultList.toArray(
+                new DbMediatorStatementResult[dbMediatorStatementResultList.size()]));
         return dbMediatorStatement;
     }
 
