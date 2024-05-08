@@ -76,9 +76,8 @@ public class SynapseDefinitionProvider {
             if (path == null) {
                 return null;
             }
-            String filePath = Constant.FILE_PREFIX + path;
             Range range = getDefinitionRange(path);
-            Location location = new Location(filePath, range);
+            Location location = new Location(path, range);
             return location;
         }
         return null;
