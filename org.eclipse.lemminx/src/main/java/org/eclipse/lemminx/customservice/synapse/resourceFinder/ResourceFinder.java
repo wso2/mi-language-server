@@ -52,14 +52,15 @@ public class ResourceFinder {
 
     static {
         // Populate the type to extension map
-        nonXmlTypeToExtensionMap.put("dataMapper", ".dmc");
-        nonXmlTypeToExtensionMap.put("js", ".js");
-        nonXmlTypeToExtensionMap.put("json", ".json");
-        nonXmlTypeToExtensionMap.put("wsdl", ".wsdl");
-        nonXmlTypeToExtensionMap.put("xsd", ".xsd");
-        nonXmlTypeToExtensionMap.put("xsl", ".xsl");
-        nonXmlTypeToExtensionMap.put("xslt", ".xslt");
-        nonXmlTypeToExtensionMap.put("yaml", ".yaml");
+        nonXmlTypeToExtensionMap.put("dataMapper", "dmc");
+        nonXmlTypeToExtensionMap.put("js", "js");
+        nonXmlTypeToExtensionMap.put("json", "json");
+        nonXmlTypeToExtensionMap.put("wsdl", "wsdl");
+        nonXmlTypeToExtensionMap.put("xsd", "xsd");
+        nonXmlTypeToExtensionMap.put("xsl", "xsl");
+        nonXmlTypeToExtensionMap.put("xslt", "xslt");
+        nonXmlTypeToExtensionMap.put("yaml", "yaml");
+        nonXmlTypeToExtensionMap.put("schema", "json|xsd");
 
         // Populate the type to xml tag map
         typeToXmlTagMap.put("api", "api");
@@ -184,7 +185,7 @@ public class ResourceFinder {
                     }
                     if (nonXmlTypeToExtensionMap.containsKey(type)) {
                         String extension = nonXmlTypeToExtensionMap.get(type);
-                        if (file.getName().endsWith(extension)) {
+                        if (file.getName().matches(".*\\.(" + extension + ")$")) {
                             Resource resource = createNonXmlResource(file, type, REGISTRY);
                             if (resource != null) {
                                 resources.add(resource);
