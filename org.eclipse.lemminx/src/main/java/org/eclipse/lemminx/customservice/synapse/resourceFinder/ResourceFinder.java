@@ -340,7 +340,8 @@ public class ResourceFinder {
 
         if (m.find()) {
             String type = m.group(3);
-            String path = m.group(4).replaceAll("^/+", "");
+            String path = m.group(4).replaceAll("\\\\", "/");
+            path = path.replaceAll("^/+", "");
             return type + ":" + path;
         } else {
             return null;
