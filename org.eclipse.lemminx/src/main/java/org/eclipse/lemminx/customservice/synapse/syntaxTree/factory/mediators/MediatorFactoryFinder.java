@@ -172,7 +172,7 @@ public class MediatorFactoryFinder {
 
     public Mediator getMediator(DOMNode node) {
 
-        if (!node.getNodeName().equalsIgnoreCase(Constant.COMMENT)) {
+        if (node != null && node instanceof DOMElement && node.getNodeName() != null) {
             String mediatorName = node.getNodeName().toLowerCase();
             if (mediatorName.contains(Constant.DOT) && connectorHolder.isValidConnector(mediatorName)) {
                 mediatorName = Constant.CONNECTOR;
