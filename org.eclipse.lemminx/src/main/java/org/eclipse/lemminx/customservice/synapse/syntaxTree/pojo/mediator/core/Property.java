@@ -26,7 +26,7 @@ public class Property extends Mediator {
     String scope;
     String type;
     String pattern;
-    int group;
+    String group;
     String description;
     String name;
     String action;
@@ -73,12 +73,12 @@ public class Property extends Mediator {
         this.pattern = pattern;
     }
 
-    public int getGroup() {
+    public String getGroup() {
 
         return group;
     }
 
-    public void setGroup(int group) {
+    public void setGroup(String group) {
 
         this.group = group;
     }

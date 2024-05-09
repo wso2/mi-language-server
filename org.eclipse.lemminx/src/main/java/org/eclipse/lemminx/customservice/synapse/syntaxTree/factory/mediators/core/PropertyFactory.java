@@ -77,6 +77,10 @@ public class PropertyFactory extends AbstractMediatorFactory {
         if (action != null) {
             property.setAction(action);
         }
+        String group = element.getAttribute(Constant.GROUP);
+        if (group != null) {
+            property.setGroup(group);
+        }
         String description = element.getAttribute(Constant.DESCRIPTION);
         if (description != null) {
             property.setDescription(description);
