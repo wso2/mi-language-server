@@ -182,6 +182,9 @@ public class MediatorFactoryFinder {
                 Mediator mediator = (Mediator) factory.create((DOMElement) node);
                 mediator.elementNode((DOMElement) node);
                 return mediator;
+            } else {
+                Mediator invalidMediator = (Mediator) new InvalidMediatorFactory().create((DOMElement) node);
+                return invalidMediator;
             }
         }
         return null;
