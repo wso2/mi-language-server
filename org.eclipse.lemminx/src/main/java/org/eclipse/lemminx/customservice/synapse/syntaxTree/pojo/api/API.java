@@ -23,7 +23,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 public class API extends STNode {
 
     APIResource[] resource;
-    APIHandlers[] handlers;
+    APIHandlers handlers;
     String name;
     String context;
     String hostname;
@@ -45,12 +45,12 @@ public class API extends STNode {
         this.resource = resource;
     }
 
-    public APIHandlers[] getHandlers() {
+    public APIHandlers getHandlers() {
 
         return handlers;
     }
 
-    public void setHandlers(APIHandlers[] handlers) {
+    public void setHandlers(APIHandlers handlers) {
 
         this.handlers = handlers;
     }

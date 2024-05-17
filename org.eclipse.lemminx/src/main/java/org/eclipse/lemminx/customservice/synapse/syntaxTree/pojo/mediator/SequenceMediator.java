@@ -21,7 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator;
 import java.util.List;
 
 //This is the Sequence Mediator class
-public class FilterSequence extends Mediator {
+public class SequenceMediator extends Mediator {
 
     List<Mediator> mediatorList;
     String key;

@@ -25,7 +25,7 @@ import org.eclipse.lemminx.customservice.synapse.debugger.visitor.AbstractMediat
 import org.eclipse.lemminx.customservice.synapse.debugger.visitor.VisitorUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Connector;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.FilterSequence;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.SequenceMediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.Clone.Clone;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.Clone.CloneTarget;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.DataServiceCall.DataServiceCall;
@@ -718,7 +718,7 @@ public class BreakpointMediatorVisitor extends AbstractMediatorVisitor {
     }
 
     @Override
-    protected void visitSequence(FilterSequence node) {
+    protected void visitSequence(SequenceMediator node) {
 
         visitSimpleMediator(node);
     }

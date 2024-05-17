@@ -19,7 +19,7 @@
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators;
 
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.FilterSequence;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.SequenceMediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.utils.SyntaxTreeUtils;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
@@ -28,22 +28,22 @@ import org.eclipse.lemminx.dom.DOMNode;
 
 import java.util.List;
 
-public class FilterSequenceFactory extends AbstractMediatorFactory {
+public class SequenceMediatorFactory extends AbstractMediatorFactory {
 
     private static final String SEQUENCE = "sequence";
 
     @Override
     public Mediator createSpecificMediator(DOMElement element) {
 
-        FilterSequence filterSequence = new FilterSequence();
-        filterSequence.elementNode(element);
-        populateAttributes(filterSequence, element);
+        SequenceMediator sequenceMediator = new SequenceMediator();
+        sequenceMediator.elementNode(element);
+        populateAttributes(sequenceMediator, element);
         List<DOMNode> children = element.getChildren();
         if (children != null && !children.isEmpty()) {
             List<Mediator> mediators = SyntaxTreeUtils.createMediators(children);
-            filterSequence.setMediatorList(mediators);
+            sequenceMediator.setMediatorList(mediators);
         }
-        return filterSequence;
+        return sequenceMediator;
     }
 
     @Override
@@ -51,15 +51,15 @@ public class FilterSequenceFactory extends AbstractMediatorFactory {
 
         String key = element.getAttribute(Constant.KEY);
         if (key != null) {
-            ((FilterSequence) node).setKey(key);
+            ((SequenceMediator) node).setKey(key);
         }
         String name = element.getAttribute(Constant.NAME);
         if (name != null) {
-            ((FilterSequence) node).setName(name);
+            ((SequenceMediator) node).setName(name);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
         if (description != null) {
-            ((FilterSequence) node).setDescription(description);
+            ((SequenceMediator) node).setDescription(description);
         }
     }
 

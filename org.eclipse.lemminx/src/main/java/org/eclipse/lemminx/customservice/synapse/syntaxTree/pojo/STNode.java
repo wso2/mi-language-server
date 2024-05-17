@@ -37,6 +37,11 @@ public class STNode {
     String tag;
     HashMap<String, String> namespaces;
 
+    public STNode() {
+
+        this.namespaces = new HashMap<>();
+    }
+
     public void elementNode(DOMElement node) {
 
         this.selfClosed = node.isSelfClosed();
@@ -88,6 +93,11 @@ public class STNode {
         }
     }
 
+    public void addNamespace(String prefix, String uri) {
+
+        namespaces.put(prefix, uri);
+    }
+
     public Range getRange() {
 
         return range;
@@ -101,6 +111,16 @@ public class STNode {
     public boolean isSelfClosed() {
 
         return selfClosed;
+    }
+
+    public String getTextNode() {
+
+        return textNode;
+    }
+
+    public void setTextNode(String textNode) {
+
+        this.textNode = textNode;
     }
 
     public void setTag(String tag) {

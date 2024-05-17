@@ -41,7 +41,6 @@ public class APIFactory extends AbstractFactory {
         apiNode.elementNode(element);
         List<DOMNode> children = element.getChildren();
         List<APIResource> resources = new ArrayList<>();
-        List<APIHandlers> handlers = new ArrayList<>();
         populateAttributes(apiNode, element);
         if (Objects.nonNull(children)) {
             for (DOMNode node : children) {
@@ -50,12 +49,11 @@ public class APIFactory extends AbstractFactory {
                     resources.add((APIResource) resource);
                 } else if (node.getNodeName().equalsIgnoreCase(Constant.HANDLERS)) {
                     APIHandlers apiHandler = createAPIHandlers(node);
-                    handlers.add(apiHandler);
+                    apiNode.setHandlers(apiHandler);
                 }
             }
         }
         apiNode.setResource(resources.toArray(new APIResource[resources.size()]));
-        apiNode.setHandlers(handlers.toArray(new APIHandlers[handlers.size()]));
         return apiNode;
     }
 
