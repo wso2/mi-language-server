@@ -20,6 +20,7 @@ package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector;
 
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Connector extends Mediator {
@@ -27,6 +28,11 @@ public class Connector extends Mediator {
     String connectorName;
     String method;
     List<ConnectorParameter> parameters;
+
+    public Connector() {
+
+        this.parameters = new ArrayList<>();
+    }
 
     public String getConnectorName() {
 
@@ -56,5 +62,10 @@ public class Connector extends Mediator {
     public void setParameters(List<ConnectorParameter> parameters) {
 
         this.parameters = parameters;
+    }
+
+    public void addParameter(ConnectorParameter parameter) {
+
+        this.parameters.add(parameter);
     }
 }

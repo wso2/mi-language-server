@@ -18,14 +18,15 @@
 
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.fault;
 
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 
 public class Makefault extends Mediator {
 
     MakefaultCode code;
     MakefaultReason reason;
-    Object node;
-    Object role;
+    STNode node;
+    STNode role;
     MakefaultDetail detail;
     String version;
     boolean response;
@@ -51,22 +52,22 @@ public class Makefault extends Mediator {
         this.reason = reason;
     }
 
-    public Object getNode() {
+    public STNode getNode() {
 
         return node;
     }
 
-    public void setNode(Object node) {
+    public void setNode(STNode node) {
 
         this.node = node;
     }
 
-    public Object getRole() {
+    public STNode getRole() {
 
         return role;
     }
 
-    public void setRole(Object role) {
+    public void setRole(STNode role) {
 
         this.role = role;
     }

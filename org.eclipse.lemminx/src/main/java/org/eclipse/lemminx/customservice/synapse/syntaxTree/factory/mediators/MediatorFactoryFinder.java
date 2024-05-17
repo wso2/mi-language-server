@@ -136,7 +136,7 @@ public class MediatorFactoryFinder {
             XsltFactory.class,
             NtlmFactory.class,
             RewriteFactory.class,
-            FilterSequenceFactory.class,
+            SequenceMediatorFactory.class,
             ConnectorFactory.class
     };
 

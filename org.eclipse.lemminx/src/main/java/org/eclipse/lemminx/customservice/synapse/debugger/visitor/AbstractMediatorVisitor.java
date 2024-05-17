@@ -19,7 +19,7 @@
 package org.eclipse.lemminx.customservice.synapse.debugger.visitor;
 
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Connector;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.FilterSequence;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.SequenceMediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.Clone.Clone;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.DataServiceCall.DataServiceCall;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.DbMediator.DbMediator;
@@ -177,5 +177,5 @@ public abstract class AbstractMediatorVisitor {
 
     protected abstract void visitCallout(Callout node);
 
-    protected abstract void visitSequence(FilterSequence node);
+    protected abstract void visitSequence(SequenceMediator node);
 }
