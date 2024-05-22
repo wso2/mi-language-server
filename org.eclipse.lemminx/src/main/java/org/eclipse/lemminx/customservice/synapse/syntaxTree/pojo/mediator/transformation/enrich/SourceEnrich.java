@@ -26,7 +26,7 @@ public class SourceEnrich extends STNode {
     boolean clone;
     String xpath;
     String key;
-    String type;
+    SourceEnrichType type;
     String property;
 
     public Object getContent() {
@@ -69,12 +69,12 @@ public class SourceEnrich extends STNode {
         this.key = key;
     }
 
-    public String getType() {
+    public SourceEnrichType getType() {
 
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(SourceEnrichType type) {
 
         this.type = type;
     }

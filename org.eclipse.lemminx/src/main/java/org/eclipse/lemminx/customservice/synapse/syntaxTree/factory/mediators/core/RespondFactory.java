@@ -30,7 +30,7 @@ public class RespondFactory extends AbstractMediatorFactory {
     private static final String RESPOND = "respond";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Respond respond = new Respond();
         respond.elementNode(element);

@@ -35,7 +35,7 @@ public class CallTemplateFactory extends AbstractMediatorFactory {
     private static final String CALL_TEMPLATE = "call-template";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         CallTemplate callTemplate = new CallTemplate();
         callTemplate.elementNode(element);

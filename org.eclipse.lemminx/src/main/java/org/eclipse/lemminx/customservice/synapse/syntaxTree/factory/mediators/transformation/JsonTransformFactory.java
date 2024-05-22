@@ -36,7 +36,7 @@ public class JsonTransformFactory extends AbstractMediatorFactory {
     private static final String JSON_TRANSFORM = "jsontransform";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Jsontransform jsontransform = new Jsontransform();
         jsontransform.elementNode(element);

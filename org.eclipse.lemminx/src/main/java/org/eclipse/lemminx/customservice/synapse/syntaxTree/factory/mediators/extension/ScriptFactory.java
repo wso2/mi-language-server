@@ -22,6 +22,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.Ab
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.extension.Script;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.extension.ScriptLanguage;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
@@ -35,7 +36,7 @@ public class ScriptFactory extends AbstractMediatorFactory {
     private static final String SCRIPT = "script";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Script script = new Script();
         script.elementNode(element);
@@ -64,8 +65,9 @@ public class ScriptFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String language = element.getAttribute(Constant.LANGUAGE);
-        if (language != null) {
-            ((Script) node).setLanguage(language);
+        ScriptLanguage languageEnum = Utils.getEnumFromValue(language, ScriptLanguage.class);
+        if (languageEnum != null) {
+            ((Script) node).setLanguage(languageEnum);
         }
         String key = element.getAttribute(Constant.KEY);
         if (key != null) {

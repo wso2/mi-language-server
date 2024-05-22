@@ -21,9 +21,11 @@ package org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.t
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.AbstractMediatorFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.Xquery;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.XqueryVariable;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.xquery.Xquery;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.xquery.XqueryVariable;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.xquery.XqueryVariableType;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 
@@ -35,7 +37,7 @@ public class XqueryFactory extends AbstractMediatorFactory {
     private static final String XQUERY = "xquery";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Xquery xquery = new Xquery();
         xquery.elementNode(element);
@@ -80,8 +82,9 @@ public class XqueryFactory extends AbstractMediatorFactory {
             xqueryVariable.setName(name);
         }
         String type = element.getAttribute(Constant.TYPE);
-        if (type != null) {
-            xqueryVariable.setType(type);
+        XqueryVariableType typeEnum = Utils.getEnumFromValue(type, XqueryVariableType.class);
+        if (typeEnum != null) {
+            xqueryVariable.setType(typeEnum);
         }
         String expression = element.getAttribute(Constant.EXPRESSION);
         if (expression != null) {

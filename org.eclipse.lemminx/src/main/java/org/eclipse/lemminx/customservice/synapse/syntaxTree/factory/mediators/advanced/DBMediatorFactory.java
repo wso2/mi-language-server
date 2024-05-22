@@ -40,7 +40,7 @@ import java.util.List;
 public abstract class DBMediatorFactory extends AbstractMediatorFactory {
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         DbMediator dbMediator = new DbMediator();
         dbMediator.elementNode(element);

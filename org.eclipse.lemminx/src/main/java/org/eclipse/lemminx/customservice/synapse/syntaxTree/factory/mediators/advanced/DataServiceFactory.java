@@ -39,7 +39,7 @@ public class DataServiceFactory extends AbstractMediatorFactory {
     private static final String DATA_SERVICE_MEDIATOR = "dataservicecall";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         DataServiceCall dataServiceCall = new DataServiceCall();
         dataServiceCall.elementNode(element);

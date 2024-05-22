@@ -25,7 +25,7 @@ public class PojoCommandProperty extends STNode {
     Object[] any;
     String name;
     String contextName;
-    String action;
+    CommandPropertyAction action;
     String value;
     String expression;
 
@@ -59,12 +59,12 @@ public class PojoCommandProperty extends STNode {
         this.contextName = contextName;
     }
 
-    public String getAction() {
+    public CommandPropertyAction getAction() {
 
         return action;
     }
 
-    public void setAction(String action) {
+    public void setAction(CommandPropertyAction action) {
 
         this.action = action;
     }

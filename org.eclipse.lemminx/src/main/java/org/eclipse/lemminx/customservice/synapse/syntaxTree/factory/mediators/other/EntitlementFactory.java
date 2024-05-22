@@ -35,7 +35,7 @@ public class EntitlementFactory extends AbstractMediatorFactory {
     private static final String ENTITLEMENT = "entitlementService";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         EntitlementService entitlementService = new EntitlementService();
         entitlementService.elementNode(element);

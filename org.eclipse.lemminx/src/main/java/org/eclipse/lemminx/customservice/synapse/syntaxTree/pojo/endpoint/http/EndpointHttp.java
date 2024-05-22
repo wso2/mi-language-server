@@ -24,7 +24,7 @@ public class EndpointHttp extends STNode {
 
     EnableSecAndEnableRMAndEnableAddressing enableSecAndEnableRMAndEnableAddressing;
     String uriTemplate;
-    String method;
+    HttpMethod method;
     String statistics;
     String trace;
 
@@ -48,12 +48,12 @@ public class EndpointHttp extends STNode {
         this.uriTemplate = uriTemplate;
     }
 
-    public String getMethod() {
+    public HttpMethod getMethod() {
 
         return method;
     }
 
-    public void setMethod(String method) {
+    public void setMethod(HttpMethod method) {
 
         this.method = method;
     }

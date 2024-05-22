@@ -36,7 +36,7 @@ public class ClassFactory extends AbstractMediatorFactory {
     private static final String CLASS = "class";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Class clazz = new Class();
         clazz.elementNode(element);

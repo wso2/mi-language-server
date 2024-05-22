@@ -21,6 +21,8 @@ package org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.endpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.AbstractFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.DefaultEndpoint;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.Format;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.Optimize;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointEnableAddressing;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointEnableRM;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointEnableSec;
@@ -28,6 +30,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointSuspendOnFailure;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointTimeout;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 
@@ -73,12 +76,14 @@ public class DefaultEndpointFactory extends AbstractFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String format = element.getAttribute(Constant.FORMAT);
-        if (format != null && !format.isEmpty()) {
-            ((DefaultEndpoint) node).setFormat(format);
+        Format formatEnum = Utils.getEnumFromValue(format, Format.class);
+        if (formatEnum != null) {
+            ((DefaultEndpoint) node).setFormat(formatEnum);
         }
         String optimize = element.getAttribute(Constant.OPTIMIZE);
-        if (optimize != null && !optimize.isEmpty()) {
-            ((DefaultEndpoint) node).setOptimize(optimize);
+        Optimize optimizeEnum = Utils.getEnumFromValue(optimize, Optimize.class);
+        if (optimizeEnum != null) {
+            ((DefaultEndpoint) node).setOptimize(optimizeEnum);
         }
         String encoding = element.getAttribute(Constant.ENCODING);
         if (encoding != null && !encoding.isEmpty()) {

@@ -47,7 +47,7 @@ public class RuleFactory extends AbstractMediatorFactory {
     private static final String RULE = "brs:rule";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Rule rule = new Rule();
         rule.elementNode(element);

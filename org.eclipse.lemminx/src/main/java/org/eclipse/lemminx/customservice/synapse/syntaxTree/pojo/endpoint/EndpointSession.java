@@ -23,7 +23,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 public class EndpointSession extends STNode {
 
     int sessionTimeout;
-    String type;
+    SessionType type;
 
     public int getSessionTimeout() {
 
@@ -35,12 +35,12 @@ public class EndpointSession extends STNode {
         this.sessionTimeout = sessionTimeout;
     }
 
-    public String getType() {
+    public SessionType getType() {
 
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(SessionType type) {
 
         this.type = type;
     }

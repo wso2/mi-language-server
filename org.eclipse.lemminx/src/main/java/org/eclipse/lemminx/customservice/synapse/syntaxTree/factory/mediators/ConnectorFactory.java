@@ -38,11 +38,15 @@ public class ConnectorFactory extends AbstractMediatorFactory {
     @Override
     public void populateAttributes(STNode node, DOMElement element) {
 
+        String configKey = element.getAttribute("configKey");
+        if (configKey != null) {
+            ((Connector) node).setConfigKey(configKey);
+        }
         addConnectorParameters((Connector) node, element);
     }
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Connector connector = new Connector();
         connector.elementNode(element);

@@ -20,32 +20,14 @@ package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filte
 
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 
-import java.util.List;
-
 public class Filter extends Mediator {
 
-    List<Mediator> mediatorList;
     FilterThen then;
     FilterElse else_;
     String source;
     String regex;
     String xpath;
     String description;
-
-    public void addToMediatorList(Mediator mediator) {
-
-        mediatorList.add(mediator);
-    }
-
-    public List<Mediator> getMediatorList() {
-
-        return mediatorList;
-    }
-
-    public void setMediatorList(List<Mediator> mediatorList) {
-
-        this.mediatorList = mediatorList;
-    }
 
     public FilterThen getThen() {
 

@@ -36,6 +36,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -87,7 +88,7 @@ public class Utils {
 
     public static int parseInt(String number) {
 
-        int value = 0;
+        int value = -1;
         try {
             value = Integer.parseInt(number);
         } catch (NumberFormatException e) {
@@ -404,6 +405,27 @@ public class Utils {
         JsonElement jsonElement = JsonParser.parseString(content);
         if (jsonElement.isJsonObject()) {
             return jsonElement.getAsJsonObject();
+        }
+        return null;
+    }
+
+    public static <T extends Enum<T>> T getEnumFromValue(String value, Class<T> enumClass) {
+
+        if (value != null) {
+            try {
+                return Enum.valueOf(enumClass, value);
+            } catch (IllegalArgumentException e) {
+                try {
+                    Method method = enumClass.getDeclaredMethod("getValue");
+                    for (T enumValue : enumClass.getEnumConstants()) {
+                        String valueOfEnum = (String) method.invoke(enumValue);
+                        if (valueOfEnum.equals(value)) {
+                            return enumValue;
+                        }
+                    }
+                } catch (Exception ex) {
+                }
+            }
         }
         return null;
     }

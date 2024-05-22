@@ -22,7 +22,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.M
 
 public class EndpointProperty extends MediatorProperty {
 
-    String scope;
+    EndpointPropertyScope scope;
 
     public EndpointProperty(MediatorProperty mediatorProperty) {
 
@@ -33,12 +33,12 @@ public class EndpointProperty extends MediatorProperty {
         setContent(mediatorProperty.getContent());
     }
 
-    public String getScope() {
+    public EndpointPropertyScope getScope() {
 
         return scope;
     }
 
-    public void setScope(String scope) {
+    public void setScope(EndpointPropertyScope scope) {
 
         this.scope = scope;
     }

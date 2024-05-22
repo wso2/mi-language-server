@@ -31,7 +31,7 @@ public class EnqueueFactory extends AbstractMediatorFactory {
     private static final String ENQUEUE = "enqueue";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Enqueue enqueue = new Enqueue();
         enqueue.elementNode(element);

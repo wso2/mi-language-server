@@ -30,7 +30,7 @@ public class OauthServiceFactory extends AbstractMediatorFactory {
     private static final String OAUTH = "oauthService";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         OauthService oauthService = new OauthService();
         oauthService.elementNode(element);

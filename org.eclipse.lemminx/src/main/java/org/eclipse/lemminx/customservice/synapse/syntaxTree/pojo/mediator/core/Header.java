@@ -25,7 +25,7 @@ public class Header extends Mediator {
     Object any;
     String name;
     String action;
-    String scope;
+    HeaderScope scope;
     String description;
     String value;
     String expression;
@@ -60,12 +60,12 @@ public class Header extends Mediator {
         this.action = action;
     }
 
-    public String getScope() {
+    public HeaderScope getScope() {
 
         return scope;
     }
 
-    public void setScope(String scope) {
+    public void setScope(HeaderScope scope) {
 
         this.scope = scope;
     }

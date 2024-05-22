@@ -30,7 +30,7 @@ public class EventFactory extends AbstractMediatorFactory {
     private static final String EVENT = "event";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Event event = new Event();
         event.elementNode(element);

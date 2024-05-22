@@ -25,7 +25,7 @@ public class Datamapper extends Mediator {
     String config;
     String inputSchema;
     String outputSchema;
-    String inputType;
+    SchemaType inputType;
     SchemaType outputType;
     String xsltStyleSheet;
     String description;
@@ -60,12 +60,12 @@ public class Datamapper extends Mediator {
         this.outputSchema = outputSchema;
     }
 
-    public String getInputType() {
+    public SchemaType getInputType() {
 
         return inputType;
     }
 
-    public void setInputType(String inputType) {
+    public void setInputType(SchemaType inputType) {
 
         this.inputType = inputType;
     }

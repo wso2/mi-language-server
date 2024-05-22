@@ -23,8 +23,11 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.smooks.Smooks;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.smooks.SmooksInput;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.smooks.SmooksInputType;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.smooks.SmooksOutput;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.smooks.SmooksOutputType;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 
@@ -35,7 +38,7 @@ public class SmooksFactory extends AbstractMediatorFactory {
     private static final String SMOOKS = "smooks";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Smooks smooks = new Smooks();
         smooks.elementNode(element);
@@ -73,8 +76,9 @@ public class SmooksFactory extends AbstractMediatorFactory {
         SmooksInput smooksInput = new SmooksInput();
         smooksInput.elementNode((DOMElement) childNode);
         String type = childNode.getAttribute(Constant.TYPE);
-        if (type != null) {
-            smooksInput.setType(type);
+        SmooksInputType typeEnum = Utils.getEnumFromValue(type, SmooksInputType.class);
+        if (typeEnum != null) {
+            smooksInput.setType(typeEnum);
         }
         String expression = childNode.getAttribute(Constant.EXPRESSION);
         if (expression != null) {
@@ -88,8 +92,9 @@ public class SmooksFactory extends AbstractMediatorFactory {
         SmooksOutput smooksOutput = new SmooksOutput();
         smooksOutput.elementNode((DOMElement) element);
         String type = element.getAttribute(Constant.TYPE);
-        if (type != null) {
-            smooksOutput.setType(type);
+        SmooksOutputType typeEnum = Utils.getEnumFromValue(type, SmooksOutputType.class);
+        if (typeEnum != null) {
+            smooksOutput.setType(typeEnum);
         }
         String property = element.getAttribute(Constant.PROPERTY);
         if (property != null) {

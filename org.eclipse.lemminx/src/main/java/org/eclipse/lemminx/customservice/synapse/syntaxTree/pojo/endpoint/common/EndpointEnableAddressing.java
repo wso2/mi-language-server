@@ -22,15 +22,15 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 
 public class EndpointEnableAddressing extends STNode {
 
-    String version;
+    EnableAddressingVersion version;
     boolean separateListener;
 
-    public String getVersion() {
+    public EnableAddressingVersion getVersion() {
 
         return version;
     }
 
-    public void setVersion(String version) {
+    public void setVersion(EnableAddressingVersion version) {
 
         this.version = version;
     }

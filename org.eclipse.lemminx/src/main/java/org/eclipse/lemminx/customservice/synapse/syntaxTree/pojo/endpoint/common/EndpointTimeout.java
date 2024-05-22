@@ -24,6 +24,8 @@ import java.util.List;
 
 public class EndpointTimeout extends STNode {
 
+    STNode duration;
+    STNode responseAction;
     List<Object> content;
 
     public List<Object> getContent() {
@@ -34,5 +36,25 @@ public class EndpointTimeout extends STNode {
     public void setContent(List<Object> content) {
 
         this.content = content;
+    }
+
+    public STNode getDuration() {
+
+        return duration;
+    }
+
+    public void setDuration(STNode duration) {
+
+        this.duration = duration;
+    }
+
+    public STNode getResponseAction() {
+
+        return responseAction;
+    }
+
+    public void setResponseAction(STNode responseAction) {
+
+        this.responseAction = responseAction;
     }
 }

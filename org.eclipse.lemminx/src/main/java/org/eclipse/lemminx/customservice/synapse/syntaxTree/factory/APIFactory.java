@@ -24,7 +24,10 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.APIHandlers
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.APIHandlersHandler;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.APIHandlersHandlerProperty;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.APIResource;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.ApiVersionType;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.EnableDisable;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 
@@ -82,8 +85,9 @@ public class APIFactory extends AbstractFactory {
             api.setVersion(version);
         }
         String versionType = element.getAttribute(Constant.VERSION_TYPE);
-        if (Objects.nonNull(versionType)) {
-            api.setVersionType(versionType);
+        ApiVersionType versionTypeEnum = Utils.getEnumFromValue(versionType, ApiVersionType.class);
+        if (Objects.nonNull(versionTypeEnum)) {
+            api.setVersionType(versionTypeEnum);
         }
         String publishSwagger = element.getAttribute(Constant.PUBLISH_SWAGGER);
         if (Objects.nonNull(publishSwagger)) {
@@ -94,12 +98,14 @@ public class APIFactory extends AbstractFactory {
             api.setDescription(description);
         }
         String statistics = element.getAttribute(Constant.STATISTICS);
-        if (Objects.nonNull(statistics)) {
-            api.setStatistics(statistics);
+        EnableDisable statisticsEnum = Utils.getEnumFromValue(statistics, EnableDisable.class);
+        if (Objects.nonNull(statisticsEnum)) {
+            api.setStatistics(statisticsEnum);
         }
         String trace = element.getAttribute(Constant.TRACE);
-        if (Objects.nonNull(trace)) {
-            api.setTrace(trace);
+        EnableDisable traceEnum = Utils.getEnumFromValue(trace, EnableDisable.class);
+        if (Objects.nonNull(traceEnum)) {
+            api.setTrace(traceEnum);
         }
     }
 

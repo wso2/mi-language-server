@@ -23,7 +23,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 public class CacheImplementation extends STNode {
 
     int maxSize;
-    String type;
+    CacheImplementationType type;
 
     public int getMaxSize() {
 
@@ -35,12 +35,12 @@ public class CacheImplementation extends STNode {
         this.maxSize = maxSize;
     }
 
-    public String getType() {
+    public CacheImplementationType getType() {
 
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(CacheImplementationType type) {
 
         this.type = type;
     }

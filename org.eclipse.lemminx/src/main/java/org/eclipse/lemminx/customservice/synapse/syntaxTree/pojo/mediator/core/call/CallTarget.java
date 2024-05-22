@@ -22,14 +22,14 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 
 public class CallTarget extends STNode {
 
-    String type;
+    CallTargetType type;
 
-    public String getType() {
+    public CallTargetType getType() {
 
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(CallTargetType type) {
 
         this.type = type;
     }

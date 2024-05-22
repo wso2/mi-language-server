@@ -127,4 +127,9 @@ public class STNode {
 
         this.tag = tag;
     }
+
+    public HashMap<String, String> getNamespaces() {
+
+        return namespaces;
+    }
 }

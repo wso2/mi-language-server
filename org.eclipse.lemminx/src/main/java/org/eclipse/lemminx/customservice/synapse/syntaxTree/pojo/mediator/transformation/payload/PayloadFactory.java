@@ -24,8 +24,8 @@ public class PayloadFactory extends Mediator {
 
     PayloadFactoryFormat format;
     PayloadFactoryArgs args;
-    String mediaType;
-    String templateType;
+    MediaType mediaType;
+    TemplateType templateType;
     String description;
 
     public PayloadFactoryFormat getFormat() {
@@ -48,22 +48,22 @@ public class PayloadFactory extends Mediator {
         this.args = args;
     }
 
-    public String getMediaType() {
+    public MediaType getMediaType() {
 
         return mediaType;
     }
 
-    public void setMediaType(String mediaType) {
+    public void setMediaType(MediaType mediaType) {
 
         this.mediaType = mediaType;
     }
 
-    public String getTemplateType() {
+    public TemplateType getTemplateType() {
 
         return templateType;
     }
 
-    public void setTemplateType(String templateType) {
+    public void setTemplateType(TemplateType templateType) {
 
         this.templateType = templateType;
     }

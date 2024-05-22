@@ -22,7 +22,9 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.Ab
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.Transaction;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.TransactionAction;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
 
 public class TransactionFactory extends AbstractMediatorFactory {
@@ -30,7 +32,7 @@ public class TransactionFactory extends AbstractMediatorFactory {
     private static final String TRANSACTION = "transaction";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Transaction transaction = new Transaction();
         transaction.elementNode(element);
@@ -43,8 +45,9 @@ public class TransactionFactory extends AbstractMediatorFactory {
 
         Transaction transaction = (Transaction) node;
         String action = element.getAttribute(Constant.ACTION);
-        if (action != null) {
-            transaction.setAction(action);
+        TransactionAction actionEnum = Utils.getEnumFromValue(action, TransactionAction.class);
+        if (actionEnum != null) {
+            transaction.setAction(actionEnum);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
         if (description != null) {

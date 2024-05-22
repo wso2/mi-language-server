@@ -29,15 +29,12 @@ import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class IterateFactory extends AbstractMediatorFactory {
 
     private static final String ITERATE = "iterate";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Iterate iterate = new Iterate();
         iterate.elementNode(element);

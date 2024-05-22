@@ -23,7 +23,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediat
 public class Script extends Mediator {
 
     Object[] content;
-    String language;
+    ScriptLanguage language;
     String key;
     String[] include;
     String function;
@@ -39,12 +39,12 @@ public class Script extends Mediator {
         this.content = content;
     }
 
-    public String getLanguage() {
+    public ScriptLanguage getLanguage() {
 
         return language;
     }
 
-    public void setLanguage(String language) {
+    public void setLanguage(ScriptLanguage language) {
 
         this.language = language;
     }

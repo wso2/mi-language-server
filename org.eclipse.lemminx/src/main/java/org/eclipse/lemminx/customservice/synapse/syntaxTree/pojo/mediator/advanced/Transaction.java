@@ -22,15 +22,15 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediat
 
 public class Transaction extends Mediator {
 
-    String action;
+    TransactionAction action;
     String description;
 
-    public String getAction() {
+    public TransactionAction getAction() {
 
         return action;
     }
 
-    public void setAction(String action) {
+    public void setAction(TransactionAction action) {
 
         this.action = action;
     }

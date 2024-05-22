@@ -35,7 +35,7 @@ public class BuilderFactory extends AbstractMediatorFactory {
     private static final String BUILDER = "syn:builder";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Builder builder = new Builder();
         builder.elementNode(element);

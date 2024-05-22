@@ -21,11 +21,13 @@ package org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.t
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.AbstractMediatorFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.fault.FaultVersion;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.fault.Makefault;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.fault.MakefaultCode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.fault.MakefaultDetail;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.fault.MakefaultReason;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 
@@ -36,7 +38,7 @@ public class FaultFactory extends AbstractMediatorFactory {
     private static final String FAULT = "makefault";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Makefault makefault = new Makefault();
         makefault.elementNode(element);
@@ -82,8 +84,9 @@ public class FaultFactory extends AbstractMediatorFactory {
             ((Makefault) node).setDescription(description);
         }
         String version = element.getAttribute(Constant.VERSION);
-        if (version != null) {
-            ((Makefault) node).setVersion(version);
+        FaultVersion faultVersion = Utils.getEnumFromValue(version, FaultVersion.class);
+        if (faultVersion != null) {
+            ((Makefault) node).setVersion(faultVersion);
         }
         String response = element.getAttribute(Constant.RESPONSE);
         if (response != null) {

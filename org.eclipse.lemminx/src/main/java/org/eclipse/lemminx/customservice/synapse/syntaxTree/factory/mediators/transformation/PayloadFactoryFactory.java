@@ -21,10 +21,13 @@ package org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.t
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.AbstractMediatorFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.payload.EvaluatorType;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.payload.MediaType;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.payload.PayloadFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.payload.PayloadFactoryArgs;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.payload.PayloadFactoryArgsArg;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.payload.PayloadFactoryFormat;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.payload.TemplateType;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
@@ -38,7 +41,7 @@ public class PayloadFactoryFactory extends AbstractMediatorFactory {
     private static final String PAYLOAD_FACTORY = "payloadFactory";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         PayloadFactory payloadFactory = new PayloadFactory();
         payloadFactory.elementNode(element);
@@ -85,8 +88,9 @@ public class PayloadFactoryFactory extends AbstractMediatorFactory {
             arg.setValue(value);
         }
         String evaluator = element.getAttribute(Constant.EVALUATOR);
-        if (evaluator != null) {
-            arg.setEvaluator(evaluator);
+        EvaluatorType evaluatorEnum = Utils.getEnumFromValue(evaluator, EvaluatorType.class);
+        if (evaluatorEnum != null) {
+            arg.setEvaluator(evaluatorEnum);
         }
         String expression = element.getAttribute(Constant.EXPRESSION);
         if (expression != null) {
@@ -119,12 +123,14 @@ public class PayloadFactoryFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String mediaType = element.getAttribute(Constant.MEDIA_TYPE);
-        if (mediaType != null) {
-            ((PayloadFactory) node).setMediaType(mediaType);
+        MediaType mediaTypeEnum = Utils.getEnumFromValue(mediaType, MediaType.class);
+        if (mediaTypeEnum != null) {
+            ((PayloadFactory) node).setMediaType(mediaTypeEnum);
         }
         String templateType = element.getAttribute(Constant.TEMPLATE_TYPE);
-        if (templateType != null) {
-            ((PayloadFactory) node).setTemplateType(templateType);
+        TemplateType templateTypeEnum = Utils.getEnumFromValue(templateType, TemplateType.class);
+        if (templateTypeEnum != null) {
+            ((PayloadFactory) node).setTemplateType(templateTypeEnum);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
         if (description != null) {

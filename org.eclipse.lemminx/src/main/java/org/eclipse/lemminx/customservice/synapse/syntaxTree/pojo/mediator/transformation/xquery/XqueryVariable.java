@@ -16,14 +16,14 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation;
+package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.xquery;
 
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 
 public class XqueryVariable extends STNode {
 
     String name;
-    String type;
+    XqueryVariableType type;
     String expression;
     String value;
     String key;
@@ -38,12 +38,12 @@ public class XqueryVariable extends STNode {
         this.name = name;
     }
 
-    public String getType() {
+    public XqueryVariableType getType() {
 
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(XqueryVariableType type) {
 
         this.type = type;
     }
