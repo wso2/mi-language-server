@@ -16,9 +16,10 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.call;
+package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.DataServiceCall;
 
-public enum CallTargetType {
-    property,
+public enum DataServiceCallSourceType {
+
+    inline,
     body
 }

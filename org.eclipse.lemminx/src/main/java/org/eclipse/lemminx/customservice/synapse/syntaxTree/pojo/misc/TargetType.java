@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,21 +16,9 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.DataServiceCall;
+package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc;
 
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
-
-public class DataServiceCallSource extends STNode {
-
-    DataServiceCallSourceType type;
-
-    public DataServiceCallSourceType getType() {
-
-        return type;
-    }
-
-    public void setType(DataServiceCallSourceType type) {
-
-        this.type = type;
-    }
+public enum TargetType {
+    property,
+    body
 }

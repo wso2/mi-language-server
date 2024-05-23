@@ -31,7 +31,7 @@ public class EntitlementService extends Mediator {
     String remoteServiceUserName;
     String remoteServicePassword;
     String callbackClass;
-    String client;
+    EntitlementServiceClient client;
     String thriftHost;
     String thriftPort;
     String onRejectAttribute;
@@ -120,12 +120,12 @@ public class EntitlementService extends Mediator {
         this.callbackClass = callbackClass;
     }
 
-    public String getClient() {
+    public EntitlementServiceClient getClient() {
 
         return client;
     }
 
-    public void setClient(String client) {
+    public void setClient(EntitlementServiceClient client) {
 
         this.client = client;
     }

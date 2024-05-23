@@ -18,6 +18,7 @@
 
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo;
 
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.EnableDisable;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 
 import java.util.List;
@@ -28,8 +29,8 @@ public class NamedSequence extends STNode {
     String name;
     String onError;
     String description;
-    String statistics;
-    String trace;
+    EnableDisable statistics;
+    EnableDisable trace;
 
     public List<Mediator> getMediatorList() {
 
@@ -71,22 +72,22 @@ public class NamedSequence extends STNode {
         this.description = description;
     }
 
-    public String getStatistics() {
+    public EnableDisable getStatistics() {
 
         return statistics;
     }
 
-    public void setStatistics(String statistics) {
+    public void setStatistics(EnableDisable statistics) {
 
         this.statistics = statistics;
     }
 
-    public String getTrace() {
+    public EnableDisable getTrace() {
 
         return trace;
     }
 
-    public void setTrace(String trace) {
+    public void setTrace(EnableDisable trace) {
 
         this.trace = trace;
     }

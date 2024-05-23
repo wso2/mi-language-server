@@ -20,16 +20,16 @@ package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo;
 
 public class LocalEntry extends STNode {
 
-    Object content;
+    String content;
     String key;
     String src;
 
-    public Object getContent() {
+    public String getContent() {
 
         return content;
     }
 
-    public void setContent(Object content) {
+    public void setContent(String content) {
 
         this.content = content;
     }

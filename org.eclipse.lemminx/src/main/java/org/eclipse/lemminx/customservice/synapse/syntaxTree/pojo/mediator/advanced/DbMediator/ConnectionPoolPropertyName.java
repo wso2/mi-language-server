@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,30 +18,18 @@
 
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.DbMediator;
 
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+public enum ConnectionPoolPropertyName {
 
-public class DbMediatorConnectionPoolProperty extends STNode {
-
-    ConnectionPoolPropertyName name;
-    String value;
-
-    public ConnectionPoolPropertyName getName() {
-
-        return name;
-    }
-
-    public void setName(ConnectionPoolPropertyName name) {
-
-        this.name = name;
-    }
-
-    public String getValue() {
-
-        return value;
-    }
-
-    public void setValue(String value) {
-
-        this.value = value;
-    }
+    autocommit,
+    isolation,
+    initialsize,
+    maxactive,
+    maxidle,
+    maxopenstatements,
+    maxwait,
+    minidle,
+    poolstatements,
+    testonborrow,
+    testwhileidle,
+    validationquery
 }

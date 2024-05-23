@@ -27,7 +27,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.c
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.call.CallSource;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.call.CallSourceType;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.call.CallTarget;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.call.CallTargetType;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.TargetType;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
@@ -109,7 +109,7 @@ public class CallFactory extends AbstractMediatorFactory {
     private void populateTargetAttributes(CallTarget callTarget, DOMElement element) {
 
         String type = element.getAttribute(Constant.TYPE);
-        CallTargetType targetType = Utils.getEnumFromValue(type, CallTargetType.class);
+        TargetType targetType = Utils.getEnumFromValue(type, TargetType.class);
         if (targetType != null) {
             callTarget.setType(targetType);
         }

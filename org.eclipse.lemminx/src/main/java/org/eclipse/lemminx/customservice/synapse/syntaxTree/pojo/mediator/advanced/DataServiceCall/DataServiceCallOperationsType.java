@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,30 +18,21 @@
 
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.DataServiceCall;
 
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+public enum DataServiceCallOperationsType {
 
-public class DataServiceCallOperations extends STNode {
+    SINGLE("single"),
+    BATCH("batch"),
+    REQUEST_BOX("request-box");
 
-    DataServiceCallOperationsOperation[] operation;
-    DataServiceCallOperationsType type;
+    private final String value;
 
-    public DataServiceCallOperationsOperation[] getOperation() {
+    DataServiceCallOperationsType(String value) {
 
-        return operation;
+        this.value = value;
     }
 
-    public void setOperation(DataServiceCallOperationsOperation[] operation) {
+    public String getValue() {
 
-        this.operation = operation;
-    }
-
-    public DataServiceCallOperationsType getType() {
-
-        return type;
-    }
-
-    public void setType(DataServiceCallOperationsType type) {
-
-        this.type = type;
+        return value;
     }
 }

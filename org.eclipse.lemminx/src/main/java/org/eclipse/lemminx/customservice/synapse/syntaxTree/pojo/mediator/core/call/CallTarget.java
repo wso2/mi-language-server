@@ -19,17 +19,18 @@
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.call;
 
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.TargetType;
 
 public class CallTarget extends STNode {
 
-    CallTargetType type;
+    TargetType type;
 
-    public CallTargetType getType() {
+    public TargetType getType() {
 
         return type;
     }
 
-    public void setType(CallTargetType type) {
+    public void setType(TargetType type) {
 
         this.type = type;
     }

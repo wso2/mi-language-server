@@ -23,7 +23,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 public class ConnectorParameter extends STNode {
 
     String name;
-    Boolean isExpression;
+    boolean isExpression;
     String value;
     String expression;
 
@@ -37,12 +37,12 @@ public class ConnectorParameter extends STNode {
         this.name = name;
     }
 
-    public Boolean getIsExpression() {
+    public boolean getIsExpression() {
 
         return isExpression;
     }
 
-    public void setIsExpression(Boolean isExpression) {
+    public void setIsExpression(boolean isExpression) {
 
         this.isExpression = isExpression;
     }

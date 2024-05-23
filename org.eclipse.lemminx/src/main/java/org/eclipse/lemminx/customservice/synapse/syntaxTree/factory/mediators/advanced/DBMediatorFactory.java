@@ -21,6 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.a
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.AbstractMediatorFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.DbMediator.ConnectionPoolPropertyName;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.DbMediator.DbMediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.DbMediator.DbMediatorConnection;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.DbMediator.DbMediatorConnectionPool;
@@ -28,6 +29,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanc
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.DbMediator.DbMediatorStatement;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.DbMediator.DbMediatorStatementParameter;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.DbMediator.DbMediatorStatementResult;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.DbMediator.StatementParameterType;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.KeyAttribute;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
@@ -136,8 +138,9 @@ public abstract class DBMediatorFactory extends AbstractMediatorFactory {
         DbMediatorConnectionPoolProperty dbMediatorProperty = new DbMediatorConnectionPoolProperty();
         dbMediatorProperty.elementNode(node);
         String name = node.getAttribute(Constant.NAME);
-        if (name != null) {
-            dbMediatorProperty.setName(name);
+        ConnectionPoolPropertyName nameEnum = Utils.getEnumFromValue(name, ConnectionPoolPropertyName.class);
+        if (nameEnum != null) {
+            dbMediatorProperty.setName(nameEnum);
         }
         String value = node.getAttribute(Constant.VALUE);
         if (value != null) {
@@ -194,8 +197,9 @@ public abstract class DBMediatorFactory extends AbstractMediatorFactory {
         DbMediatorStatementParameter dbMediatorStatementParameter = new DbMediatorStatementParameter();
         dbMediatorStatementParameter.elementNode(node);
         String type = node.getAttribute(Constant.TYPE);
-        if (type != null) {
-            dbMediatorStatementParameter.setType(type);
+        StatementParameterType typeEnum = Utils.getEnumFromValue(type, StatementParameterType.class);
+        if (typeEnum != null) {
+            dbMediatorStatementParameter.setType(typeEnum);
         }
         String value = node.getAttribute(Constant.VALUE);
         if (value != null) {

@@ -22,9 +22,11 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.Ab
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.other.entitlement.EntitlementService;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.other.entitlement.EntitlementServiceClient;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.utils.SyntaxTreeUtils;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 
@@ -81,8 +83,9 @@ public class EntitlementFactory extends AbstractMediatorFactory {
             ((EntitlementService) node).setCallbackClass(callbackClass);
         }
         String client = element.getAttribute(Constant.CLIENT);
-        if (client != null) {
-            ((EntitlementService) node).setClient(client);
+        EntitlementServiceClient clientEnum = Utils.getEnumFromValue(client, EntitlementServiceClient.class);
+        if (clientEnum != null) {
+            ((EntitlementService) node).setClient(clientEnum);
         }
         String thriftHost = element.getAttribute(Constant.THRIFT_HOST);
         if (thriftHost != null) {
