@@ -23,7 +23,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 public class Parameter extends STNode {
 
     Object otherAttributes;
-    Object[] content;
+    String content;
     String name;
     String key;
     boolean locked;
@@ -38,12 +38,12 @@ public class Parameter extends STNode {
         this.otherAttributes = otherAttributes;
     }
 
-    public Object[] getContent() {
+    public String getContent() {
 
         return content;
     }
 
-    public void setContent(Object[] content) {
+    public void setContent(String content) {
 
         this.content = content;
     }

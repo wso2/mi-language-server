@@ -22,6 +22,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.endpoint.End
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.misc.Wsdl11Factory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.misc.Wsdl20Factory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.EnableDisable;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.NamedEndpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Parameter;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
@@ -29,6 +30,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.wsdl11.TDe
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.wsdl20.DescriptionType;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.proxy.Proxy;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.proxy.ProxyPolicy;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.proxy.ProxyPolicyType;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.proxy.ProxyPublishWSDL;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.proxy.ProxyTarget;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.proxy.Resource;
@@ -219,8 +221,9 @@ public class ProxyFactory extends AbstractFactory {
             policy.setKey(key);
         }
         String type = node.getAttribute(Constant.TYPE);
-        if (type != null) {
-            policy.setType(type);
+        ProxyPolicyType policyType = Utils.getEnumFromValue(type, ProxyPolicyType.class);
+        if (policyType != null) {
+            policy.setType(policyType);
         }
         return policy;
     }
@@ -249,12 +252,14 @@ public class ProxyFactory extends AbstractFactory {
             ((Proxy) node).setStartOnLoad(Boolean.valueOf(startOnLoad));
         }
         String statistics = element.getAttribute(Constant.STATISTICS);
-        if (statistics != null) {
-            ((Proxy) node).setStatistics(statistics);
+        EnableDisable statisticsEnum = Utils.getEnumFromValue(statistics, EnableDisable.class);
+        if (statisticsEnum != null) {
+            ((Proxy) node).setStatistics(statisticsEnum);
         }
         String trace = element.getAttribute(Constant.TRACE);
-        if (trace != null) {
-            ((Proxy) node).setTrace(trace);
+        EnableDisable traceEnum = Utils.getEnumFromValue(trace, EnableDisable.class);
+        if (traceEnum != null) {
+            ((Proxy) node).setTrace(traceEnum);
         }
     }
 }

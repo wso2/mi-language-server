@@ -69,6 +69,10 @@ public class TemplateFactory extends AbstractFactory {
         if (name != null) {
             ((Template) node).setName(name);
         }
+        String onError = element.getAttribute(Constant.ON_ERROR);
+        if (onError != null) {
+            ((Template) node).setOnError(onError);
+        }
     }
 
     private TemplateParameter createTemplateParameter(DOMNode element) {
@@ -87,6 +91,11 @@ public class TemplateFactory extends AbstractFactory {
         if (defaultValue != null) {
             parameter.setDefaultValue(defaultValue);
         }
+        String paramNamespacePrefix = element.getPrefix();
+        if (paramNamespacePrefix != null) {
+            parameter.setParamNamespacePrefix(paramNamespacePrefix);
+        }
+
         //TODO: handle xs:anytype (skipped as not used in Integration Studio)
 
         return parameter;

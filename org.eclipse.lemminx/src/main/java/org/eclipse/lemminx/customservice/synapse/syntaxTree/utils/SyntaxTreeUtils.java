@@ -157,6 +157,10 @@ public class SyntaxTreeUtils {
         if (locked != null && !locked.isEmpty()) {
             parameter.setLocked(Boolean.parseBoolean(locked));
         }
+        String content = Utils.getInlineString(child.getFirstChild());
+        if (content != null && !content.isEmpty()) {
+            parameter.setContent(content);
+        }
         return parameter;
     }
 

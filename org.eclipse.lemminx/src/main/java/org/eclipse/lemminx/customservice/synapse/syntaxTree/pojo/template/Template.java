@@ -28,6 +28,7 @@ public class Template extends STNode {
     NamedEndpoint endpoint;
     NamedSequence sequence;
     String name;
+    String onError;
 
     public TemplateParameter[] getParameter() {
 
@@ -67,5 +68,15 @@ public class Template extends STNode {
     public void setName(String name) {
 
         this.name = name;
+    }
+
+    public String getOnError() {
+
+        return onError;
+    }
+
+    public void setOnError(String onError) {
+
+        this.onError = onError;
     }
 }

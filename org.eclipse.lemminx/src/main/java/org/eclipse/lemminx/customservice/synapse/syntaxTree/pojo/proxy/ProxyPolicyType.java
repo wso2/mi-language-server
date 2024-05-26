@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,30 +18,8 @@
 
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.proxy;
 
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+public enum ProxyPolicyType {
 
-public class ProxyPolicy extends STNode {
-
-    String key;
-    ProxyPolicyType type;
-
-    public String getKey() {
-
-        return key;
-    }
-
-    public void setKey(String key) {
-
-        this.key = key;
-    }
-
-    public ProxyPolicyType getType() {
-
-        return type;
-    }
-
-    public void setType(ProxyPolicyType type) {
-
-        this.type = type;
-    }
+    in,
+    out
 }

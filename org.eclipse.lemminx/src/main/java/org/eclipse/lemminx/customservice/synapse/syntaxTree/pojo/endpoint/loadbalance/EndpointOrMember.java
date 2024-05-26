@@ -46,4 +46,14 @@ public class EndpointOrMember extends STNode {
 
         this.member = member;
     }
+
+    public boolean isEndpoint() {
+
+        return endpoint.isPresent();
+    }
+
+    public boolean isMember() {
+
+        return member.isPresent();
+    }
 }

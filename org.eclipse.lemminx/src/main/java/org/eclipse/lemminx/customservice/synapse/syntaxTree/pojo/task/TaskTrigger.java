@@ -24,7 +24,7 @@ public class TaskTrigger extends STNode {
 
     String interval;
     String count;
-    Object once;
+    boolean once;
     String cron;
 
     public String getInterval() {
@@ -47,12 +47,12 @@ public class TaskTrigger extends STNode {
         this.count = count;
     }
 
-    public Object getOnce() {
+    public boolean getOnce() {
 
         return once;
     }
 
-    public void setOnce(Object once) {
+    public void setOnce(boolean once) {
 
         this.once = once;
     }
