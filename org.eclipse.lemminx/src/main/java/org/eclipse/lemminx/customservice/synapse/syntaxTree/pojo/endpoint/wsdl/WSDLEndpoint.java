@@ -19,6 +19,9 @@
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.wsdl;
 
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.EnableDisable;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.Format;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.Optimize;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointEnableAddressing;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointEnableRM;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointEnableSec;
@@ -41,11 +44,11 @@ public class WSDLEndpoint extends STNode {
     String uri;
     String service;
     String port;
-    String format;
-    String optimize;
+    Format format;
+    Optimize optimize;
     String encoding;
-    String statistics;
-    String trace;
+    EnableDisable statistics;
+    EnableDisable trace;
 
     public TDefinitions getDefinitions() {
 
@@ -157,22 +160,22 @@ public class WSDLEndpoint extends STNode {
         this.port = port;
     }
 
-    public String getFormat() {
+    public Format getFormat() {
 
         return format;
     }
 
-    public void setFormat(String format) {
+    public void setFormat(Format format) {
 
         this.format = format;
     }
 
-    public String getOptimize() {
+    public Optimize getOptimize() {
 
         return optimize;
     }
 
-    public void setOptimize(String optimize) {
+    public void setOptimize(Optimize optimize) {
 
         this.optimize = optimize;
     }
@@ -187,22 +190,22 @@ public class WSDLEndpoint extends STNode {
         this.encoding = encoding;
     }
 
-    public String getStatistics() {
+    public EnableDisable getStatistics() {
 
         return statistics;
     }
 
-    public void setStatistics(String statistics) {
+    public void setStatistics(EnableDisable statistics) {
 
         this.statistics = statistics;
     }
 
-    public String getTrace() {
+    public EnableDisable getTrace() {
 
         return trace;
     }
 
-    public void setTrace(String trace) {
+    public void setTrace(EnableDisable trace) {
 
         this.trace = trace;
     }
