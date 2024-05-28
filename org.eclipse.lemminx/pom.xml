@@ -329,6 +329,22 @@
 		<dependency>
 			<groupId>org.wso2</groupId>
 			<artifactId>soaptorest</artifactId>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/soaptorest-1.6.jar</systemPath>
+			<exclusions>
+				<exclusion>
+					<groupId>com.github.java-json-tools</groupId>
+					<artifactId>json-schema-validator</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId> io.swagger.parser.v3</groupId>
+					<artifactId>swagger-parser-v2-converter</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 </project>
