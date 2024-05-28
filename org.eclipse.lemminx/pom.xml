@@ -35,6 +35,28 @@
 		</resources>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+				<version>3.1.1</version>
+				<configuration>
+					<file>${project.basedir}/lib/soaptorest-1.6.jar</file>
+					<groupId>org.wso2</groupId>
+					<artifactId>soaptorest</artifactId>
+					<version>1.6</version>
+					<packaging>jar</packaging>
+					<generatePom>true</generatePom>
+				</configuration>
+				<executions>
+					<execution>
+						<id>install-jar-lib</id>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+						<phase>initialize</phase>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
 				<version>3.3.0</version>
@@ -329,8 +351,6 @@
 		<dependency>
 			<groupId>org.wso2</groupId>
 			<artifactId>soaptorest</artifactId>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/soaptorest-1.6.jar</systemPath>
 			<exclusions>
 				<exclusion>
 					<groupId>com.github.java-json-tools</groupId>
