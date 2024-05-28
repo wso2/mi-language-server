@@ -85,23 +85,10 @@ public class PayloadFactoryMediatorSerializer extends AbstractMediatorSerializer
         }
     }
 
-//    public static String removeCDATAFromPayload(String inputPayload) {
-//
-//        if (inputPayload.startsWith("<![CDATA[")) {
-//            inputPayload = inputPayload.substring(9);
-//            int i = inputPayload.lastIndexOf("]]>");
-//            if (i == -1)
-//                throw new IllegalStateException("argument starts with <![CDATA[ but cannot find pairing ]]>");
-//            inputPayload = inputPayload.substring(0, i);
-//        }
-//
-//        return inputPayload;
-//    }
-
     private void serializeArgs(OMElement payloadFactoryElt, PayloadFactoryArgs args) {
 
+        OMElement argsElt = fac.createOMElement("args", synNS);
         if (args != null && args.getArg() != null) {
-            OMElement argsElt = fac.createOMElement("args", synNS);
             PayloadFactoryArgsArg[] argsList = args.getArg();
             for (PayloadFactoryArgsArg arg : argsList) {
                 OMElement argElt = serializeArg(arg);
@@ -109,8 +96,8 @@ public class PayloadFactoryMediatorSerializer extends AbstractMediatorSerializer
                     argsElt.addChild(argElt);
                 }
             }
-            payloadFactoryElt.addChild(argsElt);
         }
+        payloadFactoryElt.addChild(argsElt);
     }
 
     private OMElement serializeArg(PayloadFactoryArgsArg arg) {
