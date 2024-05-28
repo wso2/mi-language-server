@@ -35,7 +35,7 @@ public class PayloadFactoryMediatorSerializerTest extends MediatorSerializerTest
     public void testPayloadFactoryMediatorWithStaticKey() {
 
         String xml = "<payloadFactory xmlns=\"http://ws.apache.org/ns/synapse\" media-type=\"xml\" " +
-                "description=\"test\"/>";
+                "description=\"test\"><args/></payloadFactory>";
         testSerializeMediator(xml, true);
     }
 
@@ -63,7 +63,7 @@ public class PayloadFactoryMediatorSerializerTest extends MediatorSerializerTest
     public void testPayloadFactoryMediatorWithRegistryPayload() {
 
         String xml = "<payloadFactory xmlns=\"http://ws.apache.org/ns/synapse\" media-type=\"xml\" " +
-                "description=\"test\"><format key=\"conf:/repository/registry.xml\"/></payloadFactory>";
+                "description=\"test\"><format key=\"conf:/repository/registry.xml\"/><args/></payloadFactory>";
         testSerializeMediator(xml, true);
     }
 }
