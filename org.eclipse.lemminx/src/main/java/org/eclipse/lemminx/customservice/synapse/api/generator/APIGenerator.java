@@ -20,32 +20,21 @@ package org.eclipse.lemminx.customservice.synapse.api.generator;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.util.AXIOMUtil;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.synapse.SequenceType;
-import org.apache.synapse.api.API;
-import org.apache.synapse.api.Resource;
-import org.apache.synapse.api.dispatch.URITemplateHelper;
-import org.apache.synapse.api.dispatch.URLMappingHelper;
-import org.apache.synapse.api.version.ContextVersionStrategy;
-import org.apache.synapse.api.version.DefaultStrategy;
-import org.apache.synapse.api.version.URLBasedVersionStrategy;
-import org.apache.synapse.api.version.VersionStrategy;
-import org.apache.synapse.config.xml.rest.APIFactory;
-import org.apache.synapse.config.xml.rest.APISerializer;
-import org.apache.synapse.config.xml.rest.VersionStrategyFactory;
-import org.apache.synapse.mediators.base.SequenceMediator;
-import org.apache.synapse.mediators.builtin.CommentMediator;
-import org.apache.synapse.mediators.builtin.LoopBackMediator;
-import org.apache.synapse.mediators.builtin.PropertyMediator;
-import org.apache.synapse.mediators.builtin.RespondMediator;
-import org.apache.synapse.mediators.transform.PayloadFactoryMediator;
-import org.apache.synapse.mediators.transform.pfutils.RegexTemplateProcessor;
-import org.apache.synapse.util.xpath.SynapseXPath;
-import org.jaxen.JaxenException;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.CommentMediator;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.API;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.APIResource;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.ApiVersionType;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Loopback;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Property;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Respond;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.payload.MediaType;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.payload.PayloadFactory;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.payload.PayloadFactoryFormat;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.payload.TemplateType;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.api.APISerializer;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -55,7 +44,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.xml.stream.XMLStreamException;
 
 // Source: https://github.com/wso2/carbon-mediation/blob/master/components/mediation-commons/src/main/java/org/wso2/carbon/mediation/commons/rest/api/swagger/APIGenerator.java
 
@@ -140,7 +128,7 @@ public class APIGenerator {
         String apiName = swaggerInfo.get(SwaggerConstants.TITLE).getAsString();
 
         // Extract version information
-        String versionType = VersionStrategyFactory.TYPE_NULL;
+        ApiVersionType versionType = null;
         String version = "";
         JsonElement swaggerVersionElement = swaggerInfo.get(SwaggerConstants.VERSION);
         if (swaggerVersionElement != null && swaggerVersionElement.isJsonPrimitive() &&
@@ -148,28 +136,21 @@ public class APIGenerator {
             version = swaggerVersionElement.getAsString();
             if (apiContext.endsWith(version)) {
                 // If the base path ends with the version, then it will be considered as version-type=url
-                versionType = VersionStrategyFactory.TYPE_URL;
+                versionType = ApiVersionType.url;
                 //cleanup api context path : remove version from base path
                 apiContext = apiContext.substring(0, apiContext.length() - version.length() - 1);
             } else {
                 // otherwise context based version strategy
-                versionType = VersionStrategyFactory.TYPE_CONTEXT;
+                versionType = ApiVersionType.context;
             }
         }
 
         // Create API
-        API genAPI = new API(apiName, apiContext);
-
-        //Add version strategy
-        if (versionType.equals(VersionStrategyFactory.TYPE_URL)) {
-            // If the base path ends with the version, then it will be considered as version-type=url
-            genAPI.setVersionStrategy(new URLBasedVersionStrategy(genAPI, version, ""));
-        } else if (versionType.equals(VersionStrategyFactory.TYPE_CONTEXT)) {
-            // otherwise context based version strategy
-            genAPI.setVersionStrategy(new ContextVersionStrategy(genAPI, version, ""));
-        } else {
-            genAPI.setVersionStrategy(new DefaultStrategy(genAPI));
-        }
+        API genAPI = new API();
+        genAPI.setName(apiName);
+        genAPI.setContext(apiContext);
+        genAPI.setVersionType(versionType);
+        genAPI.setVersion(version);
 
         if (swaggerJson.get(SwaggerConstants.PATHS) != null) {
             JsonObject pathsObj = swaggerJson.getAsJsonObject(SwaggerConstants.PATHS);
@@ -180,9 +161,9 @@ public class APIGenerator {
             }
         }
 
-        OMElement apiElement = APISerializer.serializeAPI(genAPI);
+        String apiElement = APISerializer.serializeAPI(genAPI);
         if (log.isDebugEnabled()) {
-            log.info("API generation completed : " + genAPI.getName() + " API: " + apiElement.toString());
+            log.info("API generation completed : " + genAPI.getName() + " API: " + apiElement);
         }
         return genAPI;
     }
@@ -258,7 +239,7 @@ public class APIGenerator {
         String apiName = swaggerInfo.get(SwaggerConstants.TITLE).getAsString();
 
         // Extract version information
-        String versionType = VersionStrategyFactory.TYPE_NULL;
+        ApiVersionType versionType = null;
         String version = "";
         JsonElement swaggerVersionElement = swaggerInfo.get(SwaggerConstants.VERSION);
         if (swaggerVersionElement != null && swaggerVersionElement.isJsonPrimitive() &&
@@ -266,28 +247,21 @@ public class APIGenerator {
             version = swaggerVersionElement.getAsString();
             if (apiContext.endsWith(version)) {
                 // If the base path ends with the version, then it will be considered as version-type=url
-                versionType = VersionStrategyFactory.TYPE_URL;
+                versionType = ApiVersionType.url;
                 //cleanup api context path : remove version from base path
                 apiContext = apiContext.substring(0, apiContext.length() - version.length() - 1);
             } else {
                 // otherwise context based version strategy
-                versionType = VersionStrategyFactory.TYPE_CONTEXT;
+                versionType = ApiVersionType.context;
             }
         }
 
         // Create API
-        API genAPI = new API(apiName, apiContext);
-
-        //Add version strategy
-        if (versionType.equals(VersionStrategyFactory.TYPE_URL)) {
-            // If the base path ends with the version, then it will be considered as version-type=url
-            genAPI.setVersionStrategy(new URLBasedVersionStrategy(genAPI, version, ""));
-        } else if (versionType.equals(VersionStrategyFactory.TYPE_CONTEXT)) {
-            // otherwise context based version strategy
-            genAPI.setVersionStrategy(new ContextVersionStrategy(genAPI, version, ""));
-        } else {
-            genAPI.setVersionStrategy(new DefaultStrategy(genAPI));
-        }
+        API genAPI = new API();
+        genAPI.setName(apiName);
+        genAPI.setContext(apiContext);
+        genAPI.setVersionType(versionType);
+        genAPI.setVersion(version);
 
         if (swaggerJson.get(SwaggerConstants.PATHS) != null) {
             JsonObject pathsObj = swaggerJson.getAsJsonObject(SwaggerConstants.PATHS);
@@ -298,42 +272,10 @@ public class APIGenerator {
             }
         }
 
-        OMElement apiElement = APISerializer.serializeAPI(genAPI);
+        String apiElement = APISerializer.serializeAPI(genAPI);
         if (log.isDebugEnabled()) {
-            log.info("API generation completed : " + genAPI.getName() + " API: " + apiElement.toString());
+            log.info("API generation completed : " + genAPI.getName() + " API: " + apiElement);
         }
-        return genAPI;
-    }
-
-    /**
-     * Function to generate updated API extracting the implementation from an existing API
-     *
-     * @param existingAPI the existing API to extract resource implementations
-     * @return generated API
-     */
-    public API generateUpdatedSynapseAPI(API existingAPI) throws APIGenException {
-
-        if (existingAPI == null) {
-            throw new APIGenException("Provided existing API is null");
-        }
-        API genAPI = generateSynapseAPI(existingAPI);
-        // clone existing API
-        API clonedAPI;
-        try {
-            clonedAPI = APIFactory.createAPI(AXIOMUtil.stringToOM(APISerializer.serializeAPI(existingAPI).toString()));
-        } catch (XMLStreamException e) {
-            throw new APIGenException("Error occurred while cloning the existing API", e);
-        }
-        // handle if the existing API use default version strategy (when generating default version strategy won't
-        // get selected)
-        if (existingAPI.getVersionStrategy() instanceof DefaultStrategy) {
-            genAPI.setVersionStrategy(new DefaultStrategy(genAPI));
-        }
-        // Copy the Swagger resource property if specified in the existing API
-        if (StringUtils.isNotBlank(existingAPI.getSwaggerResourcePath())) {
-            genAPI.setSwaggerResourcePath(existingAPI.getSwaggerResourcePath());
-        }
-        updateImplChanges(genAPI, clonedAPI);
         return genAPI;
     }
 
@@ -349,11 +291,15 @@ public class APIGenerator {
             throws APIGenException {
 
         boolean noneURLStyleAdded = false;
-        List<Resource> resources = new ArrayList<>();
+        List<APIResource> resources = new ArrayList<>();
         if (existingAPI != null) {
-            for (Resource resource : existingAPI.getResources()) {
-                String resourceMapping = resource.getDispatcherHelper() != null ?
-                        resource.getDispatcherHelper().getString() : "/";
+            for (APIResource resource : existingAPI.getResource()) {
+                String resourceMapping;
+                if (resource.getUrlMapping() != null) {
+                    resourceMapping = resource.getUrlMapping();
+                } else {
+                    resourceMapping = resource.getUriTemplate();
+                }
                 // Getting all the resources whose path matches
                 if (path.equals(resourceMapping)) {
                     resources.add(resource);
@@ -363,13 +309,14 @@ public class APIGenerator {
         int i = 0;
         // Same number is assigned to all the method in the same resource of the existing API
         HashMap<String, Integer> methodMapping = new HashMap<>();
-        HashMap<Integer, Resource> createdResources = new HashMap<>();
-        for (Resource resource : resources) {
+        HashMap<Integer, APIResource> createdResources = new HashMap<>();
+        for (APIResource resource : resources) {
             for (String method : resource.getMethods()) {
                 methodMapping.put(method, i);
             }
             i++;
         }
+        List<APIResource> generatedResources = new ArrayList<>();
         for (Map.Entry<String, JsonElement> methodEntry : resourceObj.entrySet()) {
             if (log.isDebugEnabled()) {
                 log.info("Generating resource for path : " + path + ", method : " + methodEntry.getKey());
@@ -377,7 +324,7 @@ public class APIGenerator {
 
             String methodName = methodEntry.getKey().toUpperCase();
             if (methodMapping.containsKey(methodName)) {
-                Resource createdResource = createdResources.get(methodMapping.get(methodName));
+                APIResource createdResource = createdResources.get(methodMapping.get(methodName));
                 // Check if a resource was created for another method belongs to the same resource.
                 if (createdResource != null) {
                     createdResource.addMethod(methodName);
@@ -386,7 +333,7 @@ public class APIGenerator {
             }
 
             // Create a new resource for each method.
-            Resource resource = new Resource();
+            APIResource resource = new APIResource();
             resource.addMethod(methodName);
 
             // Identify URL Mapping and template and create relevant helper
@@ -398,102 +345,25 @@ public class APIGenerator {
             if (pathParamList.isEmpty()) {
                 // if the path is '/' then it should have none URL style
                 if (!"/".equals(path) || noneURLStyleAdded) {
-                    resource.setDispatcherHelper(new URLMappingHelper(path));
+                    resource.setUrlMapping(path);
                 }
                 if ("/".equals(path)) {
                     noneURLStyleAdded = true;
                 }
             } else {
-                resource.setDispatcherHelper(new URITemplateHelper(path));
+                resource.setUriTemplate(path);
             }
 
             resource.setInSequence(APIGenerator.getDefaultInSequence(pathParamList));
             resource.setOutSequence(APIGenerator.getDefaultOutSequence());
-            genAPI.addResource(resource);
+            generatedResources.add(resource);
 
             if (methodMapping.containsKey(methodName)) {
                 createdResources.put(methodMapping.get(methodName), resource);
             }
         }
+        genAPI.setResource(generatedResources.toArray(new APIResource[generatedResources.size()]));
 
-    }
-
-    private void updateImplChanges(API newAPI, API currentAPI) {
-
-        String newVersion = newAPI.getVersion();
-        //Migrate version strategy
-        VersionStrategy strategy = currentAPI.getVersionStrategy();
-        if (strategy instanceof URLBasedVersionStrategy) {
-            newAPI.setVersionStrategy(new URLBasedVersionStrategy(newAPI, newVersion,
-                    currentAPI.getVersionStrategy().getVersionParam()));
-        } else if (strategy instanceof ContextVersionStrategy) {
-            newAPI.setVersionStrategy(
-                    new ContextVersionStrategy(newAPI, newVersion, currentAPI.getVersionStrategy().getVersionParam()));
-        }
-
-        // Map of resources against resource url mapping or template
-        HashMap<String, HashMap<String, Resource>> currentResourceList = new HashMap<>();
-        // Extract all existing resources and categorize according URL mapping or template
-        for (Resource resource : currentAPI.getResources()) {
-
-            String resourceMapping = resource.getDispatcherHelper() != null ?
-                    resource.getDispatcherHelper().getString() : "/";
-            HashMap<String, Resource> resourceMap;
-            if (currentResourceList.get(resourceMapping) != null) {
-                resourceMap = currentResourceList.get(resourceMapping);
-            } else {
-                resourceMap = new HashMap<>();
-            }
-            for (String method : resource.getMethods()) {
-                resourceMap.put(method, resource);
-            }
-            currentResourceList.put(resourceMapping, resourceMap);
-        }
-
-        for (Resource resource : newAPI.getResources()) {
-
-            String resourceMapping = resource.getDispatcherHelper() != null ?
-                    resource.getDispatcherHelper().getString() : "/";
-            HashMap<String, Resource> existingResources = currentResourceList.get(resourceMapping);
-
-            if (existingResources != null) {
-                // TODO handle multiple resources with same URL mapping or template with different methods
-                for (String method : resource.getMethods()) {
-                    // Check for a resource with matching method
-                    if (existingResources.containsKey(method)) {
-                        compareAndUpdateResource(existingResources.get(method), resource);
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Function to compare and update resource implementation
-     *
-     * @param source source resource to extract implementation
-     * @param target resource to update
-     */
-    private void compareAndUpdateResource(Resource source, Resource target) {
-
-        if (source.getInSequenceKey() != null) {
-            target.setInSequenceKey(source.getInSequenceKey());
-        } else if (source.getInSequence() != null) {
-            target.setInSequence(source.getInSequence());
-        }
-
-        if (source.getOutSequenceKey() != null) {
-            target.setOutSequenceKey(source.getOutSequenceKey());
-        } else if (source.getOutSequence() != null) {
-            target.setOutSequence(source.getOutSequence());
-        }
-
-        if (source.getFaultSequenceKey() != null) {
-            target.setFaultSequenceKey(source.getFaultSequenceKey());
-        } else if (source.getFaultSequence() != null) {
-            target.setFaultSequence(source.getFaultSequence());
-        }
     }
 
     /**
@@ -501,41 +371,37 @@ public class APIGenerator {
      *
      * @return template API in-sequence
      */
-    private static SequenceMediator getDefaultInSequence(List<String> pathParams) throws APIGenException {
+    private static Sequence getDefaultInSequence(List<String> pathParams) {
 
-        SequenceMediator defaultInSeq = new SequenceMediator();
-        defaultInSeq.setSequenceType(SequenceType.ANON);
+        Sequence defaultInSeq = new Sequence();
 
         CommentMediator generatedComment = new CommentMediator();
         generatedComment.setCommentText("This is generated API skeleton.");
-        defaultInSeq.addChild(generatedComment);
+        defaultInSeq.addToMediatorList(generatedComment);
 
         if (pathParams != null && pathParams.size() > 0) {
             // Create populate properties reading path parameters
             for (String param : pathParams) {
-                try {
-                    PropertyMediator propertyMediator = new PropertyMediator();
-                    propertyMediator.setExpression(new SynapseXPath("get-property('uri.var." + param + "')"));
-                    propertyMediator.setName(param);
-                    defaultInSeq.addChild(propertyMediator);
-                } catch (JaxenException e) {
-                    throw new APIGenException("Error occurred while creating property mediator for extracting path " +
-                            "params", e);
-                }
+                Property propertyMediator = new Property();
+                propertyMediator.setExpression("get-property('uri.var." + param + "')");
+                propertyMediator.setName(param);
+                defaultInSeq.addToMediatorList(propertyMediator);
             }
         }
 
         CommentMediator logicGoesHereComment = new CommentMediator();
         logicGoesHereComment.setCommentText("Business Logic Goes Here");
-        defaultInSeq.addChild(logicGoesHereComment);
+        defaultInSeq.addToMediatorList(logicGoesHereComment);
 
-        PayloadFactoryMediator defaultPayload = new PayloadFactoryMediator();
-        defaultPayload.setTemplateProcessor(new RegexTemplateProcessor());
-        defaultPayload.setType("json");
-        defaultPayload.setFormat("{\"Response\" : \"Sample Response\"}");
-        defaultInSeq.addChild(defaultPayload);
+        PayloadFactory defaultPayload = new PayloadFactory();
+        defaultPayload.setTemplateType(TemplateType.DEFAULT);
+        defaultPayload.setMediaType(MediaType.json);
+        PayloadFactoryFormat defaultPayloadFormat = new PayloadFactoryFormat();
+        defaultPayloadFormat.setContent("{\"Response\" : \"Sample Response\"}");
+        defaultPayload.setFormat(defaultPayloadFormat);
+        defaultInSeq.addToMediatorList(defaultPayload);
 
-        defaultInSeq.addChild(new LoopBackMediator());
+        defaultInSeq.addToMediatorList(new Loopback());
         return defaultInSeq;
     }
 
@@ -544,11 +410,10 @@ public class APIGenerator {
      *
      * @return template API in-sequence
      */
-    private static SequenceMediator getDefaultOutSequence() {
+    private static Sequence getDefaultOutSequence() {
 
-        SequenceMediator defaultOutSeq = new SequenceMediator();
-        defaultOutSeq.setSequenceType(SequenceType.ANON);
-        defaultOutSeq.addChild(new RespondMediator());
+        Sequence defaultOutSeq = new Sequence();
+        defaultOutSeq.addToMediatorList(new Respond());
         return defaultOutSeq;
     }
 }

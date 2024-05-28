@@ -128,14 +128,14 @@
 				<version>${axiom.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.apache.synapse</groupId>
-				<artifactId>synapse-core</artifactId>
-				<version>${synapse.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>com.fasterxml.jackson.dataformat</groupId>
 				<artifactId>jackson-dataformat-yaml</artifactId>
 				<version>${jackson.dataformat.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.wso2</groupId>
+				<artifactId>soaptorest</artifactId>
+				<version>1.6</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

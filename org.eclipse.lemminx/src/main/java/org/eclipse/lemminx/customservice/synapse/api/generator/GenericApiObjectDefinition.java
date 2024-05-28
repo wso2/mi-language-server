@@ -23,10 +23,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.synapse.api.API;
-import org.apache.synapse.api.Resource;
-import org.apache.synapse.api.dispatch.DispatcherHelper;
-import org.apache.synapse.api.dispatch.URLMappingBasedDispatcher;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.API;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.APIResource;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -61,47 +59,52 @@ public class GenericApiObjectDefinition {
         return responsesMap;
     }
 
-    /**
-     * Provides structure for the "paths" element in swagger definition.
-     *
-     * @return Map containing information for paths element
-     */
-    public static Map<String, Object> getPathMap(API api) {
-
-        Map<String, Object> pathsMap = new LinkedHashMap<>();
-        for (Resource resource : api.getResources()) {
-            DispatcherHelper resourceDispatcherHelper = resource.getDispatcherHelper();
-            Map<String, Object> methodMap =
-                    (Map<String, Object>) pathsMap.get(getPathFromUrl(getUri(resourceDispatcherHelper)));
-            if (methodMap == null) {
-                methodMap = new LinkedHashMap<>();
-            }
-            for (String method : resource.getMethods()) {
-                if (method != null) {
-                    Map<String, Object> methodInfoMap = new LinkedHashMap<>();
-                    methodInfoMap.put(SwaggerConstants.RESPONSES, getResponsesMap());
-                    if (resourceDispatcherHelper != null) {
-                        Object[] parameters = getResourceParameters(resource, method);
-                        if (parameters.length > 0) {
-                            methodInfoMap.put(SwaggerConstants.PARAMETERS, parameters);
-                        }
-                    }
-                    methodMap.put(method.toLowerCase(), methodInfoMap);
-                }
-            }
-            pathsMap.put(getPathFromUrl(getUri(resourceDispatcherHelper)), methodMap);
-        }
-        if (log.isDebugEnabled()) {
-            log.debug("Paths map created with size " + pathsMap.size());
-        }
-        return pathsMap;
-    }
-
-    private static String getUri(DispatcherHelper resourceDispatcherHelper) {
-
-        return resourceDispatcherHelper == null ? SwaggerConstants.PATH_SEPARATOR
-                : resourceDispatcherHelper.getString();
-    }
+//    /**
+//     * Provides structure for the "paths" element in swagger definition.
+//     *
+//     * @return Map containing information for paths element
+//     */
+//    public static Map<String, Object> getPathMap(API api) {
+//
+//        Map<String, Object> pathsMap = new LinkedHashMap<>();
+//        for (APIResource resource : api.getResource()) {
+//            String uriOrUrl;
+//            if(resource.getUrlMapping()!=null){
+//                uriOrUrl = resource.getUrlMapping();
+//            }else{
+//                uriOrUrl = resource.getUriTemplate();
+//            }
+//            Map<String, Object> methodMap =
+//                    (Map<String, Object>) pathsMap.get(uriOrUrl);
+//            if (methodMap == null) {
+//                methodMap = new LinkedHashMap<>();
+//            }
+//            for (String method : resource.getMethods()) {
+//                if (method != null) {
+//                    Map<String, Object> methodInfoMap = new LinkedHashMap<>();
+//                    methodInfoMap.put(SwaggerConstants.RESPONSES, getResponsesMap());
+//                    if (resourceDispatcherHelper != null) {
+//                        Object[] parameters = getResourceParameters(resource, method);
+//                        if (parameters.length > 0) {
+//                            methodInfoMap.put(SwaggerConstants.PARAMETERS, parameters);
+//                        }
+//                    }
+//                    methodMap.put(method.toLowerCase(), methodInfoMap);
+//                }
+//            }
+//            pathsMap.put(getPathFromUrl(getUri(resourceDispatcherHelper)), methodMap);
+//        }
+//        if (log.isDebugEnabled()) {
+//            log.debug("Paths map created with size " + pathsMap.size());
+//        }
+//        return pathsMap;
+//    }
+//
+//    private static String getUri(DispatcherHelper resourceDispatcherHelper) {
+//
+//        return resourceDispatcherHelper == null ? SwaggerConstants.PATH_SEPARATOR
+//                : resourceDispatcherHelper.getString();
+//    }
 
     /**
      * Generate resource parameters for the given resource for given method.
@@ -109,15 +112,17 @@ public class GenericApiObjectDefinition {
      * @param resource instance of Resource in the API
      * @return Array of parameter objects supported by the API
      */
-    private static Object[] getResourceParameters(Resource resource, String method) {
+    private static Object[] getResourceParameters(APIResource resource, String method) {
 
         ArrayList<Map<String, Object>> parameterList = new ArrayList<>();
 
-        String uri = resource.getDispatcherHelper().getString();
+        String uri;
 
-        if (resource.getDispatcherHelper() instanceof URLMappingBasedDispatcher) {
+        if (resource.getUrlMapping() != null) {
+            uri = resource.getUrlMapping();
             generateParameterList(parameterList, uri, false);
         } else {
+            uri = resource.getUriTemplate();
             generateParameterList(parameterList, uri, true);
         }
         if (log.isDebugEnabled()) {
@@ -161,7 +166,7 @@ public class GenericApiObjectDefinition {
         }
     }
 
-    private static void generateBodyParameter(ArrayList<Map<String, Object>> parameterList, Resource resource,
+    private static void generateBodyParameter(ArrayList<Map<String, Object>> parameterList, APIResource resource,
                                               String method) {
 
         if (method.equalsIgnoreCase(SwaggerConstants.OPERATION_HTTP_POST) ||

@@ -18,9 +18,19 @@
 
 package org.eclipse.lemminx.customservice.synapse.api.generator;
 
-public class APIGenerateParam {
+public class GenerateAPIResponse {
 
-    public String apiName;
-    public String swaggerOrWsdlPath;
-    public String mode;
+    public String apiXml;
+    public String endpointXml;
+
+    public GenerateAPIResponse(String apiXml) {
+
+        this.apiXml = apiXml;
+    }
+
+    public GenerateAPIResponse(String apiXml, String endpointXml) {
+
+        this.apiXml = apiXml;
+        this.endpointXml = endpointXml;
+    }
 }
