@@ -34,10 +34,12 @@ public class APISerializerTest {
     @Test
     public void testSerializeAPI() {
 
-        String xml = "<api xmlns=\"http://ws.apache.org/ns/synapse\" name=\"CalculatorAPI\" context=\"/calculate\" statistics=\"enable\" trace=\"enable\">" +
+        String xml = "<api xmlns=\"http://ws.apache.org/ns/synapse\" name=\"CalculatorAPI\" context=\"/calculate\" " +
+                "statistics=\"enable\" trace=\"enable\">" +
                 "<resource methods=\"POST\">" +
                 "<inSequence/>" +
                 "<outSequence/>" +
+                "<faultSequence/>" +
                 "</resource>" +
                 "</api>";
 
