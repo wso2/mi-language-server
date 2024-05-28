@@ -25,6 +25,8 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transf
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.rewrite.RewriteRewriterule;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.rewrite.RewriteRewriteruleAction;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.rewrite.RewriteRewriteruleCondition;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.rewrite.RewriteRuleActionFragment;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.rewrite.RewriteRuleActionType;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.evaluators.And;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.evaluators.Equal;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.evaluators.Not;
@@ -43,7 +45,7 @@ public class RewriteFactory extends AbstractMediatorFactory {
     private static final String REWRITE = "rewrite";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Rewrite rewrite = new Rewrite();
         rewrite.elementNode(element);
@@ -144,12 +146,14 @@ public class RewriteFactory extends AbstractMediatorFactory {
             rewriteaction.setValue(value);
         }
         String type = element.getAttribute(Constant.TYPE);
-        if (type != null) {
-            rewriteaction.setType(type);
+        RewriteRuleActionType typeEnum = Utils.getEnumFromValue(type, RewriteRuleActionType.class);
+        if (typeEnum != null) {
+            rewriteaction.setType(typeEnum);
         }
         String fragment = element.getAttribute(Constant.FRAGMENT);
-        if (fragment != null) {
-            rewriteaction.setFragment(fragment);
+        RewriteRuleActionFragment fragmentEnum = Utils.getEnumFromValue(fragment, RewriteRuleActionFragment.class);
+        if (fragmentEnum != null) {
+            rewriteaction.setFragment(fragmentEnum);
         }
         return rewriteaction;
     }

@@ -22,17 +22,17 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 
 public class SmooksOutput extends STNode {
 
-    String type;
+    SmooksOutputType type;
     String property;
     String action;
     String expression;
 
-    public String getType() {
+    public SmooksOutputType getType() {
 
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(SmooksOutputType type) {
 
         this.type = type;
     }

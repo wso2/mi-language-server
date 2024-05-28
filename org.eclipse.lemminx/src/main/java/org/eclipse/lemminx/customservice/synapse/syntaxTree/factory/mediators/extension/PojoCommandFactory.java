@@ -21,6 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.e
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.AbstractMediatorFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.extension.command.CommandPropertyAction;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.extension.command.PojoCommand;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.extension.command.PojoCommandProperty;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
@@ -36,7 +37,7 @@ public class PojoCommandFactory extends AbstractMediatorFactory {
     private static final String POJO_COMMAND = "pojoCommand";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         PojoCommand command = new PojoCommand();
         command.elementNode(element);
@@ -100,8 +101,9 @@ public class PojoCommandFactory extends AbstractMediatorFactory {
             property.setContextName(contextName);
         }
         String action = element.getAttribute(Constant.ACTION);
-        if (action != null) {
-            property.setAction(action);
+        CommandPropertyAction actionEnum = Utils.getEnumFromValue(action, CommandPropertyAction.class);
+        if (actionEnum != null) {
+            property.setAction(actionEnum);
         }
     }
 

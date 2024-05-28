@@ -36,7 +36,7 @@ public class FilterFactory extends AbstractMediatorFactory {
     private static final String FILTER = "filter";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Filter filter = new Filter();
         filter.elementNode(element);

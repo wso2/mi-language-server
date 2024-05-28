@@ -30,7 +30,7 @@ public class DropFactory extends AbstractMediatorFactory {
     private static final String DROP = "drop";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Drop drop = new Drop();
         drop.elementNode(element);

@@ -19,6 +19,7 @@
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.inbound;
 
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.EnableDisable;
 
 public class InboundEndpoint extends STNode {
 
@@ -29,8 +30,8 @@ public class InboundEndpoint extends STNode {
     String onError;
     boolean suspend;
     String clazz;
-    String statistics;
-    String trace;
+    EnableDisable statistics;
+    EnableDisable trace;
 
     public InboundEndpointParameters[] getParameters() {
 
@@ -102,22 +103,22 @@ public class InboundEndpoint extends STNode {
         this.clazz = clazz;
     }
 
-    public String getStatistics() {
+    public EnableDisable getStatistics() {
 
         return statistics;
     }
 
-    public void setStatistics(String statistics) {
+    public void setStatistics(EnableDisable statistics) {
 
         this.statistics = statistics;
     }
 
-    public String getTrace() {
+    public EnableDisable getTrace() {
 
         return trace;
     }
 
-    public void setTrace(String trace) {
+    public void setTrace(EnableDisable trace) {
 
         this.trace = trace;
     }

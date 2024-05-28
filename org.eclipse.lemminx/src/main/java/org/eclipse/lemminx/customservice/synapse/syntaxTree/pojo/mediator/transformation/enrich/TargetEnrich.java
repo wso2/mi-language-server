@@ -22,27 +22,27 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 
 public class TargetEnrich extends STNode {
 
-    String action;
-    String type;
+    TargetEnrichAction action;
+    TargetEnrichType type;
     String xpath;
     String property;
 
-    public String getAction() {
+    public TargetEnrichAction getAction() {
 
         return action;
     }
 
-    public void setAction(String action) {
+    public void setAction(TargetEnrichAction action) {
 
         this.action = action;
     }
 
-    public String getType() {
+    public TargetEnrichType getType() {
 
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(TargetEnrichType type) {
 
         this.type = type;
     }

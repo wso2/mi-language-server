@@ -22,6 +22,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.Ab
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Header;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.HeaderScope;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
@@ -32,7 +33,7 @@ public class HeaderFactory extends AbstractMediatorFactory {
     private static final String HEADER = "header";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Header header = new Header();
         header.elementNode(element);
@@ -65,8 +66,9 @@ public class HeaderFactory extends AbstractMediatorFactory {
             ((Header) node).setAction(action);
         }
         String scope = element.getAttribute(Constant.SCOPE);
-        if (scope != null) {
-            ((Header) node).setScope(scope);
+        HeaderScope headerScope = HeaderScope.DEFAULT;
+        if (headerScope != null) {
+            ((Header) node).setScope(headerScope);
         }
         String description = element.getAttribute(Constant.DESCRIPTION);
         if (description != null) {

@@ -25,7 +25,9 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.NamedE
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.call.Call;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.call.CallSource;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.call.CallSourceType;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.call.CallTarget;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.TargetType;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
@@ -38,7 +40,7 @@ public class CallFactory extends AbstractMediatorFactory {
     private static final String CALL = "call";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Call call = new Call();
         call.elementNode(element);
@@ -97,8 +99,9 @@ public class CallFactory extends AbstractMediatorFactory {
             callSource.setContentType(contentType);
         }
         String type = element.getAttribute(Constant.TYPE);
-        if (type != null) {
-            callSource.setType(type);
+        CallSourceType callSourceType = Utils.getEnumFromValue(type, CallSourceType.class);
+        if (callSourceType != null) {
+            callSource.setType(callSourceType);
         }
         return callSource;
     }
@@ -106,8 +109,9 @@ public class CallFactory extends AbstractMediatorFactory {
     private void populateTargetAttributes(CallTarget callTarget, DOMElement element) {
 
         String type = element.getAttribute(Constant.TYPE);
-        if (type != null) {
-            callTarget.setType(type);
+        TargetType targetType = Utils.getEnumFromValue(type, TargetType.class);
+        if (targetType != null) {
+            callTarget.setType(targetType);
         }
     }
 

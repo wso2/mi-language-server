@@ -30,7 +30,7 @@ public class NtlmFactory extends AbstractMediatorFactory {
     private static final String NTLM = "NTLM";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Ntlm ntlm = new Ntlm();
         ntlm.elementNode(element);

@@ -37,7 +37,7 @@ public class SendFactory extends AbstractMediatorFactory {
     private static final String SEND = "send";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Send send = new Send();
         send.elementNode(element);

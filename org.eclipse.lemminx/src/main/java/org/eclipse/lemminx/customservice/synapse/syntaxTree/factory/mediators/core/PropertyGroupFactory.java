@@ -35,7 +35,7 @@ public class PropertyGroupFactory extends AbstractMediatorFactory {
     private static final String PROPERTY_GROUP = "propertygroup";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         PropertyGroup propertyGroup = new PropertyGroup();
         propertyGroup.elementNode(element);

@@ -20,9 +20,11 @@ package org.eclipse.lemminx.customservice.synapse.syntaxTree.factory;
 
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.NamedSequence;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.EnableDisable;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.utils.SyntaxTreeUtils;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 
@@ -60,12 +62,14 @@ public class NamedSequenceFactory extends AbstractFactory {
             ((NamedSequence) node).setDescription(description);
         }
         String statistics = element.getAttribute(Constant.STATISTICS);
-        if (statistics != null) {
-            ((NamedSequence) node).setStatistics(statistics);
+        EnableDisable statisticsEnum = Utils.getEnumFromValue(statistics, EnableDisable.class);
+        if (statisticsEnum != null) {
+            ((NamedSequence) node).setStatistics(statisticsEnum);
         }
         String trace = element.getAttribute(Constant.TRACE);
-        if (trace != null) {
-            ((NamedSequence) node).setTrace(trace);
+        EnableDisable traceEnum = Utils.getEnumFromValue(trace, EnableDisable.class);
+        if (traceEnum != null) {
+            ((NamedSequence) node).setTrace(traceEnum);
         }
     }
 }

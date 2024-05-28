@@ -22,16 +22,16 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 
 public class DbMediatorStatementParameter extends STNode {
 
-    String type;
+    StatementParameterType type;
     String value;
     String expression;
 
-    public String getType() {
+    public StatementParameterType getType() {
 
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(StatementParameterType type) {
 
         this.type = type;
     }

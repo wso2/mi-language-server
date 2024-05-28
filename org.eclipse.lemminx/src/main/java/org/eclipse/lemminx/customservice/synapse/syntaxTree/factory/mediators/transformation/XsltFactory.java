@@ -38,7 +38,7 @@ public class XsltFactory extends AbstractMediatorFactory {
     private static final String XSLT = "xslt";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Xslt xslt = new Xslt();
         xslt.elementNode(element);

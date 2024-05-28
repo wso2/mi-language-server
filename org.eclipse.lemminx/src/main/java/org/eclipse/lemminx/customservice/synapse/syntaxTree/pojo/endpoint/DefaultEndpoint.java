@@ -34,8 +34,8 @@ public class DefaultEndpoint extends STNode {
     EndpointTimeout timeout;
     EndpointSuspendOnFailure suspendOnFailure;
     EndpointMarkForSuspension markForSuspension;
-    String format;
-    String optimize;
+    Format format;
+    Optimize optimize;
     String encoding;
     String statistics;
     String trace;
@@ -100,22 +100,22 @@ public class DefaultEndpoint extends STNode {
         this.markForSuspension = markForSuspension;
     }
 
-    public String getFormat() {
+    public Format getFormat() {
 
         return format;
     }
 
-    public void setFormat(String format) {
+    public void setFormat(Format format) {
 
         this.format = format;
     }
 
-    public String getOptimize() {
+    public Optimize getOptimize() {
 
         return optimize;
     }
 
-    public void setOptimize(String optimize) {
+    public void setOptimize(Optimize optimize) {
 
         this.optimize = optimize;
     }

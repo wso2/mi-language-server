@@ -25,9 +25,13 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanc
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.DataServiceCall.DataServiceCallOperations;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.DataServiceCall.DataServiceCallOperationsOperation;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.DataServiceCall.DataServiceCallOperationsOperationParam;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.DataServiceCall.DataServiceCallOperationsType;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.DataServiceCall.DataServiceCallSource;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.DataServiceCall.DataServiceCallSourceType;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.DataServiceCall.DataServiceCallTarget;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.TargetType;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 
@@ -39,7 +43,7 @@ public class DataServiceFactory extends AbstractMediatorFactory {
     private static final String DATA_SERVICE_MEDIATOR = "dataservicecall";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         DataServiceCall dataServiceCall = new DataServiceCall();
         dataServiceCall.elementNode(element);
@@ -83,8 +87,9 @@ public class DataServiceFactory extends AbstractMediatorFactory {
         DataServiceCallSource dataServiceCallSource = new DataServiceCallSource();
         dataServiceCallSource.elementNode(element);
         String type = element.getAttribute(Constant.TYPE);
-        if (type != null) {
-            dataServiceCallSource.setType(type);
+        DataServiceCallSourceType typeEnum = Utils.getEnumFromValue(type, DataServiceCallSourceType.class);
+        if (typeEnum != null) {
+            dataServiceCallSource.setType(typeEnum);
         }
         return dataServiceCallSource;
     }
@@ -94,8 +99,9 @@ public class DataServiceFactory extends AbstractMediatorFactory {
         DataServiceCallOperations dataServiceCallOperations = new DataServiceCallOperations();
         dataServiceCallOperations.elementNode(element);
         String type = element.getAttribute(Constant.TYPE);
-        if (type != null) {
-            dataServiceCallOperations.setType(type);
+        DataServiceCallOperationsType typeEnum = Utils.getEnumFromValue(type, DataServiceCallOperationsType.class);
+        if (typeEnum != null) {
+            dataServiceCallOperations.setType(typeEnum);
         }
         List<DOMNode> children = element.getChildren();
         List<DataServiceCallOperationsOperation> operationsOperationList = new ArrayList<>();
@@ -166,8 +172,9 @@ public class DataServiceFactory extends AbstractMediatorFactory {
         DataServiceCallTarget dataServiceCallTarget = new DataServiceCallTarget();
         dataServiceCallTarget.elementNode(element);
         String type = element.getAttribute(Constant.TYPE);
-        if (type != null) {
-            dataServiceCallTarget.setType(type);
+        TargetType typeEnum = Utils.getEnumFromValue(type, TargetType.class);
+        if (typeEnum != null) {
+            dataServiceCallTarget.setType(typeEnum);
         }
         String name = element.getAttribute(Constant.NAME);
         if (name != null) {

@@ -23,7 +23,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 public class DataServiceCallOperations extends STNode {
 
     DataServiceCallOperationsOperation[] operation;
-    String type;
+    DataServiceCallOperationsType type;
 
     public DataServiceCallOperationsOperation[] getOperation() {
 
@@ -35,12 +35,12 @@ public class DataServiceCallOperations extends STNode {
         this.operation = operation;
     }
 
-    public String getType() {
+    public DataServiceCallOperationsType getType() {
 
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(DataServiceCallOperationsType type) {
 
         this.type = type;
     }

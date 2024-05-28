@@ -30,7 +30,7 @@ public class FastXSLTFactory extends AbstractMediatorFactory {
     private static final String FAST_XSLT = "fastXSLT";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         FastXSLT fastXSLT = new FastXSLT();
         fastXSLT.elementNode(element);

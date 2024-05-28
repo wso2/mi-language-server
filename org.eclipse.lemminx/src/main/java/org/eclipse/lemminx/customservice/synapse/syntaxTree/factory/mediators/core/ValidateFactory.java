@@ -40,7 +40,7 @@ public class ValidateFactory extends AbstractMediatorFactory {
     private static final String VALIDATE = "validate";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Validate validate = new Validate();
         validate.elementNode(element);

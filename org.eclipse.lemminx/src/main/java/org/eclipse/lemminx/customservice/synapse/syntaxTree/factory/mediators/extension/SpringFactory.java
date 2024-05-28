@@ -30,7 +30,7 @@ public class SpringFactory extends AbstractMediatorFactory {
     private static final String SPRING = "spring:spring";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Spring spring = new Spring();
         spring.elementNode(element);

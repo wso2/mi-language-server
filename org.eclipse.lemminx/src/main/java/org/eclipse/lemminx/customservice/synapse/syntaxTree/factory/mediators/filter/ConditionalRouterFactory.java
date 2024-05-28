@@ -39,7 +39,7 @@ public class ConditionalRouterFactory extends AbstractMediatorFactory {
     private static final String CONDITIONAL_ROUTER = "conditionalRouter";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         ConditionalRouter conditionalRouter = new ConditionalRouter();
         conditionalRouter.elementNode(element);

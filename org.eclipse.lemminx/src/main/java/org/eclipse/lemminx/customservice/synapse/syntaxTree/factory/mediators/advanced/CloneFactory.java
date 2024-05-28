@@ -41,7 +41,7 @@ public class CloneFactory extends AbstractMediatorFactory {
     private static final String CLONE_MEDIATOR = "clone";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Clone clone = new Clone();
         populateAttributes(clone, element);

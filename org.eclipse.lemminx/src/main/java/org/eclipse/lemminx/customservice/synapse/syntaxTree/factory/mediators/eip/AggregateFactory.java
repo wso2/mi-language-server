@@ -25,6 +25,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.ag
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.aggregate.AggregateCompleteCondition;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.aggregate.AggregateCompleteConditionMessageCount;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.aggregate.AggregateCorrelateOn;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.aggregate.AggregateElementType;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.aggregate.AggregateOnComplete;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.aggregate.CorrelateOnOrCompleteConditionOrOnComplete;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.utils.SyntaxTreeUtils;
@@ -41,7 +42,7 @@ public class AggregateFactory extends AbstractMediatorFactory {
     private static final String AGGREGATE = "aggregate";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Aggregate aggregate = new Aggregate();
         aggregate.elementNode(element);
@@ -133,8 +134,9 @@ public class AggregateFactory extends AbstractMediatorFactory {
             onComplete.setEnclosingElementProperty(enclosingElementProperty);
         }
         String aggregateElementType = child.getAttribute(Constant.AGGREGATE_ELEMENT_TYPE);
-        if (aggregateElementType != null) {
-            onComplete.setAggregateElementType(aggregateElementType);
+        AggregateElementType elementTypeEnum = Utils.getEnumFromValue(aggregateElementType, AggregateElementType.class);
+        if (elementTypeEnum != null) {
+            onComplete.setAggregateElementType(elementTypeEnum);
         }
 
         List<DOMNode> children = child.getChildren();

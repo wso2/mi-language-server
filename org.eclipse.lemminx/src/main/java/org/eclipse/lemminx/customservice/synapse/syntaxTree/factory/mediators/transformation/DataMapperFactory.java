@@ -24,6 +24,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediat
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.Datamapper;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.SchemaType;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
 
 public class DataMapperFactory extends AbstractMediatorFactory {
@@ -31,7 +32,7 @@ public class DataMapperFactory extends AbstractMediatorFactory {
     private static final String DATA_MAPPER = "datamapper";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Datamapper datamapper = new Datamapper();
         datamapper.elementNode(element);
@@ -55,16 +56,14 @@ public class DataMapperFactory extends AbstractMediatorFactory {
             ((Datamapper) node).setOutputSchema(outputSchema);
         }
         String inputType = element.getAttribute(Constant.INPUT_TYPE);
-        if (inputType != null) {
-            ((Datamapper) node).setInputType(inputType);
+        SchemaType inputTypeEnum = Utils.getEnumFromValue(inputType, SchemaType.class);
+        if (inputTypeEnum != null) {
+            ((Datamapper) node).setInputType(inputTypeEnum);
         }
         String outputType = element.getAttribute(Constant.OUTPUT_TYPE);
-        if (outputType != null) {
-            try {
-                ((Datamapper) node).setOutputType(SchemaType.valueOf(outputType));
-            } catch (IllegalArgumentException e) {
-                //ignore
-            }
+        SchemaType outputTypeEnum = Utils.getEnumFromValue(outputType, SchemaType.class);
+        if (outputTypeEnum != null) {
+            ((Datamapper) node).setOutputType(outputTypeEnum);
         }
         String xsltStyleSheet = element.getAttribute(Constant.XSLT_STYLE_SHEET);
         if (xsltStyleSheet != null) {

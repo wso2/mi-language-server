@@ -36,7 +36,7 @@ public class EjbFactory extends AbstractMediatorFactory {
     private static final String EJB = "ejb";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Ejb ejb = new Ejb();
         ejb.elementNode(element);
@@ -68,7 +68,7 @@ public class EjbFactory extends AbstractMediatorFactory {
             ((Ejb) node).setClazz(clazz);
         }
         String sessionId = element.getAttribute(Constant.SESSION_ID);
-        if (sessionId != null){
+        if (sessionId != null) {
             ((Ejb) node).setSessionId(sessionId);
         }
         String remove = element.getAttribute(Constant.REMOVE);

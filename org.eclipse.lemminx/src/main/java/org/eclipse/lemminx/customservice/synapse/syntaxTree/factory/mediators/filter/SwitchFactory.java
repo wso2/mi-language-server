@@ -37,7 +37,7 @@ public class SwitchFactory extends AbstractMediatorFactory {
     private static final String SWITCH = "switch";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Switch _switch = new Switch();
         _switch.elementNode(element);

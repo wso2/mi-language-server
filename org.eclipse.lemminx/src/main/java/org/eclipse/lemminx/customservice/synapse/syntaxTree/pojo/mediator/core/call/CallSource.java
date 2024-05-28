@@ -24,7 +24,7 @@ public class CallSource extends STNode {
 
     Object content;
     String contentType;
-    String type;
+    CallSourceType type;
 
     public Object getContent() {
 
@@ -46,12 +46,12 @@ public class CallSource extends STNode {
         this.contentType = contentType;
     }
 
-    public String getType() {
+    public CallSourceType getType() {
 
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(CallSourceType type) {
 
         this.type = type;
     }

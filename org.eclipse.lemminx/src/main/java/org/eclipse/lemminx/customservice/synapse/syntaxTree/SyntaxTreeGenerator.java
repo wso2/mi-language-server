@@ -39,6 +39,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.misc.Wsdl11F
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.misc.Wsdl20Factory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.EnumTypeAdapter;
 import org.eclipse.lemminx.customservice.synapse.utils.OptionalTypeAdapter;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -70,6 +71,7 @@ public class SyntaxTreeGenerator {
             String rootTag = tree.getTag();
             Gson gson = new GsonBuilder()
                     .registerTypeHierarchyAdapter(Optional.class, new OptionalTypeAdapter())
+                    .registerTypeHierarchyAdapter(Enum.class, new EnumTypeAdapter())
                     .serializeNulls()
                     .disableHtmlEscaping()
                     .create();

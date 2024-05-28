@@ -36,7 +36,9 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.http.E
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.http.EndpointHttpAuthenticationOauthClientCredentials;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.http.EndpointHttpAuthenticationOauthPasswordCredentials;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.http.EndpointHttpAuthenticationOauthRequestParameters;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.http.HttpMethod;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 
@@ -286,8 +288,9 @@ public class HttpEndpointFactory extends AbstractFactory {
             ((EndpointHttp) node).setUriTemplate(uriTemplate);
         }
         String method = element.getAttribute(Constant.METHOD);
-        if (method != null && !method.isEmpty()) {
-            ((EndpointHttp) node).setMethod(method);
+        HttpMethod methodEnum = Utils.getEnumFromValue(method, HttpMethod.class);
+        if (methodEnum != null) {
+            ((EndpointHttp) node).setMethod(methodEnum);
         }
         String statistics = element.getAttribute(Constant.STATISTICS);
         if (statistics != null && !statistics.isEmpty()) {

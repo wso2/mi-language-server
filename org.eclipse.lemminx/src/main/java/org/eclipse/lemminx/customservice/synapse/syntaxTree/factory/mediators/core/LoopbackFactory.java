@@ -30,7 +30,7 @@ public class LoopbackFactory extends AbstractMediatorFactory {
     private static final String LOOPBACK = "loopback";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Loopback loopback = new Loopback();
         loopback.elementNode(element);

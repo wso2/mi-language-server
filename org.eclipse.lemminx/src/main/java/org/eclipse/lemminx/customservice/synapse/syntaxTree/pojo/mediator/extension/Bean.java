@@ -22,7 +22,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediat
 
 public class Bean extends Mediator {
 
-    String action;
+    BeanAction action;
     String var;
     String clazz;
     String property;
@@ -30,12 +30,12 @@ public class Bean extends Mediator {
     String value;
     String description;
 
-    public String getAction() {
+    public BeanAction getAction() {
 
         return action;
     }
 
-    public void setAction(String action) {
+    public void setAction(BeanAction action) {
 
         this.action = action;
     }

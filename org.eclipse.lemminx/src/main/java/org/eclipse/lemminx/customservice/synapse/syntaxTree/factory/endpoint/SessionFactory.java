@@ -21,6 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.endpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.AbstractFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.EndpointSession;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.SessionType;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
@@ -44,8 +45,9 @@ public class SessionFactory extends AbstractFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String type = element.getAttribute(Constant.TYPE);
-        if (type != null && !type.isEmpty()) {
-            ((EndpointSession) node).setType(type);
+        SessionType typeEnum = Utils.getEnumFromValue(type, SessionType.class);
+        if (typeEnum != null) {
+            ((EndpointSession) node).setType(typeEnum);
         }
     }
 }

@@ -25,8 +25,8 @@ public class RewriteRewriteruleAction extends STNode {
     String value;
     String xpath;
     String regex;
-    String type;
-    String fragment;
+    RewriteRuleActionType type;
+    RewriteRuleActionFragment fragment;
 
     public String getValue() {
 
@@ -58,22 +58,22 @@ public class RewriteRewriteruleAction extends STNode {
         this.regex = regex;
     }
 
-    public String getType() {
+    public RewriteRuleActionType getType() {
 
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(RewriteRuleActionType type) {
 
         this.type = type;
     }
 
-    public String getFragment() {
+    public RewriteRuleActionFragment getFragment() {
 
         return fragment;
     }
 
-    public void setFragment(String fragment) {
+    public void setFragment(RewriteRuleActionFragment fragment) {
 
         this.fragment = fragment;
     }

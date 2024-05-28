@@ -41,7 +41,7 @@ public class ThrottleFactory extends AbstractMediatorFactory {
     private static final String THROTTLE = "throttle";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Throttle throttle = new Throttle();
         throttle.elementNode(element);

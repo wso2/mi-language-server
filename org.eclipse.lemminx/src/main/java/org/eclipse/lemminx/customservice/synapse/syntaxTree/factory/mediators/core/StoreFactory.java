@@ -30,7 +30,7 @@ public class StoreFactory extends AbstractMediatorFactory {
     private static final String STORE = "store";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Store store = new Store();
         store.elementNode(element);

@@ -42,7 +42,7 @@ public class PublishEventFactory extends AbstractMediatorFactory {
     private static final String PUBLISH_EVENT = "publishEvent";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         PublishEvent publishEvent = new PublishEvent();
         publishEvent.elementNode(element);

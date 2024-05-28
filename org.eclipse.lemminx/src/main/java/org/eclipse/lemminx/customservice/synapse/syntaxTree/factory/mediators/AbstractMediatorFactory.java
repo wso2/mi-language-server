@@ -32,7 +32,7 @@ public abstract class AbstractMediatorFactory extends AbstractFactory {
         return mediator;
     }
 
-    public abstract Mediator createSpecificMediator(DOMElement element);
+    protected abstract Mediator createSpecificMediator(DOMElement element);
 
     public abstract String getTagName();
 }

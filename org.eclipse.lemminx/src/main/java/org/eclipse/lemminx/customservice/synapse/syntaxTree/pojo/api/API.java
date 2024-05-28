@@ -29,11 +29,11 @@ public class API extends STNode {
     String hostname;
     String port;
     String version;
-    String versionType;
+    ApiVersionType versionType;
     String publishSwagger;
     String description;
-    String statistics;
-    String trace;
+    EnableDisable statistics;
+    EnableDisable trace;
 
     public APIResource[] getResource() {
 
@@ -105,12 +105,12 @@ public class API extends STNode {
         this.version = version;
     }
 
-    public String getVersionType() {
+    public ApiVersionType getVersionType() {
 
         return versionType;
     }
 
-    public void setVersionType(String versionType) {
+    public void setVersionType(ApiVersionType versionType) {
 
         this.versionType = versionType;
     }
@@ -135,22 +135,22 @@ public class API extends STNode {
         this.description = description;
     }
 
-    public String getStatistics() {
+    public EnableDisable getStatistics() {
 
         return statistics;
     }
 
-    public void setStatistics(String statistics) {
+    public void setStatistics(EnableDisable statistics) {
 
         this.statistics = statistics;
     }
 
-    public String getTrace() {
+    public EnableDisable getTrace() {
 
         return trace;
     }
 
-    public void setTrace(String trace) {
+    public void setTrace(EnableDisable trace) {
 
         this.trace = trace;
     }

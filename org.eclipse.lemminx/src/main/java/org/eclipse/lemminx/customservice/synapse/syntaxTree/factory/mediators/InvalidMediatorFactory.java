@@ -33,7 +33,7 @@ public class InvalidMediatorFactory extends AbstractMediatorFactory {
     }
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         InvalidMediator invalidMediator = new InvalidMediator();
         invalidMediator.elementNode(element);

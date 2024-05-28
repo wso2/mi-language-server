@@ -19,8 +19,8 @@
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators;
 
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.SequenceMediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.SequenceMediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.utils.SyntaxTreeUtils;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.dom.DOMElement;
@@ -33,7 +33,7 @@ public class SequenceMediatorFactory extends AbstractMediatorFactory {
     private static final String SEQUENCE = "sequence";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         SequenceMediator sequenceMediator = new SequenceMediator();
         sequenceMediator.elementNode(element);

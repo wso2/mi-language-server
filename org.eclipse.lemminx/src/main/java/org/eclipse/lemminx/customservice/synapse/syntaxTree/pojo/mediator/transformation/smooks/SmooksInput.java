@@ -22,15 +22,15 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 
 public class SmooksInput extends STNode {
 
-    String type;
+    SmooksInputType type;
     String expression;
 
-    public String getType() {
+    public SmooksInputType getType() {
 
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(SmooksInputType type) {
 
         this.type = type;
     }

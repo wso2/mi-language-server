@@ -35,7 +35,7 @@ public class BamFactory extends AbstractMediatorFactory {
     private static final String BAM = "bam";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Bam bam = new Bam();
         bam.elementNode(element);

@@ -29,7 +29,7 @@ public class Cache extends Mediator {
     int timeout;
     boolean collector;
     int maxMessageSize;
-    String scope;
+    CacheScope scope;
     String hashGenerator;
     String description;
 
@@ -103,12 +103,12 @@ public class Cache extends Mediator {
         this.maxMessageSize = maxMessageSize;
     }
 
-    public String getScope() {
+    public CacheScope getScope() {
 
         return scope;
     }
 
-    public void setScope(String scope) {
+    public void setScope(CacheScope scope) {
 
         this.scope = scope;
     }

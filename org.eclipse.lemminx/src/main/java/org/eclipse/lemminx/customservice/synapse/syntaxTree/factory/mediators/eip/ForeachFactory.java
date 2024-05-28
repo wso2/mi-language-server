@@ -35,7 +35,7 @@ public class ForeachFactory extends AbstractMediatorFactory {
     private static final String FOR_EACH = "foreach";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Foreach foreach = new Foreach();
         foreach.elementNode(element);

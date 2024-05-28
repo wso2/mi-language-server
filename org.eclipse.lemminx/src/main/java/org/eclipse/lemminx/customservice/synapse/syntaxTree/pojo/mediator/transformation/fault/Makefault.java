@@ -28,7 +28,7 @@ public class Makefault extends Mediator {
     STNode node;
     STNode role;
     MakefaultDetail detail;
-    String version;
+    FaultVersion version;
     boolean response;
     String description;
 
@@ -82,12 +82,12 @@ public class Makefault extends Mediator {
         this.detail = detail;
     }
 
-    public String getVersion() {
+    public FaultVersion getVersion() {
 
         return version;
     }
 
-    public void setVersion(String version) {
+    public void setVersion(FaultVersion version) {
 
         this.version = version;
     }

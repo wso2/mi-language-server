@@ -30,7 +30,7 @@ public class AggregateOnComplete extends STNode {
     String expression;
     String sequenceAttribute;
     String enclosingElementProperty;
-    String aggregateElementType;
+    AggregateElementType aggregateElementType;
 
     public AggregateOnComplete() {
 
@@ -77,12 +77,12 @@ public class AggregateOnComplete extends STNode {
         this.enclosingElementProperty = enclosingElementProperty;
     }
 
-    public String getAggregateElementType() {
+    public AggregateElementType getAggregateElementType() {
 
         return aggregateElementType;
     }
 
-    public void setAggregateElementType(String aggregateElementType) {
+    public void setAggregateElementType(AggregateElementType aggregateElementType) {
 
         this.aggregateElementType = aggregateElementType;
     }

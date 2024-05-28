@@ -23,7 +23,10 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.enrich.Enrich;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.enrich.SourceEnrich;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.enrich.SourceEnrichType;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.enrich.TargetEnrich;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.enrich.TargetEnrichAction;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.enrich.TargetEnrichType;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
@@ -36,7 +39,7 @@ public class EnrichFactory extends AbstractMediatorFactory {
     private static final String ENRICH = "enrich";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Enrich enrich = new Enrich();
         enrich.elementNode(element);
@@ -82,8 +85,9 @@ public class EnrichFactory extends AbstractMediatorFactory {
             sourceEnrich.setKey(key);
         }
         String type = element.getAttribute(Constant.TYPE);
-        if (type != null) {
-            sourceEnrich.setType(type);
+        SourceEnrichType enrichType = Utils.getEnumFromValue(type, SourceEnrichType.class);
+        if (enrichType != null) {
+            sourceEnrich.setType(enrichType);
         }
         String property = element.getAttribute(Constant.PROPERTY);
         if (property != null) {
@@ -103,12 +107,14 @@ public class EnrichFactory extends AbstractMediatorFactory {
         TargetEnrich targetEnrich = new TargetEnrich();
         targetEnrich.elementNode((DOMElement) element);
         String action = element.getAttribute(Constant.ACTION);
-        if (action != null) {
-            targetEnrich.setAction(action);
+        TargetEnrichAction actionEnum = Utils.getEnumFromValue(action, TargetEnrichAction.class);
+        if (actionEnum != null) {
+            targetEnrich.setAction(actionEnum);
         }
         String type = element.getAttribute(Constant.TYPE);
-        if (type != null) {
-            targetEnrich.setType(type);
+        TargetEnrichType typeEnum = Utils.getEnumFromValue(type, TargetEnrichType.class);
+        if (typeEnum != null) {
+            targetEnrich.setType(typeEnum);
         }
         String xpath = element.getAttribute(Constant.XPATH);
         if (xpath != null) {

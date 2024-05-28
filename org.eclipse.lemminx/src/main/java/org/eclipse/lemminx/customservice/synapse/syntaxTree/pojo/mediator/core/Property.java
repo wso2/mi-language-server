@@ -23,8 +23,8 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediat
 public class Property extends Mediator {
 
     Object any;
-    String scope;
-    String type;
+    PropertyScope scope;
+    PropertyMediatorType type;
     String pattern;
     String group;
     String description;
@@ -43,22 +43,22 @@ public class Property extends Mediator {
         this.any = any;
     }
 
-    public String getScope() {
+    public PropertyScope getScope() {
 
         return scope;
     }
 
-    public void setScope(String scope) {
+    public void setScope(PropertyScope scope) {
 
         this.scope = scope;
     }
 
-    public String getType() {
+    public PropertyMediatorType getType() {
 
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(PropertyMediatorType type) {
 
         this.type = type;
     }

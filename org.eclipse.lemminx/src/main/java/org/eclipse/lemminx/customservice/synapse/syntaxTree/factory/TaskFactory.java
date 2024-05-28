@@ -95,7 +95,7 @@ public class TaskFactory extends AbstractFactory {
         }
         String once = node.getAttribute(Constant.ONCE);
         if (once != null) {
-            taskTrigger.setOnce(once);
+            taskTrigger.setOnce(Boolean.parseBoolean(once));
         }
         return taskTrigger;
     }

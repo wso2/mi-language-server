@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation;
+package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.xquery;
 
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 

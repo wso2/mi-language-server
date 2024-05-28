@@ -23,7 +23,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 public class ProxyPolicy extends STNode {
 
     String key;
-    String type;
+    ProxyPolicyType type;
 
     public String getKey() {
 
@@ -35,12 +35,12 @@ public class ProxyPolicy extends STNode {
         this.key = key;
     }
 
-    public String getType() {
+    public ProxyPolicyType getType() {
 
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(ProxyPolicyType type) {
 
         this.type = type;
     }

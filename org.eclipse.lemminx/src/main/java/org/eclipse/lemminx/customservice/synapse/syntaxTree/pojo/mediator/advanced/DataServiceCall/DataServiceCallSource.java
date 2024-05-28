@@ -22,14 +22,14 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 
 public class DataServiceCallSource extends STNode {
 
-    String type;
+    DataServiceCallSourceType type;
 
-    public String getType() {
+    public DataServiceCallSourceType getType() {
 
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(DataServiceCallSourceType type) {
 
         this.type = type;
     }

@@ -22,15 +22,15 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 
 public class DbMediatorConnectionPoolProperty extends STNode {
 
-    String name;
+    ConnectionPoolPropertyName name;
     String value;
 
-    public String getName() {
+    public ConnectionPoolPropertyName getName() {
 
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(ConnectionPoolPropertyName name) {
 
         this.name = name;
     }

@@ -23,7 +23,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 public class PayloadFactoryArgsArg extends STNode {
 
     String value;
-    String evaluator;
+    EvaluatorType evaluator;
     String expression;
     boolean literal;
 
@@ -37,12 +37,12 @@ public class PayloadFactoryArgsArg extends STNode {
         this.value = value;
     }
 
-    public String getEvaluator() {
+    public EvaluatorType getEvaluator() {
 
         return evaluator;
     }
 
-    public void setEvaluator(String evaluator) {
+    public void setEvaluator(EvaluatorType evaluator) {
 
         this.evaluator = evaluator;
     }

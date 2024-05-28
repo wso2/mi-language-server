@@ -19,11 +19,13 @@
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.factory;
 
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.EnableDisable;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.inbound.InboundEndpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.inbound.InboundEndpointParameters;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Parameter;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.utils.SyntaxTreeUtils;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 
@@ -94,12 +96,14 @@ public class InboundEndpointFactory extends AbstractFactory {
             ((InboundEndpoint) node).setClazz(clazz);
         }
         String statistics = element.getAttribute(Constant.STATISTICS);
-        if (statistics != null) {
-            ((InboundEndpoint) node).setStatistics(statistics);
+        EnableDisable statisticsEnum = Utils.getEnumFromValue(statistics, EnableDisable.class);
+        if (statisticsEnum != null) {
+            ((InboundEndpoint) node).setStatistics(statisticsEnum);
         }
         String trace = element.getAttribute(Constant.TRACE);
-        if (trace != null) {
-            ((InboundEndpoint) node).setTrace(trace);
+        EnableDisable traceEnum = Utils.getEnumFromValue(trace, EnableDisable.class);
+        if (traceEnum != null) {
+            ((InboundEndpoint) node).setTrace(traceEnum);
         }
         String sequence = element.getAttribute(Constant.SEQUENCE);
         if (sequence != null) {

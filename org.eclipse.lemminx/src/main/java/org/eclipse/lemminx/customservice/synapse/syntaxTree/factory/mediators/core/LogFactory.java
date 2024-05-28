@@ -38,7 +38,7 @@ public class LogFactory extends AbstractMediatorFactory {
     private static final String LOG = "log";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Log log = new Log();
         log.elementNode(element);

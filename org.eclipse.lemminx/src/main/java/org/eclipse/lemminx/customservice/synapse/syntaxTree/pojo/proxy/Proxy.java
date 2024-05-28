@@ -19,6 +19,7 @@
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.proxy;
 
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.EnableDisable;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Parameter;
 
 public class Proxy extends STNode {
@@ -36,8 +37,8 @@ public class Proxy extends STNode {
     String pinnedServers;
     String serviceGroup;
     boolean startOnLoad;
-    String statistics;
-    String trace;
+    EnableDisable statistics;
+    EnableDisable trace;
 
     public String getName() {
 
@@ -89,22 +90,22 @@ public class Proxy extends STNode {
         this.startOnLoad = startOnLoad;
     }
 
-    public String getStatistics() {
+    public EnableDisable getStatistics() {
 
         return statistics;
     }
 
-    public void setStatistics(String statistics) {
+    public void setStatistics(EnableDisable statistics) {
 
         this.statistics = statistics;
     }
 
-    public String getTrace() {
+    public EnableDisable getTrace() {
 
         return trace;
     }
 
-    public void setTrace(String trace) {
+    public void setTrace(EnableDisable trace) {
 
         this.trace = trace;
     }

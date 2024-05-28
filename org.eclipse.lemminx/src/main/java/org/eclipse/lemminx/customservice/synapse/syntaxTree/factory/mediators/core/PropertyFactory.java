@@ -22,6 +22,8 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.Ab
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Property;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.PropertyMediatorType;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.PropertyScope;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
@@ -32,7 +34,7 @@ public class PropertyFactory extends AbstractMediatorFactory {
     private static final String PROPERTY = "property";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Property property = new Property();
         property.elementNode(element);
@@ -62,12 +64,14 @@ public class PropertyFactory extends AbstractMediatorFactory {
             property.setExpression(expression);
         }
         String scope = element.getAttribute(Constant.SCOPE);
-        if (scope != null) {
-            property.setScope(scope);
+        PropertyScope propertyScope = Utils.getEnumFromValue(scope, PropertyScope.class);
+        if (propertyScope != null) {
+            property.setScope(propertyScope);
         }
         String type = element.getAttribute(Constant.TYPE);
-        if (type != null) {
-            property.setType(type);
+        PropertyMediatorType typeEnum = Utils.getEnumFromValue(type, PropertyMediatorType.class);
+        if (typeEnum != null) {
+            property.setType(typeEnum);
         }
         String pattern = element.getAttribute(Constant.PATTERN);
         if (pattern != null) {

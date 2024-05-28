@@ -22,7 +22,9 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.Ab
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.extension.Bean;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.extension.BeanAction;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
 
 public class BeanFactory extends AbstractMediatorFactory {
@@ -30,7 +32,7 @@ public class BeanFactory extends AbstractMediatorFactory {
     private static final String BEAN = "bean";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Bean bean = new Bean();
         bean.elementNode(element);
@@ -42,8 +44,9 @@ public class BeanFactory extends AbstractMediatorFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String action = element.getAttribute(Constant.ACTION);
-        if (action != null) {
-            ((Bean) node).setAction(action);
+        BeanAction actionEnum = Utils.getEnumFromValue(action, BeanAction.class);
+        if (actionEnum != null) {
+            ((Bean) node).setAction(actionEnum);
         }
         String var = element.getAttribute(Constant.VAR);
         if (var != null) {

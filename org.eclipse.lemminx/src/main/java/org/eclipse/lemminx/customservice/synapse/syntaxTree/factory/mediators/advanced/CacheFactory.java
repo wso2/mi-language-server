@@ -23,8 +23,10 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.cache.Cache;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.cache.CacheImplementation;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.cache.CacheImplementationType;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.cache.CacheOnCacheHit;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.cache.CacheProtocol;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.cache.CacheScope;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.utils.SyntaxTreeUtils;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
@@ -38,7 +40,7 @@ public class CacheFactory extends AbstractMediatorFactory {
     private static final String CACHE_MEDIATOR = "cache";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Cache cacheMediator = new Cache();
         cacheMediator.elementNode(element);
@@ -80,8 +82,9 @@ public class CacheFactory extends AbstractMediatorFactory {
             cacheMediator.setMaxMessageSize(Utils.parseInt(maxMessageSize));
         }
         String scope = element.getAttribute(Constant.SCOPE);
-        if (scope != null) {
-            cacheMediator.setScope(scope);
+        CacheScope cacheScope = Utils.getEnumFromValue(scope, CacheScope.class);
+        if (cacheScope != null) {
+            cacheMediator.setScope(cacheScope);
         }
         String hashGenerator = element.getAttribute(Constant.HASH_GENERATOR);
         if (hashGenerator != null) {
@@ -152,8 +155,9 @@ public class CacheFactory extends AbstractMediatorFactory {
         CacheImplementation cacheImplementation = new CacheImplementation();
         cacheImplementation.elementNode((DOMElement) element);
         String type = element.getAttribute(Constant.TYPE);
-        if (type != null) {
-            cacheImplementation.setType(type);
+        CacheImplementationType cacheImplementationType = Utils.getEnumFromValue(type, CacheImplementationType.class);
+        if (cacheImplementationType != null) {
+            cacheImplementation.setType(cacheImplementationType);
         }
         String maxSize = element.getAttribute(Constant.MAX_SIZE);
         if (maxSize != null) {

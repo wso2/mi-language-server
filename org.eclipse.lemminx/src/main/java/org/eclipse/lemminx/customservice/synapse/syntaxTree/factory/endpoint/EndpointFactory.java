@@ -27,6 +27,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.Endpoi
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.NamedEndpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointParameter;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointProperty;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointPropertyScope;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.failover.EndpointFailover;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.http.EndpointHttp;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.loadbalance.EndpointLoadbalance;
@@ -119,8 +120,9 @@ public class EndpointFactory extends AbstractFactory {
         EndpointProperty endpointProperty = new EndpointProperty(property);
         endpointProperty.elementNode((DOMElement) node);
         String scope = node.getAttribute(Constant.SCOPE);
-        if (scope != null && !scope.isEmpty()) {
-            endpointProperty.setScope(scope);
+        EndpointPropertyScope scopeEnum = Utils.getEnumFromValue(scope, EndpointPropertyScope.class);
+        if (scopeEnum != null) {
+            endpointProperty.setScope(scopeEnum);
         }
         return endpointProperty;
     }

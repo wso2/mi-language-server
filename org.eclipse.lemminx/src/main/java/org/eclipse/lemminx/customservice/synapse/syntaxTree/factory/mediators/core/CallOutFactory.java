@@ -39,7 +39,7 @@ public class CallOutFactory extends AbstractMediatorFactory {
     private static final String CALL_OUT = "CallOut";
 
     @Override
-    public Mediator createSpecificMediator(DOMElement element) {
+    protected Mediator createSpecificMediator(DOMElement element) {
 
         Callout callOut = new Callout();
         callOut.elementNode(element);

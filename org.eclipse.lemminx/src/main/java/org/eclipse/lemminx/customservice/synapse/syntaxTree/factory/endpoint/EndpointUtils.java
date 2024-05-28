@@ -19,6 +19,7 @@
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.endpoint;
 
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EnableAddressingVersion;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointEnableAddressing;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointEnableRM;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointEnableSec;
@@ -30,6 +31,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.http.E
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Parameter;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.utils.SyntaxTreeUtils;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 
@@ -74,8 +76,9 @@ public class EndpointUtils {
         EndpointEnableAddressing enableAddressing = new EndpointEnableAddressing();
         enableAddressing.elementNode((DOMElement) node);
         String version = node.getAttribute(Constant.VERSION);
-        if (version != null && !version.isEmpty()) {
-            enableAddressing.setVersion(version);
+        EnableAddressingVersion versionEnum = Utils.getEnumFromValue(version, EnableAddressingVersion.class);
+        if (versionEnum != null) {
+            enableAddressing.setVersion(versionEnum);
         }
         String separateListener = node.getAttribute(Constant.SEPARATE_LISTENER);
         if (separateListener != null && !separateListener.isEmpty()) {
@@ -95,6 +98,11 @@ public class EndpointUtils {
                 if (child instanceof DOMElement) {
                     STNode content = new STNode();
                     content.elementNode((DOMElement) child);
+                    if ("duration".equalsIgnoreCase(child.getNodeName())) {
+                        timeout.setDuration(content);
+                    } else if ("responseAction".equalsIgnoreCase(child.getNodeName())) {
+                        timeout.setResponseAction(content);
+                    }
                     elements.add(content);
                 }
             }
