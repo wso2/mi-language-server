@@ -22,6 +22,9 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.AbstractFact
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.misc.Wsdl11Factory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.misc.Wsdl20Factory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.EnableDisable;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.Format;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.Optimize;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointEnableAddressing;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointEnableRM;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.common.EndpointEnableSec;
@@ -32,6 +35,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.wsdl.W
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.wsdl11.TDefinitions;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.wsdl20.DescriptionType;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 
@@ -85,24 +89,29 @@ public class WSDLEndpointFactory extends AbstractFactory {
     public void populateAttributes(STNode node, DOMElement element) {
 
         String format = element.getAttribute(Constant.FORMAT);
-        if (format != null && !format.isEmpty()) {
-            ((WSDLEndpoint) node).setFormat(format);
+        Format formatEnum = Utils.getEnumFromValue(format, Format.class);
+        ((WSDLEndpoint) node).setFormat(formatEnum);
+        if (formatEnum != null) {
+            ((WSDLEndpoint) node).setFormat(formatEnum);
         }
         String optimize = element.getAttribute(Constant.OPTIMIZE);
-        if (optimize != null && !optimize.isEmpty()) {
-            ((WSDLEndpoint) node).setOptimize(optimize);
+        Optimize optimizeEnum = Utils.getEnumFromValue(optimize, Optimize.class);
+        if (optimizeEnum != null) {
+            ((WSDLEndpoint) node).setOptimize(optimizeEnum);
         }
         String encoding = element.getAttribute(Constant.ENCODING);
         if (encoding != null && !encoding.isEmpty()) {
             ((WSDLEndpoint) node).setEncoding(encoding);
         }
         String statistics = element.getAttribute(Constant.STATISTICS);
-        if (statistics != null && !statistics.isEmpty()) {
-            ((WSDLEndpoint) node).setStatistics(statistics);
+        EnableDisable statisticsEnum = Utils.getEnumFromValue(statistics, EnableDisable.class);
+        if (statisticsEnum != null) {
+            ((WSDLEndpoint) node).setStatistics(statisticsEnum);
         }
         String trace = element.getAttribute(Constant.TRACE);
-        if (trace != null && !trace.isEmpty()) {
-            ((WSDLEndpoint) node).setTrace(trace);
+        EnableDisable traceEnum = Utils.getEnumFromValue(trace, EnableDisable.class);
+        if (traceEnum != null) {
+            ((WSDLEndpoint) node).setTrace(traceEnum);
         }
         String uri = element.getAttribute(Constant.URI);
         if (uri != null && !uri.isEmpty()) {

@@ -24,6 +24,7 @@ public class EndpointParameter extends STNode {
 
     String name;
     String value;
+    String paramNamespacePrefix;
 
     public String getName() {
 
@@ -43,5 +44,15 @@ public class EndpointParameter extends STNode {
     public void setValue(String value) {
 
         this.value = value;
+    }
+
+    public String getParamNamespacePrefix() {
+
+        return paramNamespacePrefix;
+    }
+
+    public void setParamNamespacePrefix(String paramNamespacePrefix) {
+
+        this.paramNamespacePrefix = paramNamespacePrefix;
     }
 }

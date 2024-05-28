@@ -139,6 +139,10 @@ public class EndpointFactory extends AbstractFactory {
         if (value != null && !value.isEmpty()) {
             parameter.setValue(value);
         }
+        String paramNamespacePrefix = node.getPrefix();
+        if (paramNamespacePrefix != null) {
+            parameter.setParamNamespacePrefix(paramNamespacePrefix);
+        }
         return parameter;
     }
 

@@ -18,6 +18,9 @@
 
 package org.eclipse.lemminx.customservice.synapse.utils;
 
+import org.apache.axiom.om.OMAbstractFactory;
+import org.apache.axiom.om.OMNamespace;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -438,4 +441,7 @@ public class Constant {
     public static final String RDF_BASE_URI = "rdfBaseURI";
     public static final String DATA_SERVICE = "dataService";
     public static final String CACHE_SCHEMA = "cache-schema";
+    public static final String SYNAPSE_NAMESPACE = "http://ws.apache.org/ns/synapse";
+    public static final OMNamespace SYNAPSE_OMNAMESPACE =
+            OMAbstractFactory.getOMFactory().createOMNamespace(SYNAPSE_NAMESPACE, "");
 }
