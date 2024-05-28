@@ -39,7 +39,7 @@
 				<artifactId>maven-install-plugin</artifactId>
 				<version>3.1.1</version>
 				<configuration>
-					<file>${project.basedir}/lib/soaptorest-1.6.jar</file>
+					<file>${project.basedir}/lib/soaptorest-1.6-jar-with-dependencies.jar</file>
 					<groupId>org.wso2</groupId>
 					<artifactId>soaptorest</artifactId>
 					<version>1.6</version>
