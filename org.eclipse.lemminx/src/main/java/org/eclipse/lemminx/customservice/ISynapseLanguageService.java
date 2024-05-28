@@ -18,18 +18,19 @@
 
 package org.eclipse.lemminx.customservice;
 
+import org.eclipse.lemminx.customservice.synapse.api.generator.GenerateAPIResponse;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connections;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
+import org.eclipse.lemminx.customservice.synapse.api.generator.GenerateAPIParam;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceParam;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceResponse;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
-import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointInfoResponse;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointsRequest;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.ValidationResponse;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryMapResponse;
-import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceParam;
-import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceResponse;
 import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGenRequest;
 import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGenResponse;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeResponse;
@@ -40,7 +41,6 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceFolder;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.messages.Either3;
-import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
@@ -89,4 +89,7 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<SchemaGenResponse> generateSchema(SchemaGenRequest schemaGenRequest);
+
+    @JsonRequest
+    CompletableFuture<GenerateAPIResponse> generateAPI(GenerateAPIParam param);
 }

@@ -22,6 +22,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.ISynapseLanguageService;
 import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
+import org.eclipse.lemminx.customservice.synapse.api.generator.GenerateAPIResponse;
 import org.eclipse.lemminx.customservice.synapse.connectors.NewProjectConnectorLoader;
 import org.eclipse.lemminx.customservice.synapse.connectors.OldProjectConnectorLoader;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connections;
@@ -36,6 +37,8 @@ import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointsRequ
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointValidity;
 import org.eclipse.lemminx.customservice.synapse.debugger.DebuggerHelper;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.ValidationResponse;
+import org.eclipse.lemminx.customservice.synapse.api.generator.GenerateAPIParam;
+import org.eclipse.lemminx.customservice.synapse.api.generator.RestApiAdmin;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceFinder;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceResponse;
@@ -249,6 +252,14 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         String schema = schemaGenerate.getSchemaContent(fileType, schemaGenRequest.filePath, schemaGenRequest.delimiter);
         SchemaGenResponse schemaGenResponse = new SchemaGenResponse(schema);
         return CompletableFuture.supplyAsync(() -> schemaGenResponse);
+    }
+
+    @Override
+    public CompletableFuture<GenerateAPIResponse> generateAPI(GenerateAPIParam param) {
+
+        RestApiAdmin generator = new RestApiAdmin();
+        GenerateAPIResponse apiXml = generator.createAPI(param);
+        return CompletableFuture.supplyAsync(() -> apiXml);
     }
 
     public String getProjectUri() {

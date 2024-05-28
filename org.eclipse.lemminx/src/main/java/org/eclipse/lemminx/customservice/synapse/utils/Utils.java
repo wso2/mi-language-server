@@ -107,6 +107,13 @@ public class Utils {
         return domDocument;
     }
 
+    public static DOMDocument getDOMDocument(String file) {
+
+        TextDocument document = new TextDocument(file, "temp");
+        DOMDocument domDocument = DOMParser.getInstance().parse(document, null);
+        return domDocument;
+    }
+
     public static DOMElement getRootElementFromConfigXml(DOMNode document) {
 
         DOMElement rootElement = null;

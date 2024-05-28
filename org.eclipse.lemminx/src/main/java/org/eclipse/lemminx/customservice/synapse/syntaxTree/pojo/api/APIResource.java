@@ -21,6 +21,10 @@ package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class APIResource extends STNode {
 
     Sequence inSequence;
@@ -132,5 +136,27 @@ public class APIResource extends STNode {
     public void setUrlMapping(String urlMapping) {
 
         this.urlMapping = urlMapping;
+    }
+
+    public void addMethod(String method) {
+
+        if (this.methods == null) {
+            this.methods = new String[1];
+            this.methods[0] = method;
+        } else {
+            String[] newMethod = new String[this.methods.length + 1];
+            System.arraycopy(this.methods, 0, method, 0, this.methods.length);
+            newMethod[this.methods.length] = method;
+            this.methods = newMethod;
+        }
+    }
+
+    public String getResourcePath() {
+
+        if (this.urlMapping != null) {
+            return this.urlMapping;
+        } else {
+            return this.uriTemplate;
+        }
     }
 }

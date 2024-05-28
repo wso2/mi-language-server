@@ -20,6 +20,9 @@ jobs:
         java-version: '11'
         distribution: 'adopt'
         cache: 'maven'
+    - name: Initialize on Linux
+      if: runner.os == 'Linux'
+      run: ./mvnw -B initialize
     - name: Build on Linux
       if: runner.os == 'Linux'
       run: ./mvnw -B clean install

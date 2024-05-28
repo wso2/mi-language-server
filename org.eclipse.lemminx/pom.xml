@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.eclipse.lemminx</groupId>
 		<artifactId>lemminx-parent</artifactId>
-		<version>0.24.0-wso2v15-SNAPSHOT</version>
+		<version>0.24.0-wso2v16-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<artifactId>org.eclipse.lemminx</artifactId>
@@ -34,6 +34,28 @@
 			</resource>
 		</resources>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+				<version>3.1.1</version>
+				<configuration>
+					<file>${project.basedir}/lib/soaptorest-1.6-jar-with-dependencies.jar</file>
+					<groupId>org.wso2</groupId>
+					<artifactId>soaptorest</artifactId>
+					<version>1.6</version>
+					<packaging>jar</packaging>
+					<generatePom>true</generatePom>
+				</configuration>
+				<executions>
+					<execution>
+						<id>install-jar-lib</id>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+						<phase>initialize</phase>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
@@ -321,6 +343,28 @@
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-yaml</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.wso2</groupId>
+			<artifactId>soaptorest</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>com.github.java-json-tools</groupId>
+					<artifactId>json-schema-validator</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId> io.swagger.parser.v3</groupId>
+					<artifactId>swagger-parser-v2-converter</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 </project>

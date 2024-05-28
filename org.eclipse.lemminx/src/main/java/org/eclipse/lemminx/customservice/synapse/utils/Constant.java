@@ -281,7 +281,7 @@ public class Constant {
     public static final String HANDLERS = "handlers";
     public static final String CONTEXT = "context";
     public static final String HOSTNAME = "hostname";
-    public static final String VERSION_TYPE = "versionType";
+    public static final String VERSION_TYPE = "version-type";
     public static final String PUBLISH_SWAGGER = "publishSwagger";
     public static final String URL_MAPPING = "url-mapping";
     public static final String SPACE = " ";
