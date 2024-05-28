@@ -24,7 +24,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanc
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.cache.CacheImplementation;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.cache.CacheOnCacheHit;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.cache.CacheProtocol;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.InlineSequenceSerializer;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.AnonymousSequenceSerializer;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator.AbstractMediatorSerializer;
 
 public class CacheMediatorSerializer extends AbstractMediatorSerializer {
@@ -72,7 +72,7 @@ public class CacheMediatorSerializer extends AbstractMediatorSerializer {
             if (onCacheHit.getSequence() != null) {
                 onCacheHitElt.addAttribute("sequence", onCacheHit.getSequence(), null);
             } else if (onCacheHit.getMediatorList() != null) {
-                onCacheHitElt = InlineSequenceSerializer.serializeAnonymousSequence(onCacheHit.getMediatorList());
+                onCacheHitElt = AnonymousSequenceSerializer.serializeAnonymousSequence(onCacheHit.getMediatorList());
                 onCacheHitElt.setLocalName("onCacheHit");
             }
             cacheElt.addChild(onCacheHitElt);

@@ -26,7 +26,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.v
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.validate.ValidateProperty;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.validate.ValidateResource;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.validate.ValidateSchema;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.InlineSequenceSerializer;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.AnonymousSequenceSerializer;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.SerializerUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator.AbstractMediatorSerializer;
 
@@ -125,7 +125,7 @@ public class ValidateMediatorSerializer extends AbstractMediatorSerializer {
 
         OMElement onFailElt = fac.createOMElement("on-fail", synNS);
         if (onFail != null && onFail.getMediatorList() != null) {
-            InlineSequenceSerializer.serializeAnonymousSequence(onFail.getMediatorList(), onFailElt);
+            AnonymousSequenceSerializer.serializeAnonymousSequence(onFail.getMediatorList(), onFailElt);
         }
         validateElt.addChild(onFailElt);
     }

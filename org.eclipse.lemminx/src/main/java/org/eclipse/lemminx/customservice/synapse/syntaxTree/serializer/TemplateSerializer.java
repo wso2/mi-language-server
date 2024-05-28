@@ -65,7 +65,7 @@ public class TemplateSerializer {
             templateElt.addChild(endpointElt);
         } else if (template.getSequence() != null) {
             OMElement sequenceElt =
-                    InlineSequenceSerializer.serializeAnonymousSequence(template.getSequence().getMediatorList());
+                    AnonymousSequenceSerializer.serializeAnonymousSequence(template.getSequence().getMediatorList());
             templateElt.addChild(sequenceElt);
         } else {
             handleException("Template must have either an endpoint or a sequence");

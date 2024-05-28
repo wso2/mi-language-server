@@ -21,7 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator
 import org.apache.axiom.om.OMElement;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.other.entitlement.EntitlementService;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.InlineSequenceSerializer;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.AnonymousSequenceSerializer;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator.AbstractMediatorSerializer;
 
 public class EntitlementMediatorSerializer extends AbstractMediatorSerializer {
@@ -73,7 +73,7 @@ public class EntitlementMediatorSerializer extends AbstractMediatorSerializer {
             entitlementServiceElt.addAttribute("onReject", entitlementService.getOnRejectAttribute(), nullNS);
         } else if (entitlementService.getOnReject() != null) {
             OMElement onRejectElt =
-                    InlineSequenceSerializer.serializeAnonymousSequence(entitlementService.getOnReject());
+                    AnonymousSequenceSerializer.serializeAnonymousSequence(entitlementService.getOnReject());
             onRejectElt.setLocalName("onReject");
             entitlementServiceElt.addChild(onRejectElt);
         }
@@ -82,7 +82,7 @@ public class EntitlementMediatorSerializer extends AbstractMediatorSerializer {
             entitlementServiceElt.addAttribute("onAccept", entitlementService.getOnAcceptAttribute(), nullNS);
         } else if (entitlementService.getOnAccept() != null) {
             OMElement onAcceptElt =
-                    InlineSequenceSerializer.serializeAnonymousSequence(entitlementService.getOnAccept());
+                    AnonymousSequenceSerializer.serializeAnonymousSequence(entitlementService.getOnAccept());
             onAcceptElt.setLocalName("onAccept");
             entitlementServiceElt.addChild(onAcceptElt);
         }
@@ -90,7 +90,7 @@ public class EntitlementMediatorSerializer extends AbstractMediatorSerializer {
         if (entitlementService.getAdviceAttribute() != null) {
             entitlementServiceElt.addAttribute("advice", entitlementService.getAdviceAttribute(), nullNS);
         } else if (entitlementService.getAdvice() != null) {
-            OMElement adviceElt = InlineSequenceSerializer.serializeAnonymousSequence(entitlementService.getAdvice());
+            OMElement adviceElt = AnonymousSequenceSerializer.serializeAnonymousSequence(entitlementService.getAdvice());
             adviceElt.setLocalName("advice");
             entitlementServiceElt.addChild(adviceElt);
         }
@@ -99,7 +99,7 @@ public class EntitlementMediatorSerializer extends AbstractMediatorSerializer {
             entitlementServiceElt.addAttribute("obligations", entitlementService.getObligationsAttribute(), nullNS);
         } else if (entitlementService.getObligations() != null) {
             OMElement obligationsElt =
-                    InlineSequenceSerializer.serializeAnonymousSequence(entitlementService.getObligations());
+                    AnonymousSequenceSerializer.serializeAnonymousSequence(entitlementService.getObligations());
             obligationsElt.setLocalName("obligations");
             entitlementServiceElt.addChild(obligationsElt);
         }

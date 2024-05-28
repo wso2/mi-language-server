@@ -22,7 +22,7 @@ import org.apache.axiom.om.OMElement;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.Clone.Clone;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.Clone.CloneTarget;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.InlineSequenceSerializer;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.AnonymousSequenceSerializer;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.endpoint.EndpointSerializer;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator.AbstractMediatorSerializer;
 
@@ -78,7 +78,7 @@ public class CloneMediatorSerializer extends AbstractMediatorSerializer {
             if (target.getSequenceAttribute() != null) {
                 targetElt.addAttribute("sequence", target.getSequenceAttribute(), null);
             } else if (target.getSequence() != null) {
-                OMElement sequenceElt = InlineSequenceSerializer.serializeAnonymousSequence(target.getSequence());
+                OMElement sequenceElt = AnonymousSequenceSerializer.serializeAnonymousSequence(target.getSequence());
                 targetElt.addChild(sequenceElt);
             }
 

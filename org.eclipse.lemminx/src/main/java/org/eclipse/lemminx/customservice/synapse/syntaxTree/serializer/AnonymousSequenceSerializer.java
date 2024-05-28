@@ -29,7 +29,7 @@ import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 
 import java.util.List;
 
-public class InlineSequenceSerializer {
+public class AnonymousSequenceSerializer {
 
     private static final OMFactory fac = OMAbstractFactory.getOMFactory();
 

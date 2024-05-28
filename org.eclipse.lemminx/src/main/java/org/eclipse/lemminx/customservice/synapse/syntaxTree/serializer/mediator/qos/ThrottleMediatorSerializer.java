@@ -22,7 +22,7 @@ import org.apache.axiom.om.OMElement;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle.Throttle;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle.ThrottlePolicy;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.InlineSequenceSerializer;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.AnonymousSequenceSerializer;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator.AbstractMediatorSerializer;
 
 public class ThrottleMediatorSerializer extends AbstractMediatorSerializer {
@@ -67,7 +67,7 @@ public class ThrottleMediatorSerializer extends AbstractMediatorSerializer {
         } else {
             OMElement onAcceptElement;
             if (throttle.getOnAccept() != null) {
-                onAcceptElement = InlineSequenceSerializer.serializeAnonymousSequence(throttle.getOnAccept());
+                onAcceptElement = AnonymousSequenceSerializer.serializeAnonymousSequence(throttle.getOnAccept());
                 onAcceptElement.setLocalName("onAccept");
             } else {
                 onAcceptElement = fac.createOMElement("onAccept", synNS);
@@ -80,7 +80,7 @@ public class ThrottleMediatorSerializer extends AbstractMediatorSerializer {
         } else {
             OMElement onRejectElement;
             if (throttle.getOnReject() != null) {
-                onRejectElement = InlineSequenceSerializer.serializeAnonymousSequence(throttle.getOnReject());
+                onRejectElement = AnonymousSequenceSerializer.serializeAnonymousSequence(throttle.getOnReject());
                 onRejectElement.setLocalName("onReject");
             } else {
                 onRejectElement = fac.createOMElement("onReject", synNS);

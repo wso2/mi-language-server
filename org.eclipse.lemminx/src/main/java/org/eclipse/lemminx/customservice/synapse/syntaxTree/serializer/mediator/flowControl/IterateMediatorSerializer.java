@@ -22,7 +22,7 @@ import org.apache.axiom.om.OMElement;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.Iterate;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.targets.Target;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.InlineSequenceSerializer;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.AnonymousSequenceSerializer;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.SerializerUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator.AbstractMediatorSerializer;
 
@@ -73,7 +73,7 @@ public class IterateMediatorSerializer extends AbstractMediatorSerializer {
             if (target.getSequenceAttribute() != null) {
                 targetEle.addAttribute("sequence", target.getSequenceAttribute(), null);
             } else if (target.getSequence() != null) {
-                OMElement sequenceElement = InlineSequenceSerializer.serializeAnonymousSequence(target.getSequence());
+                OMElement sequenceElement = AnonymousSequenceSerializer.serializeAnonymousSequence(target.getSequence());
                 targetEle.addChild(sequenceElement);
             } else {
                 handleException("Invalid target mediator. " +

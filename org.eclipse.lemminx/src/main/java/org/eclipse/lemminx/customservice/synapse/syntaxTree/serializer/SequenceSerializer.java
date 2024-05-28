@@ -65,7 +65,7 @@ public class SequenceSerializer {
     private static OMElement serializeMediators(List<Mediator> mediators) {
 
         if (mediators != null) {
-            OMElement sequenceElt = InlineSequenceSerializer.serializeAnonymousSequence(mediators);
+            OMElement sequenceElt = AnonymousSequenceSerializer.serializeAnonymousSequence(mediators);
             return sequenceElt;
         }
         return null;

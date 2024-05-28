@@ -22,7 +22,7 @@ import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.APIResource;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.InlineSequenceSerializer;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.AnonymousSequenceSerializer;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 
 public class ResourceSerializer {
@@ -58,7 +58,7 @@ public class ResourceSerializer {
         if (resource.getInSequenceAttribute() != null) {
             resourceElt.addAttribute("inSequence", resource.getInSequenceAttribute(), null);
         } else {
-            OMElement inSequenceElt = InlineSequenceSerializer.serializeAnonymousSequence(resource.getInSequence());
+            OMElement inSequenceElt = AnonymousSequenceSerializer.serializeAnonymousSequence(resource.getInSequence());
             inSequenceElt.setLocalName("inSequence");
             resourceElt.addChild(inSequenceElt);
         }
@@ -66,7 +66,7 @@ public class ResourceSerializer {
         if (resource.getOutSequenceAttribute() != null) {
             resourceElt.addAttribute("outSequence", resource.getOutSequenceAttribute(), null);
         } else {
-            OMElement outSequenceElt = InlineSequenceSerializer.serializeAnonymousSequence(resource.getOutSequence());
+            OMElement outSequenceElt = AnonymousSequenceSerializer.serializeAnonymousSequence(resource.getOutSequence());
             outSequenceElt.setLocalName("outSequence");
             resourceElt.addChild(outSequenceElt);
         }
@@ -75,7 +75,7 @@ public class ResourceSerializer {
             resourceElt.addAttribute("faultSequence", resource.getFaultSequenceAttribute(), null);
         } else {
             OMElement faultSequenceElt =
-                    InlineSequenceSerializer.serializeAnonymousSequence(resource.getFaultSequence());
+                    AnonymousSequenceSerializer.serializeAnonymousSequence(resource.getFaultSequence());
             faultSequenceElt.setLocalName("faultSequence");
             resourceElt.addChild(faultSequenceElt);
         }

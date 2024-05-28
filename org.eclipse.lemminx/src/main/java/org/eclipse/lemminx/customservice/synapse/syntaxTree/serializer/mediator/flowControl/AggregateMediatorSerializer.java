@@ -25,7 +25,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.ag
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.aggregate.AggregateCorrelateOn;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.aggregate.AggregateOnComplete;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.aggregate.CorrelateOnOrCompleteConditionOrOnComplete;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.InlineSequenceSerializer;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.AnonymousSequenceSerializer;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.SerializerUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator.AbstractMediatorSerializer;
 
@@ -115,7 +115,7 @@ public class AggregateMediatorSerializer extends AbstractMediatorSerializer {
             onCompleteElt = fac.createOMElement("onComplete", synNS);
             onCompleteElt.addAttribute("sequence", aggregateOnComplete.getSequenceAttribute(), null);
         } else {
-            onCompleteElt = InlineSequenceSerializer.serializeAnonymousSequence(aggregateOnComplete.getMediatorList());
+            onCompleteElt = AnonymousSequenceSerializer.serializeAnonymousSequence(aggregateOnComplete.getMediatorList());
             onCompleteElt.setLocalName("onComplete");
         }
         if (aggregateOnComplete.getAggregateElementType() != null) {

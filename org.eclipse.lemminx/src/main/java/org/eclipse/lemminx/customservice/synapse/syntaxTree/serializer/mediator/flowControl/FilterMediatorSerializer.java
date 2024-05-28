@@ -21,7 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator
 import org.apache.axiom.om.OMElement;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.filter.Filter;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.InlineSequenceSerializer;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.AnonymousSequenceSerializer;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.SerializerUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator.AbstractMediatorSerializer;
 
@@ -58,7 +58,7 @@ public class FilterMediatorSerializer extends AbstractMediatorSerializer {
 
         if (filter.getThen() != null) {
             List<Mediator> thenMediatorList = filter.getThen().getMediatorList();
-            OMElement thenElement = InlineSequenceSerializer.serializeAnonymousSequence(thenMediatorList);
+            OMElement thenElement = AnonymousSequenceSerializer.serializeAnonymousSequence(thenMediatorList);
             thenElement.setLocalName(tagName);
             filterElt.addChild(thenElement);
         }

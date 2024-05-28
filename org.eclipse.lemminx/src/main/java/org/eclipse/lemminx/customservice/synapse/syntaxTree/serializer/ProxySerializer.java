@@ -107,7 +107,7 @@ public class ProxySerializer {
         if (target.getInSequenceAttribute() != null) {
             targetElt.addAttribute("inSequence", target.getInSequenceAttribute(), null);
         } else {
-            OMElement inSequence = InlineSequenceSerializer.serializeAnonymousSequence(target.getInSequence());
+            OMElement inSequence = AnonymousSequenceSerializer.serializeAnonymousSequence(target.getInSequence());
             inSequence.setLocalName("inSequence");
             targetElt.addChild(inSequence);
         }
@@ -115,7 +115,7 @@ public class ProxySerializer {
         if (target.getOutSequenceAttribute() != null) {
             targetElt.addAttribute("outSequence", target.getOutSequenceAttribute(), null);
         } else {
-            OMElement outSequence = InlineSequenceSerializer.serializeAnonymousSequence(target.getOutSequence());
+            OMElement outSequence = AnonymousSequenceSerializer.serializeAnonymousSequence(target.getOutSequence());
             outSequence.setLocalName("outSequence");
             targetElt.addChild(outSequence);
         }
@@ -123,7 +123,7 @@ public class ProxySerializer {
         if (target.getFaultSequenceAttribute() != null) {
             targetElt.addAttribute("faultSequence", target.getFaultSequenceAttribute(), null);
         } else {
-            OMElement faultSequence = InlineSequenceSerializer.serializeAnonymousSequence(target.getFaultSequence());
+            OMElement faultSequence = AnonymousSequenceSerializer.serializeAnonymousSequence(target.getFaultSequence());
             faultSequence.setLocalName("faultSequence");
             targetElt.addChild(faultSequence);
         }

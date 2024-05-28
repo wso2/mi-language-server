@@ -23,7 +23,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediat
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.switchMediator.Switch;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.switchMediator.SwitchCase;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.switchMediator.SwitchDefault;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.InlineSequenceSerializer;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.AnonymousSequenceSerializer;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.SerializerUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator.AbstractMediatorSerializer;
 
@@ -52,7 +52,7 @@ public class SwitchMediatorSerializer extends AbstractMediatorSerializer {
         SwitchCase[] cases = switchMediator.get_case();
         if (cases != null) {
             for (SwitchCase aCase : cases) {
-                OMElement caseElt = InlineSequenceSerializer.serializeAnonymousSequence(aCase.getMediatorList());
+                OMElement caseElt = AnonymousSequenceSerializer.serializeAnonymousSequence(aCase.getMediatorList());
                 caseElt.setLocalName("case");
                 caseElt.addAttribute("regex", aCase.getRegex(), null);
                 switchElt.addChild(caseElt);
@@ -64,7 +64,7 @@ public class SwitchMediatorSerializer extends AbstractMediatorSerializer {
 
         SwitchDefault defaultCase = switchMediator.get_default();
         if (defaultCase != null) {
-            OMElement defaultElt = InlineSequenceSerializer.serializeAnonymousSequence(defaultCase.getMediatorList());
+            OMElement defaultElt = AnonymousSequenceSerializer.serializeAnonymousSequence(defaultCase.getMediatorList());
             defaultElt.setLocalName("default");
             switchElt.addChild(defaultElt);
         }
