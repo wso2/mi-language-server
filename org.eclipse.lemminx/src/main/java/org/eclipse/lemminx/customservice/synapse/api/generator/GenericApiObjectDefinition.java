@@ -21,14 +21,13 @@ package org.eclipse.lemminx.customservice.synapse.api.generator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.API;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.APIResource;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 
 // Source: https://github.com/wso2/carbon-mediation/blob/master/components/mediation-commons/src/main/java/org/wso2/carbon/mediation/commons/rest/api/swagger/GenericApiObjectDefinition.java
@@ -39,7 +38,7 @@ import java.util.regex.Matcher;
  */
 public class GenericApiObjectDefinition {
 
-    private static final Log log = LogFactory.getLog(GenericApiObjectDefinition.class);
+    private static final Logger log = Logger.getLogger(GenericApiObjectDefinition.class.getName());
 
     /**
      * Provides structure for the "responses" element in swagger definition.
@@ -53,8 +52,8 @@ public class GenericApiObjectDefinition {
         //Use a default response since these information is not available in synapse configuration for APIs
         responseDetailsMap.put(SwaggerConstants.DESCRIPTION, SwaggerConstants.DEFAULT_RESPONSE);
         responsesMap.put(SwaggerConstants.DEFAULT_VALUE, responseDetailsMap);
-        if (log.isDebugEnabled()) {
-            log.debug("Response map created with size " + responsesMap.size());
+        if (log.isLoggable(Level.FINE)) {
+            log.info("Response map created with size " + responsesMap.size());
         }
         return responsesMap;
     }
@@ -125,8 +124,8 @@ public class GenericApiObjectDefinition {
             uri = resource.getUriTemplate();
             generateParameterList(parameterList, uri, true);
         }
-        if (log.isDebugEnabled()) {
-            log.debug("Parameters processed for the URI + " + uri + " size " + parameterList.size());
+        if (log.isLoggable(Level.FINE)) {
+            log.info("Parameters processed for the URI + " + uri + " size " + parameterList.size());
         }
 
         generateBodyParameter(parameterList, resource, method);

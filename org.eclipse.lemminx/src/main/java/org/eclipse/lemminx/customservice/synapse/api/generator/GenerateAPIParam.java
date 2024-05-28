@@ -23,6 +23,6 @@ public class GenerateAPIParam {
     public String apiName;
     public String swaggerOrWsdlPath;
     public String wsdlEndpointName;
-    public boolean isPublishSwagger;
+    public String publishSwaggerPath;
     public String mode;
 }

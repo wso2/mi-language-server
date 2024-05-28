@@ -96,18 +96,18 @@ public class RestApiAdmin {
         String apiName = param.apiName;
         String sourcePath = param.swaggerOrWsdlPath;
         String endpoint = param.wsdlEndpointName;
-        boolean isPublishSwagger = param.isPublishSwagger;
+        String publishSwaggerPath = param.publishSwaggerPath;
         String mode = param.mode;
 
-        return createAPI(apiName, sourcePath, endpoint, isPublishSwagger, mode);
+        return createAPI(apiName, sourcePath, endpoint, publishSwaggerPath, mode);
     }
 
-    public GenerateAPIResponse createAPI(String apiName, String sourcePath, String endpoint, boolean isPublishSwagger
+    public GenerateAPIResponse createAPI(String apiName, String sourcePath, String endpoint, String publishSwaggerPath
             , String mode) {
 
         if (CREATE_FROM_SWAGGER.equalsIgnoreCase(mode)) {
             try {
-                return createAPIFromSwagger(apiName, sourcePath);
+                return createAPIFromSwagger(apiName, sourcePath,publishSwaggerPath);
             } catch (JsonProcessingException e) {
                 LOGGER.log(Level.SEVERE, "Exception occurred while creating API from Swagger", e);
                 return null;
@@ -126,21 +126,21 @@ public class RestApiAdmin {
         return null;
     }
 
-    private GenerateAPIResponse createAPIFromSwagger(String apiName, String swaggerPath) throws JsonProcessingException {
+    private GenerateAPIResponse createAPIFromSwagger(String apiName, String swaggerPath,String publishSwaggerPath) throws JsonProcessingException {
 
         File swaggerFile = new File(swaggerPath);
         String swaggerYaml = getSwaggerFileAsYAML(swaggerFile, apiName);
 
-        String api = getSynapseAPIFromSwagger(swaggerYaml);
+        String api = getSynapseAPIFromSwagger(swaggerYaml,publishSwaggerPath);
         return new GenerateAPIResponse(api);
     }
 
-    private String getSynapseAPIFromSwagger(String swaggerYaml) throws JsonProcessingException {
+    private String getSynapseAPIFromSwagger(String swaggerYaml,String publishSwaggerPath) throws JsonProcessingException {
 
         String swaggerString = GenericApiObjectDefinition.convertYamlToJson(swaggerYaml);
         JsonParser jsonParser = new JsonParser();
         JsonElement swaggerJson = jsonParser.parse(swaggerString);
-        APIGenerator apiGenerator = new APIGenerator(swaggerJson.getAsJsonObject());
+        APIGenerator apiGenerator = new APIGenerator(swaggerJson.getAsJsonObject(),publishSwaggerPath);
         String apiXml = apiGenerator.generateSynapseAPIXml();
         return apiXml;
     }
@@ -170,7 +170,7 @@ public class RestApiAdmin {
         wsdlEndpoint.setWsdl(wsdlEndpointData);
 
         String swaggerYaml = soaPtoRESTConversionData.getOASString();
-        String apiXml = getSynapseAPIFromSwagger(swaggerYaml);
+        String apiXml = getSynapseAPIFromSwagger(swaggerYaml,null);
         APIFactory apiFactory = new APIFactory();
         API api = (API) apiFactory.create(Utils.getDOMDocument(apiXml).getDocumentElement());
 

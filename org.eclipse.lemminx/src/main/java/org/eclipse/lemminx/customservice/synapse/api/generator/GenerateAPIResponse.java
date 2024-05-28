@@ -22,15 +22,16 @@ public class GenerateAPIResponse {
 
     public String apiXml;
     public String endpointXml;
+    private final String XML_TAG = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 
     public GenerateAPIResponse(String apiXml) {
 
-        this.apiXml = apiXml;
+        this.apiXml = XML_TAG + apiXml;
     }
 
     public GenerateAPIResponse(String apiXml, String endpointXml) {
 
-        this.apiXml = apiXml;
-        this.endpointXml = endpointXml;
+        this.apiXml = XML_TAG + apiXml;
+        this.endpointXml = XML_TAG + endpointXml;
     }
 }

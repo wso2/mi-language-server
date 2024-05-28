@@ -20,8 +20,6 @@ package org.eclipse.lemminx.customservice.synapse.api.generator;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.CommentMediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.API;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.APIResource;
@@ -39,9 +37,12 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.api.APISe
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,11 +54,13 @@ import java.util.regex.Pattern;
 public class APIGenerator {
 
     private JsonObject swaggerJson;
-    private static Log log = LogFactory.getLog(APIGenerator.class);
+    private String publishSwaggerPath;
+    private static final Logger log = Logger.getLogger(APIGenerator.class.getName());
 
-    public APIGenerator(JsonObject swaggerJson) {
+    public APIGenerator(JsonObject swaggerJson, String publishSwaggerPath) {
 
         this.swaggerJson = swaggerJson;
+        this.publishSwaggerPath = publishSwaggerPath;
     }
 
     public String generateSynapseAPIXml() {
@@ -65,7 +68,10 @@ public class APIGenerator {
         String apiXml = null;
         try {
             API api = generateSynapseAPI();
-            apiXml = APISerializer.serializeAPI(api).toString();
+            if (publishSwaggerPath != null) {
+                api.setPublishSwagger(publishSwaggerPath);
+            }
+            apiXml = APISerializer.serializeAPI(api);
         } catch (APIGenException e) {
         }
         return apiXml;
@@ -162,7 +168,7 @@ public class APIGenerator {
         }
 
         String apiElement = APISerializer.serializeAPI(genAPI);
-        if (log.isDebugEnabled()) {
+        if (log.isLoggable(Level.FINE)) {
             log.info("API generation completed : " + genAPI.getName() + " API: " + apiElement);
         }
         return genAPI;
@@ -273,7 +279,7 @@ public class APIGenerator {
         }
 
         String apiElement = APISerializer.serializeAPI(genAPI);
-        if (log.isDebugEnabled()) {
+        if (log.isLoggable(Level.FINE)) {
             log.info("API generation completed : " + genAPI.getName() + " API: " + apiElement);
         }
         return genAPI;
@@ -316,9 +322,15 @@ public class APIGenerator {
             }
             i++;
         }
-        List<APIResource> generatedResources = new ArrayList<>();
+
+        List<APIResource> generatedResources;
+        if (genAPI.getResource() != null) {
+            generatedResources = new ArrayList<>(Arrays.asList(genAPI.getResource()));
+        } else {
+            generatedResources = new ArrayList<>();
+        }
         for (Map.Entry<String, JsonElement> methodEntry : resourceObj.entrySet()) {
-            if (log.isDebugEnabled()) {
+            if (log.isLoggable(Level.FINE)) {
                 log.info("Generating resource for path : " + path + ", method : " + methodEntry.getKey());
             }
 
