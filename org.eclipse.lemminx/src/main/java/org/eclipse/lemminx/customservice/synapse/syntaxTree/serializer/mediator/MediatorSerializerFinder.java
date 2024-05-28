@@ -19,6 +19,7 @@
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator;
 
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Loopback;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator.core.CallMediatorSerializer;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator.core.CallTemplateMediatorSerializer;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator.core.DropMediatorSerializer;
@@ -39,6 +40,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator.
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator.flowControl.IterateMediatorSerializer;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator.flowControl.SwitchMediatorSerializer;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator.flowControl.ValidateMediatorSerializer;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator.other.LoopbackMediatorSerializer;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator.qos.CacheMediatorSerializer;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator.qos.EntitlementMediatorSerializer;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator.qos.NTLMMediatorSerializer;
@@ -98,6 +100,9 @@ public class MediatorSerializerFinder {
             PayloadFactoryMediatorSerializer.class,
             StoreMediatorSerializer.class,
             XsltMediatorSerializer.class,
+            //Other Mediators
+            LoopbackMediatorSerializer.class,
+            CommentMediatorSerializer.class,
     };
 
     private final static MediatorSerializerFinder instance = new MediatorSerializerFinder();

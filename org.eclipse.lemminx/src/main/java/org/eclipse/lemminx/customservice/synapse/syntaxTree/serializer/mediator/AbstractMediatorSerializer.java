@@ -22,6 +22,7 @@ import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.CommentMediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.MediatorProperty;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.InvalidConfigurationException;
@@ -48,6 +49,9 @@ public abstract class AbstractMediatorSerializer {
      */
     public final OMElement serializeMediator(OMElement parent, Mediator m) {
 
+        if (m instanceof CommentMediator) {
+            return ((CommentMediatorSerializer) this).serializeComment(parent, (CommentMediator) m);
+        }
         OMElement mediatorElt = serializeSpecificMediator(m);
         if (parent != null) {
             parent.addChild(mediatorElt);

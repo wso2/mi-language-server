@@ -19,6 +19,7 @@
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator.transformation;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.payload.PayloadFactory;
@@ -67,11 +68,14 @@ public class PayloadFactoryMediatorSerializer extends AbstractMediatorSerializer
                 String content = format.getContent().toString();
                 if (isFreemarkerTemplate) {
                     OMText text = SerializerUtils.stringToCDATA(content);
-//                    content = removeCDATAFromPayload(content);
-//                    OMText text = fac.createOMText(formatElt, content, 12); // 12 is the type for CDATA
                     formatElt.addChild(text);
                 } else {
-                    OMElement inline = SerializerUtils.stringToOM(content);
+                    OMNode inline;
+                    if (content.startsWith("<") && content.endsWith(">")) {
+                        inline = SerializerUtils.stringToOM(content);
+                    } else {
+                        inline = fac.createOMText(content);
+                    }
                     if (inline != null) {
                         formatElt.addChild(inline);
                     }

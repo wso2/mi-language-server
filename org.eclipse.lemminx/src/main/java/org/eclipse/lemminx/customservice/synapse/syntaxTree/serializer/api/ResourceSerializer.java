@@ -57,7 +57,7 @@ public class ResourceSerializer {
 
         if (resource.getInSequenceAttribute() != null) {
             resourceElt.addAttribute("inSequence", resource.getInSequenceAttribute(), null);
-        } else if (resource.getInSequence() != null) {
+        } else {
             OMElement inSequenceElt = InlineSequenceSerializer.serializeAnonymousSequence(resource.getInSequence());
             inSequenceElt.setLocalName("inSequence");
             resourceElt.addChild(inSequenceElt);
@@ -65,7 +65,7 @@ public class ResourceSerializer {
 
         if (resource.getOutSequenceAttribute() != null) {
             resourceElt.addAttribute("outSequence", resource.getOutSequenceAttribute(), null);
-        } else if (resource.getOutSequence() != null) {
+        } else {
             OMElement outSequenceElt = InlineSequenceSerializer.serializeAnonymousSequence(resource.getOutSequence());
             outSequenceElt.setLocalName("outSequence");
             resourceElt.addChild(outSequenceElt);
@@ -73,7 +73,7 @@ public class ResourceSerializer {
 
         if (resource.getFaultSequenceAttribute() != null) {
             resourceElt.addAttribute("faultSequence", resource.getFaultSequenceAttribute(), null);
-        } else if (resource.getFaultSequence() != null) {
+        } else {
             OMElement faultSequenceElt =
                     InlineSequenceSerializer.serializeAnonymousSequence(resource.getFaultSequence());
             faultSequenceElt.setLocalName("faultSequence");

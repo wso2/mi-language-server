@@ -19,11 +19,13 @@
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer;
 
 import org.apache.axiom.om.OMAbstractFactory;
+import org.apache.axiom.om.OMComment;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.util.AXIOMUtil;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.CommentMediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.MediatorProperty;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Parameter;
