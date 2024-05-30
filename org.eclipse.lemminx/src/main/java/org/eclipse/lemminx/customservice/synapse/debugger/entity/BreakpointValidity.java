@@ -21,13 +21,20 @@ package org.eclipse.lemminx.customservice.synapse.debugger.entity;
 public class BreakpointValidity {
 
     int line;
+    Integer column;
     boolean valid;
     String reason;
 
-    public BreakpointValidity(int line, boolean valid, String reason) {
+    public BreakpointValidity(int line, Integer column, boolean valid, String reason) {
 
         this.line = line;
+        this.column = column;
         this.valid = valid;
         this.reason = reason;
+    }
+
+    public boolean isValid() {
+
+        return valid;
     }
 }

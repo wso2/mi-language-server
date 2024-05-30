@@ -49,14 +49,25 @@ public class VisitorUtils {
             return false;
         }
         int startLine = node.getRange().getStartTagRange().getStart().getLine();
+        int startColumn = node.getRange().getStartTagRange().getStart().getCharacter();
         int endLine;
+        int endColumn;
         if (node.isSelfClosed()) {
             endLine = node.getRange().getStartTagRange().getEnd().getLine();
+            endColumn = node.getRange().getStartTagRange().getEnd().getCharacter();
         } else {
             endLine = node.getRange().getEndTagRange().getEnd().getLine();
+            endColumn = node.getRange().getEndTagRange().getEnd().getCharacter();
         }
-        if (startLine <= breakpoint.getLine() && breakpoint.getLine() <= endLine) {
+        if (startLine < breakpoint.getLine() && breakpoint.getLine() < endLine) {
             return true;
+        } else if (startLine == breakpoint.getLine() && endLine == breakpoint.getLine()) {
+            return breakpoint.getColumn() == null ||
+                    (startColumn <= breakpoint.getColumn() && breakpoint.getColumn() < endColumn);
+        } else if (startLine == breakpoint.getLine()) {
+            return breakpoint.getColumn() == null || startColumn <= breakpoint.getColumn();
+        } else if (endLine == breakpoint.getLine()) {
+            return breakpoint.getColumn() == null || breakpoint.getColumn() < endColumn;
         } else {
             return false;
         }
@@ -74,10 +85,16 @@ public class VisitorUtils {
         if (node == null) {
             return false;
         }
-        int startLine = node.getRange().getStartTagRange().getStart().getLine();
-        int endLine = node.getRange().getStartTagRange().getEnd().getLine();
-        if (startLine <= breakpoint.getLine() && breakpoint.getLine() <= endLine) {
+        int startLine = node.getRange().getStartTagRange().getStart().getLine(); // Start line of the starting tag
+        int startColumn = node.getRange().getStartTagRange().getStart().getCharacter(); // Start column of the
+        // starting tag
+        int endLine = node.getRange().getStartTagRange().getEnd().getLine(); // End line of the starting tag
+        int endColumn = node.getRange().getStartTagRange().getEnd().getCharacter(); // End column of the starting tag
+        if (startLine < breakpoint.getLine() && breakpoint.getLine() < endLine) {
             return true;
+        } else if (startLine == breakpoint.getLine() || endLine == breakpoint.getLine()) {
+            return breakpoint.getColumn() == null ||
+                    (startColumn <= breakpoint.getColumn() && breakpoint.getColumn() < endColumn);
         } else {
             return false;
         }

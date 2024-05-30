@@ -64,6 +64,12 @@ public class DebugInfo implements IDebugInfo {
     }
 
     @Override
+    public String getMediatorPosition() {
+
+        return mediatorPosition;
+    }
+
+    @Override
     public IDebugInfo clone() throws CloneNotSupportedException {
 
         return (IDebugInfo) super.clone();
