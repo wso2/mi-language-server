@@ -18,6 +18,7 @@
 
 package org.eclipse.lemminx.customservice.synapse.debugger.visitor.breakpoint;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.debuginfo.ApiDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.debuginfo.IDebugInfo;
@@ -65,8 +66,10 @@ public class ApiVisitor implements Visitor {
             for (APIResource resource : resources) {
                 if (VisitorUtils.checkNodeInRange(resource, breakpoint)) {
                     apiDebugInfo.setMethod(resource.getMethods()[0]);
-                    apiDebugInfo.setUriTemplate(resource.getUriTemplate());
-                    apiDebugInfo.setUrlMapping(resource.getUrlMapping());
+                    String uriTemplate = StringEscapeUtils.unescapeHtml4(resource.getUriTemplate());
+                    apiDebugInfo.setUriTemplate(uriTemplate);
+                    String urlMapping = StringEscapeUtils.unescapeHtml4(resource.getUrlMapping());
+                    apiDebugInfo.setUrlMapping(urlMapping);
                     visitResource(resource, breakpoint);
                     return;
                 }
