@@ -21,6 +21,8 @@ package org.eclipse.lemminx.customservice.synapse.api.generator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import org.apache.commons.text.StringEscapeUtils;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.API;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.APIResource;
 
 import java.util.ArrayList;
@@ -58,52 +60,51 @@ public class GenericApiObjectDefinition {
         return responsesMap;
     }
 
-//    /**
-//     * Provides structure for the "paths" element in swagger definition.
-//     *
-//     * @return Map containing information for paths element
-//     */
-//    public static Map<String, Object> getPathMap(API api) {
-//
-//        Map<String, Object> pathsMap = new LinkedHashMap<>();
-//        for (APIResource resource : api.getResource()) {
-//            String uriOrUrl;
-//            if(resource.getUrlMapping()!=null){
-//                uriOrUrl = resource.getUrlMapping();
-//            }else{
-//                uriOrUrl = resource.getUriTemplate();
-//            }
-//            Map<String, Object> methodMap =
-//                    (Map<String, Object>) pathsMap.get(uriOrUrl);
-//            if (methodMap == null) {
-//                methodMap = new LinkedHashMap<>();
-//            }
-//            for (String method : resource.getMethods()) {
-//                if (method != null) {
-//                    Map<String, Object> methodInfoMap = new LinkedHashMap<>();
-//                    methodInfoMap.put(SwaggerConstants.RESPONSES, getResponsesMap());
-//                    if (resourceDispatcherHelper != null) {
-//                        Object[] parameters = getResourceParameters(resource, method);
-//                        if (parameters.length > 0) {
-//                            methodInfoMap.put(SwaggerConstants.PARAMETERS, parameters);
-//                        }
-//                    }
-//                    methodMap.put(method.toLowerCase(), methodInfoMap);
-//                }
-//            }
-//            pathsMap.put(getPathFromUrl(getUri(resourceDispatcherHelper)), methodMap);
-//        }
-//        if (log.isDebugEnabled()) {
-//            log.debug("Paths map created with size " + pathsMap.size());
-//        }
-//        return pathsMap;
-//    }
-//
-//    private static String getUri(DispatcherHelper resourceDispatcherHelper) {
-//
-//        return resourceDispatcherHelper == null ? SwaggerConstants.PATH_SEPARATOR
-//                : resourceDispatcherHelper.getString();
-//    }
+    /**
+     * Provides structure for the "paths" element in swagger definition.
+     *
+     * @return Map containing information for paths element
+     */
+    public static Map<String, Object> getPathMap(API api) {
+
+        Map<String, Object> pathsMap = new LinkedHashMap<>();
+        for (APIResource resource : api.getResource()) {
+            String uriOrUrl = getUri(resource);
+            Map<String, Object> methodMap =
+                    (Map<String, Object>) pathsMap.get(uriOrUrl);
+            if (methodMap == null) {
+                methodMap = new LinkedHashMap<>();
+            }
+            for (String method : resource.getMethods()) {
+                if (method != null) {
+                    Map<String, Object> methodInfoMap = new LinkedHashMap<>();
+                    methodInfoMap.put(SwaggerConstants.RESPONSES, getResponsesMap());
+                    if (resource.getUrlMapping() != null || resource.getUriTemplate() != null) {
+                        Object[] parameters = getResourceParameters(resource, method);
+                        if (parameters.length > 0) {
+                            methodInfoMap.put(SwaggerConstants.PARAMETERS, parameters);
+                        }
+                    }
+                    methodMap.put(method.toLowerCase(), methodInfoMap);
+                }
+            }
+            pathsMap.put(getPathFromUrl(uriOrUrl), methodMap);
+        }
+        if (log.isLoggable(Level.FINE)) {
+            log.info("Paths map created with size " + pathsMap.size());
+        }
+        return pathsMap;
+    }
+
+    private static String getUri(APIResource resource) {
+
+        if (resource.getResourcePath() != null) {
+            String path = resource.getResourcePath();
+            path = StringEscapeUtils.unescapeHtml4(path);
+            return path;
+        }
+        return SwaggerConstants.PATH_SEPARATOR;
+    }
 
     /**
      * Generate resource parameters for the given resource for given method.
@@ -118,10 +119,10 @@ public class GenericApiObjectDefinition {
         String uri;
 
         if (resource.getUrlMapping() != null) {
-            uri = resource.getUrlMapping();
+            uri = StringEscapeUtils.unescapeHtml4(resource.getUrlMapping());
             generateParameterList(parameterList, uri, false);
         } else {
-            uri = resource.getUriTemplate();
+            uri = StringEscapeUtils.unescapeHtml4(resource.getUriTemplate());
             generateParameterList(parameterList, uri, true);
         }
         if (log.isLoggable(Level.FINE)) {

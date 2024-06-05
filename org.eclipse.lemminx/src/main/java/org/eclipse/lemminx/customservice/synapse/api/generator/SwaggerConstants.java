@@ -142,7 +142,45 @@ public class SwaggerConstants {
      * Path separator character
      */
     static final String PATH_SEPARATOR = "/";
+
+    /**
+     * Swagger operations
+     */
+    public static final String OPERATION_HTTP_GET = "get";
     public static final String OPERATION_HTTP_POST = "post";
     public static final String OPERATION_HTTP_PUT = "put";
     public static final String OPERATION_HTTP_PATCH = "patch";
+    public static final String OPERATION_HTTP_DELETE = "delete";
+    public static final String OPERATION_HTTP_OPTIONS = "options";
+    public static final String OPERATION_HTTP_HEAD = "head";
+
+    /**
+     * Protocols supported by API - both HTTP and HTTPS
+     */
+    static final int PROTOCOL_HTTP_AND_HTTPS = 0;
+
+    /**
+     * Protocols supported by API - HTTP
+     */
+    static final int PROTOCOL_HTTP_ONLY = 1;
+
+    /**
+     * Protocol name for HTTP
+     */
+    static final String PROTOCOL_HTTP = "http";
+
+    /**
+     * Protocol name for HTTPs
+     */
+    static final String PROTOCOL_HTTPS = "https";
+
+    /**
+     * Default host for Swagger API
+     */
+    public static String DEFAULT_HOST = "localhost";
+
+    /**
+     * Default port for Swagger API
+     */
+    public static int DEFAULT_PORT = 8290;
 }
