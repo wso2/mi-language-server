@@ -85,8 +85,8 @@ public class DebuggerHelper {
         for (int i = 0; i < breakpoints.size(); i++) {
             Breakpoint breakPoint = breakpoints.get(i);
             IDebugInfo debugInfo = debugInfos.get(i);
-            BreakpointValidity breakpointValidity = new BreakpointValidity(breakPoint.getLine(), debugInfo.isValid(),
-                    debugInfo.getError());
+            BreakpointValidity breakpointValidity = new BreakpointValidity(breakPoint.getLine(),
+                    breakPoint.getColumn(), debugInfo.isValid(), debugInfo.getError());
             validationList.add(breakpointValidity);
         }
         return validationList;

@@ -106,9 +106,7 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
     void visitSimpleMediator(STNode node) {
 
         if (isFound) {
-            int line = node.getRange().getStartTagRange().getStart().getLine();
-            Breakpoint nextBreakpoint = new Breakpoint(line);
-            stepOverInfo.add(nextBreakpoint);
+            stepOverInfo.add(getBreakpointForNode(node));
             done = true;
         } else {
             if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
@@ -135,10 +133,16 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
     private Breakpoint getFirstMediatorBreakpoint(List<Mediator> mediatorList) {
 
         if (mediatorList != null && !mediatorList.isEmpty()) {
-            int line = mediatorList.get(0).getRange().getStartTagRange().getStart().getLine();
-            return new Breakpoint(line);
+            return getBreakpointForNode(mediatorList.get(0));
         }
         return null;
+    }
+
+    private Breakpoint getBreakpointForNode(STNode node) {
+
+        int line = node.getRange().getStartTagRange().getStart().getLine();
+        int column = node.getRange().getStartTagRange().getStart().getCharacter();
+        return new Breakpoint(line, column);
     }
 
     @Override
@@ -211,9 +215,7 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
     protected void visitEntitlementService(EntitlementService node) {
 
         if (isFound) {
-            int line = node.getRange().getStartTagRange().getStart().getLine();
-            Breakpoint nextBreakpoint = new Breakpoint(line);
-            stepOverInfo.add(nextBreakpoint);
+            stepOverInfo.add(getBreakpointForNode(node));
             done = true;
         } else {
             if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
@@ -251,9 +253,7 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
     protected void visitThrottle(Throttle node) {
 
         if (isFound) {
-            int line = node.getRange().getStartTagRange().getStart().getLine();
-            Breakpoint nextBreakpoint = new Breakpoint(line);
-            stepOverInfo.add(nextBreakpoint);
+            stepOverInfo.add(getBreakpointForNode(node));
             done = true;
         } else {
             if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
@@ -283,9 +283,7 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
     protected void visitCache(Cache node) {
 
         if (isFound) {
-            int line = node.getRange().getStartTagRange().getStart().getLine();
-            Breakpoint nextBreakpoint = new Breakpoint(line);
-            stepOverInfo.add(nextBreakpoint);
+            stepOverInfo.add(getBreakpointForNode(node));
             done = true;
         } else {
             if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
@@ -346,9 +344,7 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
     protected void visitSwitch(Switch node) {
 
         if (isFound) {
-            int line = node.getRange().getStartTagRange().getStart().getLine();
-            Breakpoint nextBreakpoint = new Breakpoint(line);
-            stepOverInfo.add(nextBreakpoint);
+            stepOverInfo.add(getBreakpointForNode(node));
             done = true;
         } else {
             if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
@@ -419,9 +415,7 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
     protected void visitValidate(Validate node) {
 
         if (isFound) {
-            int line = node.getRange().getStartTagRange().getStart().getLine();
-            Breakpoint nextBreakpoint = new Breakpoint(line);
-            stepOverInfo.add(nextBreakpoint);
+            stepOverInfo.add(getBreakpointForNode(node));
             done = true;
         } else {
             if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
@@ -446,9 +440,7 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
     protected void visitFilter(Filter node) {
 
         if (isFound) {
-            int line = node.getRange().getStartTagRange().getStart().getLine();
-            Breakpoint nextBreakpoint = new Breakpoint(line);
-            stepOverInfo.add(nextBreakpoint);
+            stepOverInfo.add(getBreakpointForNode(node));
             done = true;
         } else {
             if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
@@ -492,9 +484,7 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
     protected void visitClone(Clone node) {
 
         if (isFound) {
-            int line = node.getRange().getStartTagRange().getStart().getLine();
-            Breakpoint nextBreakpoint = new Breakpoint(line);
-            stepOverInfo.add(nextBreakpoint);
+            stepOverInfo.add(getBreakpointForNode(node));
             done = true;
         } else {
             if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
@@ -532,9 +522,7 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
     protected void visitAggregate(Aggregate node) {
 
         if (isFound) {
-            int line = node.getRange().getStartTagRange().getStart().getLine();
-            Breakpoint nextBreakpoint = new Breakpoint(line);
-            stepOverInfo.add(nextBreakpoint);
+            stepOverInfo.add(getBreakpointForNode(node));
             done = true;
         } else {
             AggregateOnComplete onComplete = node.getCorrelateOnOrCompleteConditionOrOnComplete().getOnComplete().get();
@@ -595,9 +583,7 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
     protected void visitIterate(Iterate node) {
 
         if (isFound) {
-            int line = node.getRange().getStartTagRange().getStart().getLine();
-            Breakpoint nextBreakpoint = new Breakpoint(line);
-            stepOverInfo.add(nextBreakpoint);
+            stepOverInfo.add(getBreakpointForNode(node));
             done = true;
         } else {
             Target target = node.getTarget();
@@ -631,9 +617,7 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
     protected void visitForeach(Foreach node) {
 
         if (isFound) {
-            int line = node.getRange().getStartTagRange().getStart().getLine();
-            Breakpoint nextBreakpoint = new Breakpoint(line);
-            stepOverInfo.add(nextBreakpoint);
+            stepOverInfo.add(getBreakpointForNode(node));
             done = true;
         } else {
             Sequence sequence = node.getSequence();

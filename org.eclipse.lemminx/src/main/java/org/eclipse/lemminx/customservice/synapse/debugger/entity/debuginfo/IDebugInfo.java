@@ -24,6 +24,8 @@ public interface IDebugInfo extends Cloneable {
 
     void setMediatorPosition(String mediatorPosition);
 
+    String getMediatorPosition();
+
     boolean isValid();
 
     void setValid(boolean valid);

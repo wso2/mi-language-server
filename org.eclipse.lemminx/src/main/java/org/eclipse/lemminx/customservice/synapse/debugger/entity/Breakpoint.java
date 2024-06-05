@@ -21,10 +21,17 @@ package org.eclipse.lemminx.customservice.synapse.debugger.entity;
 public class Breakpoint {
 
     int line;
+    Integer column;
 
     public Breakpoint(int line) {
 
         this.line = line;
+    }
+
+    public Breakpoint(int line, Integer column) {
+
+        this.line = line;
+        this.column = column;
     }
 
     public int getLine() {
@@ -35,5 +42,15 @@ public class Breakpoint {
     public void setLine(int line) {
 
         this.line = line;
+    }
+
+    public Integer getColumn() {
+
+        return column;
+    }
+
+    public void setColumn(Integer column) {
+
+        this.column = column;
     }
 }
