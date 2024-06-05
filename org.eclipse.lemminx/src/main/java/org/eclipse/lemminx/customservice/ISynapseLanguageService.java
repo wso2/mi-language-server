@@ -18,11 +18,13 @@
 
 package org.eclipse.lemminx.customservice;
 
-import org.eclipse.lemminx.customservice.synapse.api.generator.GenerateAPIResponse;
+import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateAPIResponse;
+import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerParam;
+import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerResponse;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connections;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
-import org.eclipse.lemminx.customservice.synapse.api.generator.GenerateAPIParam;
+import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateAPIParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceResponse;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
@@ -92,4 +94,7 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<GenerateAPIResponse> generateAPI(GenerateAPIParam param);
+
+    @JsonRequest
+    CompletableFuture<GenerateSwaggerResponse> swaggerFromAPI(GenerateSwaggerParam param);
 }

@@ -26,6 +26,10 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateAPIParam;
+import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateAPIResponse;
+import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerParam;
+import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerResponse;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.APIFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.API;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.APIResource;
@@ -47,6 +51,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Seq
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.api.APISerializer;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.endpoint.EndpointSerializer;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
+import org.eclipse.lemminx.dom.DOMDocument;
 import org.wso2.soaptorest.SOAPToRESTConverter;
 import org.wso2.soaptorest.exceptions.SOAPToRESTException;
 import org.wso2.soaptorest.models.SOAPRequestElement;
@@ -102,12 +107,22 @@ public class RestApiAdmin {
         return createAPI(apiName, sourcePath, endpoint, publishSwaggerPath, mode);
     }
 
+    /**
+     * Function to create API from Swagger or WSDL.
+     *
+     * @param apiName            API name
+     * @param sourcePath         Swagger or WSDL file path
+     * @param endpoint           WSDL endpoint
+     * @param publishSwaggerPath Swagger publish path
+     * @param mode               Mode of the API creation (Swagger / WSDL)
+     * @return
+     */
     public GenerateAPIResponse createAPI(String apiName, String sourcePath, String endpoint, String publishSwaggerPath
             , String mode) {
 
         if (CREATE_FROM_SWAGGER.equalsIgnoreCase(mode)) {
             try {
-                return createAPIFromSwagger(apiName, sourcePath,publishSwaggerPath);
+                return createAPIFromSwagger(apiName, sourcePath, publishSwaggerPath);
             } catch (JsonProcessingException e) {
                 LOGGER.log(Level.SEVERE, "Exception occurred while creating API from Swagger", e);
                 return null;
@@ -126,21 +141,21 @@ public class RestApiAdmin {
         return null;
     }
 
-    private GenerateAPIResponse createAPIFromSwagger(String apiName, String swaggerPath,String publishSwaggerPath) throws JsonProcessingException {
+    private GenerateAPIResponse createAPIFromSwagger(String apiName, String swaggerPath, String publishSwaggerPath) throws JsonProcessingException {
 
         File swaggerFile = new File(swaggerPath);
         String swaggerYaml = getSwaggerFileAsYAML(swaggerFile, apiName);
 
-        String api = getSynapseAPIFromSwagger(swaggerYaml,publishSwaggerPath);
+        String api = getSynapseAPIFromSwagger(swaggerYaml, publishSwaggerPath);
         return new GenerateAPIResponse(api);
     }
 
-    private String getSynapseAPIFromSwagger(String swaggerYaml,String publishSwaggerPath) throws JsonProcessingException {
+    private String getSynapseAPIFromSwagger(String swaggerYaml, String publishSwaggerPath) throws JsonProcessingException {
 
         String swaggerString = GenericApiObjectDefinition.convertYamlToJson(swaggerYaml);
         JsonParser jsonParser = new JsonParser();
         JsonElement swaggerJson = jsonParser.parse(swaggerString);
-        APIGenerator apiGenerator = new APIGenerator(swaggerJson.getAsJsonObject(),publishSwaggerPath);
+        APIGenerator apiGenerator = new APIGenerator(swaggerJson.getAsJsonObject(), publishSwaggerPath);
         String apiXml = apiGenerator.generateSynapseAPIXml();
         return apiXml;
     }
@@ -170,7 +185,7 @@ public class RestApiAdmin {
         wsdlEndpoint.setWsdl(wsdlEndpointData);
 
         String swaggerYaml = soaPtoRESTConversionData.getOASString();
-        String apiXml = getSynapseAPIFromSwagger(swaggerYaml,null);
+        String apiXml = getSynapseAPIFromSwagger(swaggerYaml, null);
         APIFactory apiFactory = new APIFactory();
         API api = (API) apiFactory.create(Utils.getDOMDocument(apiXml).getDocumentElement());
 
@@ -323,5 +338,104 @@ public class RestApiAdmin {
             LOGGER.log(Level.WARNING, "Exception while converting json to yaml", e);
             throw new Exception(e);
         }
+    }
+
+    /**
+     * Function to generate Swagger from API.
+     *
+     * @param param Swagger generation parameters
+     * @return generated Swagger
+     */
+    public GenerateSwaggerResponse generateSwaggerFromAPI(GenerateSwaggerParam param) {
+
+        if (param.swaggerPath != null) {
+            File existingSwaggerFile = new File(param.swaggerPath);
+            if (existingSwaggerFile.exists()) {
+                return generateUpdatedSwaggerFromAPI(existingSwaggerFile, param.isJsonIn, param.isJsonOut,
+                        param.apiPath);
+            }
+        }
+        return generateSwaggerFromSynapseAPIByFormat(param.apiPath, param.isJsonOut);
+    }
+
+    /**
+     * Function to generate API from synapse API.
+     *
+     * @param apiPath API file path
+     * @return generated API
+     */
+    public GenerateSwaggerResponse generateSwaggerFromSynapseAPIByFormat(String apiPath, boolean isJSON) {
+
+        GenerateSwaggerResponse response = new GenerateSwaggerResponse();
+        try {
+            File apiFile = new File(apiPath);
+            DOMDocument domDocument = Utils.getDOMDocument(apiFile);
+            APIFactory factory = new APIFactory();
+            API api = (API) factory.create(domDocument.getDocumentElement());
+            String generatedSwagger = generateSwaggerFromSynapseAPIByFormat(api, isJSON);
+            response.setSwagger(generatedSwagger);
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Error occurred while reading the existing API file.", e);
+            response.setError("Error occurred while reading the existing API file.");
+        }
+        return response;
+    }
+
+    /**
+     * Function to generate API from swagger definition (from Synapse API).
+     *
+     * @param api    api existing synapse API
+     * @param isJSON generate Swagger in YAML / JSON format.
+     * @return generated swagger.
+     */
+    public String generateSwaggerFromSynapseAPIByFormat(API api, boolean isJSON) {
+
+        return new OpenAPIProcessor(api).getOpenAPISpecification(isJSON);
+    }
+
+    private GenerateSwaggerResponse generateUpdatedSwaggerFromAPI(File existingSwaggerFile, boolean isJSONIn,
+                                                                  boolean isJSONOut, String apiPath) {
+
+        GenerateSwaggerResponse response = new GenerateSwaggerResponse();
+        API api;
+        try {
+            APIFactory factory = new APIFactory();
+            DOMDocument apiDocument = Utils.getDOMDocument(new File(apiPath));
+            api = (API) factory.create(apiDocument.getDocumentElement());
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Error occurred while reading the API file.", e);
+            response.setError("Error occurred while reading the API file.");
+            return response;
+        }
+
+        try {
+            String swaggerContent = Utils.readFile(existingSwaggerFile);
+            String generatedSwagger = generateUpdatedSwaggerFromAPI(swaggerContent, isJSONIn, isJSONOut, api);
+            response.setSwagger(generatedSwagger);
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Error occurred while reading the existing Swagger file.", e);
+            response.setError("Error occurred while reading the existing Swagger file.");
+        } catch (APIGenException e) {
+            LOGGER.log(Level.SEVERE, "Error occurred while generating the updated Swagger.", e);
+            response.setError("Error occurred while generating the updated Swagger.");
+        }
+        return response;
+    }
+
+    /**
+     * Generate updated OpenApi definition using an updated API.
+     *
+     * @param existingSwagger existing OpenApi definition of the API.
+     * @param isJSONIn        input data-type JSON / YAML.
+     * @param isJSONOut       output required in JSON / YAML.
+     * @param api             updated synapse API.
+     * @return OpenApi definition of the updated API.
+     * @throws APIGenException Error occurred while generating the updated definition.
+     */
+    public String generateUpdatedSwaggerFromAPI(String existingSwagger, boolean isJSONIn, boolean isJSONOut, API api)
+            throws APIGenException {
+
+        OpenAPIProcessor openAPIProcessor = new OpenAPIProcessor(api);
+        return openAPIProcessor.getUpdatedSwaggerFromApi(existingSwagger, isJSONIn, isJSONOut);
     }
 }
