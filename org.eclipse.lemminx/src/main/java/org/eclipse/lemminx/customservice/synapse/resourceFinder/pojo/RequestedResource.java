@@ -16,32 +16,40 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.resourceFinder;
+package org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo;
 
-import java.util.List;
+public class RequestedResource {
 
-public class ResourceResponse {
+    public String type;
+    public boolean needRegistry = true;
 
-    private List<Resource> resources;
-    private List<Resource> registryResources;
+    public RequestedResource() {
 
-    public List<Resource> getResources() {
-
-        return resources;
     }
 
-    public void setResources(List<Resource> resources) {
+    public RequestedResource(String type, boolean needRegistry) {
 
-        this.resources = resources;
+        this.type = type;
+        this.needRegistry = needRegistry;
     }
 
-    public List<Resource> getRegistryResources() {
+    public String getType() {
 
-        return registryResources;
+        return type;
     }
 
-    public void setRegistryResources(List<Resource> registryResources) {
+    public void setType(String type) {
 
-        this.registryResources = registryResources;
+        this.type = type;
+    }
+
+    public boolean isNeedRegistry() {
+
+        return needRegistry;
+    }
+
+    public void setNeedRegistry(boolean needRegistry) {
+
+        this.needRegistry = needRegistry;
     }
 }

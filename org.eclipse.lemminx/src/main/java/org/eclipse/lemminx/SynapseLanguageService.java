@@ -32,6 +32,7 @@ import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorPara
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectionFinder;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.AbstractResourceFinder;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ArtifactFileScanner;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.RegistryFileScanner;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointInfoResponse;
@@ -41,9 +42,9 @@ import org.eclipse.lemminx.customservice.synapse.debugger.DebuggerHelper;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.ValidationResponse;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateAPIParam;
 import org.eclipse.lemminx.customservice.synapse.api.generator.RestApiAdmin;
-import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceFinder;
-import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceParam;
-import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceResponse;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceFinderFactory;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceParam;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceResponse;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.connectors.AbstractConnectorLoader;
 import org.eclipse.lemminx.customservice.synapse.connectors.SchemaGenerate;
@@ -87,6 +88,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     private String projectUri;
     private boolean isLegacyProject;
     private ConnectorHolder connectorHolder;
+    private AbstractResourceFinder resourceFinder;
 
     public SynapseLanguageService(XMLTextDocumentService xmlTextDocumentService, XMLLanguageServer xmlLanguageServer) {
 
@@ -109,6 +111,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         } else{
             log.log(Level.SEVERE, "Project path is null. Language server initialization failed.");
         }
+        resourceFinder = ResourceFinderFactory.getResourceFinder(isLegacyProject);
     }
 
     private void initializeConnectorLoader(){
@@ -168,7 +171,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     @Override
     public CompletableFuture<ResourceResponse> availableResources(ResourceParam param) {
 
-        ResourceResponse response = ResourceFinder.getAvailableResources(projectUri, param.resourceType);
+        ResourceResponse response = resourceFinder.getAvailableResources(projectUri, param.resourceType);
         return CompletableFuture.supplyAsync(() -> response);
     }
 
@@ -242,7 +245,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     public CompletableFuture<Either<Connections, Map<String, Connections>>> connectorConnections(ConnectorParam param) {
 
         Either<Connections, Map<String, Connections>> connections =
-                ConnectionFinder.findConnections(projectUri, param.connectorName, connectorHolder);
+                ConnectionFinder.findConnections(projectUri, param.connectorName, connectorHolder, isLegacyProject);
         return CompletableFuture.supplyAsync(() -> connections);
     }
 

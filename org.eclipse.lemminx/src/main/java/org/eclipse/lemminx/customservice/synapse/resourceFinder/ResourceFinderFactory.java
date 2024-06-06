@@ -18,28 +18,14 @@
 
 package org.eclipse.lemminx.customservice.synapse.resourceFinder;
 
-public class RegistryResource extends Resource {
+public class ResourceFinderFactory {
 
-    private String registryPath;
-    private String registryKey;
+    public static AbstractResourceFinder getResourceFinder(boolean isLegacyProject) {
 
-    public String getRegistryPath() {
-
-        return registryPath;
-    }
-
-    public void setRegistryPath(String registryPath) {
-
-        this.registryPath = registryPath;
-    }
-
-    public String getRegistryKey() {
-
-        return registryKey;
-    }
-
-    public void setRegistryKey(String registryKey) {
-
-        this.registryKey = registryKey;
+        if (isLegacyProject) {
+            return new OldProjectResourceFinder();
+        } else {
+            return new NewProjectResourceFinder();
+        }
     }
 }

@@ -63,7 +63,7 @@ public class RegistryFileScanner {
         Pattern pattern = Pattern.compile(regFolderPath + Pattern.quote(File.separator) + "(.*)");
         Matcher matcher = pattern.matcher(path);
         if (matcher.find()) {
-            return matcher.group(1).replaceAll("\\\\","/");
+            return matcher.group(1).replaceAll("\\\\", "/");
         }
         return "";
     }
