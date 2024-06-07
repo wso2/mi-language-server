@@ -26,6 +26,8 @@ import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceRes
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -43,8 +45,8 @@ public class ResourceFinderTest {
     public ResourceFinderTest() {
 
         this.resourceFinder = ResourceFinderFactory.getResourceFinder(false);
-        this.projectPath = ResourceFinderTest.class.getResource(PROJECT_PATH).getPath();
-
+        String path = ResourceFinderTest.class.getResource(PROJECT_PATH).getPath();
+        projectPath = new File(path).getAbsolutePath();
     }
 
     @Test
