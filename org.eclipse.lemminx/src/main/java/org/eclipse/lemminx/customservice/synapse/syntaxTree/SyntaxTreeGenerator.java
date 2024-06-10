@@ -34,6 +34,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.NamedSequenc
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.ProxyFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.TaskFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.TemplateFactory;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.UnitTestFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.endpoint.EndpointFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.misc.Wsdl11Factory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.misc.Wsdl20Factory;
@@ -60,7 +61,7 @@ public class SyntaxTreeGenerator {
     private static List<String> componentNames = Arrays.asList(Constant.API, Constant.ENDPOINT, Constant.INBOUND_ENDPOINT,
             Constant.MESSAGE_PROCESSOR, Constant.LOCAL_ENTRY, Constant.MESSAGE_STORE, Constant.PROXY, Constant.SEQUENCE,
             Constant.TASK, Constant.TEMPLATE, Constant.WSDL_DEFINITIONS, Constant.WSDL_DESCRIPTION, Constant.DATA,
-            Constant.DATA_SOURCE);
+            Constant.DATA_SOURCE, Constant.UNIT_TEST);
 
     public SyntaxTreeResponse getSyntaxTree(DOMDocument document) {
 
@@ -134,6 +135,8 @@ public class SyntaxTreeGenerator {
                 factory = new DataServiceConfigFactory();
             } else if (Constant.DATA_SOURCE.equalsIgnoreCase(xmlNode.getNodeName())) {
                 factory = new DataSourceConfigFactory();
+            } else if (Constant.UNIT_TEST.equalsIgnoreCase(xmlNode.getNodeName())) {
+                factory = new UnitTestFactory();
             }
         }
 
