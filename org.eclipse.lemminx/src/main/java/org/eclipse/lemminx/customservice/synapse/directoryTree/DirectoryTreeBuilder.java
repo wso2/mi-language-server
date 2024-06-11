@@ -260,7 +260,7 @@ public class DirectoryTreeBuilder {
     private static void analyzeTestsFolder(IntegrationDirectoryTree directoryTree) {
 
         TestFolder testFolder = new TestFolder();
-        String testsPath = projectPath + File.separator + Constant.SRC + File.separator + "tests";
+        String testsPath = projectPath + File.separator + Constant.SRC + File.separator + "test";
         analyzeSubTestFolder(testsPath, WSO2MI, testFolder::setWso2mi);
         analyzeSubTestFolder(testsPath, JAVA, testFolder::setJava);
         directoryTree.setTests(testFolder);

@@ -444,4 +444,26 @@ public class Constant {
     public static final String SYNAPSE_NAMESPACE = "http://ws.apache.org/ns/synapse";
     public static final OMNamespace SYNAPSE_OMNAMESPACE =
             OMAbstractFactory.getOMFactory().createOMNamespace(SYNAPSE_NAMESPACE, "");
+    public static final String UNIT_TEST = "unit-test";
+    public static final String ARTIFACTS = "artifacts";
+    public static final String TEST_CASES = "test-cases";
+    public static final String MOCK_SERVICES = "mock-services";
+    public static final String MOCK_SERVICE = "mock-service";
+    public static final String TEST_CASE = "test-case";
+    public static final String ASSERTIONS = "assertions";
+    public static final String ASSERT_EQUALS = "assertEquals";
+    public static final String ASSERT_NOT_NULL = "assertNotNull";
+    public static final String ACTUAL = "actual";
+    public static final String EXPECTED = "expected";
+    public static final String REQUEST_PATH = "request-path";
+    public static final String REQUEST_METHOD = "request-method";
+    public static final String REQUEST_PROTOCOL = "request-protocol";
+    public static final String TEST_ARTIFACT = "test-artifact";
+    public static final String SUPPORTIVE_ARTIFACTS = "supportive-artifacts";
+    public static final String REGISTRY_RESOURCES = "registry-resources";
+    public static final String REGISTRY_RESOURCE = "registry-resource";
+    public static final String CONNECTOR_RESOURCES = "connector-resources";
+    public static final String FILE_NAME = "file-name";
+    public static final String ARTIFACT = "artifact";
+    public static final String REGISTRY_PATH = "registry-path";
 }
