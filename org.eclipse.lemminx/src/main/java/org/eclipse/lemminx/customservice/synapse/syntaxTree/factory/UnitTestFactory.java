@@ -25,7 +25,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.test.AssertNotN
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.test.Assertion;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.test.MockService;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.test.MockServices;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.test.TestArtifacts;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.test.TestArtifact;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.test.TestCase;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.test.TestCaseAssertions;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.test.TestCaseInput;
@@ -85,8 +85,8 @@ public class UnitTestFactory extends AbstractFactory {
             for (DOMNode child : children) {
                 String childName = child.getLocalName();
                 if (Constant.TEST_ARTIFACT.equalsIgnoreCase(childName)) {
-                    TestArtifacts testArtifacts = createTestArtifacts((DOMElement) child);
-                    artifacts.setTestArtifact(testArtifacts);
+                    TestArtifact testArtifact = createTestArtifacts((DOMElement) child);
+                    artifacts.setTestArtifact(testArtifact);
                 } else if (Constant.SUPPORTIVE_ARTIFACTS.equalsIgnoreCase(childName)) {
                     TestSupportiveArtifacts supportiveArtifacts = createTestSupportiveArtifacts((DOMElement) child);
                     artifacts.setSupportiveArtifact(supportiveArtifacts);
@@ -102,23 +102,22 @@ public class UnitTestFactory extends AbstractFactory {
         return artifacts;
     }
 
-    private TestArtifacts createTestArtifacts(DOMElement node) {
+    private TestArtifact createTestArtifacts(DOMElement node) {
 
-        TestArtifacts testArtifacts = new TestArtifacts();
-        testArtifacts.elementNode(node);
+        TestArtifact testArtifact = new TestArtifact();
+        testArtifact.elementNode(node);
 
         List<DOMNode> children = node.getChildren();
         if (children != null && !children.isEmpty()) {
-            List<Artifact> artifactList = new ArrayList<>();
             for (DOMNode child : children) {
                 if (Constant.ARTIFACT.equalsIgnoreCase(child.getLocalName())) {
                     Artifact artifact = createArtifact((DOMElement) child);
-                    artifactList.add(artifact);
+                    testArtifact.setArtifact(artifact);
+                    break;
                 }
             }
-            testArtifacts.setArtifacts(artifactList.toArray(new Artifact[artifactList.size()]));
         }
-        return testArtifacts;
+        return testArtifact;
     }
 
     private TestSupportiveArtifacts createTestSupportiveArtifacts(DOMElement node) {
@@ -240,6 +239,11 @@ public class UnitTestFactory extends AbstractFactory {
 
         TestCase testCase = new TestCase();
         testCase.elementNode(node);
+
+        String name = node.getAttribute(Constant.NAME);
+        if (name != null) {
+            testCase.setName(name);
+        }
 
         List<DOMNode> children = node.getChildren();
         if (children != null && !children.isEmpty()) {

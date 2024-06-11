@@ -22,19 +22,19 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 
 public class UnitTestArtifacts extends STNode {
 
-    TestArtifacts testArtifacts;
+    TestArtifact testArtifact;
     TestSupportiveArtifacts supportiveArtifacts;
     TestRegistryResources registryResources;
     TestConnectorResources connectorResources;
 
-    public TestArtifacts getTestArtifact() {
+    public TestArtifact getTestArtifact() {
 
-        return testArtifacts;
+        return testArtifact;
     }
 
-    public void setTestArtifact(TestArtifacts testArtifacts) {
+    public void setTestArtifact(TestArtifact testArtifact) {
 
-        this.testArtifacts = testArtifacts;
+        this.testArtifact = testArtifact;
     }
 
     public TestSupportiveArtifacts getSupportiveArtifact() {

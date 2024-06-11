@@ -20,17 +20,17 @@ package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.test;
 
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 
-public class TestArtifacts extends STNode {
+public class TestArtifact extends STNode {
 
-    Artifact[] artifacts;
+    Artifact artifact;
 
-    public Artifact[] getArtifacts() {
+    public Artifact getArtifact() {
 
-        return artifacts;
+        return artifact;
     }
 
-    public void setArtifacts(Artifact[] artifacts) {
+    public void setArtifact(Artifact artifact) {
 
-        this.artifacts = artifacts;
+        this.artifact = artifact;
     }
 }
