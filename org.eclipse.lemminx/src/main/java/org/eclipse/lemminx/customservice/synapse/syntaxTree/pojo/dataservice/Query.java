@@ -22,7 +22,12 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 
 public class Query extends STNode {
 
-    QueryElements[] queryElements;
+    Sql sql;
+    Expression expression;
+    Sparql sparql;
+    QueryProperties properties;
+    Result result;
+    Param[] params;
     String id;
     String useConfig;
     boolean returnGeneratedKeys;
@@ -30,14 +35,64 @@ public class Query extends STNode {
     String keyColumns;
     String returnUpdatedRowCount;
 
-    public QueryElements[] getQueryElements() {
+    public Sql getSql() {
 
-        return queryElements;
+        return sql;
     }
 
-    public void setQueryElements(QueryElements[] queryElements) {
+    public void setSql(Sql sql) {
 
-        this.queryElements = queryElements;
+        this.sql = sql;
+    }
+
+    public Expression getExpression() {
+
+        return expression;
+    }
+
+    public void setExpression(Expression expression) {
+
+        this.expression = expression;
+    }
+
+    public Sparql getSparql() {
+
+        return sparql;
+    }
+
+    public void setSparql(Sparql sparql) {
+
+        this.sparql = sparql;
+    }
+
+    public QueryProperties getProperties() {
+
+        return properties;
+    }
+
+    public void setProperties(QueryProperties properties) {
+
+        this.properties = properties;
+    }
+
+    public Result getResult() {
+
+        return result;
+    }
+
+    public void setResult(Result result) {
+
+        this.result = result;
+    }
+
+    public Param[] getParams() {
+
+        return params;
+    }
+
+    public void setParams(Param[] params) {
+
+        this.params = params;
     }
 
     public String getId() {

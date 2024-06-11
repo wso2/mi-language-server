@@ -20,11 +20,20 @@ package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice;
 
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Data extends STNode {
 
-    List<STNode> descriptionOrConfigOrQuery;
+    STNode description;
+    List<Config> configs;
+    List<Query> queries;
+    List<Operation> operations;
+    List<Resource> resources;
+    List<EventTrigger> eventTriggers;
+    DataPolicy policy;
+    STNode enableSec;
+    AuthorizationProvider authorizationProvider;
     String baseURI;
     String name;
     boolean enableBatchRequests;
@@ -38,14 +47,94 @@ public class Data extends STNode {
     String transports;
     String serviceStatus;
 
-    public List<STNode> getDescriptionOrConfigOrQuery() {
+    public STNode getDescription() {
 
-        return descriptionOrConfigOrQuery;
+        return description;
     }
 
-    public void setDescriptionOrConfigOrQuery(List<STNode> descriptionOrConfigOrQuery) {
+    public void setDescription(STNode description) {
 
-        this.descriptionOrConfigOrQuery = descriptionOrConfigOrQuery;
+        this.description = description;
+    }
+
+    public List<Config> getConfigs() {
+
+        return configs;
+    }
+
+    public void setConfigs(List<Config> configs) {
+
+        this.configs = configs;
+    }
+
+    public List<Query> getQueries() {
+
+        return queries;
+    }
+
+    public void setQueries(List<Query> queries) {
+
+        this.queries = queries;
+    }
+
+    public List<Operation> getOperations() {
+
+        return operations;
+    }
+
+    public void setOperations(List<Operation> operations) {
+
+        this.operations = operations;
+    }
+
+    public List<Resource> getResources() {
+
+        return resources;
+    }
+
+    public void setResources(List<Resource> resources) {
+
+        this.resources = resources;
+    }
+
+    public List<EventTrigger> getEventTriggers() {
+
+        return eventTriggers;
+    }
+
+    public void setEventTriggers(List<EventTrigger> eventTriggers) {
+
+        this.eventTriggers = eventTriggers;
+    }
+
+    public DataPolicy getPolicy() {
+
+        return policy;
+    }
+
+    public void setPolicy(DataPolicy policy) {
+
+        this.policy = policy;
+    }
+
+    public STNode getEnableSec() {
+
+        return enableSec;
+    }
+
+    public void setEnableSec(STNode enableSec) {
+
+        this.enableSec = enableSec;
+    }
+
+    public AuthorizationProvider getAuthorizationProvider() {
+
+        return authorizationProvider;
+    }
+
+    public void setAuthorizationProvider(AuthorizationProvider authorizationProvider) {
+
+        this.authorizationProvider = authorizationProvider;
     }
 
     public String getBaseURI() {
@@ -166,5 +255,45 @@ public class Data extends STNode {
     public void setServiceStatus(String serviceStatus) {
 
         this.serviceStatus = serviceStatus;
+    }
+
+    public void addConfig(Config config) {
+
+        if (configs == null) {
+            configs = new ArrayList<>();
+        }
+        configs.add(config);
+    }
+
+    public void addQuery(Query query) {
+
+        if (queries == null) {
+            queries = new ArrayList<>();
+        }
+        queries.add(query);
+    }
+
+    public void addOperation(Operation operation) {
+
+        if (operations == null) {
+            operations = new ArrayList<>();
+        }
+        operations.add(operation);
+    }
+
+    public void addResource(Resource resource) {
+
+        if (resources == null) {
+            resources = new ArrayList<>();
+        }
+        resources.add(resource);
+    }
+
+    public void addEventTrigger(EventTrigger eventTrigger) {
+
+        if (eventTriggers == null) {
+            eventTriggers = new ArrayList<>();
+        }
+        eventTriggers.add(eventTrigger);
     }
 }

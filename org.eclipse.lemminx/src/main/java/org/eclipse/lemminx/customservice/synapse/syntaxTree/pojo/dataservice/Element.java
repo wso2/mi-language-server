@@ -20,9 +20,14 @@ package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice;
 
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Element extends STNode {
 
-    ResultElements[] resultElements;
+    List<Element> elements;
+    List<Attribute> attributes;
+    List<CallQuery> callQueries;
     String name;
     String column;
     String requiredRoles;
@@ -34,14 +39,34 @@ public class Element extends STNode {
     String arrayName;
     String queryParam;
 
-    public ResultElements[] getResultElements() {
+    public List<Element> getElements() {
 
-        return resultElements;
+        return elements;
     }
 
-    public void setResultElements(ResultElements[] resultElements) {
+    public void setElements(List<Element> elements) {
 
-        this.resultElements = resultElements;
+        this.elements = elements;
+    }
+
+    public List<Attribute> getAttributes() {
+
+        return attributes;
+    }
+
+    public void setAttributes(List<Attribute> attributes) {
+
+        this.attributes = attributes;
+    }
+
+    public List<CallQuery> getCallQueries() {
+
+        return callQueries;
+    }
+
+    public void setCallQueries(List<CallQuery> callQueries) {
+
+        this.callQueries = callQueries;
     }
 
     public String getName() {
@@ -142,5 +167,29 @@ public class Element extends STNode {
     public void setQueryParam(String queryParam) {
 
         this.queryParam = queryParam;
+    }
+
+    public void addElement(Element resultElement) {
+
+        if (elements == null) {
+            elements = new ArrayList<>();
+        }
+        elements.add(resultElement);
+    }
+
+    public void addAttribute(Attribute attribute) {
+
+        if (attributes == null) {
+            attributes = new ArrayList<>();
+        }
+        attributes.add(attribute);
+    }
+
+    public void addCallQuery(CallQuery callQuery) {
+
+        if (callQueries == null) {
+            callQueries = new ArrayList<>();
+        }
+        callQueries.add(callQuery);
     }
 }
