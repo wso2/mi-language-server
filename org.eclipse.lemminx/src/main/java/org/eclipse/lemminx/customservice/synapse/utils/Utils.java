@@ -50,7 +50,7 @@ public class Utils {
 
     public static String getInlineString(DOMNode node) {
 
-        String inline = null;
+        String inline = "";
         if (node != null) {
             if (node.isCDATA()) {
                 inline = "<![CDATA[" + node.getTextContent() + "]]>";
@@ -59,7 +59,7 @@ public class Utils {
             } else if (node instanceof DOMElement) {
                 if (((DOMElement) node).isSelfClosed()) {
                     inline = "<" + node.getNodeName().concat(getAttributeXmlString(node)) + "/>";
-                } else {
+                } else if (!((DOMElement) node).isOrphanEndTag()) {
                     inline = "<" + node.getNodeName().concat(getAttributeXmlString(node)) + ">";
                     List<DOMNode> children = node.getChildren();
                     if (children != null && !children.isEmpty()) {
