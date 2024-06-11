@@ -383,6 +383,25 @@ public class Utils {
     }
 
     /**
+     * Get the root element of the given document
+     *
+     * @param document the document
+     * @return the root element of the given document
+     */
+    public static DOMElement getRootElement(DOMDocument document) {
+
+        List<DOMNode> children = document.getChildren();
+        if (children != null) {
+            for (DOMNode child : children) {
+                if (child instanceof DOMElement) {
+                    return (DOMElement) child;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
      * Read the content of the given file
      *
      * @param file the file
@@ -435,5 +454,21 @@ public class Utils {
             }
         }
         return null;
+    }
+
+    /**
+     * Get the extension of the given file
+     *
+     * @param file
+     * @return
+     */
+    public static String getFileExtension(File file) {
+
+        String fileName = file.getName();
+        int dotIndex = fileName.lastIndexOf(".");
+        if (dotIndex != -1 && dotIndex < fileName.length() - 1) {
+            return fileName.substring(dotIndex + 1);
+        }
+        return "";
     }
 }

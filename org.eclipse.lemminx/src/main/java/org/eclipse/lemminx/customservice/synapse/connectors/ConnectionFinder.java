@@ -21,10 +21,11 @@ package org.eclipse.lemminx.customservice.synapse.connectors;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connection;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connections;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
-import org.eclipse.lemminx.customservice.synapse.resourceFinder.ArtifactsResource;
-import org.eclipse.lemminx.customservice.synapse.resourceFinder.Resource;
-import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceFinder;
-import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceResponse;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.AbstractResourceFinder;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceFinderFactory;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ArtifactResource;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.Resource;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceResponse;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -54,10 +55,12 @@ public class ConnectionFinder {
      * @return connections
      */
     public static Either<Connections, Map<String, Connections>> findConnections(String uri, String name,
-                                                                                ConnectorHolder connectorHolder) {
+                                                                                ConnectorHolder connectorHolder,
+                                                                                boolean isLegacyProject) {
 
         if (uri != null) {
-            ResourceResponse response = ResourceFinder.getAvailableResources(uri, Constant.LOCAL_ENTRY);
+            AbstractResourceFinder resourceFinder = ResourceFinderFactory.getResourceFinder(isLegacyProject);
+            ResourceResponse response = resourceFinder.getAvailableResources(uri, Either.forLeft(Constant.LOCAL_ENTRY));
             if (response != null) {
                 List<Resource> resources = response.getResources();
                 if (name != null) {
@@ -98,7 +101,7 @@ public class ConnectionFinder {
         for (Resource resource : resources) {
             try {
                 String localEntryName = resource.getName();
-                String filePath = ((ArtifactsResource) resource).getAbsolutePath();
+                String filePath = ((ArtifactResource) resource).getAbsolutePath();
                 File file = new File(filePath);
                 DOMDocument document = Utils.getDOMDocument(file);
                 DOMElement childElement = Utils.getFirstElement(document.getDocumentElement());

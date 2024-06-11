@@ -16,30 +16,32 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.resourceFinder;
+package org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo;
 
-public class ArtifactsResource extends Resource {
+import java.util.List;
 
-    private String artifactPath;
-    private String absolutePath;
+public class ResourceResponse {
 
-    public String getArtifactPath() {
+    private List<Resource> resources;
+    private List<Resource> registryResources;
 
-        return artifactPath;
+    public List<Resource> getResources() {
+
+        return resources;
     }
 
-    public void setArtifactPath(String artifactPath) {
+    public void setResources(List<Resource> resources) {
 
-        this.artifactPath = artifactPath;
+        this.resources = resources;
     }
 
-    public String getAbsolutePath() {
+    public List<Resource> getRegistryResources() {
 
-        return absolutePath;
+        return registryResources;
     }
 
-    public void setAbsolutePath(String absolutePath) {
+    public void setRegistryResources(List<Resource> registryResources) {
 
-        this.absolutePath = absolutePath;
+        this.registryResources = registryResources;
     }
 }

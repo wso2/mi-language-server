@@ -16,12 +16,26 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.resourceFinder;
+package org.eclipse.lemminx.customservice.synapse.resourceFinder.registryHander;
 
-import org.eclipse.lsp4j.TextDocumentIdentifier;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.Resource;
 
-public class ResourceParam {
+import java.io.File;
+import java.util.List;
 
-    public TextDocumentIdentifier documentIdentifier;
-    public String resourceType;
+public class SchemaResourceHandler extends NonXMLRegistryHandler {
+
+    public SchemaResourceHandler(List<Resource> resources) {
+
+        super(resources);
+    }
+
+    @Override
+    protected boolean canHandle(File file) {
+
+        if (file.getAbsolutePath().endsWith(".xsd") || file.getAbsolutePath().endsWith(".json")) {
+            return true;
+        }
+        return false;
+    }
 }
