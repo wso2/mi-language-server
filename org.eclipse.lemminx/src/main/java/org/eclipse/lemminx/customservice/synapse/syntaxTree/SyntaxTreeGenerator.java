@@ -73,7 +73,6 @@ public class SyntaxTreeGenerator {
             Gson gson = new GsonBuilder()
                     .registerTypeHierarchyAdapter(Optional.class, new OptionalTypeAdapter())
                     .registerTypeHierarchyAdapter(Enum.class, new EnumTypeAdapter())
-                    .serializeNulls()
                     .disableHtmlEscaping()
                     .create();
             JsonElement nextNode = gson.toJsonTree(tree);

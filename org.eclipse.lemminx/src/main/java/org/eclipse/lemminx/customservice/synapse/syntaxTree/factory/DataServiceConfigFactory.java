@@ -32,7 +32,6 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.Eve
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.EventTriggerSubscriptions;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.Expression;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.Operation;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.OperationElements;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.Param;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.ParamElements;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.ParamValidateCustom;
@@ -45,7 +44,6 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.Pro
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.PropertyConfigurationEntry;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.PropertyProperty;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.Query;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.QueryElements;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.QueryProperties;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.Resource;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.dataservice.Result;
@@ -72,41 +70,39 @@ public class DataServiceConfigFactory extends AbstractFactory {
 
         List<DOMNode> children = element.getChildren();
         if (children != null && !children.isEmpty()) {
-            List<STNode> elementList = new ArrayList<>();
             for (DOMNode child : children) {
                 String childName = child.getNodeName();
                 if (Constant.DESCRIPTION.equalsIgnoreCase(childName)) {
                     STNode description = new STNode();
                     description.elementNode((DOMElement) child);
-                    elementList.add(description);
+                    dataService.setDescription(description);
                 } else if (Constant.CONFIG.equalsIgnoreCase(childName)) {
                     Config config = createConfig(child);
-                    elementList.add(config);
+                    dataService.addConfig(config);
                 } else if (Constant.QUERY.equalsIgnoreCase(childName)) {
                     Query query = createQuery(child);
-                    elementList.add(query);
+                    dataService.addQuery(query);
                 } else if (Constant.OPERATION.equalsIgnoreCase(childName)) {
                     Operation operation = createOperation(child);
-                    elementList.add(operation);
+                    dataService.addOperation(operation);
                 } else if (Constant.RESOURCE.equalsIgnoreCase(childName)) {
                     Resource resource = createResource(child);
-                    elementList.add(resource);
+                    dataService.addResource(resource);
                 } else if (Constant.POLICY.equalsIgnoreCase(childName)) {
                     DataPolicy policy = createPolicy(child);
-                    elementList.add(policy);
+                    dataService.setPolicy(policy);
                 } else if (Constant.EVENT_TRIGGER.equalsIgnoreCase(childName)) {
                     EventTrigger eventTrigger = createEventTrigger(child);
-                    elementList.add(eventTrigger);
+                    dataService.addEventTrigger(eventTrigger);
                 } else if (Constant.ENABLE_SEC.equalsIgnoreCase(childName)) {
                     STNode enableSec = new STNode();
                     enableSec.elementNode((DOMElement) child);
-                    elementList.add(enableSec);
+                    dataService.setEnableSec(enableSec);
                 } else if (Constant.AUTHORIZATION_PROVIDER.equalsIgnoreCase(childName)) {
                     AuthorizationProvider authorizationProvider = createAuthorizationProvider(child);
-                    elementList.add(authorizationProvider);
+                    dataService.setAuthorizationProvider(authorizationProvider);
                 }
             }
-            dataService.setDescriptionOrConfigOrQuery(elementList);
         }
         return dataService;
     }
@@ -169,32 +165,30 @@ public class DataServiceConfigFactory extends AbstractFactory {
 
         List<DOMNode> children = element.getChildren();
         if (children != null && !children.isEmpty()) {
-            List<QueryElements> elementList = new ArrayList<>();
+            List<Param> queryParamList = new ArrayList<>();
             for (DOMNode child : children) {
                 String childName = child.getNodeName();
-                QueryElements queryElements = new QueryElements();
                 if (Constant.SQL.equalsIgnoreCase(childName)) {
                     Sql sql = createSql(child);
-                    queryElements.setSql(Optional.ofNullable(sql));
+                    query.setSql(sql);
                 } else if (Constant.EXPRESSION.equalsIgnoreCase(childName)) {
                     Expression expression = createExpression(child);
-                    queryElements.setExpression(Optional.ofNullable(expression));
+                    query.setExpression(expression);
                 } else if (Constant.SPARQL.equalsIgnoreCase(childName)) {
                     Sparql sparql = createSparql(child);
-                    queryElements.setSparql(Optional.ofNullable(sparql));
+                    query.setSparql(sparql);
                 } else if (Constant.PROPERTIES.equalsIgnoreCase(childName)) {
                     QueryProperties properties = createQueryProperties(child);
-                    queryElements.setProperties(Optional.ofNullable(properties));
+                    query.setProperties(properties);
                 } else if (Constant.RESULT.equalsIgnoreCase(childName)) {
                     Result queryResult = createQueryResult(child);
-                    queryElements.setResult(Optional.ofNullable(queryResult));
+                    query.setResult(queryResult);
                 } else if (Constant.PARAM.equalsIgnoreCase(childName)) {
                     Param param = createParam(child);
-                    queryElements.setParam(Optional.ofNullable(param));
+                    queryParamList.add(param);
                 }
-                elementList.add(queryElements);
             }
-            query.setQueryElements(elementList.toArray(new QueryElements[elementList.size()]));
+            query.setParams(queryParamList.toArray(new Param[queryParamList.size()]));
         }
         return query;
     }
@@ -396,9 +390,21 @@ public class DataServiceConfigFactory extends AbstractFactory {
             result.setOutputType(outputType);
         }
 
-        List<ResultElements> resultElements = createResultElements(node);
-        if (resultElements != null) {
-            result.setResultElements(resultElements.toArray(new ResultElements[resultElements.size()]));
+        List<DOMNode> children = node.getChildren();
+        if (children != null && !children.isEmpty()) {
+            for (DOMNode child : children) {
+                String childName = child.getNodeName();
+                if (Constant.ELEMENT.equalsIgnoreCase(childName)) {
+                    Element element = createElement(child);
+                    result.addElement(element);
+                } else if (Constant.ATTRIBUTE.equalsIgnoreCase(childName)) {
+                    Attribute attribute = createAttribute(child);
+                    result.addAttribute(attribute);
+                } else if (Constant.CALL_QUERY.equalsIgnoreCase(childName)) {
+                    CallQuery callQuery = createCallQuery(child);
+                    result.addCallQuery(callQuery);
+                }
+            }
         }
 
         return result;
@@ -436,9 +442,21 @@ public class DataServiceConfigFactory extends AbstractFactory {
 
         populateElementAttributes(element, node);
 
-        List<ResultElements> resultElements = createResultElements(node);
-        if (resultElements != null) {
-            element.setResultElements(resultElements.toArray(new ResultElements[resultElements.size()]));
+        List<DOMNode> children = node.getChildren();
+        if (children != null && !children.isEmpty()) {
+            for (DOMNode child : children) {
+                String childName = child.getNodeName();
+                if (Constant.ELEMENT.equalsIgnoreCase(childName)) {
+                    Element resultElement = createElement(child);
+                    element.addElement(resultElement);
+                } else if (Constant.ATTRIBUTE.equalsIgnoreCase(childName)) {
+                    Attribute attribute = createAttribute(child);
+                    element.addAttribute(attribute);
+                } else if (Constant.CALL_QUERY.equalsIgnoreCase(childName)) {
+                    CallQuery callQuery = createCallQuery(child);
+                    element.addCallQuery(callQuery);
+                }
+            }
         }
         return element;
     }
@@ -681,21 +699,17 @@ public class DataServiceConfigFactory extends AbstractFactory {
         }
         List<DOMNode> children = element.getChildren();
         if (children != null && !children.isEmpty()) {
-            List<OperationElements> elementList = new ArrayList<>();
             for (DOMNode child : children) {
                 String childName = child.getNodeName();
-                OperationElements operationElements = new OperationElements();
                 if (Constant.DESCRIPTION.equalsIgnoreCase(childName)) {
                     STNode description = new STNode();
                     description.elementNode((DOMElement) child);
-                    operationElements.setDescription(Optional.ofNullable(description));
+                    operation.setDescription(description);
                 } else if (Constant.CALL_QUERY.equalsIgnoreCase(childName)) {
                     CallQuery callQuery = createCallQuery(child);
-                    operationElements.setCall_query(Optional.ofNullable(callQuery));
+                    operation.setCallQuery(callQuery);
                 }
-                elementList.add(operationElements);
             }
-            operation.setOperationElements(elementList.toArray(new OperationElements[elementList.size()]));
         }
         return operation;
     }

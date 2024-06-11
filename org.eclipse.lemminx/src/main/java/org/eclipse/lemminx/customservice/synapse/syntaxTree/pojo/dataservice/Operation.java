@@ -22,19 +22,30 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 
 public class Operation extends STNode {
 
-    OperationElements[] operationElements;
+    STNode description;
+    CallQuery callQuery;
     String name;
     boolean disableStreaming;
     boolean returnRequestStatus;
 
-    public OperationElements[] getOperationElements() {
+    public STNode getDescription() {
 
-        return operationElements;
+        return description;
     }
 
-    public void setOperationElements(OperationElements[] operationElements) {
+    public void setDescription(STNode description) {
 
-        this.operationElements = operationElements;
+        this.description = description;
+    }
+
+    public CallQuery getCallQuery() {
+
+        return callQuery;
+    }
+
+    public void setCallQuery(CallQuery callQuery) {
+
+        this.callQuery = callQuery;
     }
 
     public String getName() {
