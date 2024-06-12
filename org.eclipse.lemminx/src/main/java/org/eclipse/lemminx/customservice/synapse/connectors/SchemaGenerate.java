@@ -93,7 +93,6 @@ public class SchemaGenerate {
         StringBuilder sb = new StringBuilder();
         for (Connector conn : connectors) {
             List<ConnectorAction> actions = conn.getActions();
-            boolean canHaveConnection = canHaveConnection(conn);
             for (ConnectorAction action : actions) {
                 if (!action.getHidden()) {
                     sb.append("            <xs:element name=\"" + action.getTag() + "\">\n");
@@ -104,24 +103,12 @@ public class SchemaGenerate {
                                 "minOccurs=\"0\" maxOccurs=\"1\" />\n");
                     }
                     sb.append("                    </xs:all>\n");
-                    if (canHaveConnection) {
-                        sb.append("                    <xs:attribute name=\"configKey\" type=\"xs:string\"/>\n");
-                    }
+                    sb.append("                    <xs:attribute name=\"configKey\" type=\"xs:string\"/>\n");
                     sb.append("                </xs:complexType>\n" +
                             "            </xs:element>\n");
                 }
             }
         }
         return sb.toString();
-    }
-
-    private static boolean canHaveConnection(Connector conn) {
-
-        for (ConnectorAction action : conn.getActions()) {
-            if (action.getTag().contains("init") && action.getHidden()) {
-                return Boolean.TRUE;
-            }
-        }
-        return Boolean.FALSE;
     }
 }
