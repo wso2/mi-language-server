@@ -16,8 +16,9 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.syntaxTree.factory;
+package org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.test;
 
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.AbstractFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.test.Artifact;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.test.AssertEquals;

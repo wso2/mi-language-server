@@ -466,4 +466,10 @@ public class Constant {
     public static final String FILE_NAME = "file-name";
     public static final String ARTIFACT = "artifact";
     public static final String REGISTRY_PATH = "registry-path";
+    public static final String MOCK_SERVICE_NAME = "service-name";
+    public static final String RESOURCES = "resources";
+    public static final String SUB_CONTEXT = "sub-context";
+    public static final String HEADERS = "headers";
+    public static final String STATUS_CODE = "status-code";
+    public static final String HEADER = "header";
 }
