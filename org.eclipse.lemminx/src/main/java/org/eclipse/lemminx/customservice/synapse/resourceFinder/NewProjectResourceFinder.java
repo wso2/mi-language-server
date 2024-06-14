@@ -56,7 +56,9 @@ public class NewProjectResourceFinder extends AbstractResourceFinder {
     @Override
     protected String getArtifactFolder(String type) {
 
-        if (Constant.ENDPOINT.equalsIgnoreCase(type)) {
+        if (Constant.API.equalsIgnoreCase(type)) {
+            return "apis";
+        } else if (Constant.ENDPOINT.equalsIgnoreCase(type)) {
             return "endpoints";
         } else if (Constant.SEQUENCE.equalsIgnoreCase(type)) {
             return "sequences";

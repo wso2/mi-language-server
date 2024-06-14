@@ -50,6 +50,15 @@ public class ResourceFinderTest {
     }
 
     @Test
+    public void testApiResource() {
+
+        ResourceResponse apiResources = resourceFinder.getAvailableResources(projectPath, Either.forLeft("api"));
+
+        assertEquals(1, apiResources.getResources().size());
+        assertEquals("testApi", apiResources.getResources().get(0).getName());
+    }
+
+    @Test
     public void testSequenceResource() {
 
         ResourceResponse sequenceResources = resourceFinder.getAvailableResources(projectPath, Either.forLeft(
