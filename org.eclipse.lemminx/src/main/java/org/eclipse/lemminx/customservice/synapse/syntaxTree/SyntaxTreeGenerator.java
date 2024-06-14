@@ -34,7 +34,8 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.NamedSequenc
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.ProxyFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.TaskFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.TemplateFactory;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.UnitTestFactory;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.test.MockServiceFactory;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.test.UnitTestFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.endpoint.EndpointFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.misc.Wsdl11Factory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.misc.Wsdl20Factory;
@@ -46,11 +47,9 @@ import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class SyntaxTreeGenerator {
@@ -61,7 +60,7 @@ public class SyntaxTreeGenerator {
     private static List<String> componentNames = Arrays.asList(Constant.API, Constant.ENDPOINT, Constant.INBOUND_ENDPOINT,
             Constant.MESSAGE_PROCESSOR, Constant.LOCAL_ENTRY, Constant.MESSAGE_STORE, Constant.PROXY, Constant.SEQUENCE,
             Constant.TASK, Constant.TEMPLATE, Constant.WSDL_DEFINITIONS, Constant.WSDL_DESCRIPTION, Constant.DATA,
-            Constant.DATA_SOURCE, Constant.UNIT_TEST);
+            Constant.DATA_SOURCE, Constant.UNIT_TEST, Constant.MOCK_SERVICE);
 
     public SyntaxTreeResponse getSyntaxTree(DOMDocument document) {
 
@@ -136,6 +135,8 @@ public class SyntaxTreeGenerator {
                 factory = new DataSourceConfigFactory();
             } else if (Constant.UNIT_TEST.equalsIgnoreCase(xmlNode.getNodeName())) {
                 factory = new UnitTestFactory();
+            } else if (Constant.MOCK_SERVICE.equalsIgnoreCase(xmlNode.getNodeName())) {
+                factory = new MockServiceFactory();
             }
         }
 
