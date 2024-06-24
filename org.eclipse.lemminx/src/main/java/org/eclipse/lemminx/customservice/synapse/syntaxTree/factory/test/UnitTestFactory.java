@@ -32,6 +32,8 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.test.TestCaseAs
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.test.TestCaseInput;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.test.TestCases;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.test.TestConnectorResources;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.test.TestProperties;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.test.TestProperty;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.test.TestRegistryResource;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.test.TestRegistryResources;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.test.TestSupportiveArtifacts;
@@ -283,10 +285,50 @@ public class UnitTestFactory extends AbstractFactory {
                 } else if (Constant.PAYLOAD.equalsIgnoreCase(nodeName)) {
                     STNode payload = createSimpleNode((DOMElement) child);
                     testCaseInput.setPayload(payload);
+                } else if (Constant.PROPERTIES.equalsIgnoreCase(nodeName)) {
+                    TestProperties properties = createTestProperties((DOMElement) child);
+                    testCaseInput.setProperties(properties);
                 }
             }
         }
         return testCaseInput;
+    }
+
+    private TestProperties createTestProperties(DOMElement node) {
+
+        TestProperties testProperties = new TestProperties();
+        testProperties.elementNode(node);
+
+        List<DOMNode> children = node.getChildren();
+        if (children != null && !children.isEmpty()) {
+            for (DOMNode child : children) {
+                TestProperty property = createTestProperty((DOMElement) child);
+                testProperties.addProperty(property);
+            }
+        }
+        return testProperties;
+    }
+
+    private TestProperty createTestProperty(DOMElement node) {
+
+        TestProperty testProperty = new TestProperty();
+        testProperty.elementNode(node);
+
+        String name = node.getAttribute(Constant.NAME);
+        if (name != null) {
+            testProperty.setName(name);
+        }
+        String value = node.getAttribute(Constant.VALUE);
+        if (value != null) {
+            testProperty.setValue(value);
+        }
+        String scope = node.getAttribute(Constant.SCOPE);
+        if (scope != null) {
+            testProperty.setScope(scope);
+        } else {
+            testProperty.setScope(Constant.DEFAULT);
+        }
+        return testProperty;
     }
 
     private TestCaseAssertions createTestCaseAssertions(DOMElement node) {
