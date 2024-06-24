@@ -38,6 +38,7 @@ public class Element extends STNode {
     boolean optional;
     String arrayName;
     String queryParam;
+    String inlineXml;
 
     public List<Element> getElements() {
 
@@ -191,5 +192,15 @@ public class Element extends STNode {
             callQueries = new ArrayList<>();
         }
         callQueries.add(callQuery);
+    }
+
+    public String getInlineXml() {
+
+        return inlineXml;
+    }
+
+    public void setInlineXml(String inlineXml) {
+
+        this.inlineXml = inlineXml;
     }
 }
