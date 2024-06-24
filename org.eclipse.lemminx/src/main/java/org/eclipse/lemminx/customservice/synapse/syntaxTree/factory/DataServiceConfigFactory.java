@@ -445,7 +445,8 @@ public class DataServiceConfigFactory extends AbstractFactory {
         List<DOMNode> children = node.getChildren();
         if (children != null && !children.isEmpty()) {
             String inlineXml = "";
-            for (DOMNode child : children) {
+            for (int i = 0; i < children.size(); i++) {
+                DOMNode child = children.get(i);
                 String childName = child.getNodeName();
                 if (Constant.ELEMENT.equalsIgnoreCase(childName)) {
                     Element resultElement = createElement(child);
@@ -458,7 +459,9 @@ public class DataServiceConfigFactory extends AbstractFactory {
                     element.addCallQuery(callQuery);
                 }
                 inlineXml += Utils.getInlineString(child);
-                inlineXml += "\n";
+                if (i != children.size() - 1) {
+                    inlineXml += "\n";
+                }
             }
             element.setInlineXml(inlineXml);
         }
