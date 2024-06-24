@@ -63,8 +63,14 @@ public class Utils {
                     inline = "<" + node.getNodeName().concat(getAttributeXmlString(node)) + ">";
                     List<DOMNode> children = node.getChildren();
                     if (children != null && !children.isEmpty()) {
+                        if (children.get(0) instanceof DOMElement) {
+                            inline += "\n";
+                        }
                         for (DOMNode child : children) {
                             inline += getInlineString(child);
+                            if (child instanceof DOMElement) {
+                                inline += "\n";
+                            }
                         }
                     }
                     inline += "</" + StringEscapeUtils.escapeXml(node.getNodeName()) + ">";

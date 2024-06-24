@@ -34,15 +34,14 @@ public class LocalEntrySerializerTest {
     @Test
     public void testSerializeLocalEntry() {
 
-        String xml = "<localEntry xmlns=\"http://ws.apache.org/ns/synapse\" key=\"SALESFORCESOAP_CONNECTION_1\">" +
-                "<salesforce.init xmlns=\"\">" +
-                "<connectionType>init</connectionType>" +
-                "<password>Demo2024#S6hDusAEUMbD3yhMgvFzMwY2</password>" +
-                "<loginUrl>https://sample-dev-ed.my.salesforce.com/services/Soap/u/39.0</loginUrl>" +
-                "<name>SALESFORCESOAP_CONNECTION_1</name>" +
-                "<username>sample.user@salesforce.com</username>" +
-                "</salesforce.init>" +
-                "</localEntry>";
+        String xml = "<localEntry xmlns=\"http://ws.apache.org/ns/synapse\" " +
+                "key=\"SALESFORCESOAP_CONNECTION_1\"><salesforce.init xmlns=\"\">\n" +
+                "<connectionType>init</connectionType>\n" +
+                "<password>Demo2024#S6hDusAEUMbD3yhMgvFzMwY2</password>\n" +
+                "<loginUrl>https://sample-dev-ed.my.salesforce.com/services/Soap/u/39.0</loginUrl>\n" +
+                "<name>SALESFORCESOAP_CONNECTION_1</name>\n" +
+                "<username>sample.user@salesforce.com</username>\n" +
+                "</salesforce.init></localEntry>";
 
         test(xml);
     }
