@@ -20,12 +20,14 @@ package org.eclipse.lemminx.customservice.synapse.connectors.entity;
 
 public class Connection {
 
+    String connectorName;
     String name;
     String connectionType;
     String path;
 
-    public Connection(String name, String connectionType, String path) {
+    public Connection(String connectorName, String name, String connectionType, String path) {
 
+        this.connectorName = connectorName;
         this.name = name;
         this.connectionType = connectionType;
         this.path = path;

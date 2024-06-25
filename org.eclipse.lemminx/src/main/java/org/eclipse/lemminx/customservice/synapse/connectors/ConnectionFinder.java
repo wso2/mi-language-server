@@ -132,7 +132,7 @@ public class ConnectionFinder {
                                          String connectionName, String connectionType, String path) {
 
         if (connections.containsKey(connectorName)) {
-            Connection connection = new Connection(connectionName, connectionType, path);
+            Connection connection = new Connection(connectorName, connectionName, connectionType, path);
             connections.get(connectorName).addConnection(connection);
         }
     }
