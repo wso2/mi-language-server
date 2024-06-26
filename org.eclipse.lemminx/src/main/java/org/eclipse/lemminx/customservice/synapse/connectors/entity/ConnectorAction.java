@@ -26,12 +26,14 @@ public class ConnectorAction {
     private String name;
     private String tag;
     List<String> parameters;
+    List<String> allowedConnectionTypes;
     private String description;
     private Boolean isHidden;
 
     public ConnectorAction() {
 
         parameters = new ArrayList<>();
+        allowedConnectionTypes = new ArrayList<>();
     }
 
     public String getName() {
@@ -87,5 +89,15 @@ public class ConnectorAction {
     public void setHidden(Boolean hidden) {
 
         isHidden = hidden;
+    }
+
+    public List<String> getAllowedConnectionTypes() {
+
+        return allowedConnectionTypes;
+    }
+
+    public void setAllowedConnectionTypes(List<String> allowedConnectionTypes) {
+
+        this.allowedConnectionTypes = allowedConnectionTypes;
     }
 }

@@ -472,4 +472,5 @@ public class Constant {
     public static final String HEADERS = "headers";
     public static final String STATUS_CODE = "status-code";
     public static final String HEADER = "header";
+    public static final String ELEMENTS = "elements";
 }
