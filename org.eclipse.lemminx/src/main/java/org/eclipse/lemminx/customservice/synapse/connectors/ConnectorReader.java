@@ -18,6 +18,7 @@
 
 package org.eclipse.lemminx.customservice.synapse.connectors;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
@@ -30,6 +31,7 @@ import org.eclipse.lemminx.dom.DOMNode;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,6 +39,7 @@ import java.util.logging.Logger;
 public class ConnectorReader {
 
     private static final Logger log = Logger.getLogger(ConnectorReader.class.getName());
+    private HashMap<String, List<String>> allowedConnectionTypesMap = new HashMap<>();
 
     public Connector readConnector(String connectorPath) {
 
@@ -55,6 +58,7 @@ public class ConnectorReader {
                     connector.setVersion(getConnectorVersion(connectorPath));
                     connector.setIconPath(connectorPath + File.separator + "icon");
                     connector.setUiSchemaPath(connectorPath + File.separator + "uischema");
+                    populateAllowedConnectionTypesMap(connector);
                     populateConnectorActions(connector, componentElement);
                     populateConnectionUiSchema(connector);
                 } catch (Exception e) {
@@ -63,6 +67,71 @@ public class ConnectorReader {
             }
         }
         return connector;
+    }
+
+    private void populateAllowedConnectionTypesMap(Connector connector) {
+
+        String uiSchemaPath = connector.getUiSchemaPath();
+        File uiSchemaFolder = new File(uiSchemaPath);
+        if (uiSchemaFolder.exists()) {
+            File[] files = uiSchemaFolder.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    try {
+                        String schema = Utils.readFile(file);
+                        JsonObject uiJson = Utils.getJsonObject(schema);
+                        JsonElement operation = uiJson.get("operationName");
+                        if (operation != null) {
+                            String operationName = operation.getAsString();
+                            getAllowedConnectionTypes(uiJson, operationName);
+                        }
+                    } catch (IOException e) {
+                        log.log(Level.SEVERE, "Error while reading connector ui schema file.", e);
+                    }
+                }
+            }
+        }
+    }
+
+    private void getAllowedConnectionTypes(JsonObject uiJson, String operationName) {
+
+        JsonArray elements = getElements(uiJson);
+        if (elements != null) {
+            for (JsonElement element : elements) {
+                if (!allowedConnectionTypesMap.containsKey(operationName)) {
+                    String type = element.getAsJsonObject().get(Constant.TYPE).getAsString();
+                    if (Constant.ATTRIBUTE.equalsIgnoreCase(type)) {
+                        JsonElement value = element.getAsJsonObject().get(Constant.VALUE);
+                        JsonElement allowedConnectionType = value.getAsJsonObject().get("allowedConnectionTypes");
+                        if (allowedConnectionType != null) {
+                            JsonArray allowedConnectionTypes = allowedConnectionType.getAsJsonArray();
+                            List<String> allowedConnectionTypeList = new ArrayList<>();
+                            for (JsonElement connectionType : allowedConnectionTypes) {
+                                allowedConnectionTypeList.add(connectionType.getAsString());
+                            }
+                            allowedConnectionTypesMap.put(operationName, allowedConnectionTypeList);
+                            break;
+                        }
+                    } else if ("attributeGroup".equalsIgnoreCase(type)) {
+                        getAllowedConnectionTypes(element.getAsJsonObject(), operationName);
+                    }
+                }
+            }
+        }
+    }
+
+    private JsonArray getElements(JsonObject uiJson) {
+
+        JsonObject temp = uiJson;
+        JsonElement value = uiJson.get(Constant.VALUE);
+        if (value != null) {
+            temp = value.getAsJsonObject();
+        }
+        JsonElement elements = temp.get(Constant.ELEMENTS);
+        if (elements != null) {
+            return elements.getAsJsonArray();
+        }
+        return null;
     }
 
     private String getConnectorVersion(String connectorPath) {
@@ -170,6 +239,9 @@ public class ConnectorReader {
                         action.setHidden(Boolean.parseBoolean(isHidden));
                     } else {
                         action.setHidden(Boolean.FALSE);
+                    }
+                    if (allowedConnectionTypesMap.containsKey(action.getName())) {
+                        action.setAllowedConnectionTypes(allowedConnectionTypesMap.get(action.getName()));
                     }
                     connector.addAction(action);
                 }
