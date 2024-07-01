@@ -19,35 +19,50 @@
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo;
 
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 
-public class TagRange {
+public class TagRange extends Range {
 
-    private Position start;
-    private Position end;
+    private Range leadingSpace;
+    private Range trailingSpace;
 
     public TagRange(Position start, Position end) {
 
-        this.start = start;
-        this.end = end;
-    }
-
-    public Position getStart() {
-
-        return start;
+        setStart(start);
+        setEnd(end);
     }
 
     public void setStart(Position start) {
 
-        this.start = start;
-    }
-
-    public Position getEnd() {
-
-        return end;
+        if (start != null) {
+            super.setStart(start);
+        }
     }
 
     public void setEnd(Position end) {
 
-        this.end = end;
+        if (end != null) {
+            super.setEnd(end);
+        }
+    }
+
+    public Range getLeadingSpace() {
+
+        return leadingSpace;
+    }
+
+    public void setLeadingSpace(Range leadingSpace) {
+
+        this.leadingSpace = leadingSpace;
+    }
+
+    public Range getTrailingSpace() {
+
+        return trailingSpace;
+    }
+
+    public void setTrailingSpace(Range trailingSpace) {
+
+        this.trailingSpace = trailingSpace;
     }
 }

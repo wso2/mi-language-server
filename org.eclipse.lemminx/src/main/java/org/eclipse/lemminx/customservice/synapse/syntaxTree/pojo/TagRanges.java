@@ -18,12 +18,12 @@
 
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo;
 
-public class Range {
+public class TagRanges {
 
     TagRange startTagRange;
     TagRange endTagRange;
 
-    public Range(TagRange startTagRange, TagRange endTagRange) {
+    public TagRanges(TagRange startTagRange, TagRange endTagRange) {
 
         this.startTagRange = startTagRange;
         this.endTagRange = endTagRange;
