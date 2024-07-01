@@ -25,13 +25,14 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 
 import java.util.HashMap;
 import java.util.List;
 
 public class STNode {
 
-    Range range;
+    TagRanges range;
     boolean hasTextNode;
     String textNode;
     boolean selfClosed;
@@ -57,7 +58,7 @@ public class STNode {
         populateNamespaces(node);
     }
 
-    private Range findRange(DOMElement node) {
+    private TagRanges findRange(DOMElement node) {
 
         int startTagOpenOffset = node.getStart();
         int startTagCloseOffset = selfClosed ? node.getEnd() : node.getStartTagCloseOffset() + 1;
@@ -78,24 +79,24 @@ public class STNode {
         }
         TagRange startTagRange = new TagRange(startTagOpenPosition, startTagClosePosition);
         TagRange endTagRange = new TagRange(endTagOpenPosition, endTagClosePosition);
-        Range range = new Range(startTagRange, endTagRange);
+        TagRanges range = new TagRanges(startTagRange, endTagRange);
         calculateLeadingAndTrailingSpaces(node, range);
         return range;
     }
 
-    private void calculateLeadingAndTrailingSpaces(DOMElement node, Range range) {
+    private void calculateLeadingAndTrailingSpaces(DOMElement node, TagRanges range) {
 
         calculateStartTagSpaces(node, range);
         calculateEndTagSpaces(node, range);
     }
 
-    private void calculateStartTagSpaces(DOMElement node, Range range) {
+    private void calculateStartTagSpaces(DOMElement node, TagRanges range) {
 
-        calculateStartTagLeadingSpaces(node, range);
-        calculateStartTagTrailingSpaces(node, range);
+        calculateStartTagLeadingSpaces(node, range.getStartTagRange());
+        calculateStartTagTrailingSpaces(node, range.getStartTagRange());
     }
 
-    private void calculateStartTagLeadingSpaces(DOMElement node, Range range) {
+    private void calculateStartTagLeadingSpaces(DOMElement node, TagRange range) {
 
         DOMDocument document = node.getOwnerDocument();
         int startOffsetOfLeadingSpaces;
@@ -110,13 +111,13 @@ public class STNode {
         }
         try {
             Position startLeadingSpacesPosition = document.positionAt(startOffsetOfLeadingSpaces);
-            Position endLeadingSpacesPosition = range.startTagRange.getStart();
-            range.setStartTagLeadingSpaces(new TagRange(startLeadingSpacesPosition, endLeadingSpacesPosition));
+            Position endLeadingSpacesPosition = range.getStart();
+            range.setLeadingSpace(new Range(startLeadingSpacesPosition, endLeadingSpacesPosition));
         } catch (BadLocationException e) {
         }
     }
 
-    private void calculateStartTagTrailingSpaces(DOMElement node, Range range) {
+    private void calculateStartTagTrailingSpaces(DOMElement node, TagRange range) {
 
         DOMDocument document = node.getOwnerDocument();
         int endOffsetOfTrailingSpaces;
@@ -131,24 +132,24 @@ public class STNode {
             endOffsetOfTrailingSpaces = node.getOwnerDocument().getEnd();
         }
         try {
-            Position startTrailingSpacesPosition = range.startTagRange.getEnd();
+            Position startTrailingSpacesPosition = range.getEnd();
             Position endTrailingSpacesPosition = document.positionAt(endOffsetOfTrailingSpaces);
-            range.setStartTagTrailingSpaces(new TagRange(startTrailingSpacesPosition, endTrailingSpacesPosition));
+            range.setTrailingSpace(new Range(startTrailingSpacesPosition, endTrailingSpacesPosition));
         } catch (BadLocationException e) {
         }
     }
 
-    private void calculateEndTagSpaces(DOMElement node, Range range) {
+    private void calculateEndTagSpaces(DOMElement node, TagRanges range) {
 
         if (node.isSelfClosed()) {
             return;
         }
 
-        calculateEndTagLeadingSpaces(node, range);
-        calculateEndTagTrailingSpaces(node, range);
+        calculateEndTagLeadingSpaces(node, range.getEndTagRange());
+        calculateEndTagTrailingSpaces(node, range.getEndTagRange());
     }
 
-    private void calculateEndTagLeadingSpaces(DOMElement node, Range range) {
+    private void calculateEndTagLeadingSpaces(DOMElement node, TagRange range) {
 
         DOMDocument document = node.getOwnerDocument();
 
@@ -169,13 +170,13 @@ public class STNode {
         }
         try {
             Position startLeadingSpacesPosition = document.positionAt(startOffsetOfLeadingSpaces);
-            Position endLeadingSpacesPosition = range.endTagRange.getStart();
-            range.setEndTagLeadingSpaces(new TagRange(startLeadingSpacesPosition, endLeadingSpacesPosition));
+            Position endLeadingSpacesPosition = range.getStart();
+            range.setLeadingSpace(new Range(startLeadingSpacesPosition, endLeadingSpacesPosition));
         } catch (BadLocationException e) {
         }
     }
 
-    private void calculateEndTagTrailingSpaces(DOMElement node, Range range) {
+    private void calculateEndTagTrailingSpaces(DOMElement node, TagRange range) {
 
         DOMDocument document = node.getOwnerDocument();
         int endOffsetOfTrailingSpaces;
@@ -188,9 +189,9 @@ public class STNode {
             endOffsetOfTrailingSpaces = node.getOwnerDocument().getEnd();
         }
         try {
-            Position startTrailingSpacesPosition = range.getEndTagRange().getEnd();
+            Position startTrailingSpacesPosition = range.getEnd();
             Position endTrailingSpacesPosition = document.positionAt(endOffsetOfTrailingSpaces);
-            range.setEndTagTrailingSpaces(new TagRange(startTrailingSpacesPosition, endTrailingSpacesPosition));
+            range.setTrailingSpace(new Range(startTrailingSpacesPosition, endTrailingSpacesPosition));
         } catch (BadLocationException e) {
         }
     }
@@ -218,7 +219,7 @@ public class STNode {
         namespaces.put(prefix, uri);
     }
 
-    public Range getRange() {
+    public TagRanges getRange() {
 
         return range;
     }

@@ -18,16 +18,12 @@
 
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo;
 
-public class Range {
+public class TagRanges {
 
     TagRange startTagRange;
     TagRange endTagRange;
-    TagRange startTagLeadingSpaces;
-    TagRange startTagTrailingSpaces;
-    TagRange endTagLeadingSpaces;
-    TagRange endTagTrailingSpaces;
 
-    public Range(TagRange startTagRange, TagRange endTagRange) {
+    public TagRanges(TagRange startTagRange, TagRange endTagRange) {
 
         this.startTagRange = startTagRange;
         this.endTagRange = endTagRange;
@@ -51,45 +47,5 @@ public class Range {
     public void setEndTagRange(TagRange endTagRange) {
 
         this.endTagRange = endTagRange;
-    }
-
-    public TagRange getStartTagLeadingSpaces() {
-
-        return startTagLeadingSpaces;
-    }
-
-    public void setStartTagLeadingSpaces(TagRange startTagLeadingSpaces) {
-
-        this.startTagLeadingSpaces = startTagLeadingSpaces;
-    }
-
-    public TagRange getStartTagTrailingSpaces() {
-
-        return startTagTrailingSpaces;
-    }
-
-    public void setStartTagTrailingSpaces(TagRange startTagTrailingSpaces) {
-
-        this.startTagTrailingSpaces = startTagTrailingSpaces;
-    }
-
-    public TagRange getEndTagLeadingSpaces() {
-
-        return endTagLeadingSpaces;
-    }
-
-    public void setEndTagLeadingSpaces(TagRange endTagLeadingSpaces) {
-
-        this.endTagLeadingSpaces = endTagLeadingSpaces;
-    }
-
-    public TagRange getEndTagTrailingSpaces() {
-
-        return endTagTrailingSpaces;
-    }
-
-    public void setEndTagTrailingSpaces(TagRange endTagTrailingSpaces) {
-
-        this.endTagTrailingSpaces = endTagTrailingSpaces;
     }
 }
