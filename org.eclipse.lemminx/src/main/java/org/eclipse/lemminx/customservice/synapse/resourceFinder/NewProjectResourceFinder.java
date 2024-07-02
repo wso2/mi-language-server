@@ -43,6 +43,9 @@ public class NewProjectResourceFinder extends AbstractResourceFinder {
 
         Path artifactsPath = Path.of(projectPath, "src", "main", "wso2mi", "artifacts");
         List<Resource> resourcesInArtifacts = findResourceInArtifacts(artifactsPath, types);
+        Path localEntryPath = Path.of(artifactsPath.toString(), "local-entries");
+        List<Resource> resourcesInLocalEntry = findResourceInLocalEntry(localEntryPath, types);
+        resourcesInArtifacts.addAll(resourcesInLocalEntry);
         response.setResources(resourcesInArtifacts);
     }
 
