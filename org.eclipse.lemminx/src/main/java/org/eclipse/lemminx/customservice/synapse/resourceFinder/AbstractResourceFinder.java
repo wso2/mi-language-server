@@ -49,6 +49,7 @@ public abstract class AbstractResourceFinder {
     private static final Logger LOGGER = Logger.getLogger(AbstractResourceFinder.class.getName());
     private static final String ARTIFACTS = "ARTIFACTS";
     private static final String REGISTRY = "REGISTRY";
+    private static final String LOCAL_ENTRY = "LOCAL_ENTRY";
     protected static final List<String> resourceFromRegistryOnly = List.of("dataMapper", "js", "json", "smooksConfig",
             "wsdl", "ws_policy", "xsd", "xsl", "xslt", "yaml", "registry", "schema", "swagger");
 
@@ -113,6 +114,25 @@ public abstract class AbstractResourceFinder {
                         resources.addAll(resources1);
                     }
                 }
+            }
+        }
+        return resources;
+    }
+
+    protected List<Resource> findResourceInLocalEntry(Path localEntryPath, List<RequestedResource> types) {
+
+        List<Resource> resources = new ArrayList<>();
+        File folder = localEntryPath.toFile();
+
+        if (folder.exists()) {
+            for (RequestedResource requestedResource : types) {
+                File[] listOfFiles = folder.listFiles();
+                if (listOfFiles != null) {
+                    List<Resource> resources1 = createResources(List.of(listOfFiles), requestedResource.type,
+                            LOCAL_ENTRY);
+                    resources.addAll(resources1);
+                }
+
             }
         }
         return resources;
@@ -236,7 +256,7 @@ public abstract class AbstractResourceFinder {
                     if (type != null && requestedTypeToXmlTagMap.containsValue(type)) {
                         Resource resource = null;
                         if (ARTIFACTS.equals(from)) {
-                            resource = createArtifactResource(file, rootElement, type);
+                            resource = createArtifactResource(file, rootElement, type, Boolean.FALSE);
                         } else if (REGISTRY.equals(from)) {
                             resource = createRegistryResource(file, rootElement, type);
                         }
@@ -267,14 +287,21 @@ public abstract class AbstractResourceFinder {
         try {
             DOMDocument document = Utils.getDOMDocument(file);
             DOMElement rootElement;
-            String nodeName = typeToXmlTagMap.get(type);
+            String nodeName;
+            if (LOCAL_ENTRY.equals(from)) {
+                nodeName = Constant.LOCAL_ENTRY;
+            } else {
+                nodeName = typeToXmlTagMap.get(type);
+            }
             rootElement = (DOMElement) Utils.getChildNodeByName(document, nodeName);
-            if (rootElement != null && checkValid(rootElement, type)) {
+            if (rootElement != null && checkValid(rootElement, type, from)) {
                 Resource resource = null;
                 if (ARTIFACTS.equals(from)) {
-                    resource = createArtifactResource(file, rootElement, type);
+                    resource = createArtifactResource(file, rootElement, type, Boolean.FALSE);
                 } else if (REGISTRY.equals(from)) {
                     resource = createRegistryResource(file, rootElement, type);
+                } else if (LOCAL_ENTRY.equals(from)) {
+                    resource = createArtifactResource(file, rootElement, type, Boolean.TRUE);
                 }
                 return resource;
             }
@@ -295,10 +322,17 @@ public abstract class AbstractResourceFinder {
         return resource;
     }
 
-    private boolean checkValid(DOMElement rootElement, String type) {
+    private boolean checkValid(DOMElement rootElement, String type, String from) {
 
         String nodeName = rootElement.getNodeName();
-        if (Constant.TEMPLATE.equals(nodeName)) {
+        if (LOCAL_ENTRY.equals(from)) {
+            DOMElement artifactElt = Utils.getFirstElement(rootElement);
+            if (artifactElt != null) {
+                String artifactType = artifactElt.getNodeName();
+                return type.equals(artifactType);
+            }
+            return false;
+        } else if (Constant.TEMPLATE.equals(nodeName)) {
             if ("sequenceTemplate".equals(type)) {
                 DOMElement sequenceElement = (DOMElement) Utils.getChildNodeByName(rootElement, Constant.SEQUENCE);
                 if (sequenceElement != null) {
@@ -315,7 +349,7 @@ public abstract class AbstractResourceFinder {
         return true;
     }
 
-    private Resource createArtifactResource(File file, DOMElement rootElement, String type) {
+    private Resource createArtifactResource(File file, DOMElement rootElement, String type, boolean isLocalEntry) {
 
         Resource artifact = new ArtifactResource();
         String name = getArtifactName(rootElement);
@@ -323,6 +357,7 @@ public abstract class AbstractResourceFinder {
             artifact.setName(name);
             artifact.setType(Utils.addUnderscoreBetweenWords(type).toUpperCase());
             artifact.setFrom(ARTIFACTS);
+            ((ArtifactResource) artifact).setLocalEntry(isLocalEntry);
             ((ArtifactResource) artifact).setArtifactPath(file.getName());
             ((ArtifactResource) artifact).setAbsolutePath(file.getAbsolutePath());
             return artifact;

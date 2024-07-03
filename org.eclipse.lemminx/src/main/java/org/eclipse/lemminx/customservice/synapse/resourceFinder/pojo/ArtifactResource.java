@@ -22,6 +22,7 @@ public class ArtifactResource extends Resource {
 
     private String artifactPath;
     private String absolutePath;
+    private boolean isLocalEntry;
 
     public String getArtifactPath() {
 
@@ -41,5 +42,15 @@ public class ArtifactResource extends Resource {
     public void setAbsolutePath(String absolutePath) {
 
         this.absolutePath = absolutePath;
+    }
+
+    public boolean isLocalEntry() {
+
+        return isLocalEntry;
+    }
+
+    public void setLocalEntry(boolean localEntry) {
+
+        isLocalEntry = localEntry;
     }
 }

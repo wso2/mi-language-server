@@ -46,6 +46,9 @@ public class OldProjectResourceFinder extends AbstractResourceFinder {
             for (String esbConfigPath : esbConfigPaths) {
                 Path artifactPath = Path.of(esbConfigPath, "src", "main", "synapse-config");
                 List<Resource> resourceInArtifacts = findResourceInArtifacts(artifactPath, types);
+                Path localEntryPath = Path.of(artifactPath.toString(), "local-entries");
+                List<Resource> resourceInLocalEntry = findResourceInLocalEntry(localEntryPath, types);
+                resourceInArtifacts.addAll(resourceInLocalEntry);
                 resourcesInArtifacts.addAll(resourceInArtifacts);
             }
             List<String> registryConfigPaths = LegacyConfigFinder.getConfigPaths(projectPath,
