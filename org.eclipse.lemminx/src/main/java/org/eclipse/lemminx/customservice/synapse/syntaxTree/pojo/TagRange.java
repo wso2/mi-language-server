@@ -24,7 +24,9 @@ import org.eclipse.lsp4j.Range;
 public class TagRange extends Range {
 
     private Range leadingSpace;
+    private String leadingSpaceText;
     private Range trailingSpace;
+    private String trailingSpaceText;
 
     public TagRange(Position start, Position end) {
 
@@ -64,5 +66,15 @@ public class TagRange extends Range {
     public void setTrailingSpace(Range trailingSpace) {
 
         this.trailingSpace = trailingSpace;
+    }
+
+    public void setLeadingSpaceText(String leadingSpaceText) {
+
+        this.leadingSpaceText = leadingSpaceText;
+    }
+
+    public void setTrailingSpaceText(String trailingSpaceText) {
+
+        this.trailingSpaceText = trailingSpaceText;
     }
 }
