@@ -26,6 +26,8 @@ import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorPara
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateAPIParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
+import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTestParams;
+import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTestResponse;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointInfoResponse;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointsRequest;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
@@ -97,4 +99,7 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<GenerateSwaggerResponse> swaggerFromAPI(GenerateSwaggerParam param);
+
+    @JsonRequest
+    CompletableFuture<DBConnectionTestResponse> testDBConnection(DBConnectionTestParams dbConnectionTestParams);
 }
