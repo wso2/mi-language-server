@@ -492,6 +492,12 @@ public class DirectoryTreeBuilder {
             String name = node.getAttribute(Constant.NAME);
             if (name == null) {
                 name = node.getAttribute(Constant.KEY);
+                if (name == null) {
+                    DOMNode nameElt = Utils.getChildNodeByName(domDocument, Constant.NAME);
+                    if (nameElt != null) {
+                        name = Utils.getInlineString(nameElt.getFirstChild());
+                    }
+                }
             }
             return name;
         } else {
