@@ -19,6 +19,7 @@
 package org.eclipse.lemminx.customservice.synapse.connectors;
 
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connection;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectionParameter;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connections;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.AbstractResourceFinder;
@@ -35,6 +36,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,14 +111,49 @@ public class ConnectionFinder {
                     String nodeName = childElement.getNodeName();
                     String connectorName = getConnectorName(nodeName);
                     String connectionType = getConnectionType(childElement);
+                    List<ConnectionParameter> parameters = getParameters(childElement);
                     if (connectorName != null) {
-                        addToConnections(connections, connectorName, localEntryName, connectionType, filePath);
+                        addToConnections(connections, connectorName, localEntryName, connectionType, parameters,
+                                filePath);
                     }
                 }
             } catch (IOException e) {
                 log.log(Level.SEVERE, "Error while reading local entry file", e);
             }
         }
+    }
+
+    private static List<ConnectionParameter> getParameters(DOMElement element) {
+
+        List<ConnectionParameter> parameters = new ArrayList<>();
+        List<DOMNode> children = element.getChildren();
+        if (children != null && !children.isEmpty()) {
+            for (DOMNode child : children) {
+                if (child instanceof DOMElement) {
+                    DOMElement childElement = (DOMElement) child;
+                    ConnectionParameter parameter = new ConnectionParameter();
+                    parameter.setName(childElement.getNodeName());
+                    String inline = Utils.getInlineString(childElement.getFirstChild());
+                    Boolean isExpression = isExpression(inline);
+                    parameter.setExpression(isExpression);
+                    if (isExpression) {
+                        parameter.setExpression(inline.substring(1, inline.length() - 1));
+                    } else {
+                        parameter.setValue(inline);
+                    }
+                    parameters.add(parameter);
+                }
+            }
+        }
+        return parameters;
+    }
+
+    private static Boolean isExpression(String inline) {
+
+        if (inline == null) {
+            return false;
+        }
+        return inline.startsWith("{") && inline.endsWith("}");
     }
 
     private static String getConnectorName(String nodeName) {
@@ -129,10 +166,11 @@ public class ConnectionFinder {
     }
 
     private static void addToConnections(Map<String, Connections> connections, String connectorName,
-                                         String connectionName, String connectionType, String path) {
+                                         String connectionName, String connectionType,
+                                         List<ConnectionParameter> parameters, String path) {
 
         if (connections.containsKey(connectorName)) {
-            Connection connection = new Connection(connectorName, connectionName, connectionType, path);
+            Connection connection = new Connection(connectorName, connectionName, connectionType, parameters, path);
             connections.get(connectorName).addConnection(connection);
         }
     }

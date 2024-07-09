@@ -18,24 +18,32 @@
 
 package org.eclipse.lemminx.customservice.synapse.connectors.entity;
 
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ConnectorParameter;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 
-import java.util.List;
+public class ConnectionParameter {
 
-public class Connection {
-
-    String connectorName;
     String name;
-    String connectionType;
-    String path;
-    List<ConnectionParameter> parameters;
+    boolean isExpression;
+    String value;
+    String expression;
 
-    public Connection(String connectorName, String name, String connectionType, List<ConnectionParameter> parameters, String path) {
+    public void setName(String name) {
 
-        this.connectorName = connectorName;
         this.name = name;
-        this.connectionType = connectionType;
-        this.path = path;
-        this.parameters = parameters;
+    }
+
+    public void setExpression(boolean expression) {
+
+        isExpression = expression;
+    }
+
+    public void setValue(String value) {
+
+        this.value = value;
+    }
+
+    public void setExpression(String expression) {
+
+        this.expression = expression;
     }
 }
