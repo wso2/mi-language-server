@@ -113,6 +113,7 @@ public class STNode {
             Position startLeadingSpacesPosition = document.positionAt(startOffsetOfLeadingSpaces);
             Position endLeadingSpacesPosition = range.getStart();
             range.setLeadingSpace(new Range(startLeadingSpacesPosition, endLeadingSpacesPosition));
+            range.setLeadingSpaceText(getTextInRange(document, startLeadingSpacesPosition, endLeadingSpacesPosition));
         } catch (BadLocationException e) {
         }
     }
@@ -135,6 +136,8 @@ public class STNode {
             Position startTrailingSpacesPosition = range.getEnd();
             Position endTrailingSpacesPosition = document.positionAt(endOffsetOfTrailingSpaces);
             range.setTrailingSpace(new Range(startTrailingSpacesPosition, endTrailingSpacesPosition));
+            range.setTrailingSpaceText(getTextInRange(document, startTrailingSpacesPosition,
+                    endTrailingSpacesPosition));
         } catch (BadLocationException e) {
         }
     }
@@ -172,6 +175,7 @@ public class STNode {
             Position startLeadingSpacesPosition = document.positionAt(startOffsetOfLeadingSpaces);
             Position endLeadingSpacesPosition = range.getStart();
             range.setLeadingSpace(new Range(startLeadingSpacesPosition, endLeadingSpacesPosition));
+            range.setLeadingSpaceText(getTextInRange(document, startLeadingSpacesPosition, endLeadingSpacesPosition));
         } catch (BadLocationException e) {
         }
     }
@@ -192,6 +196,8 @@ public class STNode {
             Position startTrailingSpacesPosition = range.getEnd();
             Position endTrailingSpacesPosition = document.positionAt(endOffsetOfTrailingSpaces);
             range.setTrailingSpace(new Range(startTrailingSpacesPosition, endTrailingSpacesPosition));
+            range.setTrailingSpaceText(getTextInRange(document, startTrailingSpacesPosition,
+                    endTrailingSpacesPosition));
         } catch (BadLocationException e) {
         }
     }
@@ -213,6 +219,20 @@ public class STNode {
             }
         }
     }
+
+    private String getTextInRange(DOMDocument document, Position startTrailingSpacesPosition,
+                                  Position endTrailingSpacesPosition) throws BadLocationException {
+
+        String text = document.getText();
+        int startOffset = document.offsetAt(startTrailingSpacesPosition);
+        int endOffset = document.offsetAt(endTrailingSpacesPosition);
+
+        if (text != null) {
+            return text.substring(startOffset, endOffset);
+        }
+        return null;
+    }
+
 
     public void addNamespace(String prefix, String uri) {
 
