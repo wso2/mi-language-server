@@ -29,6 +29,15 @@ public class SourceOrTargetOrConfiguration extends STNode {
     Optional<CalloutConfiguration> configuration;
     Optional<CalloutEnableSec> enableSec;
 
+    public SourceOrTargetOrConfiguration() {
+
+        source = Optional.empty();
+        target = Optional.empty();
+        configuration = Optional.empty();
+        enableSec = Optional.empty();
+
+    }
+
     public Optional<CalloutSource> getSource() {
 
         return source;

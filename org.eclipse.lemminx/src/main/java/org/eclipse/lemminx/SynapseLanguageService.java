@@ -38,6 +38,8 @@ import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorResponse;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorParam;
+import org.eclipse.lemminx.customservice.synapse.dependency.tree.DependencyScanner;
+import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.DependencyTree;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.AbstractResourceFinder;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ArtifactFileScanner;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.RegistryFileScanner;
@@ -324,6 +326,14 @@ public class SynapseLanguageService implements ISynapseLanguageService {
                 return inboundConnectorHolder.getInboundConnectorSchema(new File(param.documentPath));
             }
         });
+    }
+
+    @Override
+    public CompletableFuture<DependencyTree> dependencyTree(TextDocumentIdentifier param) {
+
+        DependencyScanner dependencyScanner = new DependencyScanner(projectUri);
+        DependencyTree dependencyTree = dependencyScanner.analyzeArtifact(param.getUri());
+        return CompletableFuture.supplyAsync(() -> dependencyTree);
     }
 
     public String getProjectUri() {

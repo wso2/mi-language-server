@@ -131,9 +131,15 @@ public class Utils {
         return domDocument;
     }
 
-    public static DOMDocument getDOMDocument(String file) {
+    /**
+     * Get the DOM document from the given xml content
+     *
+     * @param content the xml content
+     * @return the DOM document for the given xml content
+     */
+    public static DOMDocument getDOMDocument(String content) {
 
-        TextDocument document = new TextDocument(file, "temp");
+        TextDocument document = new TextDocument(content, "temp");
         DOMDocument domDocument = DOMParser.getInstance().parse(document, null);
         return domDocument;
     }
@@ -512,5 +518,13 @@ public class Utils {
                 .replace("&lt;", "<")
                 .replace("&gt;", ">")
                 .replace("&quot;", "\"");
+    }
+
+    public static String removeFilePrefix(String artifactPath) {
+
+        if (artifactPath.contains(Constant.FILE_PREFIX)) {
+            artifactPath = artifactPath.substring(7);
+        }
+        return artifactPath;
     }
 }
