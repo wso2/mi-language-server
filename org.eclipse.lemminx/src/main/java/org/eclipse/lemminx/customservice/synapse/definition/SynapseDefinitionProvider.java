@@ -107,6 +107,13 @@ public class SynapseDefinitionProvider {
                 } else if (endpointAttributes.contains(attr.getNodeName())) {
                     type = "endpoints";
                     key = attr.getNodeValue();
+                } else {
+                    String attKey = attr.getNodeValue();
+                    if (attKey != null) {
+                        if (attKey.contains(Constant.GOV_REGISTRY_PREFIX) || attKey.contains(Constant.CONF_REGISTRY_PREFIX)) {
+                            key = attKey;
+                        }
+                    }
                 }
             }
             KeyAndTypeHolder keyAndTypeHolder = new KeyAndTypeHolder(key, type);
