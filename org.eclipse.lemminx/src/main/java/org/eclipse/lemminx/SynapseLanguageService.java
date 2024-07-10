@@ -31,6 +31,9 @@ import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connections;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectionFinder;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
+import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTestParams;
+import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTestResponse;
+import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTester;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.AbstractResourceFinder;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ArtifactFileScanner;
@@ -132,6 +135,18 @@ public class SynapseLanguageService implements ISynapseLanguageService {
             generator.setProjectPath(projectUri);
             return generator.getSyntaxTree(xmlDocument);
         });
+    }
+
+    @Override
+    public CompletableFuture<DBConnectionTestResponse> testDBConnection(DBConnectionTestParams dbConnectionTestParams) {
+
+        DBConnectionTester dbConnectionTester = new DBConnectionTester();
+        boolean connectionStatus = dbConnectionTester.testDBConnection(dbConnectionTestParams.dbType,
+                dbConnectionTestParams.version, dbConnectionTestParams.username, dbConnectionTestParams.password,
+                dbConnectionTestParams.host, dbConnectionTestParams.port, dbConnectionTestParams.dbName,
+                dbConnectionTestParams.dbDriverFolder);
+        DBConnectionTestResponse response = new DBConnectionTestResponse(connectionStatus);
+        return CompletableFuture.supplyAsync(() -> response);
     }
 
     @Override
