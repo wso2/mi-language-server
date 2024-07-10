@@ -35,6 +35,7 @@ import org.eclipse.lemminx.customservice.synapse.debugger.entity.ValidationRespo
 import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryMapResponse;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceResponse;
+import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGenFromContentRequest;
 import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGenRequest;
 import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGenResponse;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeResponse;
@@ -93,6 +94,9 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<SchemaGenResponse> generateSchema(SchemaGenRequest schemaGenRequest);
+
+    @JsonRequest
+    CompletableFuture<SchemaGenResponse> generateSchemaFromContent(SchemaGenFromContentRequest schemaGenRequest);
 
     @JsonRequest
     CompletableFuture<GenerateAPIResponse> generateAPI(GenerateAPIParam param);

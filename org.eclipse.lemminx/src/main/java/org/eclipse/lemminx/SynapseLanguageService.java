@@ -55,6 +55,7 @@ import org.eclipse.lemminx.customservice.synapse.definition.SynapseDefinitionPro
 import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryMapResponse;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryTreeBuilder;
 import org.eclipse.lemminx.customservice.synapse.schemagen.util.FileType;
+import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGenFromContentRequest;
 import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGenRequest;
 import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGenResponse;
 import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGeneratorHelper;
@@ -270,6 +271,17 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         SchemaGeneratorHelper schemaGenerate = new SchemaGeneratorHelper();
         FileType fileType = FileType.valueOf(schemaGenRequest.type);
         String schema = schemaGenerate.getSchemaContent(fileType, schemaGenRequest.filePath, schemaGenRequest.delimiter);
+        SchemaGenResponse schemaGenResponse = new SchemaGenResponse(schema);
+        return CompletableFuture.supplyAsync(() -> schemaGenResponse);
+    }
+
+    @Override
+    public CompletableFuture<SchemaGenResponse> generateSchemaFromContent(SchemaGenFromContentRequest schemaGenRequest) {
+
+        SchemaGeneratorHelper schemaGenerate = new SchemaGeneratorHelper();
+        FileType fileType = FileType.valueOf(schemaGenRequest.type);
+        String schema = schemaGenerate.getSchemaFromContent(fileType,
+                schemaGenRequest.fileContent, schemaGenRequest.delimiter);
         SchemaGenResponse schemaGenResponse = new SchemaGenResponse(schema);
         return CompletableFuture.supplyAsync(() -> schemaGenResponse);
     }
