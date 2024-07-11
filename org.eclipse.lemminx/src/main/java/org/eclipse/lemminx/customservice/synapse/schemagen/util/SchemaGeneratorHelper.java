@@ -26,7 +26,6 @@ import java.io.IOException;
  */
 public class SchemaGeneratorHelper {
 
-	// Implement loading the schema from the workspace.
 	/**
 	 * This method returns the generated schema as a string. It will load the
 	 * schema generator class depending on the file type of the file and pass
@@ -41,20 +40,6 @@ public class SchemaGeneratorHelper {
 		SchemaGeneratorFactory schemaGenFactory = new SchemaGeneratorFactory();
 		ISchemaGenerator schemaGenerator = schemaGenFactory.getSchemaGenerator(option);
 
-		// if (schemaGenerator instanceof SchemaGeneratorForXSD) {
-		// 	try {
-		// 		return schemaGenerator.getSchemaContent(filePath, option, null);
-		// 	} catch (IOException e) {
-		// 		log.error("Error while generating schema", e);
-		// 	}
-		// } else {
-		// 	try {
-		// 		return schemaGenerator.getSchemaResourcePath(filePath, option, delimiter);
-		// 	} catch (IOException e) {
-		// 		log.error("Error while generating schema", e);
-		// 	}
-		// }
-
 		try {
 			return schemaGenerator.getSchemaResourcePath(filePath, option, delimiter);
 		} catch (IOException e) {
@@ -62,7 +47,20 @@ public class SchemaGeneratorHelper {
 		}
 		
 		return null;
+	}
 
+	public String getSchemaFromContent(FileType option, String fileContent, String delimiter) {
+
+		SchemaGeneratorFactory schemaGenFactory = new SchemaGeneratorFactory();
+		ISchemaGenerator schemaGenerator = schemaGenFactory.getSchemaGenerator(option);
+
+		try {
+			return schemaGenerator.getSchemaContent(fileContent, option, delimiter);
+		} catch (IOException e) {
+			// ignore
+		}
+
+		return null;
 	}
 
 }
