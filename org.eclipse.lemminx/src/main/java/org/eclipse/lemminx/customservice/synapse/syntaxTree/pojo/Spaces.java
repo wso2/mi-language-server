@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,36 +18,34 @@
 
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo;
 
-import org.eclipse.lsp4j.Range;
+public class Spaces {
 
-public class TagRanges {
+    TagSpaces startingTagSpace;
+    TagSpaces endingTagSpace;
 
-    Range startTagRange;
-    Range endTagRange;
+    public Spaces(TagSpaces startingTagSpace, TagSpaces endingTagSpace) {
 
-    public TagRanges(Range startTagRange, Range endTagRange) {
-
-        this.startTagRange = startTagRange;
-        this.endTagRange = endTagRange;
+        this.startingTagSpace = startingTagSpace;
+        this.endingTagSpace = endingTagSpace;
     }
 
-    public Range getStartTagRange() {
+    public TagSpaces getStartingTagSpace() {
 
-        return startTagRange;
+        return startingTagSpace;
     }
 
-    public void setStartTagRange(Range startTagRange) {
+    public void setStartingTagSpace(TagSpaces startingTagSpace) {
 
-        this.startTagRange = startTagRange;
+        this.startingTagSpace = startingTagSpace;
     }
 
-    public Range getEndTagRange() {
+    public TagSpaces getEndingTagSpace() {
 
-        return endTagRange;
+        return endingTagSpace;
     }
 
-    public void setEndTagRange(Range endTagRange) {
+    public void setEndingTagSpace(TagSpaces endingTagSpace) {
 
-        this.endTagRange = endTagRange;
+        this.endingTagSpace = endingTagSpace;
     }
 }
