@@ -35,7 +35,7 @@ public class AdvancedNode extends Node {
 
     public AdvancedNode(Node component) {
 
-        super(component.getType(), component.getName(), component.getPath());
+        super(component.getType(), component.getSubType(), component.getName(), component.getPath());
         this.sequences = new ArrayList<>();
         this.endpoints = new ArrayList<>();
     }

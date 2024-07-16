@@ -19,6 +19,7 @@
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.factory;
 
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.MessageProcessor;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.MessageProcessorType;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Parameter;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.utils.SyntaxTreeUtils;
@@ -49,7 +50,25 @@ public class MessageProcessorFactory extends AbstractFactory {
             }
             messageProcessor.setParameter(parameters.toArray(new Parameter[parameters.size()]));
         }
+        setSubtype(messageProcessor);
         return messageProcessor;
+    }
+
+    private void setSubtype(MessageProcessor messageProcessor) {
+
+        switch (messageProcessor.getClazz()) {
+            case "org.apache.synapse.message.processor.impl.sampler.SamplingProcessor":
+                messageProcessor.setType(MessageProcessorType.MESSAGE_SAMPLING);
+                break;
+            case "org.apache.synapse.message.processor.impl.forwarder.ScheduledMessageForwardingProcessor":
+                messageProcessor.setType(MessageProcessorType.SCHEDULED_MESSAGE_FORWARDING);
+                break;
+            case "org.apache.synapse.message.processor.impl.failover.FailoverScheduledMessageForwardingProcessor":
+                messageProcessor.setType(MessageProcessorType.SCHEDULED_FAILOVER_MESSAGE_FORWARDING);
+                break;
+            default:
+                messageProcessor.setType(MessageProcessorType.CUSTOM);
+        }
     }
 
     @Override

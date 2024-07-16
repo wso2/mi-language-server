@@ -27,6 +27,7 @@ public class MessageProcessor extends STNode {
     String clazz;
     String messageStore;
     String targetEndpoint;
+    MessageProcessorType type;
 
     public Parameter[] getParameter() {
 
@@ -76,5 +77,15 @@ public class MessageProcessor extends STNode {
     public void setTargetEndpoint(String targetEndpoint) {
 
         this.targetEndpoint = targetEndpoint;
+    }
+
+    public MessageProcessorType getType() {
+
+        return type;
+    }
+
+    public void setType(MessageProcessorType type) {
+
+        this.type = type;
     }
 }

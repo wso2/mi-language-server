@@ -29,6 +29,7 @@ public class Template extends STNode {
     NamedSequence sequence;
     String name;
     String onError;
+    TemplateArtifactType type;
 
     public TemplateParameter[] getParameter() {
 
@@ -78,5 +79,15 @@ public class Template extends STNode {
     public void setOnError(String onError) {
 
         this.onError = onError;
+    }
+
+    public TemplateArtifactType getType() {
+
+        return type;
+    }
+
+    public void setType(TemplateArtifactType type) {
+
+        this.type = type;
     }
 }
