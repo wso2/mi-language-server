@@ -33,6 +33,14 @@ public class Node {
         this.path = path;
     }
 
+    public Node(String type, String subType, String name, String path) {
+
+        this.type = type;
+        this.subType = subType;
+        this.name = name;
+        this.path = path;
+    }
+
     public String getType() {
 
         return type;

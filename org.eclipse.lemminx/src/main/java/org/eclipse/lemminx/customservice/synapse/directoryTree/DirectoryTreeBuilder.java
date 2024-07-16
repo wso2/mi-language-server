@@ -30,9 +30,12 @@ import org.eclipse.lemminx.customservice.synapse.directoryTree.node.SequenceNode
 import org.eclipse.lemminx.customservice.synapse.directoryTree.node.TestFolder;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.legacyBuilder.LegacyDirectoryTreeBuilder;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.utils.DirectoryTreeUtils;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.TemplateFactory;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.endpoint.EndpointFactory;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeGenerator;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.MessageProcessor;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.MessageStore;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.NamedEndpoint;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.inbound.InboundEndpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.template.Template;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
@@ -383,6 +386,7 @@ public class DirectoryTreeBuilder {
         }
         if (artifactName == null) artifactName = name;
         Node component = new Node(nodeType, artifactName, path);
+        setSubType(component, type, path);
         if (Constant.API.equalsIgnoreCase(type) || Constant.SEQUENCE.equalsIgnoreCase(type) ||
                 Constant.PROXY_SERVICE.equalsIgnoreCase(type) || Constant.INBOUND_ENDPOINT.equalsIgnoreCase(type)) {
             AdvancedNode advancedNode = createAdvancedEsbComponent(component, type, path);
@@ -392,14 +396,45 @@ public class DirectoryTreeBuilder {
             return localEntry;
         }
 
-        if (Constant.ENDPOINT.equalsIgnoreCase(type)) {
-            String endpointType = getEndpointType(path);
-            component.setSubType(endpointType);
-        } else if (Constant.TEMPLATE.equalsIgnoreCase(type)) {
-            String templateType = getTemplateType(path);
-            component.setSubType(templateType);
-        }
         return component;
+    }
+
+    private static void setSubType(Node component, String type, String path) {
+
+        File file = new File(path);
+        try {
+            DOMDocument domDocument = Utils.getDOMDocument(file);
+            STNode stNode = SyntaxTreeGenerator.buildTree(domDocument.getDocumentElement());
+            switch (type) {
+                case "Endpoint":
+                    NamedEndpoint endpoint = (NamedEndpoint) stNode;
+                    String endpointType = endpoint.getType().name();
+                    component.setSubType(endpointType);
+                    break;
+                case "Template":
+                    Template template = (Template) stNode;
+                    String templateType = template.getType().name();
+                    component.setSubType(templateType);
+                    break;
+                case "MessageProcessor":
+                    MessageProcessor messageProcessor = (MessageProcessor) stNode;
+                    String mpType = messageProcessor.getType().name();
+                    component.setSubType(mpType);
+                    break;
+                case "MessageStore":
+                    MessageStore messageStore = (MessageStore) stNode;
+                    String messageStoreType = messageStore.getType().name();
+                    component.setSubType(messageStoreType);
+                    break;
+                case "InboundEndpoint":
+                    InboundEndpoint inboundEndpoint = (InboundEndpoint) stNode;
+                    String ibType = inboundEndpoint.getType().name();
+                    component.setSubType(ibType);
+                    break;
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Error while reading artifact", e);
+        }
     }
 
     private static AdvancedNode createAdvancedEsbComponent(Node component, String type, String path) {
@@ -480,25 +515,6 @@ public class DirectoryTreeBuilder {
         return null;
     }
 
-    private static String getTemplateType(String path) {
-
-        File file = new File(path);
-        DOMDocument domDocument = null;
-        try {
-            domDocument = Utils.getDOMDocument(file);
-            TemplateFactory factory = new TemplateFactory();
-            Template template = (Template) factory.create(domDocument.getDocumentElement());
-            if (template.getEndpoint() != null) {
-                return template.getEndpoint().getType().toString();
-            } else if (template.getSequence() != null) {
-                return Constant.SEQUENCE.toUpperCase();
-            }
-        } catch (IOException e) {
-            //ignore
-        }
-        return null;
-    }
-
     private static String getApiContext(String path) {
 
         File file = new File(path);
@@ -540,21 +556,6 @@ public class DirectoryTreeBuilder {
         } else {
             throw new IOException("Invalid artifact in the artifact folder: " + type);
         }
-    }
-
-    private static String getEndpointType(String path) {
-
-        try {
-            File file = new File(path);
-            DOMDocument domDocument = Utils.getDOMDocument(file);
-            EndpointFactory factory = new EndpointFactory();
-            NamedEndpoint endpoint = (NamedEndpoint) factory.create(domDocument.getDocumentElement());
-            String type = endpoint.getType().name();
-            return type;
-        } catch (IOException e) {
-            LOGGER.log(Level.WARNING, "Could not read the type from endpoint");
-        }
-        return "";
     }
 
     private static void addResources(DOMElement rootElement, AdvancedNode advancedNode) {

@@ -32,6 +32,7 @@ public class InboundEndpoint extends STNode {
     String clazz;
     EnableDisable statistics;
     EnableDisable trace;
+    InboundEndpointType type;
 
     public InboundEndpointParameters[] getParameters() {
 
@@ -121,5 +122,15 @@ public class InboundEndpoint extends STNode {
     public void setTrace(EnableDisable trace) {
 
         this.trace = trace;
+    }
+
+    public InboundEndpointType getType() {
+
+        return type;
+    }
+
+    public void setType(InboundEndpointType type) {
+
+        this.type = type;
     }
 }

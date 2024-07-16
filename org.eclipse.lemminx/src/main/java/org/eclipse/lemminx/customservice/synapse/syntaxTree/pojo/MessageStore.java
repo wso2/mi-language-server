@@ -25,6 +25,7 @@ public class MessageStore extends STNode {
     Parameter[] parameter;
     String name;
     String clazz;
+    MessageStoreType type;
 
     public Parameter[] getParameter() {
 
@@ -54,5 +55,15 @@ public class MessageStore extends STNode {
     public void setClazz(String clazz) {
 
         this.clazz = clazz;
+    }
+
+    public MessageStoreType getType() {
+
+        return type;
+    }
+
+    public void setType(MessageStoreType type) {
+
+        this.type = type;
     }
 }

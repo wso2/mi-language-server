@@ -22,6 +22,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.EnableDisable;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.inbound.InboundEndpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.inbound.InboundEndpointParameters;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.inbound.InboundEndpointType;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Parameter;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.utils.SyntaxTreeUtils;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
@@ -40,6 +41,7 @@ public class InboundEndpointFactory extends AbstractFactory {
         InboundEndpoint inboundEndpoint = new InboundEndpoint();
         inboundEndpoint.elementNode(element);
         populateAttributes(inboundEndpoint, element);
+        setSubType(inboundEndpoint);
         List<DOMNode> children = element.getChildren();
         List<InboundEndpointParameters> parameters = new ArrayList<>();
         if (children != null && !children.isEmpty()) {
@@ -52,6 +54,53 @@ public class InboundEndpointFactory extends AbstractFactory {
             inboundEndpoint.setParameters(parameters.toArray(new InboundEndpointParameters[parameters.size()]));
         }
         return inboundEndpoint;
+    }
+
+    private void setSubType(InboundEndpoint inboundEndpoint) {
+
+        switch (inboundEndpoint.getProtocol()) {
+            case "http":
+                inboundEndpoint.setType(InboundEndpointType.HTTP);
+                break;
+            case "https":
+                inboundEndpoint.setType(InboundEndpointType.HTTPS);
+                break;
+            case "file":
+                inboundEndpoint.setType(InboundEndpointType.FILE);
+                break;
+            case "jms":
+                inboundEndpoint.setType(InboundEndpointType.JMS);
+                break;
+            case "kafka":
+                inboundEndpoint.setType(InboundEndpointType.KAFKA);
+                break;
+            case "rabbitmq":
+                inboundEndpoint.setType(InboundEndpointType.RABBITMQ);
+                break;
+            case "hl7":
+                inboundEndpoint.setType(InboundEndpointType.HL7);
+                break;
+            case "mqtt":
+                inboundEndpoint.setType(InboundEndpointType.MQTT);
+                break;
+            case "ws":
+                inboundEndpoint.setType(InboundEndpointType.WS);
+                break;
+            case "wso2_mb":
+                inboundEndpoint.setType(InboundEndpointType.WSO2_MB);
+                break;
+            case "wss":
+                inboundEndpoint.setType(InboundEndpointType.WSS);
+                break;
+            case "cxf_ws_rm":
+                inboundEndpoint.setType(InboundEndpointType.CXF_WS_RM);
+                break;
+            case "feed":
+                inboundEndpoint.setType(InboundEndpointType.Feed);
+                break;
+            default:
+                inboundEndpoint.setType(InboundEndpointType.Custom);
+        }
     }
 
     private InboundEndpointParameters createParameters(DOMNode node) {

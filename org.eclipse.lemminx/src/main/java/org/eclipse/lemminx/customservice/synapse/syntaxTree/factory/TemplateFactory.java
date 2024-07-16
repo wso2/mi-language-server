@@ -23,6 +23,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.NamedSequence;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.NamedEndpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.template.Template;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.template.TemplateArtifactType;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.template.TemplateParameter;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.dom.DOMElement;
@@ -51,10 +52,12 @@ public class TemplateFactory extends AbstractFactory {
                     AbstractFactory factory = new EndpointFactory();
                     NamedEndpoint endpoint = (NamedEndpoint) factory.create((DOMElement) child);
                     template.setEndpoint(endpoint);
+                    template.setType(TemplateArtifactType.valueOf(endpoint.getType().name()));
                 } else if (name.equalsIgnoreCase(Constant.SEQUENCE)) {
                     AbstractFactory factory = new NamedSequenceFactory();
                     NamedSequence sequence = (NamedSequence) factory.create((DOMElement) child);
                     template.setSequence(sequence);
+                    template.setType(TemplateArtifactType.SEQUENCE);
                 }
             }
             template.setParameter(parameters.toArray(new TemplateParameter[parameters.size()]));
