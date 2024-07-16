@@ -26,6 +26,7 @@ import org.eclipse.lemminx.customservice.synapse.directoryTree.node.FileNode;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.node.FolderNode;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.node.Node;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.node.RegistryNode;
+import org.eclipse.lemminx.customservice.synapse.directoryTree.node.SequenceNode;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.node.TestFolder;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.legacyBuilder.LegacyDirectoryTreeBuilder;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.utils.DirectoryTreeUtils;
@@ -46,6 +47,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -61,6 +63,7 @@ public class DirectoryTreeBuilder {
     private static final String RESOURCES = "resources";
     private static final String JAVA = "java";
     private static String projectPath;
+    private static String mainSequence;
 
     public static DirectoryMapResponse buildDirectoryTree(WorkspaceFolder projectFolder) {
 
@@ -81,6 +84,7 @@ public class DirectoryTreeBuilder {
         if (projectPath != null) {
             String projectType = DirectoryTreeUtils.getProjectType(projectPath);
             if (Constant.INTEGRATION_PROJECT.equalsIgnoreCase(projectType)) {
+                updateMainSequence();
                 directoryTree = new IntegrationDirectoryTree(projectPath, projectType);
                 analyzeIntegrationProject((IntegrationDirectoryTree) directoryTree);
                 ((IntegrationDirectoryTree) directoryTree).sort();
@@ -93,6 +97,29 @@ public class DirectoryTreeBuilder {
 
         DirectoryMapResponse directoryMapResponse = new DirectoryMapResponse(directoryTree);
         return directoryMapResponse;
+    }
+
+    private static void updateMainSequence() {
+
+        mainSequence = null;
+        Path pomPath = Path.of(projectPath, "pom.xml");
+        File pomFile = pomPath.toFile();
+        if (pomFile.exists()) {
+            try {
+                DOMDocument pom = Utils.getDOMDocument(pomFile);
+                if (pom != null && pom.getDocumentElement() != null) {
+                    DOMNode properties = Utils.getChildNodeByName(pom.getDocumentElement(), Constant.PROPERTIES);
+                    if (properties != null) {
+                        DOMNode mainSequenceElt = Utils.getChildNodeByName(properties, "mainSequence");
+                        if (mainSequenceElt != null) {
+                            mainSequence = Utils.getInlineString(mainSequenceElt.getFirstChild());
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                LOGGER.log(Level.WARNING, "Could not read project pom file");
+            }
+        }
     }
 
     private static void analyzeIntegrationProject(IntegrationDirectoryTree directoryTree) {
@@ -378,12 +405,22 @@ public class DirectoryTreeBuilder {
     private static AdvancedNode createAdvancedEsbComponent(Node component, String type, String path) {
 
         AdvancedNode advancedNode;
-        if (Constant.API.equalsIgnoreCase(type)) {
-            String context = getApiContext(path);
-            advancedNode = new APINode(component);
-            ((APINode) advancedNode).setContext(context);
-        } else {
-            advancedNode = new AdvancedNode(component);
+        switch (type.toLowerCase()) {
+            case Constant.API:
+                String context = getApiContext(path);
+                advancedNode = new APINode(component);
+                ((APINode) advancedNode).setContext(context);
+                break;
+            case Constant.SEQUENCE:
+                advancedNode = new SequenceNode(component);
+                if (mainSequence != null) {
+                    if (mainSequence.equalsIgnoreCase(advancedNode.getName())) {
+                        ((SequenceNode) advancedNode).setMainSequence(Boolean.TRUE);
+                    }
+                }
+                break;
+            default:
+                advancedNode = new AdvancedNode(component);
         }
         File file = new File(path);
         if (file.isFile() && !file.isHidden()) {
