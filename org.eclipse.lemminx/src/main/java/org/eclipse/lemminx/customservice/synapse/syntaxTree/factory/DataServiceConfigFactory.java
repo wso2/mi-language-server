@@ -61,6 +61,8 @@ import java.util.Optional;
 
 public class DataServiceConfigFactory extends AbstractFactory {
 
+    private static final String SECRET_ALIAS_NS = "http://org.wso2.securevault/configuration";
+
     @Override
     public STNode create(DOMElement element) {
 
@@ -264,6 +266,10 @@ public class DataServiceConfigFactory extends AbstractFactory {
         String name = element.getAttribute(Constant.NAME);
         if (name != null) {
             property.setName(name);
+        }
+        if (((DOMElement) element).hasAttributeNS(SECRET_ALIAS_NS, "secretAlias")) {
+            String secretAlias = ((DOMElement) element).getAttributeNS(SECRET_ALIAS_NS, "secretAlias");
+            property.setTextNode(secretAlias);
         }
         List<DOMNode> children = element.getChildren();
         if (children != null && !children.isEmpty()) {

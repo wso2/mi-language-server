@@ -519,7 +519,22 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	}
 
 	@Override
-	public String getAttributeNS(String arg0, String arg1) throws DOMException {
+	public String getAttributeNS(String namespaceURI, String localName) throws DOMException {
+
+		if (!hasAttributes()) {
+			return null;
+		}
+		if (namespaceURI == null) {
+			return getAttribute(localName);
+		}
+		for (DOMAttr attr : getAttributeNodes()) {
+			String attrNamespaceURI = attr.getNamespaceURI();
+			if (Objects.equals(attrNamespaceURI, namespaceURI)) {
+				if (Objects.equals(attr.getLocalName(), localName)) {
+					return attr.getValue();
+				}
+			}
+		}
 		return null;
 	}
 
@@ -549,8 +564,9 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	}
 
 	@Override
-	public boolean hasAttributeNS(String arg0, String arg1) throws DOMException {
-		return false;
+	public boolean hasAttributeNS(String namespaceURI, String localName) throws DOMException {
+
+		return hasAttributes() && getAttributeNS(namespaceURI, localName) != null;
 	}
 
 	@Override
