@@ -22,5 +22,6 @@ public enum ScriptLanguage {
     js,
     rb,
     groovy,
-    nashornJs
+    nashornJs,
+    rhinoJs
 }
