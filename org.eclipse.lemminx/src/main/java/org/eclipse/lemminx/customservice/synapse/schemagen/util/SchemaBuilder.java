@@ -248,30 +248,34 @@ public class SchemaBuilder {
 				} else if (propertyValueType == TypeEnum.ARRAY) {
 
 					JsonObject newObject = null;
-					for (JsonElement childElement : element.getAsJsonArray()) {
-						JsonSchema schemaArray = addArrayToParent(parent, id);
-						elementIdentifierArrayNameMap.put(ELEMENT_IDENTIFIER_ARRAY_NAME, id);
-						newObject = createSchemaForArray(childElement, schemaArray, id, jsonObject);
-						if (newObject.entrySet().size() > 0) {
-							Set<Entry<String, JsonElement>> entrySets = newObject.entrySet();
-							String key = null;
-							JsonElement value = null;
-							for (Entry<String, JsonElement> entryNew : entrySets) {
-								key = entryNew.getKey();
-								value = entryNew.getValue();
+					JsonArray jsonArray = element.getAsJsonArray();
+					if (jsonArray.size() > 0) {
+						for (JsonElement childElement : jsonArray) {
+							JsonSchema schemaArray = addArrayToParent(parent, id);
+							elementIdentifierArrayNameMap.put(ELEMENT_IDENTIFIER_ARRAY_NAME, id);
+							newObject = createSchemaForArray(childElement, schemaArray, id, jsonObject);
+							if (newObject.entrySet().size() > 0) {
+								Set<Entry<String, JsonElement>> entrySets = newObject.entrySet();
+								String key = null;
+								JsonElement value = null;
+								for (Entry<String, JsonElement> entryNew : entrySets) {
+									key = entryNew.getKey();
+									value = entryNew.getValue();
+								}
+								/*Adds the newly created object with element
+								 * identifier
+								 * appended to the name, to the map
+								 * */
+								objectMap.put(key, value);
+								/*Saves the key of the array which has element
+								 * identifiers
+								 * */
+								arrayKey = entry.getKey();
 							}
-							/*Adds the newly created object with element
-							* identifier
-							* appended to the name, to the map
-							* */
-							objectMap.put(key, value);
-							/*Saves the key of the array which has element
-							* identifiers
-							* */
-							arrayKey = entry.getKey();
 						}
+					} else {
+						addPrimitiveToParent(parent, id, "", propertyValueType, elementIdentifierMap);
 					}
-
 				} else {
 					if (element instanceof JsonNull) {
 						// Fixing DEVTOOLESB-225
