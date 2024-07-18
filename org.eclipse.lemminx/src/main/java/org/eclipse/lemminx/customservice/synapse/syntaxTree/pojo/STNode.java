@@ -137,6 +137,9 @@ public class STNode {
             endOffsetOfTrailingSpaces = firstChild.getStart();
         } else if (!node.isSelfClosed()) {
             endOffsetOfTrailingSpaces = node.getEndTagOpenOffset();
+        } else if (node.getNextSibling() != null) {
+            DOMNode nextSibling = node.getNextSibling();
+            endOffsetOfTrailingSpaces = nextSibling.getStart();
         } else if (node.getParentElement() != null) {
             endOffsetOfTrailingSpaces = node.getParentElement().getEndTagOpenOffset();
         } else {
