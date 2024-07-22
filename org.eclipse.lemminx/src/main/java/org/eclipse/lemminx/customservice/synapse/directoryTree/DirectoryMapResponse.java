@@ -73,8 +73,8 @@ public class DirectoryMapResponse {
         JsonObject artifacts = new JsonObject();
 
         String[] artifactNames = {"apis", "endpoints", "sequences", "proxyServices", "inboundEndpoints",
-                "messageStores", "messageProcessors", "tasks", "localEntries", "templates", "dataServices",
-                "dataSources"};
+                "messageStores", "messageProcessors", "tasks", "localEntries", "connections", "templates",
+                "dataServices", "dataSources"};
         processLocalEntries(jsonObject);
         for (String element : artifactNames) {
             artifacts.add(element, jsonObject.get(element));

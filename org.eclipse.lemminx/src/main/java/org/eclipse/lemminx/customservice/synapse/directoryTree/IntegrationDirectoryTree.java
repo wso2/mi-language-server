@@ -45,6 +45,7 @@ public class IntegrationDirectoryTree implements Tree {
     List<Node> templates;
     List<Node> dataServices;
     List<Node> dataSources;
+    List<Node> connections;
     Resource resources;
     FolderNode java;
     TestFolder tests;
@@ -63,6 +64,7 @@ public class IntegrationDirectoryTree implements Tree {
         this.templates = new ArrayList<>();
         this.dataServices = new ArrayList<>();
         this.dataSources = new ArrayList<>();
+        this.connections = new ArrayList<>();
         this.resources = new Resource();
 
         this.projectPath = projectPath;
@@ -129,6 +131,11 @@ public class IntegrationDirectoryTree implements Tree {
         dataSources.add(dataSource);
     }
 
+    public void addConnection(Node connection) {
+
+        connections.add(connection);
+    }
+
     public void setResources(Resource resources) {
 
         this.resources = resources;
@@ -163,5 +170,6 @@ public class IntegrationDirectoryTree implements Tree {
         templates.sort(Comparator.comparing(Node::getName));
         dataServices.sort(Comparator.comparing(Node::getName));
         dataSources.sort(Comparator.comparing(Node::getName));
+        connections.sort(Comparator.comparing(Node::getName));
     }
 }
