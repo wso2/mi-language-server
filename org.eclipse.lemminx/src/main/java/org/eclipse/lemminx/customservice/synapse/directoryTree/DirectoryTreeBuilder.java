@@ -185,7 +185,12 @@ public class DirectoryTreeBuilder {
                         Node advancedComponent = createEsbComponent(type, name, path);
                         if (advancedComponent != null) {
                             try {
-                                String methodName = "add" + type;
+                                String methodName;
+                                if (advancedComponent instanceof ConnectionNode) {
+                                    methodName = "addConnection";
+                                } else {
+                                    methodName = "add" + type;
+                                }
                                 Method method = directoryTree.getClass().getMethod(methodName, Node.class);
                                 method.invoke(directoryTree, advancedComponent);
                             } catch (NoSuchMethodException | IllegalArgumentException | IllegalAccessException |
