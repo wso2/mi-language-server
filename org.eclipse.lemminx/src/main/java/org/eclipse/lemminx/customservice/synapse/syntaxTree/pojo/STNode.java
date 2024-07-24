@@ -158,7 +158,7 @@ public class STNode {
 
     private TagSpaces calculateEndTagSpaces(DOMElement node, TagRanges range) {
 
-        if (node.isSelfClosed()) {
+        if (node.isSelfClosed() || !node.hasEndTag()) {
             return null;
         }
 
