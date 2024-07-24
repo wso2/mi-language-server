@@ -31,6 +31,7 @@ import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
+import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.io.File;
@@ -383,12 +384,41 @@ public abstract class AbstractResourceFinder {
 
     private String getArtifactName(DOMElement rootElement) {
 
+        if (isApiArtifact(rootElement)) {
+            return getApiArtifactName(rootElement);
+        } else {
+            return getNonApiArtifactName(rootElement);
+        }
+    }
+
+    private boolean isApiArtifact(DOMElement rootElement) {
+
+        return Constant.API.equalsIgnoreCase(rootElement.getNodeName());
+    }
+
+    private String getApiArtifactName(DOMElement rootElement) {
+
+        StringBuilder name = new StringBuilder();
+        name.append(rootElement.getAttribute(Constant.NAME));
+        if (rootElement.hasAttribute(Constant.VERSION)) {
+            name.append(":v").append(rootElement.getAttribute(Constant.VERSION));
+        }
+        return name.toString();
+    }
+
+    private String getNonApiArtifactName(DOMElement rootElement) {
+
         if (rootElement.hasAttribute(Constant.NAME)) {
             return rootElement.getAttribute(Constant.NAME);
         } else if (rootElement.hasAttribute(Constant.KEY)) {
             return rootElement.getAttribute(Constant.KEY);
+        } else {
+            DOMNode nameNode = Utils.getChildNodeByName(rootElement, Constant.NAME);
+            if (nameNode != null) {
+                return Utils.getInlineString(nameNode.getFirstChild());
+            }
+            return null;
         }
-        return null;
     }
 
     private String getRegistryKey(File file) {

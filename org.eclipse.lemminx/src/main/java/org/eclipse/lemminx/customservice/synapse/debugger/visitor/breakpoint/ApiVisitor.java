@@ -61,7 +61,12 @@ public class ApiVisitor implements Visitor {
             return;
         }
         if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
-            apiDebugInfo.setApiKey(node.getName());
+            StringBuilder key = new StringBuilder();
+            key.append(node.getName());
+            if (node.getVersion() != null) {
+                key.append(":v").append(node.getVersion());
+            }
+            apiDebugInfo.setApiKey(key.toString());
             APIResource[] resources = node.getResource();
             for (APIResource resource : resources) {
                 if (VisitorUtils.checkNodeInRange(resource, breakpoint)) {

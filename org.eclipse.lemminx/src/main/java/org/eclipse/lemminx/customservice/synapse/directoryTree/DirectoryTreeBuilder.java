@@ -542,25 +542,53 @@ public class DirectoryTreeBuilder {
         File file = new File(path);
         DOMDocument domDocument = Utils.getDOMDocument(file);
 
-        if ("ProxyService".equalsIgnoreCase(type)) type = Constant.PROXY;
-        if ("DataService".equalsIgnoreCase(type)) type = Constant.DATA;
+        String tag = getArtifactTag(type);
 
-        DOMNode node = Utils.getChildNodeByName(domDocument, type);
+        DOMNode node = Utils.getChildNodeByName(domDocument, tag);
         if (node != null) {
-            String name = node.getAttribute(Constant.NAME);
-            if (name == null) {
-                name = node.getAttribute(Constant.KEY);
-                if (name == null) {
-                    DOMNode nameElt = Utils.getChildNodeByName(domDocument, Constant.NAME);
-                    if (nameElt != null) {
-                        name = Utils.getInlineString(nameElt.getFirstChild());
-                    }
-                }
+            if (Constant.API.equalsIgnoreCase(type)) {
+                return getApiArtifactName(node);
+            } else {
+                return getNonApiArtifactName(node);
             }
-            return name;
         } else {
             throw new IOException("Invalid artifact in the artifact folder: " + type);
         }
+    }
+
+    private static String getApiArtifactName(DOMNode node) {
+
+        StringBuilder name = new StringBuilder();
+        name.append(node.getAttribute(Constant.NAME));
+        if (node.hasAttribute(Constant.VERSION)) {
+            name.append(":v").append(node.getAttribute(Constant.VERSION));
+        }
+        return name.toString();
+    }
+
+    private static String getNonApiArtifactName(DOMNode node) {
+
+        String name = node.getAttribute(Constant.NAME);
+        if (name == null) {
+            name = node.getAttribute(Constant.KEY);
+            if (name == null) {
+                DOMNode nameElt = Utils.getChildNodeByName(node, Constant.NAME);
+                if (nameElt != null) {
+                    name = Utils.getInlineString(nameElt.getFirstChild());
+                }
+            }
+        }
+        return name;
+    }
+
+    private static String getArtifactTag(String type) {
+
+        if (Constant.PROXY_SERVICE.equalsIgnoreCase(type)) {
+            return Constant.PROXY;
+        } else if (Constant.DATA_SERVICE.equalsIgnoreCase(type)) {
+            return Constant.DATA;
+        }
+        return type;
     }
 
     private static void addResources(DOMElement rootElement, AdvancedNode advancedNode) {
