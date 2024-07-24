@@ -157,7 +157,7 @@ public class XML {
                     if (x.next() == '[') {
                         string = x.nextCDATA();
                         if (string.length() > 0) {
-                            context.accumulate("content", string);
+                            context.accumulate("_ELEMVAL", string);
                         }
                         return false;
                     }
@@ -222,7 +222,13 @@ public class XML {
                         if (!(token instanceof String)) {
                             throw x.syntaxError("Missing value");
                         }
-                        jsonobject.accumulate(string,
+                        String attribute = "";
+                        if (string.contains("xmlns:")) {
+                            attribute = string;
+                        } else {
+                            attribute = "attr_" + string;
+                        }
+                        jsonobject.accumulate(attribute,
                                 XML.stringToValue((String)token));
                         token = null;
                     } else {
@@ -255,7 +261,7 @@ public class XML {
                         } else if (token instanceof String) {
                             string = (String)token;
                             if (string.length() > 0) {
-                                jsonobject.accumulate("content",
+                                jsonobject.accumulate("_ELEMVAL",
                                         XML.stringToValue(string));
                             }
 
@@ -266,9 +272,9 @@ public class XML {
                                 if (jsonobject.length() == 0) {
                                     context.accumulate(tagName, "");
                                 } else if (jsonobject.length() == 1 &&
-                                       jsonobject.opt("content") != null) {
+                                       jsonobject.opt("_ELEMVAL") != null) {
                                     context.accumulate(tagName,
-                                            jsonobject.opt("content"));
+                                            jsonobject.opt("_ELEMVAL"));
                                 } else {
                                     context.accumulate(tagName, jsonobject);
                                 }
