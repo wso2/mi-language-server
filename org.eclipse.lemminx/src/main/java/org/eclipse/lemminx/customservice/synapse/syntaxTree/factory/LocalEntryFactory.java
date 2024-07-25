@@ -35,7 +35,7 @@ public class LocalEntryFactory extends AbstractFactory {
         populateAttributes(localEntry, element);
         DOMNode inline = element.getFirstChild();
         if (inline != null) {
-            String inlineString = Utils.getInlineString(inline);
+            String inlineString = Utils.getInlineString(inline, Boolean.FALSE);
             localEntry.setContent(inlineString);
         }
         return localEntry;

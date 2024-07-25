@@ -48,14 +48,32 @@ import java.util.zip.ZipInputStream;
 
 public class Utils {
 
+    /**
+     * Get the inline string of the given node
+     *
+     * @param node the node
+     * @return the inline string of the given node
+     */
     public static String getInlineString(DOMNode node) {
+
+        return getInlineString(node, Boolean.TRUE);
+    }
+
+    /**
+     * Get the inline string of the given node
+     *
+     * @param node                  the node
+     * @param requiresXmlUnescaping whether to unescape the xml content
+     * @return the inline string of the given node
+     */
+    public static String getInlineString(DOMNode node, boolean requiresXmlUnescaping) {
 
         String inline = "";
         if (node != null) {
             if (node.isCDATA()) {
                 inline = "<![CDATA[" + node.getTextContent() + "]]>";
             } else if (node.isText()) {
-                inline = node.getTextContent();
+                inline = requiresXmlUnescaping ? unescapeXml(node.getTextContent()) : node.getTextContent();
             } else if (node instanceof DOMElement) {
                 if (((DOMElement) node).isSelfClosed()) {
                     inline = "<" + node.getNodeName().concat(getAttributeXmlString(node)) + "/>";
@@ -86,7 +104,7 @@ public class Utils {
         List<DOMAttr> children = node.getAttributeNodes();
         if (children != null && !children.isEmpty()) {
             for (DOMAttr child : children) {
-                xmlString += child.getName() + "=\"" + child.getValue() + "\" ";
+                xmlString += child.getName() + "=\"" + unescapeXml(child.getValue()) + "\" ";
             }
         }
         return xmlString;
@@ -476,5 +494,23 @@ public class Utils {
             return fileName.substring(dotIndex + 1);
         }
         return "";
+    }
+
+    /**
+     * Unescape the given XML text
+     *
+     * @param text
+     * @return
+     */
+    public static String unescapeXml(String text) {
+
+        if (text == null) {
+            return null;
+        }
+        return text
+                .replace("&amp;", "&")
+                .replace("&lt;", "<")
+                .replace("&gt;", ">")
+                .replace("&quot;", "\"");
     }
 }

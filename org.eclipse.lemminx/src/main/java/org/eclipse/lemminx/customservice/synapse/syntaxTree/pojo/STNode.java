@@ -53,7 +53,7 @@ public class STNode {
         DOMNode firstChild = node.getFirstChild();
         if (firstChild != null && firstChild.isText()) {
             this.hasTextNode = firstChild.isText();
-            this.textNode = firstChild.getTextContent();
+            this.textNode = Utils.unescapeXml(firstChild.getTextContent());
         }
         namespaces = new HashMap<>();
         populateNamespaces(node);
