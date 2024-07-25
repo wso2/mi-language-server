@@ -35,6 +35,9 @@ import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTestParams;
 import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTestResponse;
 import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTester;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
+import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnector;
+import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorHolder;
+import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.AbstractResourceFinder;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ArtifactFileScanner;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.RegistryFileScanner;
@@ -93,12 +96,14 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     private boolean isLegacyProject;
     private ConnectorHolder connectorHolder;
     private AbstractResourceFinder resourceFinder;
+    private InboundConnectorHolder inboundConnectorHolder;
 
     public SynapseLanguageService(XMLTextDocumentService xmlTextDocumentService, XMLLanguageServer xmlLanguageServer) {
 
         this.xmlTextDocumentService = xmlTextDocumentService;
         this.xmlLanguageServer = xmlLanguageServer;
         this.connectorHolder = new ConnectorHolder();
+        this.inboundConnectorHolder = new InboundConnectorHolder();
     }
 
     public void init(String projectUri, Object settings, SynapseLanguageClientAPI languageClient) {
@@ -116,6 +121,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
             log.log(Level.SEVERE, "Project path is null. Language server initialization failed.");
         }
         resourceFinder = ResourceFinderFactory.getResourceFinder(isLegacyProject);
+        inboundConnectorHolder.init(projectUri);
     }
 
     private void initializeConnectorLoader(){
@@ -299,6 +305,19 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
         RestApiAdmin generator = new RestApiAdmin();
         return CompletableFuture.supplyAsync(() -> generator.generateSwaggerFromAPI(param));
+    }
+
+    @Override
+    public CompletableFuture<Boolean> saveInboundConnectorSchema(InboundConnectorParam param) {
+
+        return CompletableFuture.supplyAsync(() -> inboundConnectorHolder.saveInboundConnector(param.connectorName,
+                param.uiSchema));
+    }
+
+    @Override
+    public CompletableFuture<InboundConnector> getInboundConnectorSchema(InboundConnectorParam param) {
+
+        return CompletableFuture.supplyAsync(() -> inboundConnectorHolder.getInboundConnectorSchema(param.connectorName));
     }
 
     public String getProjectUri() {
