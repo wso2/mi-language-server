@@ -18,7 +18,14 @@
 
 package org.eclipse.lemminx.customservice.synapse.inbound.conector;
 
+import com.google.gson.JsonObject;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeGenerator;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.inbound.InboundEndpoint;
+import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
+import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.dom.DOMElement;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -35,28 +42,28 @@ public class InboundConnectorHolder {
     private String projectId;
     private String projectPath;
     private String tempFolderPath;
-
-    // Connector name ui schema path map
+    // <Connector name, Connector ID> map
+    private HashMap<String, String> connectorIdMap;
+    // <Connector ID, UI schema path> map
     private HashMap<String, String> inboundConnectors;
 
     public InboundConnectorHolder() {
 
         this.inboundConnectors = new HashMap<>();
+        this.connectorIdMap = new HashMap<>();
     }
 
     public void init(String projectPath) {
 
-        if (projectPath != null) {
-            this.projectPath = projectPath;
-            this.projectId = Utils.getHash(projectPath);
-            this.tempFolderPath =
-                    System.getProperty("user.home") + File.separator + ".wso2-mi" + File.separator + "inbound" +
-                            ".connectors"
-                            + File.separator + projectId;
-            loadInboundConnectors();
-        } else {
+        if (projectPath == null) {
             LOGGER.log(Level.SEVERE, "Project path is null. Cannot initialize inbound connector holder.");
+            return;
         }
+        this.projectPath = projectPath;
+        this.projectId = Utils.getHash(projectPath);
+        this.tempFolderPath = System.getProperty("user.home") + File.separator + ".wso2-mi" + File.separator +
+                "inbound.connectors" + File.separator + projectId;
+        loadInboundConnectors();
     }
 
     private void loadInboundConnectors() {
@@ -66,29 +73,99 @@ public class InboundConnectorHolder {
             File[] files = folder.listFiles();
             if (files != null) {
                 for (File file : files) {
-                    inboundConnectors.put(file.getName().replace(".json", ""), file.getAbsolutePath());
+                    if (!file.isHidden()) {
+                        loadInboundConnector(file);
+                    }
                 }
             }
+        }
+    }
+
+    private void loadInboundConnector(File file) {
+
+        try {
+            String connectorName = file.getName().replace(".json", "");
+            String uiSchema = Utils.readFile(file);
+            JsonObject inboundConnector = Utils.getJsonObject(uiSchema);
+            if (inboundConnector == null || !inboundConnector.has(Constant.ID)) {
+                return;
+            }
+            String id = inboundConnector.get(Constant.ID).getAsString();
+            connectorIdMap.put(connectorName, id);
+            inboundConnectors.put(id, file.getAbsolutePath());
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Error occurred while loading inbound connector schema from file", e);
         }
     }
 
     public Boolean saveInboundConnector(String connectorName, String uiSchema) {
 
         // Save inbound connector
+        JsonObject inboundConnector = Utils.getJsonObject(uiSchema);
+        if (inboundConnector == null || !inboundConnector.has(Constant.ID)) {
+            return false;
+        }
+        String id = inboundConnector.get(Constant.ID).getAsString();
         Path filePath = Path.of(tempFolderPath, connectorName + ".json");
         if (saveToFile(filePath.toFile(), uiSchema)) {
-            inboundConnectors.put(connectorName, filePath.toString());
+            connectorIdMap.put(connectorName, id);
+            inboundConnectors.put(id, filePath.toString());
             return true;
         }
         return false;
     }
 
-    public InboundConnector getInboundConnectorSchema(String connectorName) {
+    public InboundConnectorResponse getInboundConnectorSchema(File inboundEPFile) {
 
-        InboundConnector inboundConnector = new InboundConnector();
+        try {
+            DOMDocument inboundEPElement = Utils.getDOMDocument(inboundEPFile);
+            if (inboundEPElement != null) {
+                InboundEndpoint ib =
+                        (InboundEndpoint) SyntaxTreeGenerator.buildTree(inboundEPElement.getDocumentElement());
+                if (ib != null) {
+                    String id = getIdFromInboundEP(ib);
+                    if (id != null) {
+                        return getInboundConnectorSchemaFromId(id);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Error occurred while reading inbound endpoint file", e);
+        }
+        return new InboundConnectorResponse();
+    }
+
+    private String getIdFromInboundEP(InboundEndpoint ib) {
+
+        String id = ib.getProtocol();
+        if (id == null) {
+            id = ib.getClazz();
+        }
+        return id;
+    }
+
+    public InboundConnectorResponse getInboundConnectorSchema(String connectorName) {
+
+        InboundConnectorResponse inboundConnector = new InboundConnectorResponse();
         inboundConnector.connectorName = connectorName;
-        inboundConnector.uiSchemaPath = inboundConnectors.get(connectorName);
+        String connectorId = connectorIdMap.get(connectorName);
+        return getInboundConnectorSchemaFromId(connectorId);
+    }
 
+    private InboundConnectorResponse getInboundConnectorSchemaFromId(String connectorId) {
+
+        InboundConnectorResponse inboundConnector = new InboundConnectorResponse();
+        String uiSchemaPath = inboundConnectors.get(connectorId);
+        if (uiSchemaPath == null) {
+            return inboundConnector;
+        }
+        try {
+            String uiSchema = Utils.readFile(new File(uiSchemaPath));
+            JsonObject inboundConnectorJson = Utils.getJsonObject(uiSchema);
+            inboundConnector.uiSchema = inboundConnectorJson;
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Error occurred while reading inbound connector schema from file", e);
+        }
         return inboundConnector;
     }
 
@@ -96,7 +173,7 @@ public class InboundConnectorHolder {
 
         try {
             if (!file.exists()) {
-                file.createNewFile();
+                file.getParentFile().mkdirs();
             }
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
                 int chunkSize = 8192; // 8KB chunks

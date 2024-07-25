@@ -41,7 +41,11 @@ public class InboundEndpointFactory extends AbstractFactory {
         InboundEndpoint inboundEndpoint = new InboundEndpoint();
         inboundEndpoint.elementNode(element);
         populateAttributes(inboundEndpoint, element);
-        setSubType(inboundEndpoint);
+        String id = getID(element);
+        if (id != null) {
+            inboundEndpoint.setTypeId(id);
+            setSubType(inboundEndpoint, id);
+        }
         List<DOMNode> children = element.getChildren();
         List<InboundEndpointParameters> parameters = new ArrayList<>();
         if (children != null && !children.isEmpty()) {
@@ -56,9 +60,17 @@ public class InboundEndpointFactory extends AbstractFactory {
         return inboundEndpoint;
     }
 
-    private void setSubType(InboundEndpoint inboundEndpoint) {
+    private String getID(DOMElement element) {
 
-        switch (inboundEndpoint.getProtocol()) {
+        if (element.hasAttribute(Constant.CLASS)) {
+            return element.getAttribute(Constant.CLASS);
+        }
+        return element.getAttribute(Constant.PROTOCOL);
+    }
+
+    private void setSubType(InboundEndpoint inboundEndpoint, String id) {
+        // TODO: Change it to support other custom types.
+        switch (id) {
             case "http":
                 inboundEndpoint.setType(InboundEndpointType.HTTP);
                 break;

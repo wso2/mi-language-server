@@ -18,8 +18,10 @@
 
 package org.eclipse.lemminx.customservice.synapse.inbound.conector;
 
-public class InboundConnector {
+import com.google.gson.JsonObject;
+
+public class InboundConnectorResponse {
 
     public String connectorName;
-    public String uiSchemaPath;
+    public JsonObject uiSchema;
 }
