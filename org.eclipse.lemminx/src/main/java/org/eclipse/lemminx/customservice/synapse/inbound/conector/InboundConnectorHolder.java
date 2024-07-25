@@ -46,12 +46,17 @@ public class InboundConnectorHolder {
 
     public void init(String projectPath) {
 
-        this.projectPath = projectPath;
-        this.projectId = Utils.getHash(projectPath);
-        this.tempFolderPath =
-                System.getProperty("user.home") + File.separator + ".wso2-mi" + File.separator + "inbound.connectors"
-                        + File.separator + projectId;
-        loadInboundConnectors();
+        if (projectPath != null) {
+            this.projectPath = projectPath;
+            this.projectId = Utils.getHash(projectPath);
+            this.tempFolderPath =
+                    System.getProperty("user.home") + File.separator + ".wso2-mi" + File.separator + "inbound" +
+                            ".connectors"
+                            + File.separator + projectId;
+            loadInboundConnectors();
+        } else {
+            LOGGER.log(Level.SEVERE, "Project path is null. Cannot initialize inbound connector holder.");
+        }
     }
 
     private void loadInboundConnectors() {
