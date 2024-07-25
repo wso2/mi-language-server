@@ -515,7 +515,7 @@ public class Wsdl20Factory extends AbstractFactory {
 
     private String getAnyElement(DOMNode node) {
         //TODO: check whether need any other implementation for xs:any
-        String xml = Utils.getInlineString(node);
+        String xml = Utils.getInlineString(node, Boolean.FALSE);
         return xml;
     }
 }

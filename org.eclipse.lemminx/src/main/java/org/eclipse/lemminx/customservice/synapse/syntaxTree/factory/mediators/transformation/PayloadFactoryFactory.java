@@ -113,7 +113,7 @@ public class PayloadFactoryFactory extends AbstractMediatorFactory {
         }
         DOMNode inline = element.getFirstChild();
         if (inline != null) {
-            String inlineString = Utils.getInlineString(inline);
+            String inlineString = Utils.getInlineString(inline, Boolean.FALSE);
             format.setContent(inlineString);
         }
         return format;

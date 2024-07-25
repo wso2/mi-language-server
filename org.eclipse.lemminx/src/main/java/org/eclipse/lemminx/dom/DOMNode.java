@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -380,7 +381,7 @@ public abstract class DOMNode implements Node, DOMRange {
 			}
 			return value.substring(1, value.length());
 		}
-		return value;
+		return Utils.unescapeXml(value);
 	}
 
 	/**

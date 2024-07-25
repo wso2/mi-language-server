@@ -464,7 +464,7 @@ public class DataServiceConfigFactory extends AbstractFactory {
                     CallQuery callQuery = createCallQuery(child);
                     element.addCallQuery(callQuery);
                 }
-                inlineXml += Utils.getInlineString(child);
+                inlineXml += Utils.getInlineString(child, Boolean.FALSE);
                 if (i != children.size() - 1) {
                     inlineXml += "\n";
                 }
