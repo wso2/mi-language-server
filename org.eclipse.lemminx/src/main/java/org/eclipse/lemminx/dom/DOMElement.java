@@ -64,7 +64,7 @@ public class DOMElement extends DOMNode implements org.w3c.dom.Element {
 	 */
 	@Override
 	public String getNodeName() {
-		return getTagName();
+		return hasTagName() ? getTagName() : "";
 	}
 
 	/*
