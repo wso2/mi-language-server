@@ -33,7 +33,7 @@ import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointsRequ
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.ValidationResponse;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryMapResponse;
-import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnector;
+import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorResponse;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceResponse;
@@ -113,5 +113,5 @@ public interface ISynapseLanguageService {
     CompletableFuture<Boolean> saveInboundConnectorSchema(InboundConnectorParam param);
 
     @JsonRequest
-    CompletableFuture<InboundConnector> getInboundConnectorSchema(InboundConnectorParam param);
+    CompletableFuture<InboundConnectorResponse> getInboundConnectorSchema(InboundConnectorParam param);
 }

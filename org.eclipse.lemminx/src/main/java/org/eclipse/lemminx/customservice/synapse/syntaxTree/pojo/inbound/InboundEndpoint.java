@@ -24,6 +24,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.EnableDisab
 public class InboundEndpoint extends STNode {
 
     InboundEndpointParameters[] parameters;
+    String typeId;
     String name;
     String sequence;
     String protocol;
@@ -132,5 +133,15 @@ public class InboundEndpoint extends STNode {
     public void setType(InboundEndpointType type) {
 
         this.type = type;
+    }
+
+    public String getTypeId() {
+
+        return typeId;
+    }
+
+    public void setTypeId(String typeId) {
+
+        this.typeId = typeId;
     }
 }

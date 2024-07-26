@@ -35,7 +35,7 @@ import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTestParams;
 import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTestResponse;
 import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTester;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
-import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnector;
+import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorResponse;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.AbstractResourceFinder;
@@ -315,9 +315,15 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     }
 
     @Override
-    public CompletableFuture<InboundConnector> getInboundConnectorSchema(InboundConnectorParam param) {
+    public CompletableFuture<InboundConnectorResponse> getInboundConnectorSchema(InboundConnectorParam param) {
 
-        return CompletableFuture.supplyAsync(() -> inboundConnectorHolder.getInboundConnectorSchema(param.connectorName));
+        return CompletableFuture.supplyAsync(() -> {
+            if (param.connectorName != null) {
+                return inboundConnectorHolder.getInboundConnectorSchema(param.connectorName);
+            } else {
+                return inboundConnectorHolder.getInboundConnectorSchema(new File(param.documentPath));
+            }
+        });
     }
 
     public String getProjectUri() {

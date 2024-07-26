@@ -21,5 +21,6 @@ package org.eclipse.lemminx.customservice.synapse.inbound.conector;
 public class InboundConnectorParam {
 
     public String connectorName;
+    public String documentPath;
     public String uiSchema;
 }
