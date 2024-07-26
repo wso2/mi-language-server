@@ -56,6 +56,9 @@ public class MessageProcessorFactory extends AbstractFactory {
 
     private void setSubtype(MessageProcessor messageProcessor) {
 
+        if (messageProcessor.getClazz() == null) {
+            messageProcessor.setType(MessageProcessorType.CUSTOM);
+        }
         switch (messageProcessor.getClazz()) {
             case "org.apache.synapse.message.processor.impl.sampler.SamplingProcessor":
                 messageProcessor.setType(MessageProcessorType.MESSAGE_SAMPLING);

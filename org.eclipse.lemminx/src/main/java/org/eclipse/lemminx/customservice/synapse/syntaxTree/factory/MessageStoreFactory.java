@@ -56,6 +56,10 @@ public class MessageStoreFactory extends AbstractFactory {
 
     private void setSubType(MessageStore messageStore) {
 
+        if (messageStore.getClazz() == null) {
+            messageStore.setType(MessageStoreType.CUSTOM);
+            return;
+        }
         switch (messageStore.getClazz()) {
             case "org.apache.synapse.message.store.impl.jms.JmsStore":
                 if (isWSO2MB(messageStore)) {
