@@ -29,7 +29,7 @@ public class Makefault extends Mediator {
     STNode role;
     MakefaultDetail detail;
     FaultVersion version;
-    boolean response;
+    Boolean response;
     String description;
 
     public MakefaultCode getCode() {

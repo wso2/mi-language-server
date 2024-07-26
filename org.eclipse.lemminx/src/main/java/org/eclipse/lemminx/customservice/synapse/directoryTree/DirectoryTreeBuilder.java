@@ -433,7 +433,7 @@ public class DirectoryTreeBuilder {
                     break;
                 case "InboundEndpoint":
                     InboundEndpoint inboundEndpoint = (InboundEndpoint) stNode;
-                    String ibType = inboundEndpoint.getType().name();
+                    String ibType = inboundEndpoint.getType();
                     component.setSubType(ibType);
                     break;
             }

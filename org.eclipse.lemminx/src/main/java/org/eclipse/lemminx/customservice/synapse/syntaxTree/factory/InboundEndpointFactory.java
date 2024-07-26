@@ -35,6 +35,8 @@ import java.util.List;
 
 public class InboundEndpointFactory extends AbstractFactory {
 
+    private final String CUSTOM = "CUSTOM";
+
     @Override
     public STNode create(DOMElement element) {
 
@@ -42,10 +44,7 @@ public class InboundEndpointFactory extends AbstractFactory {
         inboundEndpoint.elementNode(element);
         populateAttributes(inboundEndpoint, element);
         String id = getID(element);
-        if (id != null) {
-            inboundEndpoint.setTypeId(id);
-            setSubType(inboundEndpoint, id);
-        }
+        setSubType(inboundEndpoint, id);
         List<DOMNode> children = element.getChildren();
         List<InboundEndpointParameters> parameters = new ArrayList<>();
         if (children != null && !children.isEmpty()) {
@@ -69,49 +68,11 @@ public class InboundEndpointFactory extends AbstractFactory {
     }
 
     private void setSubType(InboundEndpoint inboundEndpoint, String id) {
-        // TODO: Change it to support other custom types.
-        switch (id) {
-            case "http":
-                inboundEndpoint.setType(InboundEndpointType.HTTP);
-                break;
-            case "https":
-                inboundEndpoint.setType(InboundEndpointType.HTTPS);
-                break;
-            case "file":
-                inboundEndpoint.setType(InboundEndpointType.FILE);
-                break;
-            case "jms":
-                inboundEndpoint.setType(InboundEndpointType.JMS);
-                break;
-            case "kafka":
-                inboundEndpoint.setType(InboundEndpointType.KAFKA);
-                break;
-            case "rabbitmq":
-                inboundEndpoint.setType(InboundEndpointType.RABBITMQ);
-                break;
-            case "hl7":
-                inboundEndpoint.setType(InboundEndpointType.HL7);
-                break;
-            case "mqtt":
-                inboundEndpoint.setType(InboundEndpointType.MQTT);
-                break;
-            case "ws":
-                inboundEndpoint.setType(InboundEndpointType.WS);
-                break;
-            case "wso2_mb":
-                inboundEndpoint.setType(InboundEndpointType.WSO2_MB);
-                break;
-            case "wss":
-                inboundEndpoint.setType(InboundEndpointType.WSS);
-                break;
-            case "cxf_ws_rm":
-                inboundEndpoint.setType(InboundEndpointType.CXF_WS_RM);
-                break;
-            case "feed":
-                inboundEndpoint.setType(InboundEndpointType.Feed);
-                break;
-            default:
-                inboundEndpoint.setType(InboundEndpointType.Custom);
+
+        if (id != null) {
+            inboundEndpoint.setType(id.toUpperCase());
+        } else {
+            inboundEndpoint.setType(CUSTOM);
         }
     }
 
