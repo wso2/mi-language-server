@@ -67,9 +67,10 @@ public class HeaderFactory extends AbstractMediatorFactory {
         }
         String scope = element.getAttribute(Constant.SCOPE);
         HeaderScope headerScope = HeaderScope.DEFAULT;
-        if (headerScope != null) {
-            ((Header) node).setScope(headerScope);
+        if (scope != null) {
+            headerScope = Utils.getEnumFromValue(scope, HeaderScope.class);
         }
+        ((Header) node).setScope(headerScope);
         String description = element.getAttribute(Constant.DESCRIPTION);
         if (description != null) {
             ((Header) node).setDescription(description);
