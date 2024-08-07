@@ -74,6 +74,10 @@ public abstract class AbstractResourceFinder {
         typeToXmlTagMap.put("ws_policy", "wsp:Policy");
         typeToXmlTagMap.put("smooksConfig", "smooks-resource-list");
         typeToXmlTagMap.put("proxyService", "proxy");
+        typeToXmlTagMap.put("xsl", "xsl:stylesheet");
+        typeToXmlTagMap.put("xslt", "xsl:stylesheet");
+        typeToXmlTagMap.put("xsd", "xs:schema");
+        typeToXmlTagMap.put("wsdl", "wsdl:definitions");
     }
 
     public ResourceResponse getAvailableResources(String uri, Either<String, List<RequestedResource>> resourceTypes) {
@@ -327,10 +331,11 @@ public abstract class AbstractResourceFinder {
 
         String nodeName = rootElement.getNodeName();
         if (LOCAL_ENTRY.equals(from)) {
+            String xmlTag = typeToXmlTagMap.containsKey(type) ? typeToXmlTagMap.get(type) : type;
             DOMElement artifactElt = Utils.getFirstElement(rootElement);
             if (artifactElt != null) {
                 String artifactType = artifactElt.getNodeName();
-                return type.equals(artifactType);
+                return xmlTag.equals(artifactType);
             }
             return false;
         } else if (Constant.TEMPLATE.equals(nodeName)) {
