@@ -78,7 +78,6 @@ public abstract class AbstractResourceFinder {
         typeToXmlTagMap.put("xslt", "xsl:stylesheet");
         typeToXmlTagMap.put("xsd", "xs:schema");
         typeToXmlTagMap.put("wsdl", "wsdl:definitions");
-        typeToXmlTagMap.put("ws_policy", "wsp:Policy");
     }
 
     public ResourceResponse getAvailableResources(String uri, Either<String, List<RequestedResource>> resourceTypes) {
