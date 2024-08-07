@@ -37,6 +37,8 @@ public class LocalEntryFactory extends AbstractFactory {
         if (inline != null) {
             String inlineString = Utils.getInlineString(inline, Boolean.FALSE);
             localEntry.setContent(inlineString);
+            String subType = getSubType(inline);
+            localEntry.setSubType(subType);
         }
         return localEntry;
     }
@@ -53,5 +55,14 @@ public class LocalEntryFactory extends AbstractFactory {
         if (src != null) {
             localEntry.setSrc(src);
         }
+    }
+
+    private String getSubType(DOMNode inline) {
+
+        String nodeName = inline.getNodeName();
+        if (nodeName != null) {
+            return nodeName.toUpperCase();
+        }
+        return null;
     }
 }

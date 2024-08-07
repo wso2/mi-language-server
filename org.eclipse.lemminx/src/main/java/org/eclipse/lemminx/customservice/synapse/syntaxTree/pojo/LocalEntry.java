@@ -23,6 +23,7 @@ public class LocalEntry extends STNode {
     String content;
     String key;
     String src;
+    String subType;
 
     public String getContent() {
 
@@ -52,5 +53,15 @@ public class LocalEntry extends STNode {
     public void setSrc(String src) {
 
         this.src = src;
+    }
+
+    public String getSubType() {
+
+        return subType;
+    }
+
+    public void setSubType(String subType) {
+
+        this.subType = subType;
     }
 }
