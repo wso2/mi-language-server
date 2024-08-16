@@ -29,12 +29,14 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.NamedE
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
 import org.eclipse.lemminx.customservice.synapse.utils.ConfigFinder;
+import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -110,6 +112,9 @@ public class DependencyVisitorUtils {
     public static void visitMediator(Mediator node, MediatorDependencyVisitor visitor) {
 
         String tag = node.getTag();
+        if (Constant.INVALID.equalsIgnoreCase(tag)) {
+            return;
+        }
         tag = sanitizeTag(tag);
         String visitFn;
         visitFn = "visit" + tag.substring(0, 1).toUpperCase() + tag.substring(1);
@@ -167,8 +172,10 @@ public class DependencyVisitorUtils {
                 return dependency;
             }
         } else {
+            UUID uuid = UUID.randomUUID();
+            String anonymousEPName = "AnonymousEndpoint_" + uuid;
             endpointVisitor.visit(endpoint);
-            return new Dependency(null, ArtifactType.ENDPOINT, null,
+            return new Dependency(anonymousEPName, ArtifactType.ENDPOINT, null,
                     endpointVisitor.getDependencyTree().getDependencyList());
         }
         return null;

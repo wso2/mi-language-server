@@ -108,19 +108,25 @@ public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
 
         String path = DependencyVisitorUtils.getDependencyPath(name, from, projectPath);
         Dependency dependency = new Dependency(name, type, path);
-        dependencies.add(dependency);
+        if (dependency != null) {
+            dependencies.add(dependency);
+        }
     }
 
     private void addSequenceDependency(String name) {
 
         Dependency dependency = DependencyVisitorUtils.visitSequence(projectPath, name, dependencyLookUp);
-        dependencies.add(dependency);
+        if (dependency != null) {
+            dependencies.add(dependency);
+        }
     }
 
     private void addEndpointDependency(NamedEndpoint endpoint) {
 
         Dependency dependency = DependencyVisitorUtils.visitEndpoint(endpoint, projectPath, dependencyLookUp);
-        dependencies.add(dependency);
+        if (dependency != null) {
+            dependencies.add(dependency);
+        }
     }
 
     private void addEndpointDependency(String endpoint) {
@@ -128,7 +134,9 @@ public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
         NamedEndpoint endpointObj = new NamedEndpoint();
         endpointObj.setName(endpoint);
         Dependency dependency = DependencyVisitorUtils.visitEndpoint(endpointObj, projectPath, dependencyLookUp);
-        dependencies.add(dependency);
+        if (dependency != null) {
+            dependencies.add(dependency);
+        }
     }
 
     public List<Dependency> getDependencies() {
@@ -235,7 +243,9 @@ public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
 
         if (endpoint != null) {
             Dependency dependency = DependencyVisitorUtils.visitEndpoint(endpoint, projectPath, dependencyLookUp);
-            dependencies.add(dependency);
+            if (dependency != null) {
+                dependencies.add(dependency);
+            }
         } else if (attribute != null) {
             addEndpointDependency(attribute);
         }
@@ -378,7 +388,9 @@ public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
         if (node.getMessageStore() != null) {
             Dependency dependency = DependencyVisitorUtils.visitMessageStore(node.getMessageStore(), projectPath,
                     dependencyLookUp);
-            dependencies.add(dependency);
+            if (dependency != null) {
+                dependencies.add(dependency);
+            }
         }
         if (node.getSequence() != null) {
             addSequenceDependency(node.getSequence());
