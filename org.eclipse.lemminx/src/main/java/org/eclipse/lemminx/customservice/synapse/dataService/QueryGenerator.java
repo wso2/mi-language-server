@@ -18,6 +18,8 @@
 
 package org.eclipse.lemminx.customservice.synapse.dataService;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.File;
 import java.io.StringWriter;
 import java.net.URL;
@@ -26,11 +28,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.Driver;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,14 +40,16 @@ import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.eclipse.lemminx.customservice.synapse.dataService.queryBuilders.DeleteQueryBuilder;
+import org.eclipse.lemminx.customservice.synapse.dataService.queryBuilders.InsertQueryBuilder;
+import org.eclipse.lemminx.customservice.synapse.dataService.queryBuilders.SelectAllQueryBuilder;
+import org.eclipse.lemminx.customservice.synapse.dataService.queryBuilders.UpdateQueryBuilder;
 import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTester;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -63,70 +65,42 @@ public class QueryGenerator {
      *
      * @return dbs file content with resources and queries
      */
-    public String generateDSSQueries(QueryGenRequestParams requestParams) {
+    public static String generateDSSQueries(QueryGenRequestParams requestParams) {
+        DBConnectionTester dbConnectionTester = new DBConnectionTester();
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-        try {
+        try (Connection connection = dbConnectionTester.getConnection(requestParams.url, requestParams.username,
+                requestParams.password, requestParams.className)) {
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 
             Document doc = docBuilder.newDocument();
             Element dataElement = doc.createElement("data");
 
-            DBConnectionTester dbConnectionTester = new DBConnectionTester();
-            Connection connection = null;
-            connection = dbConnectionTester.getConnection(requestParams.url, requestParams.username,
-                    requestParams.password, requestParams.className);
             DatabaseMetaData metadata = connection.getMetaData();
 
             ObjectMapper mapper = new ObjectMapper();
             Map<String, String> tableData = mapper.readValue(requestParams.tableData, Map.class);
 
             for (Map.Entry<String, String> entry : tableData.entrySet()) {
-                Map<String, String> columnsList = new HashMap<>();
-                Map<String, String> primaryKeys = new HashMap<String, String>();
-                Map<String, String> autoIncrementFields = new HashMap<String, String>();
-                String columnNamesCombined = "";
-                int i = 0;
                 String table = entry.getKey();
-                try (ResultSet rs = metadata.getColumns(null, null, table, null)) {
-                    while (rs.next()) {
-                        String name = rs.getString(DataServiceConstants.COLUMN_NAME);
-                        int type = rs.getInt(DataServiceConstants.DATA_TYPE);
-                        String sqlType = getSQLType(type);
-                        if (this.isAutoIncrementField(rs)) {
-                            autoIncrementFields.put(name, sqlType);
-                            continue;
-                        }
-                        columnsList.put(name, sqlType);
-                        if (i == 0) {
-                            columnNamesCombined = " " + name;
-                        } else {
-                            columnNamesCombined = columnNamesCombined + ", " + name;
-                        }
-                        i++;
-                    }
-                }
-                try (ResultSet rs = metadata.getPrimaryKeys(null, null, table)) {
-                    while (rs.next()) {
-                        String name = rs.getString(DataServiceConstants.COLUMN_NAME);
-                        String sqlType = columnsList.get(name);
-                        if (sqlType == null) {
-                            sqlType = autoIncrementFields.get(name);
-                        }
-                        primaryKeys.put(name, sqlType);
-                    }
-                }
+                List<Map<String, String>> tableDetails = extractTableColumns(metadata, table);
+                Map<String, String> columnsList = tableDetails.get(0);
+                Map<String, String> autoIncrementFields = tableDetails.get(1);
+                Map<String, String> primaryKeys = extractTablePrimaryKeys(metadata, table, columnsList, autoIncrementFields);
+                String columnNamesCombined = String.join(", ", columnsList.keySet());
+
                 String methods = entry.getValue();
                 if (methods.contains("GET")) {
-                    generateSelectAllDefinition(doc, dataElement, table, columnNamesCombined, columnsList);
+                    generateSelectAllDefinition(doc, dataElement, table, columnNamesCombined, columnsList,
+                            requestParams.datasourceName);
                 }
                 if (methods.contains("POST")) {
-                    generateInsertDefinition(doc, dataElement, table, columnsList);
+                    generateInsertDefinition(doc, dataElement, table, columnsList, requestParams.datasourceName);
                 }
                 if (methods.contains("PUT")) {
-                    generateUpdateDefinition(doc, dataElement, table, columnsList, primaryKeys);
+                    generateUpdateDefinition(doc, dataElement, table, columnsList, primaryKeys, requestParams.datasourceName);
                 }
                 if (methods.contains("DELETE")) {
-                    generateDeleteDefinition(doc, dataElement, table, primaryKeys);
+                    generateDeleteDefinition(doc, dataElement, table, primaryKeys, requestParams.datasourceName);
                 }
             }
 
@@ -145,28 +119,19 @@ public class QueryGenerator {
      *
      * @return List of tables that exist in the database
      */
-    public Map<String, List<Boolean>> getTableList(QueryGenRequestParams requestParams) {
-        try {
+    public static Map<String, List<Boolean>> getTableList(QueryGenRequestParams requestParams) {
+        DBConnectionTester dbConnectionTester = new DBConnectionTester();
+        try (Connection connection = dbConnectionTester.getConnection(requestParams.url, requestParams.username,
+                requestParams.password, requestParams.className)) {
             Map<String, List<Boolean>> tablesMap = new HashMap<String, List<Boolean>>();
             DatabaseMetaData mObject = null;
-            DBConnectionTester dbConnectionTester = new DBConnectionTester();
-            Connection connection = dbConnectionTester.getConnection(requestParams.url, requestParams.username,
-                    requestParams.password, requestParams.className);
             if (connection != null) {
                 mObject = connection.getMetaData();
                 ResultSet tableNamesList = null;
-                String schema = null;
                 try {
-                    String dbType = mObject.getDatabaseProductName();
-                    if ("Oracle".equalsIgnoreCase(dbType)) {
-                        schema = connection.getSchema();
-                    } else if ("PostgreSQL".equalsIgnoreCase(dbType)) {
-                        ResultSet schemas = mObject.getSchemas();
-                        while (schemas.next()) {
-                            schema = schemas.getString("TABLE_SCHEM");
-                        }
-                    }
-                    tableNamesList = mObject.getTables(connection.getCatalog(), schema, "%", new String[]{"TABLE"});
+                    String schema = extractDatabaseSchema(mObject, connection);
+                    tableNamesList = mObject.getTables(connection.getCatalog(), schema, "%",
+                            new String[]{"TABLE"});
                     while (tableNamesList.next()) {
                         String tableName = tableNamesList.getString("TABLE_NAME");
                         ResultSet rs = mObject.getPrimaryKeys(null, null, tableName);
@@ -193,16 +158,11 @@ public class QueryGenerator {
      * @return Whether the DB driver is available in the class path
      */
     public static boolean isDriverAvailableInClassPath(String className) {
-
         try {
-            URLClassLoader urlClassLoader = DynamicClassLoader.getClassLoader();
-            Driver driver = (Driver) Class.forName(className, true, urlClassLoader).newInstance();
+            Class.forName(className, true, DynamicClassLoader.getClassLoader());
             return true;
-        } catch (ClassNotFoundException e) {
-            LOGGER.log(Level.SEVERE, "Error occurred while loading the DB driver class", e);
-            return false;
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error occurred while accessing the DB driver class", e);
+            LOGGER.log(Level.SEVERE, "Error occurred while loading the DB driver class.", e);
             return false;
         }
     }
@@ -216,19 +176,14 @@ public class QueryGenerator {
      * @return Whether the DB driver was successfully added to the class path
      */
     public static boolean addDriverToClassPath(String driverPath, String className) {
-
         try {
             Path jarPath = Paths.get(driverPath);
-            ArrayList<URL> driverUrls = new ArrayList<>(Arrays.asList(jarPath.toUri().toURL()));
-            URLClassLoader urlClassLoader = new URLClassLoader(driverUrls.toArray(new URL[0]));
-            Driver driver = (Driver) Class.forName(className, true, urlClassLoader).newInstance();
+            URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{jarPath.toUri().toURL()});
+            Class.forName(className, true, urlClassLoader).newInstance();
             DynamicClassLoader.addJarToClassLoader(new File(driverPath));
             return true;
-        } catch (ClassNotFoundException e) {
-            LOGGER.log(Level.SEVERE, "Error occurred while loading the DB driver class", e);
-            return false;
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error occurred while loading the DB driver class", e);
+            LOGGER.log(Level.SEVERE, "Error occurred while loading the DB driver class.", e);
             return false;
         }
     }
@@ -242,38 +197,18 @@ public class QueryGenerator {
      * @param columnNamesCombined columns in the databased table combined to a single string
      * @param columnsList columns in the database table
      */
-    private void generateSelectAllDefinition(Document doc, Element dataElement, String table, String columnNamesCombined,
-                                             Map<String, String> columnsList) {
-        Element queryEle = doc.createElement("query");
-        queryEle.setAttribute("id", "select_all_" + table + "_query");
-        queryEle.setAttribute("useConfig", "default");
-        String query = QueryGenerateUtils.getSelectAll(table, "", columnNamesCombined);
-        Element sqlEle = doc.createElement("sql");
-        sqlEle.setTextContent(query);
-        queryEle.appendChild(sqlEle);
-
-        Element resultEle = doc.createElement("result");
-        resultEle.setAttribute("element", table + "Collection");
-        resultEle.setAttribute("rowName", table);
-
-        for (Map.Entry<String, String> column : columnsList.entrySet()) {
-            Element columnEle = doc.createElement("element");
-            columnEle.setAttribute("column", column.getKey());
-            columnEle.setAttribute("name", column.getKey());
-            columnEle.setAttribute("xsdType", "xs:" + column.getValue().toLowerCase());
-            resultEle.appendChild(columnEle);
-        }
-        queryEle.appendChild(resultEle);
-
-        Element resourceEle = doc.createElement("resource");
-        resourceEle.setAttribute("method", "GET");
-        resourceEle.setAttribute("path", table);
-        Element callQueryEle = doc.createElement("call-query");
-        callQueryEle.setAttribute("href", "select_all_" + table + "_query");
-        resourceEle.appendChild(callQueryEle);
-
+    private static void generateSelectAllDefinition(Document doc, Element dataElement, String table,
+                                     String columnNamesCombined, Map<String, String> columnsList, String datasource) {
+        String query = new SelectAllQueryBuilder()
+                .setTableName(table)
+                .setSchema("")
+                .setColumnNames(columnNamesCombined)
+                .build();
+        Element queryEle = QueryGenerateUtils.generateQueryElement(doc, "select_all_" + table + "_query", query, datasource);
+        queryEle.appendChild(QueryGenerateUtils.generateResultElement(doc, table, columnsList));
+        Element callQueryEle = QueryGenerateUtils.generateCallQueryElement(doc, "select_all_" + table + "_query");
         dataElement.appendChild(queryEle);
-        dataElement.appendChild(resourceEle);
+        dataElement.appendChild(QueryGenerateUtils.generateResourceElement(doc, "GET", table, callQueryEle));
     }
 
     /**
@@ -284,43 +219,23 @@ public class QueryGenerator {
      * @param table name of the database table
      * @param columnsList columns in the database table
      */
-    private void generateInsertDefinition(Document doc, Element dataElement, String table,
-                                          Map<String, String> columnsList) {
-        Element queryEle = doc.createElement("query");
-        queryEle.setAttribute("id", "insert_" + table + "_query");
-        queryEle.setAttribute("useConfig", "default");
-        String query = QueryGenerateUtils.getInsertStatement(table, "",
-                columnsList.keySet().stream().collect(Collectors.toList()));
-        Element sqlEle = doc.createElement("sql");
-        sqlEle.setTextContent(query);
-        queryEle.appendChild(sqlEle);
-
-        Element callQueryEle = doc.createElement("call-query");
-        callQueryEle.setAttribute("href", "insert_" + table + "_query");
-
+    private static void generateInsertDefinition(Document doc, Element dataElement, String table,
+                                                 Map<String, String> columnsList, String datasource) {
+        String query = new InsertQueryBuilder()
+                .setTableName(table)
+                .setSchema("")
+                .setColumns(columnsList.keySet().stream().collect(Collectors.toList()))
+                .build();
+        Element queryEle = QueryGenerateUtils.generateQueryElement(doc, "insert_" + table + "_query", query, datasource);
+        Element callQueryEle = QueryGenerateUtils.generateCallQueryElement(doc, "insert_" + table + "_query");
         int i = 1;
         for (Map.Entry<String, String> column : columnsList.entrySet()) {
-            Element paramEle = doc.createElement("param");
-            paramEle.setAttribute("name", column.getKey());
-            paramEle.setAttribute("ordinal", "" + i);
-            paramEle.setAttribute("paramType", "SCALAR");
-            paramEle.setAttribute("sqlType", column.getValue());
-            paramEle.setAttribute("type", "IN");
-            queryEle.appendChild(paramEle);
-
-            Element withParamEle = doc.createElement("with-param");
-            withParamEle.setAttribute("name", column.getKey());
-            withParamEle.setAttribute("query-param", column.getKey());
-            callQueryEle.appendChild(withParamEle);
+            queryEle.appendChild(QueryGenerateUtils.generateParamElement(doc, column, i));
+            callQueryEle.appendChild(QueryGenerateUtils.generateWithParamElement(doc, column));
             i++;
         }
-        Element resourceEle = doc.createElement("resource");
-        resourceEle.setAttribute("method", "POST");
-        resourceEle.setAttribute("path", table);
-        resourceEle.appendChild(callQueryEle);
-
         dataElement.appendChild(queryEle);
-        dataElement.appendChild(resourceEle);
+        dataElement.appendChild(QueryGenerateUtils.generateResourceElement(doc, "POST", table, callQueryEle));
     }
 
     /**
@@ -332,64 +247,32 @@ public class QueryGenerator {
      * @param columnsList columns in the database table
      * @param primaryKeys primary keys in the database table
      */
-    private void generateUpdateDefinition(Document doc, Element dataElement, String table,
-                                          Map<String, String> columnsList, Map<String, String> primaryKeys) {
-        Element queryEle = doc.createElement("query");
-        queryEle.setAttribute("id", "update_" + table + "_query");
-        queryEle.setAttribute("useConfig", "default");
-        String query = QueryGenerateUtils.getUpdateStatement(table, "",
-                columnsList.keySet().stream().collect(Collectors.toList()),
-                primaryKeys.keySet().stream().collect(Collectors.toList()));
-        Element sqlEle = doc.createElement("sql");
-        sqlEle.setTextContent(query);
-        queryEle.appendChild(sqlEle);
-
-        Element callQueryEle = doc.createElement("call-query");
-        callQueryEle.setAttribute("href", "update_" + table + "_query");
-
+    private static void generateUpdateDefinition(Document doc, Element dataElement, String table,
+                                 Map<String, String> columnsList, Map<String, String> primaryKeys, String datasource) {
+        String query = new UpdateQueryBuilder()
+                .setTableName(table)
+                .setSchema("")
+                .setColumns(columnsList.keySet().stream().collect(Collectors.toList()))
+                .setPrimaryKeys(primaryKeys.keySet().stream().collect(Collectors.toList()))
+                .build();
+        Element queryEle = QueryGenerateUtils.generateQueryElement(doc, "update_" + table + "_query", query, datasource);
+        Element callQueryEle = QueryGenerateUtils.generateCallQueryElement(doc, "update_" + table + "_query");
         int i = 1;
         for (Map.Entry<String, String> column : columnsList.entrySet()) {
             if (primaryKeys.containsKey(column.getKey())) {
                 continue;
             }
-            Element paramEle = doc.createElement("param");
-            paramEle.setAttribute("name", column.getKey());
-            paramEle.setAttribute("ordinal", "" + i);
-            paramEle.setAttribute("paramType", "SCALAR");
-            paramEle.setAttribute("sqlType", column.getValue());
-            paramEle.setAttribute("type", "IN");
-            queryEle.appendChild(paramEle);
-
-            Element withParamEle = doc.createElement("with-param");
-            withParamEle.setAttribute("name", column.getKey());
-            withParamEle.setAttribute("query-param", column.getKey());
-            callQueryEle.appendChild(withParamEle);
+            queryEle.appendChild(QueryGenerateUtils.generateParamElement(doc, column, i));
+            callQueryEle.appendChild(QueryGenerateUtils.generateWithParamElement(doc, column));
             i++;
         }
         for (Map.Entry<String, String> primaryKey : primaryKeys.entrySet()) {
-            Element paramEle = doc.createElement("param");
-            paramEle.setAttribute("name", primaryKey.getKey());
-            paramEle.setAttribute("ordinal", "" + i);
-            paramEle.setAttribute("paramType", "SCALAR");
-            paramEle.setAttribute("sqlType", primaryKey.getValue());
-            paramEle.setAttribute("type", "IN");
-            queryEle.appendChild(paramEle);
-
-            Element withParamEle = doc.createElement("with-param");
-            withParamEle.setAttribute("name", primaryKey.getKey());
-            withParamEle.setAttribute("query-param", primaryKey.getKey());
-            callQueryEle.appendChild(withParamEle);
+            queryEle.appendChild(QueryGenerateUtils.generateParamElement(doc, primaryKey, i));
+            callQueryEle.appendChild(QueryGenerateUtils.generateWithParamElement(doc, primaryKey));
             i++;
         }
-
-        Element resourceEle = doc.createElement("resource");
-        resourceEle.setAttribute("method", "PUT");
-        resourceEle.setAttribute("path", table);
-        resourceEle.appendChild(callQueryEle);
-
         dataElement.appendChild(queryEle);
-        dataElement.appendChild(resourceEle);
-
+        dataElement.appendChild(QueryGenerateUtils.generateResourceElement(doc, "PUT", table, callQueryEle));
     }
 
     /**
@@ -400,45 +283,23 @@ public class QueryGenerator {
      * @param table name of the database table
      * @param primaryKeys primary keys in the database table
      */
-    private void generateDeleteDefinition(Document doc, Element dataElement, String table,
-                                          Map<String, String> primaryKeys) {
-        Element queryEle = doc.createElement("query");
-        queryEle.setAttribute("id", "delete_" + table + "_query");
-        queryEle.setAttribute("useConfig", "default");
-        String query = QueryGenerateUtils.getDeleteStatement(table, "",
-                primaryKeys.keySet().stream().collect(Collectors.toList()));
-        Element sqlEle = doc.createElement("sql");
-        sqlEle.setTextContent(query);
-        queryEle.appendChild(sqlEle);
-
-        Element callQueryEle = doc.createElement("call-query");
-        callQueryEle.setAttribute("href", "delete_" + table + "_query");
-
+    private static void generateDeleteDefinition(Document doc, Element dataElement, String table,
+                                                 Map<String, String> primaryKeys, String datasource) {
+        String query = new DeleteQueryBuilder()
+                .setTableName(table)
+                .setSchema("")
+                .setPrimaryKeys(primaryKeys.keySet().stream().collect(Collectors.toList()))
+                .build();
+        Element queryEle = QueryGenerateUtils.generateQueryElement(doc, "delete_" + table + "_query", query, datasource);
+        Element callQueryEle = QueryGenerateUtils.generateCallQueryElement(doc, "delete_" + table + "_query");
         int i = 1;
         for (Map.Entry<String, String> column : primaryKeys.entrySet()) {
-            Element paramEle = doc.createElement("param");
-            paramEle.setAttribute("name", column.getKey());
-            paramEle.setAttribute("ordinal", "" + i);
-            paramEle.setAttribute("paramType", "SCALAR");
-            paramEle.setAttribute("sqlType", column.getValue());
-            paramEle.setAttribute("type", "IN");
-            queryEle.appendChild(paramEle);
-
-            Element withParamEle = doc.createElement("with-param");
-            withParamEle.setAttribute("name", column.getKey());
-            withParamEle.setAttribute("query-param", column.getKey());
-            callQueryEle.appendChild(withParamEle);
+            queryEle.appendChild(QueryGenerateUtils.generateParamElement(doc, column, i));
+            callQueryEle.appendChild(QueryGenerateUtils.generateWithParamElement(doc, column));
             i++;
         }
-
-        Element resourceEle = doc.createElement("resource");
-        resourceEle.setAttribute("method", "DELETE");
-        resourceEle.setAttribute("path", table);
-        resourceEle.appendChild(callQueryEle);
-
         dataElement.appendChild(queryEle);
-        dataElement.appendChild(resourceEle);
-
+        dataElement.appendChild(QueryGenerateUtils.generateResourceElement(doc, "DELETE", table, callQueryEle));
     }
 
     /**
@@ -448,7 +309,7 @@ public class QueryGenerator {
      *
      * @return Formatted dbs file content
      */
-    private String generateServiceFromDoc(Document doc) {
+    private static String generateServiceFromDoc(Document doc) {
         try {
             TransformerFactory tf = TransformerFactory.newInstance();
             Transformer trans = tf.newTransformer();
@@ -462,12 +323,87 @@ public class QueryGenerator {
             templateContent = templateContent.replaceAll("(?s)<data>(.*)</data>", "$1").trim();
             return templateContent;
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error occurred while generating the DBS file content", e);
+            LOGGER.log(Level.SEVERE, "Error occurred while generating the DBS file content.", e);
             return "";
         }
     }
 
-    private boolean isAutoIncrementField(ResultSet columnNames) {
+    /**
+     * Extract data columns in a DB table
+     *
+     * @param metadata Metadata of the database
+     * @param table Name of the table
+     *
+     * @return List of columns in the table
+     */
+    private static List<Map<String, String>> extractTableColumns(DatabaseMetaData metadata, String table) throws SQLException {
+        Map<String, String> columnsList = new HashMap<>();
+        Map<String, String> autoIncrementFields = new HashMap<String, String>();
+        try (ResultSet rs = metadata.getColumns(null, null, table, null)) {
+            while (rs.next()) {
+                String name = rs.getString(DataServiceConstants.COLUMN_NAME);
+                int type = rs.getInt(DataServiceConstants.DATA_TYPE);
+                String sqlType = getSQLType(type);
+                if (isAutoIncrementField(rs)) {
+                    autoIncrementFields.put(name, sqlType);
+                    continue;
+                }
+                columnsList.put(name, sqlType);
+            }
+        }
+        return Arrays.asList(columnsList, autoIncrementFields);
+    }
+
+    /**
+     * Extract primary keys in a DB table
+     *
+     * @param metadata Metadata of the database
+     * @param table Name of the table
+     * @param columnsList Columns in the table
+     * @param autoIncrementFields Auto-increment columns in the table
+     *
+     * @return Details of primary keys in the table
+     */
+    private static Map<String, String> extractTablePrimaryKeys(DatabaseMetaData metadata, String table,
+                                           Map<String, String> columnsList, Map<String, String> autoIncrementFields)
+                                                throws SQLException {
+        Map<String, String> primaryKeys = new HashMap<>();
+        try (ResultSet rs = metadata.getPrimaryKeys(null, null, table)) {
+            while (rs.next()) {
+                String name = rs.getString(DataServiceConstants.COLUMN_NAME);
+                String sqlType = columnsList.get(name);
+                if (sqlType == null) {
+                    sqlType = autoIncrementFields.get(name);
+                }
+                primaryKeys.put(name, sqlType);
+            }
+        }
+        return primaryKeys;
+    }
+
+    /**
+     * Extract database schema
+     *
+     * @param metadata Metadata of the database
+     * @param connection Database connection
+     *
+     * @return Database schema
+     */
+    private static String extractDatabaseSchema(DatabaseMetaData metadata, Connection connection) throws SQLException {
+        String dbType = metadata.getDatabaseProductName();
+        String schema = null;
+        if ("Oracle".equalsIgnoreCase(dbType)) {
+            schema = connection.getSchema();
+        } else if ("PostgreSQL".equalsIgnoreCase(dbType)) {
+            ResultSet schemas = metadata.getSchemas();
+            while (schemas.next()) {
+                schema = schemas.getString("TABLE_SCHEM");
+            }
+        }
+        return schema;
+    }
+
+    private static boolean isAutoIncrementField(ResultSet columnNames) {
         try {
             String autoIncrString = columnNames.getString(DataServiceConstants.AUTOINCREMENT_COLUMN);
             if (DataServiceConstants.IS_AUTOINCREMENT.equalsIgnoreCase(autoIncrString)) {
@@ -478,14 +414,14 @@ public class QueryGenerator {
                 return identity;
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Error occurred while retrieving DB column details", e);
+            LOGGER.log(Level.SEVERE, "Error occurred while retrieving DB column details.", e);
         }
         return false;
     }
 
-    private String getSQLType(int type) {
-        if ((-1 == type) || (-16 == type) || (-15 == type)
-                || (2009 == type) || (1111 == type)) {
+    private static String getSQLType(int type) {
+        List<Integer> charTypes = Arrays.asList(1, -16, -15, 2009, 1111);
+        if (charTypes.contains(type)) {
             type = 1;
         }
         return QueryGenerateUtils.getDefinedTypes().get(type);

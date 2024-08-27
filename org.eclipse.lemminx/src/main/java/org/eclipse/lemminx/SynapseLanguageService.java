@@ -79,6 +79,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.messages.Either3;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -119,9 +120,9 @@ public class SynapseLanguageService implements ISynapseLanguageService {
             initializeConnectorLoader();
             MediatorFactoryFinder.getInstance().setConnectorHolder(connectorHolder);
             try {
-                DynamicClassLoader.updateClassLoader(new File(new File(projectUri, "deployment"), "libs"));
+                DynamicClassLoader.updateClassLoader(Path.of(projectUri, "deployment", "libs").toFile());
             } catch (Exception e) {
-                log.log(Level.SEVERE, "Error while updating class loader", e);
+                log.log(Level.SEVERE, "Error while updating class loader for DB drivers.", e);
             }
         } else{
             log.log(Level.SEVERE, "Project path is null. Language server initialization failed.");
@@ -334,33 +335,25 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
     @Override
     public CompletableFuture<Boolean> checkDBDriver(CheckDBDriverRequestParams requestParams) {
-
-        QueryGenerator queryGenerator = new QueryGenerator();
-        boolean isDriverAvailable = queryGenerator.isDriverAvailableInClassPath(requestParams.className);
+        boolean isDriverAvailable = QueryGenerator.isDriverAvailableInClassPath(requestParams.className);
         return CompletableFuture.supplyAsync(() -> isDriverAvailable);
     }
 
     @Override
     public CompletableFuture<Boolean> addDBDriver(AddDriverRequestParams requestParams) {
-
-        QueryGenerator queryGenerator = new QueryGenerator();
-        boolean isSuccess = queryGenerator.addDriverToClassPath(requestParams.driverPath, requestParams.className);
+        boolean isSuccess = QueryGenerator.addDriverToClassPath(requestParams.driverPath, requestParams.className);
         return CompletableFuture.supplyAsync(() -> isSuccess);
     }
 
     @Override
     public CompletableFuture<String> generateQueries(QueryGenRequestParams requestParams) {
-
-        QueryGenerator queryGenerator = new QueryGenerator();
-        String xmlContent = queryGenerator.generateDSSQueries(requestParams);
+        String xmlContent = QueryGenerator.generateDSSQueries(requestParams);
         return CompletableFuture.supplyAsync(() -> xmlContent);
     }
 
     @Override
     public CompletableFuture<Map<String, List<Boolean>>> fetchTables(QueryGenRequestParams requestParams) {
-
-        QueryGenerator queryGenerator = new QueryGenerator();
-        Map<String, List<Boolean>> tableList = queryGenerator.getTableList(requestParams);
+        Map<String, List<Boolean>> tableList = QueryGenerator.getTableList(requestParams);
         return CompletableFuture.supplyAsync(() -> tableList);
     }
 

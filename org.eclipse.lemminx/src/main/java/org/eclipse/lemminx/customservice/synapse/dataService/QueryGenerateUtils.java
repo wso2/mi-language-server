@@ -18,11 +18,13 @@
 
 package org.eclipse.lemminx.customservice.synapse.dataService;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.sql.Types;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 public class QueryGenerateUtils {
 
@@ -32,219 +34,173 @@ public class QueryGenerateUtils {
     private static Map<Integer, String> qnameTypeMap = new HashMap<Integer, String>();
 
     static {
-        definedTypeMap.put(java.sql.Types.CHAR, "STRING");
-        definedTypeMap.put(java.sql.Types.NUMERIC, "NUMERIC");
-        definedTypeMap.put(java.sql.Types.DECIMAL, "DOUBLE");
-        definedTypeMap.put(java.sql.Types.INTEGER, "INTEGER");
-        definedTypeMap.put(java.sql.Types.SMALLINT, "SMALLINT");
-        definedTypeMap.put(java.sql.Types.FLOAT, "DOUBLE");
-        definedTypeMap.put(java.sql.Types.REAL, "REAL");
-        definedTypeMap.put(java.sql.Types.DOUBLE, "DOUBLE");
-        definedTypeMap.put(java.sql.Types.VARCHAR, "STRING");
-        definedTypeMap.put(java.sql.Types.NVARCHAR, "STRING");
-        definedTypeMap.put(java.sql.Types.CLOB, "STRING");
-        definedTypeMap.put(java.sql.Types.BOOLEAN, "BOOLEAN");
-        definedTypeMap.put(java.sql.Types.TIMESTAMP, "TIMESTAMP");
-        definedTypeMap.put(java.sql.Types.BIT, "BIT");
-        definedTypeMap.put(java.sql.Types.TIME, "TIME");
-        definedTypeMap.put(java.sql.Types.TINYINT, "TINYINT");
-        definedTypeMap.put(java.sql.Types.BIGINT, "BIGINT");
-        definedTypeMap.put(java.sql.Types.LONGVARBINARY, "BINARY");
-        definedTypeMap.put(java.sql.Types.VARBINARY, "BINARY");
-        definedTypeMap.put(java.sql.Types.BINARY, "BINARY");
-        definedTypeMap.put(java.sql.Types.BLOB, "BINARY");
-        definedTypeMap.put(java.sql.Types.DATE, "DATE");
-        definedTypeMap.put(java.sql.Types.TIMESTAMP, "TIMESTAMP");
-
-        qnameTypeMap.put(java.sql.Types.CHAR, "string");
-        qnameTypeMap.put(java.sql.Types.NUMERIC, "integer");
-        qnameTypeMap.put(java.sql.Types.DECIMAL, "decimal");
-        qnameTypeMap.put(java.sql.Types.INTEGER, "integer");
-        qnameTypeMap.put(java.sql.Types.SMALLINT, "integer");
-        qnameTypeMap.put(java.sql.Types.FLOAT, "float");
-        qnameTypeMap.put(java.sql.Types.REAL, "double");
-        qnameTypeMap.put(java.sql.Types.DOUBLE, "double");
-        qnameTypeMap.put(java.sql.Types.VARCHAR, "string");
-        qnameTypeMap.put(java.sql.Types.NVARCHAR, "string");
-        qnameTypeMap.put(java.sql.Types.CLOB, "string");
-        qnameTypeMap.put(java.sql.Types.BOOLEAN, "boolean");
-        qnameTypeMap.put(java.sql.Types.TIMESTAMP, "dateTime");
-        qnameTypeMap.put(java.sql.Types.BIT, "integer");
-        qnameTypeMap.put(java.sql.Types.TIME, "time");
-        qnameTypeMap.put(java.sql.Types.TINYINT, "integer");
-        qnameTypeMap.put(java.sql.Types.BIGINT, "long");
-        qnameTypeMap.put(java.sql.Types.LONGVARBINARY, "base64Binary");
-        qnameTypeMap.put(java.sql.Types.VARBINARY, "base64Binary");
-        qnameTypeMap.put(java.sql.Types.BINARY, "base64Binary");
-        qnameTypeMap.put(java.sql.Types.BLOB, "base64Binary");
-        qnameTypeMap.put(java.sql.Types.DATE, "date");
+        updateDataTypes();
+        updateQueryParamTypes();
     }
 
     /**
-     * Generate select all SQL Statement
+     * Generate resource element content
      *
-     * SELECT * FROM [table name];
+     * @param doc DOM document with resources and queries
+     * @param method Type of resource
+     * @param path Resource path
+     * @param callQueryElement Call query element content
      *
-     * @param tableName table name of the given table
-     * @param schema the database schema
-     *
-     * @return Select all SQL query
+     * @return Resource element content
      */
-    public static String getSelectAll(String tableName, String schema, String columnNames) {
-        StringBuffer statement = new StringBuffer();
-        statement.append("SELECT " + columnNames.trim() + " FROM ");
-        statement.append((isEmptyString(schema) ? "" : (schema + ".")) + tableName.trim());
-        return new String(statement);
+    public static Element generateResourceElement(Document doc, String method, String path, Element callQueryElement) {
+        Element resourceEle = doc.createElement("resource");
+        resourceEle.setAttribute("method", method);
+        resourceEle.setAttribute("path", path);
+        resourceEle.appendChild(callQueryElement);
+        return resourceEle;
     }
 
     /**
-     * Generate select by key, SQL Statement
+     * Generate param element content
      *
-     * SELECT * FROM [table name] WHERE [field name];
+     * @param doc DOM document with resources and queries
+     * @param column DB column name and type
+     * @param ordinal Ordinal value
      *
-     * @param tableName table name of the given table
-     * @param schema the database schema
-     * @param pKey primary key of table
-     *
-     * @return Select by key SQL query
+     * @return Param element content
      */
-    public static String getSelectByKey(String tableName, String schema,
-                                        String pKey, String columnNames) {
-        StringBuffer statement = new StringBuffer();
-        statement.append("SELECT " + columnNames.trim() + " FROM ");
-        statement.append((isEmptyString(schema) ? "" : (schema + ".")) + tableName.trim());
-        statement.append(" WHERE ");
-        statement.append(pKey).append("=?");
-        return new String(statement);
+    public static Element generateParamElement(Document doc, Map.Entry<String, String> column, int ordinal) {
+        Element paramEle = doc.createElement("param");
+        paramEle.setAttribute("name", column.getKey());
+        paramEle.setAttribute("ordinal", "" + ordinal);
+        paramEle.setAttribute("paramType", "SCALAR");
+        paramEle.setAttribute("sqlType", column.getValue());
+        paramEle.setAttribute("type", "IN");
+        return paramEle;
     }
 
     /**
-     * Generate insertion SQL Statement
+     * Generate query element content
      *
-     * INSERT INTO tableName (c1,c2,c3) VALUES (p1,p2,p3)
+     * @param doc DOM document with resources and queries
+     * @param id Query ID
+     * @param query SQL query
+     * @param datasource Name of the datasource to be used
      *
-     * @param param list of parameters values
-     * @param tableName table name of the given table
-     * @param schema the database schema
-     *
-     * @return Insert SQL query
+     * @return Query element content
      */
-    public static String getInsertStatement(String tableName, String schema, List<String> param) {
-        StringBuffer statement = new StringBuffer();
-        statement.append("INSERT INTO ");
-        statement.append((isEmptyString(schema) ? "" : (schema + ".")) + tableName.trim());
-        statement.append("(");
-        int last = param.size();
-        int index = 1;
-        for (String par : param) {
-            statement.append(par);
-            if (index != last)
-                statement.append(",");
-            index++;
-        }
-        statement.append(")");
-        statement.append(" VALUES");
-        statement.append("(");
-        index = 1;
-        /* use this for each loop just to travel inside list */
-        // noinspection UnusedDeclaration
-        for (@SuppressWarnings("unused")
-        String par : param) {
-            statement.append('?');
-            if (index != last)
-                statement.append(",");
-            index++;
-        }
-        statement.append(")");
-        return new String(statement);
+    public static Element generateQueryElement(Document doc, String id, String query, String datasource) {
+        Element queryEle = doc.createElement("query");
+        queryEle.setAttribute("id", id);
+        queryEle.setAttribute("useConfig", datasource);
+        Element sqlEle = doc.createElement("sql");
+        sqlEle.setTextContent(query);
+        queryEle.appendChild(sqlEle);
+        return queryEle;
     }
 
     /**
-     * Generate update SQL Statement
+     * Generate result element content
      *
-     * UPDATE [table name] SET Select_prev = 'Y',Update_prev = 'Y' where [fieldname] = 'user';
+     * @param doc DOM document with resources and queries
+     * @param table DB table name
+     * @param columnsList Existing columns in the DB
      *
-     * @param param2 list of parameters values
-     * @param tableName table name of the given table
-     * @param schema the database schema
-     * @param pKeys primary key of table
-     *
-     * @return Update SQL query
+     * @return Result element content
      */
-    public static String getUpdateStatement(String tableName, String schema, List<String> param2,
-                                            List<String> pKeys) {
-        List<String> param = new ArrayList<String>();
-        for (String par : param2) {
-            if (!pKeys.contains(par))
-                param.add(par);
-        }
+    public static Element generateResultElement(Document doc, String table, Map<String, String> columnsList) {
+        Element resultEle = doc.createElement("result");
+        resultEle.setAttribute("element", table + "Collection");
+        resultEle.setAttribute("rowName", table);
 
-        StringBuffer statement = new StringBuffer();
-        statement.append("UPDATE ");
-        statement.append((isEmptyString(schema) ? "" : (schema + ".")) + tableName.trim());
-        statement.append(" SET ");
-        int last = param.size();
-        int index = 1;
-        for (String par : param) {
-
-            statement.append(par).append("=?");
-            if (index != last)
-                statement.append(",");
-
-            index++;
+        for (Map.Entry<String, String> column : columnsList.entrySet()) {
+            Element columnEle = doc.createElement("element");
+            columnEle.setAttribute("column", column.getKey());
+            columnEle.setAttribute("name", column.getKey());
+            columnEle.setAttribute("xsdType", "xs:" + column.getValue().toLowerCase());
+            resultEle.appendChild(columnEle);
         }
-        statement.append(" WHERE ");
-        int i = 0;
-        for (String pKey : pKeys) {
-            if (i > 0) {
-                statement.append(" AND ");
-            }
-            statement.append(pKey).append("=?");
-            i++;
-        }
-        return new String(statement);
+        return resultEle;
     }
 
     /**
-     * Generate delete SQL Statement
+     * Generate with-param element content
      *
-     * DELETE from [table name] where [field name] = 'test';
+     * @param doc DOM document with resources and queries
+     * @param column Considered DB column details
      *
-     * @param tableName table name of the given table
-     * @param schema the database schema
-     * @param pKeys primary key of table
-     *
-     * @return Delete SQL query
+     * @return With-param element content
      */
-    public static String getDeleteStatement(String tableName, String schema, List<String> pKeys) {
-        StringBuffer statement = new StringBuffer();
-        statement.append("DELETE FROM ");
-        statement.append((isEmptyString(schema) ? "" : (schema + ".")) + tableName.trim());
-        statement.append(" WHERE ");
-        int i = 0;
-        for (String pKey : pKeys) {
-            if (i > 0) {
-                statement.append(" AND ");
-            }
-            statement.append(pKey).append("=?");
-            i++;
-        }
-        return new String(statement);
+    public static Element generateWithParamElement(Document doc, Map.Entry<String, String> column) {
+        Element paramEle = doc.createElement("with-param");
+        paramEle.setAttribute("name", column.getKey());
+        paramEle.setAttribute("query-param", column.getKey());
+        return paramEle;
     }
 
     /**
-     * Check whether the given text is empty.
+     * Generate call-query element content
      *
-     * @param text The text to be checked
+     * @param doc DOM document with resources and queries
+     * @param href Referred query name
      *
-     * @return Whether the text is null or trimmed text length is empty
+     * @return Call-query element content
      */
-    private static boolean isEmptyString(String text) {
-        return text == null || text.trim().length() == 0;
+    public static Element generateCallQueryElement(Document doc, String href) {
+        Element callQueryEle = doc.createElement("call-query");
+        callQueryEle.setAttribute("href", href);
+        return callQueryEle;
     }
 
     public static Map<Integer, String> getDefinedTypes() {
         return definedTypeMap;
+    }
+
+    private static void updateDataTypes() {
+        definedTypeMap.put(Types.CHAR, "STRING");
+        definedTypeMap.put(Types.NUMERIC, "NUMERIC");
+        definedTypeMap.put(Types.DECIMAL, "DOUBLE");
+        definedTypeMap.put(Types.INTEGER, "INTEGER");
+        definedTypeMap.put(Types.SMALLINT, "SMALLINT");
+        definedTypeMap.put(Types.FLOAT, "DOUBLE");
+        definedTypeMap.put(Types.REAL, "REAL");
+        definedTypeMap.put(Types.DOUBLE, "DOUBLE");
+        definedTypeMap.put(Types.VARCHAR, "STRING");
+        definedTypeMap.put(Types.NVARCHAR, "STRING");
+        definedTypeMap.put(Types.CLOB, "STRING");
+        definedTypeMap.put(Types.BOOLEAN, "BOOLEAN");
+        definedTypeMap.put(Types.TIMESTAMP, "TIMESTAMP");
+        definedTypeMap.put(Types.BIT, "BIT");
+        definedTypeMap.put(Types.TIME, "TIME");
+        definedTypeMap.put(Types.TINYINT, "TINYINT");
+        definedTypeMap.put(Types.BIGINT, "BIGINT");
+        definedTypeMap.put(Types.LONGVARBINARY, "BINARY");
+        definedTypeMap.put(Types.VARBINARY, "BINARY");
+        definedTypeMap.put(Types.BINARY, "BINARY");
+        definedTypeMap.put(Types.BLOB, "BINARY");
+        definedTypeMap.put(Types.DATE, "DATE");
+        definedTypeMap.put(Types.TIMESTAMP, "TIMESTAMP");
+    }
+
+    private static void updateQueryParamTypes() {
+        qnameTypeMap.put(Types.CHAR, "string");
+        qnameTypeMap.put(Types.NUMERIC, "integer");
+        qnameTypeMap.put(Types.DECIMAL, "decimal");
+        qnameTypeMap.put(Types.INTEGER, "integer");
+        qnameTypeMap.put(Types.SMALLINT, "integer");
+        qnameTypeMap.put(Types.FLOAT, "float");
+        qnameTypeMap.put(Types.REAL, "double");
+        qnameTypeMap.put(Types.DOUBLE, "double");
+        qnameTypeMap.put(Types.VARCHAR, "string");
+        qnameTypeMap.put(Types.NVARCHAR, "string");
+        qnameTypeMap.put(Types.CLOB, "string");
+        qnameTypeMap.put(Types.BOOLEAN, "boolean");
+        qnameTypeMap.put(Types.TIMESTAMP, "dateTime");
+        qnameTypeMap.put(Types.BIT, "integer");
+        qnameTypeMap.put(Types.TIME, "time");
+        qnameTypeMap.put(Types.TINYINT, "integer");
+        qnameTypeMap.put(Types.BIGINT, "long");
+        qnameTypeMap.put(Types.LONGVARBINARY, "base64Binary");
+        qnameTypeMap.put(Types.VARBINARY, "base64Binary");
+        qnameTypeMap.put(Types.BINARY, "base64Binary");
+        qnameTypeMap.put(Types.BLOB, "base64Binary");
+        qnameTypeMap.put(Types.DATE, "date");
     }
 
 }

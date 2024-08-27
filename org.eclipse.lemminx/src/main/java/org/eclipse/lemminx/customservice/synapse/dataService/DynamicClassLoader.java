@@ -42,6 +42,10 @@ public class DynamicClassLoader {
         synchronized (lock) {
             File[] jarFiles = jarDirectory.listFiles((dir1, name) -> name.endsWith(".jar"));
 
+            if (jarFiles == null) {
+                return;
+            }
+
             Set<URL> newUrls = new HashSet<>();
             for (File jarFile : jarFiles) {
                 URL jarUrl = jarFile.toURI().toURL();
@@ -54,8 +58,8 @@ public class DynamicClassLoader {
             if (!urlsToAdd.isEmpty()) {
                 URL[] updatedUrls = new URL[newUrls.size()];
                 newUrls.toArray(updatedUrls);
-                URLClassLoader newClassLoader = new URLClassLoader(updatedUrls, Thread.currentThread().getContextClassLoader());
-
+                URLClassLoader newClassLoader = new URLClassLoader(updatedUrls,
+                        Thread.currentThread().getContextClassLoader());
                 classLoader = newClassLoader;
                 currentUrls = new HashSet<>(newUrls);
             }
@@ -74,8 +78,8 @@ public class DynamicClassLoader {
                 Set<URL> updatedUrls = new HashSet<>(currentUrls);
                 updatedUrls.add(jarUrl);
 
-                URLClassLoader newClassLoader = new URLClassLoader(updatedUrls.toArray(new URL[0]), Thread.currentThread().getContextClassLoader());
-
+                URLClassLoader newClassLoader = new URLClassLoader(updatedUrls.toArray(new URL[0]),
+                        Thread.currentThread().getContextClassLoader());
                 classLoader = newClassLoader;
                 currentUrls = updatedUrls;
             }

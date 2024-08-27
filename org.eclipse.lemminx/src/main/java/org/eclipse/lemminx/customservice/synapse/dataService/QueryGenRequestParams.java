@@ -25,4 +25,5 @@ public class QueryGenRequestParams {
     String password;
     String url;
     String tableData;
+    String datasourceName;
 }
