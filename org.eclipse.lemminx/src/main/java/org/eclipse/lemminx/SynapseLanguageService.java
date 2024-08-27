@@ -31,6 +31,7 @@ import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connections;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectionFinder;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
+import org.eclipse.lemminx.customservice.synapse.dataService.*;
 import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTestParams;
 import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTestResponse;
 import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTester;
@@ -117,6 +118,11 @@ public class SynapseLanguageService implements ISynapseLanguageService {
             this.isLegacyProject = Utils.isLegacyProject(projectUri);
             initializeConnectorLoader();
             MediatorFactoryFinder.getInstance().setConnectorHolder(connectorHolder);
+            try {
+                DynamicClassLoader.updateClassLoader(new File(new File(projectUri, "deployment"), "libs"));
+            } catch (Exception e) {
+                log.log(Level.SEVERE, "Error while updating class loader", e);
+            }
         } else{
             log.log(Level.SEVERE, "Project path is null. Language server initialization failed.");
         }
@@ -149,9 +155,9 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
         DBConnectionTester dbConnectionTester = new DBConnectionTester();
         boolean connectionStatus = dbConnectionTester.testDBConnection(dbConnectionTestParams.dbType,
-                dbConnectionTestParams.version, dbConnectionTestParams.username, dbConnectionTestParams.password,
+                dbConnectionTestParams.username, dbConnectionTestParams.password,
                 dbConnectionTestParams.host, dbConnectionTestParams.port, dbConnectionTestParams.dbName,
-                dbConnectionTestParams.dbDriverFolder);
+                dbConnectionTestParams.url, dbConnectionTestParams.className);
         DBConnectionTestResponse response = new DBConnectionTestResponse(connectionStatus);
         return CompletableFuture.supplyAsync(() -> response);
     }
@@ -324,6 +330,38 @@ public class SynapseLanguageService implements ISynapseLanguageService {
                 return inboundConnectorHolder.getInboundConnectorSchema(new File(param.documentPath));
             }
         });
+    }
+
+    @Override
+    public CompletableFuture<Boolean> checkDBDriver(CheckDBDriverRequestParams requestParams) {
+
+        QueryGenerator queryGenerator = new QueryGenerator();
+        boolean isDriverAvailable = queryGenerator.isDriverAvailableInClassPath(requestParams.className);
+        return CompletableFuture.supplyAsync(() -> isDriverAvailable);
+    }
+
+    @Override
+    public CompletableFuture<Boolean> addDBDriver(AddDriverRequestParams requestParams) {
+
+        QueryGenerator queryGenerator = new QueryGenerator();
+        boolean isSuccess = queryGenerator.addDriverToClassPath(requestParams.driverPath, requestParams.className);
+        return CompletableFuture.supplyAsync(() -> isSuccess);
+    }
+
+    @Override
+    public CompletableFuture<String> generateQueries(QueryGenRequestParams requestParams) {
+
+        QueryGenerator queryGenerator = new QueryGenerator();
+        String xmlContent = queryGenerator.generateDSSQueries(requestParams);
+        return CompletableFuture.supplyAsync(() -> xmlContent);
+    }
+
+    @Override
+    public CompletableFuture<Map<String, List<Boolean>>> fetchTables(QueryGenRequestParams requestParams) {
+
+        QueryGenerator queryGenerator = new QueryGenerator();
+        Map<String, List<Boolean>> tableList = queryGenerator.getTableList(requestParams);
+        return CompletableFuture.supplyAsync(() -> tableList);
     }
 
     public String getProjectUri() {

@@ -26,6 +26,9 @@ import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorPara
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateAPIParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
+import org.eclipse.lemminx.customservice.synapse.dataService.AddDriverRequestParams;
+import org.eclipse.lemminx.customservice.synapse.dataService.CheckDBDriverRequestParams;
+import org.eclipse.lemminx.customservice.synapse.dataService.QueryGenRequestParams;
 import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTestParams;
 import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTestResponse;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointInfoResponse;
@@ -114,4 +117,18 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<InboundConnectorResponse> getInboundConnectorSchema(InboundConnectorParam param);
+
+    @JsonRequest
+    CompletableFuture<Boolean> checkDBDriver(CheckDBDriverRequestParams requestParams);
+
+    @JsonRequest
+    CompletableFuture<Boolean> addDBDriver(AddDriverRequestParams requestParams);
+
+    @JsonRequest
+    CompletableFuture<String> generateQueries(QueryGenRequestParams requestParams);
+
+    @JsonRequest
+    CompletableFuture<Map<String, List<Boolean>>> fetchTables(QueryGenRequestParams requestParams);
+
+
 }
