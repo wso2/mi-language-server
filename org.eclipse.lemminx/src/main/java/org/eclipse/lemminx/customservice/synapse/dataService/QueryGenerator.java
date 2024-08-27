@@ -420,7 +420,7 @@ public class QueryGenerator {
     }
 
     private static String getSQLType(int type) {
-        List<Integer> charTypes = Arrays.asList(1, -16, -15, 2009, 1111);
+        List<Integer> charTypes = Arrays.asList(-1, -15, -16, 2009, 1111);
         if (charTypes.contains(type)) {
             type = 1;
         }
