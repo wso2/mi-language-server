@@ -83,7 +83,9 @@ public class STNode {
         Range endTagRange = createRange(endTagOpenPosition, endTagClosePosition);
         TagRanges range = new TagRanges(startTagRange, endTagRange);
 
-        calculateLeadingAndTrailingSpaces(node, range);
+        if (!node.isOrphanEndTag()) {
+            calculateLeadingAndTrailingSpaces(node, range);
+        }
         return range;
     }
 
