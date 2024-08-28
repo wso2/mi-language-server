@@ -65,11 +65,7 @@ public class DBConnectionTester {
             connection = getConnection(url, username, password, className);
         }
 
-        if (connection != null) {
-            return true;
-        } else {
-            return false;
-        }
+        return connection != null;
     }
 
     public Connection getConnection(String connectionUrl, String username, String password, String className) {

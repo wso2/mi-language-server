@@ -42,13 +42,9 @@ public class DeleteQueryBuilder {
     }
 
     public String build() {
-        StringBuilder statement = new StringBuilder();
-        statement.append("DELETE FROM ");
-        statement.append((schema == null || schema.trim().isEmpty()) ? "" : (schema.trim() + "."))
-                .append(tableName.trim()).append(" WHERE ");
-        statement.append(String.join(" AND ", primaryKeys.stream().map(pKey -> pKey + "=?")
-                .collect(Collectors.toList())));
-        return statement.toString();
+        return "DELETE FROM " +
+                ((schema == null || schema.trim().isEmpty()) ? "" : (schema.trim() + ".")) + tableName.trim() +
+                " WHERE " +
+                String.join(" AND ", primaryKeys.stream().map(pKey -> pKey + "=?").collect(Collectors.toList()));
     }
 }
-

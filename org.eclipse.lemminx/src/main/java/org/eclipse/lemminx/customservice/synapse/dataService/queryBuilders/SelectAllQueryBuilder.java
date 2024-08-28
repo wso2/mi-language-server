@@ -39,10 +39,7 @@ public class SelectAllQueryBuilder {
     }
 
     public String build() {
-        StringBuffer statement = new StringBuffer();
-        statement.append("SELECT ").append(columnNames.trim()).append(" FROM ");
-        statement.append((schema == null || schema.trim().isEmpty()) ? "" : (schema + ".")).append(tableName.trim());
-        return statement.toString();
+        return "SELECT " + columnNames.trim() + " FROM " +
+                ((schema == null || schema.trim().isEmpty()) ? "" : (schema + ".")) + tableName.trim();
     }
 }
-

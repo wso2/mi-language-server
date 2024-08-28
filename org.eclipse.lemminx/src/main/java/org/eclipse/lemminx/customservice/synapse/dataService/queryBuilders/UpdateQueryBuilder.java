@@ -50,13 +50,11 @@ public class UpdateQueryBuilder {
 
     public String build() {
         List<String> filteredColumns = columns.stream().filter(column -> !primaryKeys.contains(column)).collect(Collectors.toList());
-        StringBuilder statement = new StringBuilder();
-        statement.append("UPDATE ");
-        statement.append((schema == null || schema.trim().isEmpty()) ? "" : (schema.trim() + ".")).append(tableName.trim()).append(" SET ");
-        statement.append(String.join(", ", filteredColumns.stream().map(column -> column + "=?").toArray(String[]::new)));
-        statement.append(" WHERE ").append(String.join(" AND ",
-                primaryKeys.stream().map(pKey -> pKey + "=?").toArray(String[]::new)));
-        return statement.toString();
+        return "UPDATE " +
+                ((schema == null || schema.trim().isEmpty()) ? "" : (schema.trim() + ".")) + tableName.trim() +
+                " SET " +
+                String.join(", ", filteredColumns.stream().map(column -> column + "=?").toArray(String[]::new)) +
+                " WHERE " +
+                String.join(" AND ", primaryKeys.stream().map(pKey -> pKey + "=?").toArray(String[]::new));
     }
 }
-

@@ -23,11 +23,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Logger;
 
 public class DynamicClassLoader {
-
-    private static final Logger LOGGER = Logger.getLogger(DynamicClassLoader.class.getName());
 
     private static URLClassLoader classLoader;
     private static final Object lock = new Object();
@@ -58,9 +55,7 @@ public class DynamicClassLoader {
             if (!urlsToAdd.isEmpty()) {
                 URL[] updatedUrls = new URL[newUrls.size()];
                 newUrls.toArray(updatedUrls);
-                URLClassLoader newClassLoader = new URLClassLoader(updatedUrls,
-                        Thread.currentThread().getContextClassLoader());
-                classLoader = newClassLoader;
+                classLoader = new URLClassLoader(updatedUrls, Thread.currentThread().getContextClassLoader());
                 currentUrls = new HashSet<>(newUrls);
             }
         }
@@ -78,9 +73,8 @@ public class DynamicClassLoader {
                 Set<URL> updatedUrls = new HashSet<>(currentUrls);
                 updatedUrls.add(jarUrl);
 
-                URLClassLoader newClassLoader = new URLClassLoader(updatedUrls.toArray(new URL[0]),
+                classLoader = new URLClassLoader(updatedUrls.toArray(new URL[0]),
                         Thread.currentThread().getContextClassLoader());
-                classLoader = newClassLoader;
                 currentUrls = updatedUrls;
             }
         }

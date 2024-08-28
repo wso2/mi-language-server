@@ -41,12 +41,9 @@ public class InsertQueryBuilder {
     }
 
     public String build() {
-        StringBuilder statement = new StringBuilder();
-        statement.append("INSERT INTO ");
-        statement.append((schema == null || schema.trim().isEmpty()) ? "" : (schema.trim() + ".")).append(tableName.trim());
-        statement.append(" (").append(String.join(",", columns)).append(") VALUES (");
-        statement.append("?,".repeat(Math.max(0, columns.size() - 1))).append("?)");
-        return statement.toString();
+        return "INSERT INTO " +
+                ((schema == null || schema.trim().isEmpty()) ? "" : (schema.trim() + ".")) + tableName.trim() +
+                " (" + String.join(",", columns) + ") VALUES (" +
+                "?,".repeat(Math.max(0, columns.size() - 1)) + "?)";
     }
 }
-

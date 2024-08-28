@@ -45,10 +45,8 @@ public class SelectByKeyQueryBuilder {
     }
 
     public String build() {
-        StringBuilder statement = new StringBuilder();
-        statement.append("SELECT ").append(columnNames.trim()).append(" FROM ");
-        statement.append((schema == null || schema.trim().isEmpty()) ? "" : (schema.trim() + ".")).append(tableName.trim());
-        statement.append(" WHERE ").append(primaryKey.trim()).append("=?");
-        return statement.toString();
+        return "SELECT " + columnNames.trim() + " FROM " +
+                ((schema == null || schema.trim().isEmpty()) ? "" : (schema.trim() + ".")) + tableName.trim() +
+                " WHERE " + primaryKey.trim() + "=?";
     }
 }

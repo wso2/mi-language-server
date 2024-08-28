@@ -165,7 +165,6 @@ public class QueryGenerateUtils {
         definedTypeMap.put(Types.NVARCHAR, "STRING");
         definedTypeMap.put(Types.CLOB, "STRING");
         definedTypeMap.put(Types.BOOLEAN, "BOOLEAN");
-        definedTypeMap.put(Types.TIMESTAMP, "TIMESTAMP");
         definedTypeMap.put(Types.BIT, "BIT");
         definedTypeMap.put(Types.TIME, "TIME");
         definedTypeMap.put(Types.TINYINT, "TINYINT");
