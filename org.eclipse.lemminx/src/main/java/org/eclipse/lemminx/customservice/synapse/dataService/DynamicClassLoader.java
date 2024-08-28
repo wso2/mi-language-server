@@ -42,7 +42,7 @@ public class DynamicClassLoader {
         synchronized (lock) {
             File[] jarFiles = jarDirectory.listFiles((dir1, name) -> name.endsWith(".jar"));
 
-            if (jarFiles == null) {
+            if (jarFiles == null || jarFiles.length == 0) {
                 return;
             }
 
