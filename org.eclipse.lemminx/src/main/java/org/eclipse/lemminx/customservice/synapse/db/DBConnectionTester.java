@@ -18,6 +18,8 @@
 
 package org.eclipse.lemminx.customservice.synapse.db;
 
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.lemminx.customservice.synapse.dataService.DynamicClassLoader;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 
 import java.io.IOException;
@@ -30,6 +32,7 @@ import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -44,83 +47,52 @@ public class DBConnectionTester {
      * Test the database connection with the given parameters.
      *
      * @param dbType         Database type
-     * @param version        Database version
      * @param username       Username
      * @param password       Password
      * @param host           Host
      * @param port           Port
      * @param dbName         Database name
-     * @param dbDriverFolder Database driver folder
      * @return True if the connection is successful, false otherwise
      */
-    public boolean testDBConnection(String dbType, String version, String username, String password, String host,
-                                    String port, String dbName, String dbDriverFolder) {
+    public boolean testDBConnection(String dbType, String username, String password, String host, String port,
+                                    String dbName, String url, String className) {
 
-        Connection connection = getConnection(dbType, version, username, password, host, port, dbName, dbDriverFolder);
-
-        if (connection != null) {
-            return true;
+        Connection connection;
+        if (StringUtils.isBlank(url)) {
+            String connUriStr = generateConnectionUrl(dbType, host, port, dbName);
+            connection = getConnection(connUriStr, username, password, className);
         } else {
-            return false;
+            connection = getConnection(url, username, password, className);
         }
+
+        return connection != null;
     }
 
-    private Connection getConnection(String dbType, String version, String username, String password, String host,
-                                     String port, String dbName, String dbDriverFolder) {
+    public Connection getConnection(String connectionUrl, String username, String password, String className) {
 
-        String connUriStr = generateConnectionUrl(dbType, host, port, dbName);
         Connection connection = null;
 
         try {
-            List<URL> dbDriverUrl = getDBDriverUrl(dbType, dbDriverFolder, version);
-            if (dbDriverUrl == null) {
-                return null;
-            }
-            URLClassLoader urlClassLoader = new URLClassLoader(dbDriverUrl.toArray(new URL[0]));
+            URLClassLoader urlClassLoader = DynamicClassLoader.getClassLoader();
 
-            Driver driver = null;
-            switch (dbType) {
-                case DBConstant.DBTypes.DB_TYPE_MYSQL:
-                    driver = (Driver) Class.forName(DBConstant.DBDrivers.MYSQL_DRIVER, true, urlClassLoader)
-                            .newInstance();
-                    break;
-                case DBConstant.DBTypes.DB_TYPE_MSSQL:
-                    driver = (Driver) Class.forName(DBConstant.DBDrivers.MS_SQL_DRIVER, true, urlClassLoader)
-                            .newInstance();
-                    break;
-                case DBConstant.DBTypes.DB_TYPE_POSTGRESSQL:
-                    driver = (Driver) Class.forName(DBConstant.DBDrivers.POSTGRESQL_DRIVER, true, urlClassLoader)
-                            .newInstance();
-                    break;
-                case DBConstant.DBTypes.DB_TYPE_DERBY:
-                    driver = (Driver) Class
-                            .forName(DBConstant.DBDrivers.DERBY_CLIENT_DRIVER, true, urlClassLoader)
-                            .newInstance();
-                    break;
-                case DBConstant.DBTypes.DB_TYPE_H2:
-                    driver = (Driver) Class.forName(DBConstant.DBDrivers.H2_DRIVER, true, urlClassLoader)
-                            .newInstance();
-                    break;
-                case DBConstant.DBTypes.DB_TYPE_ORACLE:
-                    driver = (Driver) Class.forName(DBConstant.DBDrivers.ORACLE_DRIVER, true, urlClassLoader)
-                            .newInstance();
-                    break;
-            }
-
+            Driver driver = (Driver) Class.forName(className, true, urlClassLoader).newInstance();
             DriverManager.registerDriver(new DriverShim(driver));
+
             // Check username and password are empty due to Derby db can connect without username and password
-            if (dbType.equals(DBConstant.DBTypes.DB_TYPE_DERBY)
-                    && username.equals(Constant.EMPTY_STRING)
-                    && password.equals(Constant.EMPTY_STRING)) {
-                connection = DriverManager.getConnection(connUriStr);
+            if (connectionUrl.contains(DBConstant.DBTypes.DB_TYPE_DERBY_CONN) &&
+                    username.equals(Constant.EMPTY_STRING) && password.equals(Constant.EMPTY_STRING)) {
+                connection = DriverManager.getConnection(connectionUrl);
             } else {
-                connection = DriverManager.getConnection(connUriStr, username, password);
+                connection = DriverManager.getConnection(connectionUrl, username, password);
             }
 
-        } catch (Exception e) {
+        } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Could not establish database connection.", e);
+        } catch (ClassNotFoundException e) {
+            LOGGER.log(Level.SEVERE, "Error occurred while loading the DB driver class", e);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error occurred while accessing the DB driver class", e);
         }
-
         return connection;
     }
 
@@ -140,7 +112,7 @@ public class DBConnectionTester {
         return driverUrls;
     }
 
-    private String generateConnectionUrl(String dbType, String host,
+    public String generateConnectionUrl(String dbType, String host,
                                          String port, String dbName) {
 
         String connectionUrl = DBConstant.DBUrlParams.DB_URL_JDBC_BASE;

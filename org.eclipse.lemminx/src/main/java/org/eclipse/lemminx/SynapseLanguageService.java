@@ -31,6 +31,11 @@ import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connections;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectionFinder;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
+import org.eclipse.lemminx.customservice.synapse.dataService.DynamicClassLoader;
+import org.eclipse.lemminx.customservice.synapse.dataService.QueryGenerator;
+import org.eclipse.lemminx.customservice.synapse.dataService.CheckDBDriverRequestParams;
+import org.eclipse.lemminx.customservice.synapse.dataService.AddDriverRequestParams;
+import org.eclipse.lemminx.customservice.synapse.dataService.QueryGenRequestParams;
 import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTestParams;
 import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTestResponse;
 import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTester;
@@ -78,6 +83,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.messages.Either3;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -117,6 +123,11 @@ public class SynapseLanguageService implements ISynapseLanguageService {
             this.isLegacyProject = Utils.isLegacyProject(projectUri);
             initializeConnectorLoader();
             MediatorFactoryFinder.getInstance().setConnectorHolder(connectorHolder);
+            try {
+                DynamicClassLoader.updateClassLoader(Path.of(projectUri, "deployment", "libs").toFile());
+            } catch (Exception e) {
+                log.log(Level.SEVERE, "Error while updating class loader for DB drivers.", e);
+            }
         } else{
             log.log(Level.SEVERE, "Project path is null. Language server initialization failed.");
         }
@@ -149,9 +160,9 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
         DBConnectionTester dbConnectionTester = new DBConnectionTester();
         boolean connectionStatus = dbConnectionTester.testDBConnection(dbConnectionTestParams.dbType,
-                dbConnectionTestParams.version, dbConnectionTestParams.username, dbConnectionTestParams.password,
+                dbConnectionTestParams.username, dbConnectionTestParams.password,
                 dbConnectionTestParams.host, dbConnectionTestParams.port, dbConnectionTestParams.dbName,
-                dbConnectionTestParams.dbDriverFolder);
+                dbConnectionTestParams.url, dbConnectionTestParams.className);
         DBConnectionTestResponse response = new DBConnectionTestResponse(connectionStatus);
         return CompletableFuture.supplyAsync(() -> response);
     }
@@ -324,6 +335,30 @@ public class SynapseLanguageService implements ISynapseLanguageService {
                 return inboundConnectorHolder.getInboundConnectorSchema(new File(param.documentPath));
             }
         });
+    }
+
+    @Override
+    public CompletableFuture<Boolean> checkDBDriver(CheckDBDriverRequestParams requestParams) {
+        boolean isDriverAvailable = QueryGenerator.isDriverAvailableInClassPath(requestParams.className);
+        return CompletableFuture.supplyAsync(() -> isDriverAvailable);
+    }
+
+    @Override
+    public CompletableFuture<Boolean> addDBDriver(AddDriverRequestParams requestParams) {
+        boolean isSuccess = QueryGenerator.addDriverToClassPath(requestParams.driverPath, requestParams.className);
+        return CompletableFuture.supplyAsync(() -> isSuccess);
+    }
+
+    @Override
+    public CompletableFuture<String> generateQueries(QueryGenRequestParams requestParams) {
+        String xmlContent = QueryGenerator.generateDSSQueries(requestParams);
+        return CompletableFuture.supplyAsync(() -> xmlContent);
+    }
+
+    @Override
+    public CompletableFuture<Map<String, List<Boolean>>> fetchTables(QueryGenRequestParams requestParams) {
+        Map<String, List<Boolean>> tableList = QueryGenerator.getTableList(requestParams);
+        return CompletableFuture.supplyAsync(() -> tableList);
     }
 
     public String getProjectUri() {

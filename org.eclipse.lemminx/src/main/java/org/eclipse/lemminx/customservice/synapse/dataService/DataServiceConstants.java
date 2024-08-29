@@ -16,16 +16,13 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.db;
+package org.eclipse.lemminx.customservice.synapse.dataService;
 
-public class DBConnectionTestParams {
+public class DataServiceConstants {
 
-    public String dbType;
-    public String username;
-    public String password;
-    public String host;
-    public String port;
-    public String dbName;
-    public String url;
-    public String className;
+    public static final String COLUMN_NAME = "COLUMN_NAME";
+    public static final String DATA_TYPE = "DATA_TYPE";
+    public static final String AUTOINCREMENT_COLUMN = "IS_AUTOINCREMENT";
+    public static final String IDENTITY_COLUMN = "Identity";
+    public static final String IS_AUTOINCREMENT = "YES";
 }
