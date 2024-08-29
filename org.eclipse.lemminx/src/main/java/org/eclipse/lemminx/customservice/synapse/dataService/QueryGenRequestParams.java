@@ -16,16 +16,14 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.db;
+package org.eclipse.lemminx.customservice.synapse.dataService;
 
-public class DBConnectionTestParams {
+public class QueryGenRequestParams {
 
-    public String dbType;
-    public String username;
-    public String password;
-    public String host;
-    public String port;
-    public String dbName;
-    public String url;
-    public String className;
+    String className;
+    String username;
+    String password;
+    String url;
+    String tableData;
+    String datasourceName;
 }
