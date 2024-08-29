@@ -18,102 +18,19 @@
 
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.failover;
 
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.DefaultEndpoint;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.EndpointAddress;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.EndpointSession;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.http.EndpointHttp;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.loadbalance.EndpointLoadbalance;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.wsdl.WSDLEndpoint;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.ChildEndpoint;
 
-public class EndpointFailoverEndpoint extends STNode {
+public class EndpointFailoverEndpoint extends ChildEndpoint {
 
-    DefaultEndpoint _default;
-    EndpointHttp http;
-    EndpointAddress address;
-    WSDLEndpoint wsdl;
-    EndpointLoadbalance loadbalance;
-    EndpointSession session;
-    String name;
-    String key;
+    @Override
+    public EndpointFailover getFailover() {
 
-    public DefaultEndpoint get_default() {
-
-        return _default;
+        throw new UnsupportedOperationException("Not supported for FailOver Endpoint");
     }
 
-    public void set_default(DefaultEndpoint _default) {
+    @Override
+    public void setFailover(EndpointFailover failOver) {
 
-        this._default = _default;
-    }
-
-    public EndpointHttp getHttp() {
-
-        return http;
-    }
-
-    public void setHttp(EndpointHttp http) {
-
-        this.http = http;
-    }
-
-    public EndpointAddress getAddress() {
-
-        return address;
-    }
-
-    public void setAddress(EndpointAddress address) {
-
-        this.address = address;
-    }
-
-    public WSDLEndpoint getWsdl() {
-
-        return wsdl;
-    }
-
-    public void setWsdl(WSDLEndpoint wsdl) {
-
-        this.wsdl = wsdl;
-    }
-
-    public EndpointLoadbalance getLoadbalance() {
-
-        return loadbalance;
-    }
-
-    public void setLoadbalance(EndpointLoadbalance loadbalance) {
-
-        this.loadbalance = loadbalance;
-    }
-
-    public EndpointSession getSession() {
-
-        return session;
-    }
-
-    public void setSession(EndpointSession session) {
-
-        this.session = session;
-    }
-
-    public String getName() {
-
-        return name;
-    }
-
-    public void setName(String name) {
-
-        this.name = name;
-    }
-
-    public String getKey() {
-
-        return key;
-    }
-
-    public void setKey(String key) {
-
-        this.key = key;
+        throw new UnsupportedOperationException("Not supported for FailOver Endpoint");
     }
 }

@@ -31,9 +31,12 @@ import org.eclipse.lemminx.dom.DOMNode;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DependencyScanner {
 
+    private static final Logger LOGGER = Logger.getLogger(DependencyScanner.class.getName());
     private String projectPath;
 
     public DependencyScanner(String projectPath) {
@@ -50,7 +53,9 @@ public class DependencyScanner {
             DOMDocument document = Utils.getDOMDocument(new File(artifactPath));
             if (document != null) {
                 String artifactName = getArtifactName(document);
-                dependencyTree.setName(artifactName);
+                if (artifactName != null) {
+                    dependencyTree.setName(artifactName);
+                }
                 STNode node = SyntaxTreeGenerator.buildTree(document.getDocumentElement());
                 DependencyVisitorFactory dependencyVisitorFactory = new DependencyVisitorFactory(projectPath);
                 AbstractDependencyVisitor visitor = dependencyVisitorFactory.createVisitor(node.getTag(),
@@ -60,6 +65,7 @@ public class DependencyScanner {
                 }
             }
         } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Error occurred while analyzing the artifact: " + artifactPath, e);
         }
         return dependencyTree;
     }

@@ -64,19 +64,17 @@ public class LocalEntryVisitor extends AbstractDependencyVisitor {
 
     private DOMDocument getDomDocument(LocalEntry localEntry) throws IOException {
 
-        DOMDocument document = null;
-        if (localEntry.getContent() != null) {
-            String content = localEntry.getContent();
-            document = Utils.getDOMDocument(content);
-        } else if (localEntry.getSrc() != null) {
-            String path = localEntry.getSrc();
-            if (path.endsWith(".xml")) {
-                File file = new File(path);
-                if (file.exists()) {
-                    document = Utils.getDOMDocument(file);
-                }
+        String content = localEntry.getContent();
+        if (content != null) {
+            return Utils.getDOMDocument(content);
+        }
+        String path = localEntry.getSrc();
+        if (path != null && path.endsWith(".xml")) {
+            File file = new File(path);
+            if (file.exists()) {
+                return Utils.getDOMDocument(file);
             }
         }
-        return document;
+        return null;
     }
 }

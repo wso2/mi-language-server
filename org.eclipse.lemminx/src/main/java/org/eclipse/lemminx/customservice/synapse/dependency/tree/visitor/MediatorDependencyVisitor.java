@@ -108,9 +108,7 @@ public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
 
         String path = DependencyVisitorUtils.getDependencyPath(name, from, projectPath);
         Dependency dependency = new Dependency(name, type, path);
-        if (dependency != null) {
-            dependencies.add(dependency);
-        }
+        dependencies.add(dependency);
     }
 
     private void addSequenceDependency(String name) {

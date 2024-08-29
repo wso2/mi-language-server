@@ -24,6 +24,7 @@ import org.eclipse.lemminx.customservice.synapse.dependency.tree.DependencyVisit
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.Dependency;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.DependencyTree;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.ChildEndpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.DefaultEndpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.EndpointAddress;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.EndpointType;
@@ -34,7 +35,6 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.failov
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.http.EnableSecAndEnableRMAndEnableAddressing;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.http.EndpointHttp;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.loadbalance.EndpointLoadbalance;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.loadbalance.EndpointLoadbalanceEndpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.loadbalance.EndpointOrMember;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.recipientList.EndpointRecipientlist;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.recipientList.EndpointRecipientlistEndpoint;
@@ -89,24 +89,24 @@ public class EndpointVisitor extends AbstractDependencyVisitor {
                 }
                 break;
             case FAIL_OVER_ENDPOINT:
-                EndpointFailover failover = endpoint.getFailover();
-                if (failover != null) {
-                    EndpointFailoverEndpoint[] endpoints = failover.getEndpoint();
+                EndpointFailover failOver = endpoint.getFailover();
+                if (failOver != null) {
+                    EndpointFailoverEndpoint[] endpoints = failOver.getEndpoint();
                     if (endpoints != null) {
-                        for (EndpointFailoverEndpoint endpoint1 : endpoints) {
-                            visitFailoverEndpointChilds(endpoint1);
+                        for (EndpointFailoverEndpoint childEndpoint : endpoints) {
+                            visitChildEndpoint(childEndpoint);
                         }
                     }
                 }
                 break;
             case LOAD_BALANCE_ENDPOINT:
-                EndpointLoadbalance loadbalance = endpoint.getLoadbalance();
-                if (loadbalance != null) {
-                    EndpointOrMember[] endpointOrMembers = loadbalance.getEndpointOrMember();
+                EndpointLoadbalance loadBalance = endpoint.getLoadbalance();
+                if (loadBalance != null) {
+                    EndpointOrMember[] endpointOrMembers = loadBalance.getEndpointOrMember();
                     if (endpointOrMembers != null) {
                         for (EndpointOrMember endpointOrMember : endpointOrMembers) {
                             if (endpointOrMember.isEndpoint()) {
-                                visitLoadbalanceEndpointChilds(endpointOrMember.getEndpoint().get());
+                                visitChildEndpoint(endpointOrMember.getEndpoint().get());
                             }
                         }
                     }
@@ -118,7 +118,7 @@ public class EndpointVisitor extends AbstractDependencyVisitor {
                     EndpointRecipientlistEndpoint[] childEndpoints = recipientListEp.getEndpoint();
                     if (childEndpoints != null) {
                         for (EndpointRecipientlistEndpoint childEndpoint : childEndpoints) {
-                            visitRecipientListEndpointChilds(childEndpoint);
+                            visitChildEndpoint(childEndpoint);
                         }
                     }
                 }
@@ -141,73 +141,26 @@ public class EndpointVisitor extends AbstractDependencyVisitor {
         }
     }
 
-    private void visitRecipientListEndpointChilds(EndpointRecipientlistEndpoint recipientlistEndpoint) {
+    private void visitChildEndpoint(ChildEndpoint childEndpoint) {
 
         NamedEndpoint endpoint = new NamedEndpoint();
         if (endpoint.get_default() != null) {
-            endpoint.set_default(recipientlistEndpoint.get_default());
+            endpoint.set_default(childEndpoint.get_default());
             endpoint.setType(EndpointType.DEFAULT_ENDPOINT);
-        } else if (recipientlistEndpoint.getHttp() != null) {
-            endpoint.setHttp(recipientlistEndpoint.getHttp());
+        } else if (childEndpoint.getHttp() != null) {
+            endpoint.setHttp(childEndpoint.getHttp());
             endpoint.setType(EndpointType.HTTP_ENDPOINT);
-        } else if (recipientlistEndpoint.getAddress() != null) {
-            endpoint.setAddress(recipientlistEndpoint.getAddress());
+        } else if (childEndpoint.getAddress() != null) {
+            endpoint.setAddress(childEndpoint.getAddress());
             endpoint.setType(EndpointType.ADDRESS_ENDPOINT);
-        } else if (recipientlistEndpoint.getWsdl() != null) {
-            endpoint.setWsdl(recipientlistEndpoint.getWsdl());
+        } else if (childEndpoint.getWsdl() != null) {
+            endpoint.setWsdl(childEndpoint.getWsdl());
             endpoint.setType(EndpointType.WSDL_ENDPOINT);
-        } else if (recipientlistEndpoint.getLoadbalance() != null) {
-            endpoint.setLoadbalance(recipientlistEndpoint.getLoadbalance());
+        } else if (childEndpoint.getLoadbalance() != null) {
+            endpoint.setLoadbalance(childEndpoint.getLoadbalance());
             endpoint.setType(EndpointType.LOAD_BALANCE_ENDPOINT);
-        } else if (recipientlistEndpoint.getFailover() != null) {
-            endpoint.setFailover(recipientlistEndpoint.getFailover());
-            endpoint.setType(EndpointType.FAIL_OVER_ENDPOINT);
-        }
-        visit(endpoint);
-    }
-
-    private void visitFailoverEndpointChilds(EndpointFailoverEndpoint endpoint) {
-
-        NamedEndpoint childEndpoint = new NamedEndpoint();
-        if (endpoint.getHttp() != null) {
-            childEndpoint.setHttp(endpoint.getHttp());
-            childEndpoint.setType(EndpointType.HTTP_ENDPOINT);
-        } else if (endpoint.getAddress() != null) {
-            childEndpoint.setAddress(endpoint.getAddress());
-            childEndpoint.setType(EndpointType.ADDRESS_ENDPOINT);
-        } else if (endpoint.getWsdl() != null) {
-            childEndpoint.setWsdl(endpoint.getWsdl());
-            childEndpoint.setType(EndpointType.WSDL_ENDPOINT);
-        } else if (endpoint.getLoadbalance() != null) {
-            childEndpoint.setLoadbalance(endpoint.getLoadbalance());
-            childEndpoint.setType(EndpointType.LOAD_BALANCE_ENDPOINT);
-        } else if (endpoint.get_default() != null) {
-            childEndpoint.set_default(endpoint.get_default());
-            childEndpoint.setType(EndpointType.DEFAULT_ENDPOINT);
-        }
-        visit(childEndpoint);
-    }
-
-    private void visitLoadbalanceEndpointChilds(EndpointLoadbalanceEndpoint endpointLoadbalanceEndpoint) {
-
-        NamedEndpoint endpoint = new NamedEndpoint();
-        if (endpointLoadbalanceEndpoint.get_default() != null) {
-            endpoint.set_default(endpointLoadbalanceEndpoint.get_default());
-            endpoint.setType(EndpointType.DEFAULT_ENDPOINT);
-        } else if (endpointLoadbalanceEndpoint.getHttp() != null) {
-            endpoint.setHttp(endpointLoadbalanceEndpoint.getHttp());
-            endpoint.setType(EndpointType.HTTP_ENDPOINT);
-        } else if (endpointLoadbalanceEndpoint.getAddress() != null) {
-            endpoint.setAddress(endpointLoadbalanceEndpoint.getAddress());
-            endpoint.setType(EndpointType.ADDRESS_ENDPOINT);
-        } else if (endpointLoadbalanceEndpoint.getWsdl() != null) {
-            endpoint.setWsdl(endpointLoadbalanceEndpoint.getWsdl());
-            endpoint.setType(EndpointType.WSDL_ENDPOINT);
-        } else if (endpointLoadbalanceEndpoint.getLoadbalance() != null) {
-            endpoint.setLoadbalance(endpointLoadbalanceEndpoint.getLoadbalance());
-            endpoint.setType(EndpointType.LOAD_BALANCE_ENDPOINT);
-        } else if (endpointLoadbalanceEndpoint.getFailover() != null) {
-            endpoint.setFailover(endpointLoadbalanceEndpoint.getFailover());
+        } else if (childEndpoint.getFailover() != null) {
+            endpoint.setFailover(childEndpoint.getFailover());
             endpoint.setType(EndpointType.FAIL_OVER_ENDPOINT);
         }
         visit(endpoint);

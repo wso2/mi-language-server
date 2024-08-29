@@ -45,13 +45,10 @@ public class TaskVisitor extends AbstractDependencyVisitor {
         MediatorProperty[] mediatorProperties = task.getProperty();
         if (mediatorProperties != null) {
             for (MediatorProperty mediatorProperty : mediatorProperties) {
-                if ("sequenceName".equalsIgnoreCase(mediatorProperty.getName())) {
-                    String sequenceName = mediatorProperty.getValue();
-                    if (sequenceName != null) {
-                        Dependency dependency = DependencyVisitorUtils.visitSequence(sequenceName, projectPath,
-                                dependencyLookUp);
-                        addDependency(dependency);
-                    }
+                String value = mediatorProperty.getValue();
+                if ("sequenceName".equalsIgnoreCase(mediatorProperty.getName()) && value != null) {
+                    Dependency dependency = DependencyVisitorUtils.visitSequence(value, projectPath, dependencyLookUp);
+                    addDependency(dependency);
                 }
             }
         }

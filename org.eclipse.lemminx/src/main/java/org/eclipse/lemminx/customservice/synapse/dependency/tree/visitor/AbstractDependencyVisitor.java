@@ -29,9 +29,12 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public abstract class AbstractDependencyVisitor {
 
+    private static final Logger LOGGER = Logger.getLogger(AbstractDependencyVisitor.class.getName());
     DependencyLookUp dependencyLookUp;
     private DependencyTree dependencyTree;
     protected String projectPath;
@@ -55,6 +58,7 @@ public abstract class AbstractDependencyVisitor {
         try {
             document = Utils.getDOMDocument(new File(artifactPath));
         } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Error while reading the artifact file", e);
         }
         if (document != null) {
             STNode node = SyntaxTreeGenerator.buildTree(document.getDocumentElement());

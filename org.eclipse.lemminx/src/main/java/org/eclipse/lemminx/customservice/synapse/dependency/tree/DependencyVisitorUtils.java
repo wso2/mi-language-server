@@ -49,7 +49,7 @@ public class DependencyVisitorUtils {
      *
      * @param projectPath      The project path.
      * @param sequenceName     The sequence name to visit.
-     * @param dependencyLookUp
+     * @param dependencyLookUp The lookup table for already visited nodes.
      * @return The list of dependencies.
      */
     public static Dependency visitSequence(String projectPath, String sequenceName, DependencyLookUp dependencyLookUp) {
@@ -73,8 +73,8 @@ public class DependencyVisitorUtils {
      * Visit the anonymous sequence and return the dependencies.
      *
      * @param sequence         The anonymous sequence to visit.
-     * @param projectPath
-     * @param dependencyLookUp
+     * @param projectPath     The project path.
+     * @param dependencyLookUp The lookup table for already visited nodes.
      * @return The list of dependencies.
      */
     public static List<Dependency> visitAnonymousSequence(Sequence sequence, String projectPath,
@@ -90,7 +90,7 @@ public class DependencyVisitorUtils {
      * Visit the mediators in the list and return the dependencies.
      *
      * @param mediators        The list of mediators to visit.
-     * @param dependencyLookUp
+     * @param dependencyLookUp The lookup table for already visited nodes.
      * @return The list of dependencies.
      */
     public static List<Dependency> visitMediators(List<Mediator> mediators, String projectPath,
@@ -107,7 +107,7 @@ public class DependencyVisitorUtils {
      * Visit the mediator node.
      *
      * @param node    The mediator node to visit.
-     * @param visitor
+     * @param visitor The visitor to visit the mediator.
      */
     public static void visitMediator(Mediator node, MediatorDependencyVisitor visitor) {
 
@@ -116,8 +116,7 @@ public class DependencyVisitorUtils {
             return;
         }
         tag = sanitizeTag(tag);
-        String visitFn;
-        visitFn = "visit" + tag.substring(0, 1).toUpperCase() + tag.substring(1);
+        String visitFn = "visit" + tag.substring(0, 1).toUpperCase() + tag.substring(1);
         try {
             Method method = AbstractMediatorVisitor.class.getDeclaredMethod(visitFn, node.getClass());
             method.setAccessible(true);
@@ -151,7 +150,7 @@ public class DependencyVisitorUtils {
      *
      * @param endpoint         The endpoint to visit.
      * @param projectPath      The project path.
-     * @param dependencyLookUp
+     * @param dependencyLookUp The lookup table for already visited nodes.
      * @return The list of dependencies.
      */
     public static Dependency visitEndpoint(NamedEndpoint endpoint, String projectPath,
@@ -186,7 +185,7 @@ public class DependencyVisitorUtils {
      *
      * @param endpoint         The endpoint to visit.
      * @param projectPath      The project path.
-     * @param dependencyLookUp
+     * @param dependencyLookUp The lookup table for already visited nodes.
      * @return The list of dependencies.
      */
     public static Dependency visitEndpoint(String endpoint, String projectPath, DependencyLookUp dependencyLookUp) {
@@ -211,7 +210,7 @@ public class DependencyVisitorUtils {
      *
      * @param template         The template to visit.
      * @param projectPath      The project path.
-     * @param dependencyLookUp
+     * @param dependencyLookUp The lookup table for already visited nodes.
      * @return The list of dependencies.
      */
     public static Dependency visitTemplate(String template, String projectPath, DependencyLookUp dependencyLookUp) {
@@ -244,6 +243,7 @@ public class DependencyVisitorUtils {
         try {
             return ConfigFinder.findEsbComponentPath(key, type, projectPath);
         } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Error occurred while finding the path for the artifact: " + key, e);
         }
         return null;
     }
@@ -253,7 +253,7 @@ public class DependencyVisitorUtils {
      *
      * @param messageStore     The message store to visit.
      * @param projectPath      The project path.
-     * @param dependencyLookUp
+     * @param dependencyLookUp The lookup table for already visited nodes.
      * @return The list of dependencies.
      */
     public static Dependency visitMessageStore(String messageStore, String projectPath,
