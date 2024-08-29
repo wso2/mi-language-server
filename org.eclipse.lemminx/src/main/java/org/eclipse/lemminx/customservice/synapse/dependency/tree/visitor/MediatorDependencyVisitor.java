@@ -468,9 +468,7 @@ public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
 
         if (node.getCorrelateOnOrCompleteConditionOrOnComplete() != null) {
             AggregateOnComplete onComplete = node.getCorrelateOnOrCompleteConditionOrOnComplete().getOnComplete().get();
-            if (onComplete != null) {
-                addAnonymousOrAttributeSequence(onComplete.getMediatorList(), onComplete.getSequenceAttribute());
-            }
+            addAnonymousOrAttributeSequence(onComplete.getMediatorList(), onComplete.getSequenceAttribute());
         }
     }
 
@@ -633,16 +631,14 @@ public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
         }
 
         CalloutEnableSec enableSec = node.getSourceOrTargetOrConfiguration().getEnableSec().get();
-        if (enableSec != null) {
-            if (enableSec.getPolicy() != null) {
-                addSimpleDependency(enableSec.getPolicy(), ArtifactType.POLICY.name(), ArtifactType.POLICY);
-            } else {
-                if (enableSec.getInboundPolicy() != null) {
-                    addSimpleDependency(enableSec.getInboundPolicy(), ArtifactType.POLICY.name(), ArtifactType.POLICY);
-                }
-                if (enableSec.getOutboundPolicy() != null) {
-                    addSimpleDependency(enableSec.getOutboundPolicy(), ArtifactType.POLICY.name(), ArtifactType.POLICY);
-                }
+        if (enableSec.getPolicy() != null) {
+            addSimpleDependency(enableSec.getPolicy(), ArtifactType.POLICY.name(), ArtifactType.POLICY);
+        } else {
+            if (enableSec.getInboundPolicy() != null) {
+                addSimpleDependency(enableSec.getInboundPolicy(), ArtifactType.POLICY.name(), ArtifactType.POLICY);
+            }
+            if (enableSec.getOutboundPolicy() != null) {
+                addSimpleDependency(enableSec.getOutboundPolicy(), ArtifactType.POLICY.name(), ArtifactType.POLICY);
             }
         }
     }
