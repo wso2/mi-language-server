@@ -24,6 +24,7 @@ import org.eclipse.lemminx.customservice.synapse.dependency.tree.DependencyVisit
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.Dependency;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.DependencyTree;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.NamedEndpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.proxy.Proxy;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.proxy.ProxyPolicy;
@@ -63,47 +64,35 @@ public class ProxyServiceVisitor extends AbstractDependencyVisitor {
 
     private void visitProxyTarget(ProxyTarget target) {
 
-        if (target.getInSequenceAttribute() != null) {
-            Dependency dependency = DependencyVisitorUtils.visitSequence(projectPath, target.getInSequenceAttribute()
+        processTargetSequence(target.getInSequenceAttribute(), target.getInSequence());
+        processTargetSequence(target.getOutSequenceAttribute(), target.getOutSequence());
+        processTargetSequence(target.getFaultSequenceAttribute(), target.getFaultSequence());
+        processTargetEndpoint(target.getEndpointAttribute(), target.getEndpoint());
+    }
+
+    private void processTargetEndpoint(String endpointAttribute, NamedEndpoint endpoint) {
+
+        if (endpointAttribute != null) {
+            Dependency dependency = DependencyVisitorUtils.visitEndpoint(endpointAttribute, projectPath,
+                    dependencyLookUp);
+            addDependency(dependency);
+        } else if (endpoint != null) {
+            Dependency dependency = DependencyVisitorUtils.visitEndpoint(endpoint, projectPath,
+                    dependencyLookUp);
+            addDependency(dependency);
+        }
+    }
+
+    private void processTargetSequence(String sequenceAttribute, Sequence sequence) {
+
+        if (sequenceAttribute != null) {
+            Dependency dependency = DependencyVisitorUtils.visitSequence(projectPath, sequenceAttribute
                     , dependencyLookUp);
             addDependency(dependency);
-        } else {
-            Sequence inSequence = target.getInSequence();
-            List<Dependency> dependencies = DependencyVisitorUtils.visitAnonymousSequence(inSequence, projectPath,
+        } else if (sequence != null) {
+            List<Dependency> dependencies = DependencyVisitorUtils.visitAnonymousSequence(sequence, projectPath,
                     dependencyLookUp);
             addDependencies(dependencies);
-        }
-
-        if (target.getOutSequenceAttribute() != null) {
-            Dependency dependency = DependencyVisitorUtils.visitSequence(projectPath,
-                    target.getOutSequenceAttribute(), dependencyLookUp);
-            addDependency(dependency);
-        } else {
-            Sequence outSequence = target.getOutSequence();
-            List<Dependency> dependencies = DependencyVisitorUtils.visitAnonymousSequence(outSequence, projectPath,
-                    dependencyLookUp);
-            addDependencies(dependencies);
-        }
-
-        if (target.getFaultSequenceAttribute() != null) {
-            Dependency dependency = DependencyVisitorUtils.visitSequence(projectPath,
-                    target.getFaultSequenceAttribute(), dependencyLookUp);
-            addDependency(dependency);
-        } else {
-            Sequence faultSequence = target.getFaultSequence();
-            List<Dependency> dependencies = DependencyVisitorUtils.visitAnonymousSequence(faultSequence, projectPath,
-                    dependencyLookUp);
-            addDependencies(dependencies);
-        }
-
-        if (target.getEndpointAttribute() != null) {
-            Dependency dependency = DependencyVisitorUtils.visitEndpoint(target.getEndpointAttribute(), projectPath,
-                    dependencyLookUp);
-            addDependency(dependency);
-        } else if (target.getEndpoint() != null) {
-            Dependency dependency = DependencyVisitorUtils.visitEndpoint(target.getEndpoint(), projectPath,
-                    dependencyLookUp);
-            addDependency(dependency);
         }
     }
 

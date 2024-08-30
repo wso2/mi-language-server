@@ -49,36 +49,7 @@ public class APIVisitor extends AbstractDependencyVisitor {
 
         APIResource[] resources = api.getResource();
         for (APIResource resource : resources) {
-            if (resource.getInSequenceAttribute() != null) {
-                Dependency dependency = DependencyVisitorUtils.visitSequence(projectPath,
-                        resource.getInSequenceAttribute(), dependencyLookUp);
-                addDependency(dependency);
-            } else {
-                Sequence inSequence = resource.getInSequence();
-                List<Dependency> dependencies = DependencyVisitorUtils.visitAnonymousSequence(inSequence, projectPath
-                        , dependencyLookUp);
-                addDependencies(dependencies);
-            }
-            if (resource.getOutSequenceAttribute() != null) {
-                Dependency dependency = DependencyVisitorUtils.visitSequence(projectPath,
-                        resource.getOutSequenceAttribute(), dependencyLookUp);
-                addDependency(dependency);
-            } else {
-                Sequence outSequence = resource.getOutSequence();
-                List<Dependency> dependencies = DependencyVisitorUtils.visitAnonymousSequence(outSequence,
-                        projectPath, dependencyLookUp);
-                addDependencies(dependencies);
-            }
-            if (resource.getFaultSequenceAttribute() != null) {
-                Dependency dependency = DependencyVisitorUtils.visitSequence(projectPath,
-                        resource.getFaultSequenceAttribute(), dependencyLookUp);
-                addDependency(dependency);
-            } else {
-                Sequence faultSequence = resource.getFaultSequence();
-                List<Dependency> dependencies = DependencyVisitorUtils.visitAnonymousSequence(faultSequence,
-                        projectPath, dependencyLookUp);
-                addDependencies(dependencies);
-            }
+            processResource(resource);
         }
 
         String publishSwagger = api.getPublishSwagger();
@@ -86,6 +57,26 @@ public class APIVisitor extends AbstractDependencyVisitor {
             String path = DependencyVisitorUtils.getDependencyPath(publishSwagger, "swagger", projectPath);
             Dependency dependency = new Dependency(publishSwagger, ArtifactType.SWAGGER, path);
             addDependency(dependency);
+        }
+    }
+
+    private void processResource(APIResource resource) {
+
+        processResourceSequence(resource.getInSequenceAttribute(), resource.getInSequence());
+        processResourceSequence(resource.getOutSequenceAttribute(), resource.getOutSequence());
+        processResourceSequence(resource.getFaultSequenceAttribute(), resource.getFaultSequence());
+    }
+
+    private void processResourceSequence(String sequenceAttribute, Sequence sequence) {
+
+        if (sequenceAttribute != null) {
+            Dependency dependency = DependencyVisitorUtils.visitSequence(projectPath,
+                    sequenceAttribute, dependencyLookUp);
+            addDependency(dependency);
+        } else if (sequence != null) {
+            List<Dependency> dependencies = DependencyVisitorUtils.visitAnonymousSequence(sequence, projectPath
+                    , dependencyLookUp);
+            addDependencies(dependencies);
         }
     }
 }

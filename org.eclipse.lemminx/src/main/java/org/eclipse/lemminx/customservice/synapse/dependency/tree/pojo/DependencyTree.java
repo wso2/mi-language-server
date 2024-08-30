@@ -23,9 +23,9 @@ import java.util.List;
 
 public class DependencyTree {
 
-    String name;
-    String path;
-    List<Dependency> dependencyList;
+    private String name;
+    private String path;
+    private final List<Dependency> dependencyList;
 
     public DependencyTree() {
 
@@ -35,11 +35,6 @@ public class DependencyTree {
     public List<Dependency> getDependencyList() {
 
         return dependencyList;
-    }
-
-    public void setDependencyList(List<Dependency> dependencyList) {
-
-        this.dependencyList = dependencyList;
     }
 
     public void addDependency(Dependency dependency) {
@@ -64,5 +59,15 @@ public class DependencyTree {
     public void setPath(String path) {
 
         this.path = path;
+    }
+
+    @Override
+    public String toString() {
+
+        return "DependencyTree{" +
+                "name='" + name + '\'' +
+                ", path='" + path + '\'' +
+                ", dependencyList=" + dependencyList +
+                '}';
     }
 }

@@ -21,10 +21,11 @@ package org.eclipse.lemminx.customservice.synapse.dependency.tree;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.Dependency;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class DependencyLookUp {
 
-    private HashMap<String, Dependency> dependencyMap;
+    private final Map<String, Dependency> dependencyMap;
 
     public DependencyLookUp() {
 
@@ -33,7 +34,9 @@ public class DependencyLookUp {
 
     public void addDependency(String path, Dependency dependency) {
 
-        dependencyMap.put(path, dependency);
+        if (path != null && dependency != null) {
+            dependencyMap.put(path, dependency);
+        }
     }
 
     public Dependency getDependency(String path) {

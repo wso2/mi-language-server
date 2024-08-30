@@ -37,7 +37,7 @@ import java.util.logging.Logger;
 public class DependencyScanner {
 
     private static final Logger LOGGER = Logger.getLogger(DependencyScanner.class.getName());
-    private String projectPath;
+    private final String projectPath;
 
     public DependencyScanner(String projectPath) {
 
@@ -52,22 +52,26 @@ public class DependencyScanner {
         try {
             DOMDocument document = Utils.getDOMDocument(new File(artifactPath));
             if (document != null) {
-                String artifactName = getArtifactName(document);
-                if (artifactName != null) {
-                    dependencyTree.setName(artifactName);
-                }
-                STNode node = SyntaxTreeGenerator.buildTree(document.getDocumentElement());
-                DependencyVisitorFactory dependencyVisitorFactory = new DependencyVisitorFactory(projectPath);
-                AbstractDependencyVisitor visitor = dependencyVisitorFactory.createVisitor(node.getTag(),
-                        dependencyTree);
-                if (visitor != null) {
-                    visitor.visit(node);
-                }
+                processDocument(document, dependencyTree);
             }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Error occurred while analyzing the artifact: " + artifactPath, e);
         }
         return dependencyTree;
+    }
+
+    private void processDocument(DOMDocument document, DependencyTree dependencyTree) {
+
+        String artifactName = getArtifactName(document);
+        if (artifactName != null) {
+            dependencyTree.setName(artifactName);
+        }
+        STNode node = SyntaxTreeGenerator.buildTree(document.getDocumentElement());
+        DependencyVisitorFactory dependencyVisitorFactory = new DependencyVisitorFactory(projectPath);
+        AbstractDependencyVisitor visitor = dependencyVisitorFactory.createVisitor(node.getTag(), dependencyTree);
+        if (visitor != null) {
+            visitor.visit(node);
+        }
     }
 
     private String getArtifactName(DOMDocument document) {

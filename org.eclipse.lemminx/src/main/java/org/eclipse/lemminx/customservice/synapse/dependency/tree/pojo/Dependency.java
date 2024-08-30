@@ -27,22 +27,14 @@ import java.util.Objects;
 
 public class Dependency {
 
-    String name;
-    ArtifactType type;
-    String path;
-    List<Dependency> dependencyList;
-
-    public Dependency() {
-
-        this.dependencyList = new ArrayList<>();
-    }
+    private final String name;
+    private final ArtifactType type;
+    private final String path;
+    private final List<Dependency> dependencyList;
 
     public Dependency(String name, ArtifactType type, String path) {
 
-        this.name = name;
-        this.type = type;
-        this.path = path;
-        this.dependencyList = Collections.emptyList();
+        this(name, type, path, Collections.emptyList());
     }
 
     public Dependency(String name, ArtifactType type, String path, List<Dependency> dependencyList) {
@@ -50,7 +42,7 @@ public class Dependency {
         this.name = name;
         this.type = type;
         this.path = path;
-        this.dependencyList = dependencyList;
+        this.dependencyList = new ArrayList<>(dependencyList);
     }
 
     public String getName() {
@@ -58,19 +50,9 @@ public class Dependency {
         return name;
     }
 
-    public void setName(String name) {
-
-        this.name = name;
-    }
-
     public ArtifactType getType() {
 
         return type;
-    }
-
-    public void setType(ArtifactType type) {
-
-        this.type = type;
     }
 
     public String getPath() {
@@ -78,19 +60,9 @@ public class Dependency {
         return path;
     }
 
-    public void setPath(String path) {
-
-        this.path = path;
-    }
-
     public List<Dependency> getDependencyList() {
 
-        return dependencyList;
-    }
-
-    public void setDependencyList(List<Dependency> dependencyList) {
-
-        this.dependencyList = dependencyList;
+        return Collections.unmodifiableList(dependencyList);
     }
 
     public void addDependency(Dependency dependency) {
@@ -115,5 +87,16 @@ public class Dependency {
     public int hashCode() {
 
         return Objects.hash(name, type, path);
+    }
+
+    @Override
+    public String toString() {
+
+        return "Dependency{" +
+                "name='" + name + '\'' +
+                ", type=" + type +
+                ", path='" + path + '\'' +
+                ", dependencyList=" + dependencyList +
+                '}';
     }
 }

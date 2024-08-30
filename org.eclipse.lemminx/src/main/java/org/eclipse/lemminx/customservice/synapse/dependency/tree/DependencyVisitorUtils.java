@@ -45,7 +45,7 @@ public class DependencyVisitorUtils {
     private static final Logger LOGGER = Logger.getLogger(DependencyVisitorUtils.class.getName());
 
     /**
-     * Visit the sequence and return the dependencies.
+     * Visits the sequence and returns the dependencies.
      *
      * @param projectPath      The project path.
      * @param sequenceName     The sequence name to visit.
@@ -62,18 +62,17 @@ public class DependencyVisitorUtils {
             }
             SequenceVisitor sequenceVisitor = new SequenceVisitor(projectPath, dependencyLookUp);
             sequenceVisitor.visit(inSequencePath);
-            dependency = new Dependency(sequenceName, ArtifactType.SEQUENCE, inSequencePath,
+            return new Dependency(sequenceName, ArtifactType.SEQUENCE, inSequencePath,
                     sequenceVisitor.getDependencyTree().getDependencyList());
-            return dependency;
         }
         return null;
     }
 
     /**
-     * Visit the anonymous sequence and return the dependencies.
+     * Visits the anonymous sequence and returns the dependencies.
      *
      * @param sequence         The anonymous sequence to visit.
-     * @param projectPath     The project path.
+     * @param projectPath      The project path.
      * @param dependencyLookUp The lookup table for already visited nodes.
      * @return The list of dependencies.
      */
@@ -87,7 +86,7 @@ public class DependencyVisitorUtils {
     }
 
     /**
-     * Visit the mediators in the list and return the dependencies.
+     * Visits the mediators in the list and returns the dependencies.
      *
      * @param mediators        The list of mediators to visit.
      * @param dependencyLookUp The lookup table for already visited nodes.
@@ -104,18 +103,17 @@ public class DependencyVisitorUtils {
     }
 
     /**
-     * Visit the mediator node.
+     * Visits the mediator node.
      *
      * @param node    The mediator node to visit.
      * @param visitor The visitor to visit the mediator.
      */
     public static void visitMediator(Mediator node, MediatorDependencyVisitor visitor) {
 
-        String tag = node.getTag();
+        String tag = sanitizeTag(node.getTag());
         if (Constant.INVALID.equalsIgnoreCase(tag)) {
             return;
         }
-        tag = sanitizeTag(tag);
         String visitFn = "visit" + tag.substring(0, 1).toUpperCase() + tag.substring(1);
         try {
             Method method = AbstractMediatorVisitor.class.getDeclaredMethod(visitFn, node.getClass());
@@ -123,30 +121,27 @@ public class DependencyVisitorUtils {
             method.invoke(visitor, node);
         } catch (NoSuchMethodException e) {
             LOGGER.log(Level.SEVERE, "No visit method found for mediator: " + tag, e);
-        } catch (InvocationTargetException e) {
+        } catch (InvocationTargetException | IllegalAccessException e) {
             LOGGER.log(Level.SEVERE, "Error while invoking visit method for mediator: " + tag, e);
-        } catch (IllegalAccessException e) {
-            LOGGER.log(Level.SEVERE, "Error while accessing visit method for mediator: " + tag, e);
         }
     }
 
-    private static String sanitizeTag(String tag) {
+    public static String sanitizeTag(String tag) {
 
-        String sanitizedTag = tag;
         if (tag.contains("-")) {
             String[] split = tag.split("-");
-            sanitizedTag = split[0] + split[1].substring(0, 1).toUpperCase() + split[1].substring(1);
+            return split[0] + split[1].substring(0, 1).toUpperCase() + split[1].substring(1);
         } else if (tag.contains(":")) {
             String[] split = tag.split(":");
-            sanitizedTag = split[1];
+            return split[1];
         } else if (tag.contains(".")) {
-            sanitizedTag = "connector";
+            return Constant.CONNECTOR;
         }
-        return sanitizedTag;
+        return tag;
     }
 
     /**
-     * Visit the endpoint and return the dependencies.
+     * Visits the endpoint and returns the dependencies.
      *
      * @param endpoint         The endpoint to visit.
      * @param projectPath      The project path.
@@ -166,9 +161,8 @@ public class DependencyVisitorUtils {
                     return dependency;
                 }
                 endpointVisitor.visit(endpointPath);
-                dependency = new Dependency(endpointKey, ArtifactType.ENDPOINT, endpointPath,
+                return new Dependency(endpointKey, ArtifactType.ENDPOINT, endpointPath,
                         endpointVisitor.getDependencyTree().getDependencyList());
-                return dependency;
             }
         } else {
             UUID uuid = UUID.randomUUID();
@@ -181,7 +175,7 @@ public class DependencyVisitorUtils {
     }
 
     /**
-     * Visit the endpoint and return the dependencies.
+     * Visits the endpoint and returns the dependencies.
      *
      * @param endpoint         The endpoint to visit.
      * @param projectPath      The project path.
@@ -198,15 +192,14 @@ public class DependencyVisitorUtils {
             }
             EndpointVisitor endpointVisitor = new EndpointVisitor(projectPath, dependencyLookUp);
             endpointVisitor.visit(endpointPath);
-            dependency = new Dependency(endpoint, ArtifactType.ENDPOINT, endpointPath,
+            return new Dependency(endpoint, ArtifactType.ENDPOINT, endpointPath,
                     endpointVisitor.getDependencyTree().getDependencyList());
-            return dependency;
         }
         return null;
     }
 
     /**
-     * Visit the template and return the dependencies.
+     * Visits the template and returns the dependencies.
      *
      * @param template         The template to visit.
      * @param projectPath      The project path.
@@ -223,15 +216,14 @@ public class DependencyVisitorUtils {
             }
             TemplateVisitor templateVisitor = new TemplateVisitor(projectPath, dependencyLookUp);
             templateVisitor.visit(templatePath);
-            dependency = new Dependency(template, ArtifactType.TEMPLATE, templatePath,
+            return new Dependency(template, ArtifactType.TEMPLATE, templatePath,
                     templateVisitor.getDependencyTree().getDependencyList());
-            return dependency;
         }
         return null;
     }
 
     /**
-     * Get the path of the given artifact.
+     * Returns the path of the given artifact.
      *
      * @param key         The key of the artifact.
      * @param type        The type of the artifact.
@@ -249,7 +241,7 @@ public class DependencyVisitorUtils {
     }
 
     /**
-     * Visit the message store and return the dependencies.
+     * Visits the message store and returns the dependencies.
      *
      * @param messageStore     The message store to visit.
      * @param projectPath      The project path.
@@ -267,9 +259,8 @@ public class DependencyVisitorUtils {
             }
             MessageStoreVisitor messageStoreVisitor = new MessageStoreVisitor(projectPath, dependencyLookUp);
             messageStoreVisitor.visit(path);
-            dependency = new Dependency(messageStore, ArtifactType.MESSAGE_STORE, path,
+            return new Dependency(messageStore, ArtifactType.MESSAGE_STORE, path,
                     messageStoreVisitor.getDependencyTree().getDependencyList());
-            return dependency;
         }
         return null;
     }
