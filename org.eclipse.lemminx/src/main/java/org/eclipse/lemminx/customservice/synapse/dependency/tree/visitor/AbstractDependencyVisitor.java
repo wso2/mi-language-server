@@ -35,9 +35,9 @@ import java.util.logging.Logger;
 public abstract class AbstractDependencyVisitor {
 
     private static final Logger LOGGER = Logger.getLogger(AbstractDependencyVisitor.class.getName());
-    DependencyLookUp dependencyLookUp;
-    private DependencyTree dependencyTree;
-    protected String projectPath;
+    protected final DependencyLookUp dependencyLookUp;
+    private final DependencyTree dependencyTree;
+    protected final String projectPath;
 
     public AbstractDependencyVisitor(DependencyTree dependencyTree, String projectPath,
                                      DependencyLookUp dependencyLookUp) {
@@ -48,21 +48,20 @@ public abstract class AbstractDependencyVisitor {
     }
 
     /**
-     * Visit the artifact and build the dependency tree
+     * Visit the artifact and build the dependency tree.
      *
      * @param artifactPath
      */
     public final void visit(String artifactPath) {
 
-        DOMDocument document = null;
         try {
-            document = Utils.getDOMDocument(new File(artifactPath));
+            DOMDocument document = Utils.getDOMDocument(new File(artifactPath));
+            if (document != null) {
+                STNode node = SyntaxTreeGenerator.buildTree(document.getDocumentElement());
+                visit(node);
+            }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Error while reading the artifact file", e);
-        }
-        if (document != null) {
-            STNode node = SyntaxTreeGenerator.buildTree(document.getDocumentElement());
-            visit(node);
         }
     }
 
@@ -81,11 +80,8 @@ public abstract class AbstractDependencyVisitor {
     protected void addDependencies(List<Dependency> dependencies) {
 
         for (Dependency dependency : dependencies) {
-            if (dependencyLookUp.getDependency(dependency.getPath()) == null) {
-                dependencyLookUp.addDependency(dependency.getPath(), dependency);
-            }
+            addDependency(dependency);
         }
-        dependencyTree.addDependencyList(dependencies);
     }
 
     public DependencyTree getDependencyTree() {

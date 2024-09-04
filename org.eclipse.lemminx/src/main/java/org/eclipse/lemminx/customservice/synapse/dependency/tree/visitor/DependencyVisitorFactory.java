@@ -23,7 +23,7 @@ import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 
 public class DependencyVisitorFactory {
 
-    private String projectPath;
+    private final String projectPath;
 
     public DependencyVisitorFactory(String projectPath) {
 
@@ -61,7 +61,8 @@ public class DependencyVisitorFactory {
             case Constant.TEMPLATE:
                 return new TemplateVisitor(dependencyTree, projectPath);
             // TODO: Add visitors for datasource, and data service
+            default:
+                throw new IllegalStateException("Invalid tag: " + tag);
         }
-        return null;
     }
 }

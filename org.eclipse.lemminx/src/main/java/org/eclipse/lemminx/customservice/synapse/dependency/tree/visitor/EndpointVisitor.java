@@ -184,8 +184,8 @@ public class EndpointVisitor extends AbstractDependencyVisitor {
 
     private void addPolicyDependency(String policyKey) {
 
-        String policyPath = DependencyVisitorUtils.getDependencyPath(policyKey, ArtifactType.POLICY.name(),
-                projectPath);
+        String policyPath =
+                DependencyVisitorUtils.getDependencyPath(policyKey, ArtifactType.POLICY.name(), projectPath);
         addDependency(new Dependency(policyKey, ArtifactType.POLICY, policyPath));
     }
 }

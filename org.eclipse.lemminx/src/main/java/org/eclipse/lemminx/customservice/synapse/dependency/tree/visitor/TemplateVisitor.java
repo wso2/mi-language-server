@@ -45,8 +45,8 @@ public class TemplateVisitor extends AbstractDependencyVisitor {
         Template template = (Template) node;
 
         if (template.getEndpoint() != null) {
-            Dependency dependency = DependencyVisitorUtils.visitEndpoint(template.getEndpoint(), projectPath,
-                    dependencyLookUp);
+            Dependency dependency =
+                    DependencyVisitorUtils.visitEndpoint(template.getEndpoint(), projectPath, dependencyLookUp);
             addDependency(dependency);
         } else if (template.getSequence() != null) {
             List<Dependency> dependencies =

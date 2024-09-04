@@ -44,14 +44,14 @@ public class InboundEndpointVisitor extends AbstractDependencyVisitor {
         InboundEndpoint inboundEndpoint = (InboundEndpoint) node;
 
         if (inboundEndpoint.getSequence() != null) {
-            Dependency dependency = DependencyVisitorUtils.visitSequence(projectPath, inboundEndpoint.getSequence(),
-                    dependencyLookUp);
+            Dependency dependency =
+                    DependencyVisitorUtils.visitSequence(projectPath, inboundEndpoint.getSequence(), dependencyLookUp);
             addDependency(dependency);
         }
 
         if (inboundEndpoint.getOnError() != null) {
-            Dependency dependency = DependencyVisitorUtils.visitSequence(projectPath, inboundEndpoint.getOnError(),
-                    dependencyLookUp);
+            Dependency dependency =
+                    DependencyVisitorUtils.visitSequence(projectPath, inboundEndpoint.getOnError(), dependencyLookUp);
             addDependency(dependency);
         }
     }

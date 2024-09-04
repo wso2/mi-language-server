@@ -93,9 +93,9 @@ import java.util.List;
 
 public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
 
-    String projectPath;
-    List<Dependency> dependencies;
-    DependencyLookUp dependencyLookUp;
+    private final String projectPath;
+    private final List<Dependency> dependencies;
+    private final DependencyLookUp dependencyLookUp;
 
     public MediatorDependencyVisitor(String projectPath, DependencyLookUp dependencyLookUp) {
 
@@ -252,8 +252,8 @@ public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
     private void addAnonymousOrAttributeSequence(Sequence sequence, String attribute) {
 
         if (sequence != null) {
-            List<Dependency> dependencyList = DependencyVisitorUtils.visitAnonymousSequence(sequence, projectPath,
-                    dependencyLookUp);
+            List<Dependency> dependencyList =
+                    DependencyVisitorUtils.visitAnonymousSequence(sequence, projectPath, dependencyLookUp);
             dependencies.addAll(dependencyList);
         } else if (attribute != null) {
             addSequenceDependency(attribute);
@@ -263,8 +263,8 @@ public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
     private void addAnonymousOrAttributeSequence(List<Mediator> sequence, String attribute) {
 
         if (sequence != null) {
-            List<Dependency> dependencyList = DependencyVisitorUtils.visitMediators(sequence, projectPath,
-                    dependencyLookUp);
+            List<Dependency> dependencyList =
+                    DependencyVisitorUtils.visitMediators(sequence, projectPath, dependencyLookUp);
             dependencies.addAll(dependencyList);
         } else if (attribute != null) {
             addSequenceDependency(attribute);
@@ -302,8 +302,8 @@ public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
         if (node.getConnection() != null && node.getConnection().getPool() != null &&
                 node.getConnection().getPool().getDsName() != null &&
                 node.getConnection().getPool().getDsName().getValue() != null) {
-            addSimpleDependency(node.getConnection().getPool().getDsName().getValue(), ArtifactType.DATASOURCE.name()
-                    , ArtifactType.DATASOURCE);
+            addSimpleDependency(node.getConnection().getPool().getDsName().getValue(), ArtifactType.DATASOURCE.name(),
+                    ArtifactType.DATASOURCE);
         }
     }
 
@@ -313,8 +313,8 @@ public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
         if (node.getConnection() != null && node.getConnection().getPool() != null &&
                 node.getConnection().getPool().getDsName() != null &&
                 node.getConnection().getPool().getDsName().getValue() != null) {
-            addSimpleDependency(node.getConnection().getPool().getDsName().getValue(), ArtifactType.DATASOURCE.name()
-                    , ArtifactType.DATASOURCE);
+            addSimpleDependency(node.getConnection().getPool().getDsName().getValue(), ArtifactType.DATASOURCE.name(),
+                    ArtifactType.DATASOURCE);
         }
     }
 
@@ -344,8 +344,8 @@ public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
         }
         SwitchCase[] cases = node.get_case();
         if (cases != null) {
-            for (SwitchCase _case : cases) {
-                addAnonymousOrAttributeSequence(_case.getMediatorList(), null);
+            for (SwitchCase case1 : cases) {
+                addAnonymousOrAttributeSequence(case1.getMediatorList(), null);
             }
         }
     }
@@ -384,8 +384,8 @@ public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
     protected void visitStore(Store node) {
 
         if (node.getMessageStore() != null) {
-            Dependency dependency = DependencyVisitorUtils.visitMessageStore(node.getMessageStore(), projectPath,
-                    dependencyLookUp);
+            Dependency dependency =
+                    DependencyVisitorUtils.visitMessageStore(node.getMessageStore(), projectPath, dependencyLookUp);
             if (dependency != null) {
                 dependencies.add(dependency);
             }

@@ -73,12 +73,11 @@ public class ProxyServiceVisitor extends AbstractDependencyVisitor {
     private void processTargetEndpoint(String endpointAttribute, NamedEndpoint endpoint) {
 
         if (endpointAttribute != null) {
-            Dependency dependency = DependencyVisitorUtils.visitEndpoint(endpointAttribute, projectPath,
-                    dependencyLookUp);
+            Dependency dependency =
+                    DependencyVisitorUtils.visitEndpoint(endpointAttribute, projectPath, dependencyLookUp);
             addDependency(dependency);
         } else if (endpoint != null) {
-            Dependency dependency = DependencyVisitorUtils.visitEndpoint(endpoint, projectPath,
-                    dependencyLookUp);
+            Dependency dependency = DependencyVisitorUtils.visitEndpoint(endpoint, projectPath, dependencyLookUp);
             addDependency(dependency);
         }
     }
@@ -86,12 +85,12 @@ public class ProxyServiceVisitor extends AbstractDependencyVisitor {
     private void processTargetSequence(String sequenceAttribute, Sequence sequence) {
 
         if (sequenceAttribute != null) {
-            Dependency dependency = DependencyVisitorUtils.visitSequence(projectPath, sequenceAttribute
-                    , dependencyLookUp);
+            Dependency dependency =
+                    DependencyVisitorUtils.visitSequence(projectPath, sequenceAttribute, dependencyLookUp);
             addDependency(dependency);
         } else if (sequence != null) {
-            List<Dependency> dependencies = DependencyVisitorUtils.visitAnonymousSequence(sequence, projectPath,
-                    dependencyLookUp);
+            List<Dependency> dependencies =
+                    DependencyVisitorUtils.visitAnonymousSequence(sequence, projectPath, dependencyLookUp);
             addDependencies(dependencies);
         }
     }
@@ -113,8 +112,8 @@ public class ProxyServiceVisitor extends AbstractDependencyVisitor {
         }
 
         if (publishWSDL.getEndpoint() != null) {
-            Dependency dependency = DependencyVisitorUtils.visitEndpoint(publishWSDL.getEndpoint(), projectPath,
-                    dependencyLookUp);
+            Dependency dependency =
+                    DependencyVisitorUtils.visitEndpoint(publishWSDL.getEndpoint(), projectPath, dependencyLookUp);
             addDependency(dependency);
         }
     }

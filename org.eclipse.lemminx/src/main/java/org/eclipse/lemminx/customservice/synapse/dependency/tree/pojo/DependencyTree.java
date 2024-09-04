@@ -44,13 +44,6 @@ public class DependencyTree {
         }
     }
 
-    public void addDependencyList(List<Dependency> dependencies) {
-
-        for (Dependency dependency : dependencies) {
-            addDependency(dependency);
-        }
-    }
-
     public void setName(String name) {
 
         this.name = name;

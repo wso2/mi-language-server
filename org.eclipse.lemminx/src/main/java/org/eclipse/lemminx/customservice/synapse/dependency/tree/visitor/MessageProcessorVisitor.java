@@ -45,14 +45,16 @@ public class MessageProcessorVisitor extends AbstractDependencyVisitor {
         MessageProcessor messageProcessor = (MessageProcessor) node;
 
         if (messageProcessor.getMessageStore() != null) {
-            Dependency dependency = DependencyVisitorUtils.visitMessageStore(messageProcessor.getMessageStore(),
-                    projectPath, dependencyLookUp);
+            Dependency dependency =
+                    DependencyVisitorUtils.visitMessageStore(messageProcessor.getMessageStore(), projectPath,
+                            dependencyLookUp);
             addDependency(dependency);
         }
 
         if (messageProcessor.getTargetEndpoint() != null) {
-            Dependency dependency = DependencyVisitorUtils.visitEndpoint(projectPath,
-                    messageProcessor.getTargetEndpoint(), dependencyLookUp);
+            Dependency dependency =
+                    DependencyVisitorUtils.visitEndpoint(projectPath, messageProcessor.getTargetEndpoint(),
+                            dependencyLookUp);
             addDependency(dependency);
         }
     }

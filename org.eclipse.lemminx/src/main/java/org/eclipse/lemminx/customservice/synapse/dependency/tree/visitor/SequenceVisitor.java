@@ -57,13 +57,13 @@ public class SequenceVisitor extends AbstractDependencyVisitor {
 
         NamedSequence sequence = (NamedSequence) node;
         if (sequence.getOnError() != null) {
-            Dependency dependency = DependencyVisitorUtils.visitSequence(projectPath, sequence.getOnError(),
-                    dependencyLookUp);
+            Dependency dependency =
+                    DependencyVisitorUtils.visitSequence(projectPath, sequence.getOnError(), dependencyLookUp);
             addDependency(dependency);
         }
         if (sequence.getMediatorList() != null) {
-            List<Dependency> dependencyList = DependencyVisitorUtils.visitMediators(sequence.getMediatorList(),
-                    projectPath, dependencyLookUp);
+            List<Dependency> dependencyList =
+                    DependencyVisitorUtils.visitMediators(sequence.getMediatorList(), projectPath, dependencyLookUp);
             addDependencies(dependencyList);
         }
     }

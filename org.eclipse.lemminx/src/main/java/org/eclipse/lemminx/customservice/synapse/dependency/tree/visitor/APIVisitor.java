@@ -70,12 +70,12 @@ public class APIVisitor extends AbstractDependencyVisitor {
     private void processResourceSequence(String sequenceAttribute, Sequence sequence) {
 
         if (sequenceAttribute != null) {
-            Dependency dependency = DependencyVisitorUtils.visitSequence(projectPath,
-                    sequenceAttribute, dependencyLookUp);
+            Dependency dependency =
+                    DependencyVisitorUtils.visitSequence(projectPath, sequenceAttribute, dependencyLookUp);
             addDependency(dependency);
         } else if (sequence != null) {
-            List<Dependency> dependencies = DependencyVisitorUtils.visitAnonymousSequence(sequence, projectPath
-                    , dependencyLookUp);
+            List<Dependency> dependencies =
+                    DependencyVisitorUtils.visitAnonymousSequence(sequence, projectPath, dependencyLookUp);
             addDependencies(dependencies);
         }
     }
