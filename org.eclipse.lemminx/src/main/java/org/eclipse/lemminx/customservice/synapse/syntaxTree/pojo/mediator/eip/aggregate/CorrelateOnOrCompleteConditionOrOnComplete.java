@@ -28,6 +28,13 @@ public class CorrelateOnOrCompleteConditionOrOnComplete extends STNode {
     Optional<AggregateCompleteCondition> completeCondition;
     Optional<AggregateOnComplete> onComplete;
 
+    public CorrelateOnOrCompleteConditionOrOnComplete() {
+
+        correlateOn = Optional.empty();
+        completeCondition = Optional.empty();
+        onComplete = Optional.empty();
+    }
+
     public Optional<AggregateCorrelateOn> getCorrelateOn() {
 
         return correlateOn;

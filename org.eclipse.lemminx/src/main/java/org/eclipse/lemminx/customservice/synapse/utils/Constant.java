@@ -473,4 +473,5 @@ public class Constant {
     public static final String STATUS_CODE = "status-code";
     public static final String HEADER = "header";
     public static final String ELEMENTS = "elements";
+    public static final String INVALID = "invalid";
 }
