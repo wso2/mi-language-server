@@ -200,15 +200,15 @@ public class UnitTestFactory extends AbstractFactory {
         return registryResource;
     }
 
-    private TestConnectorResources createTestConnectorResources(DOMElement child) {
+    private TestConnectorResources createTestConnectorResources(DOMElement node) {
 
         TestConnectorResources connectorResources = new TestConnectorResources();
-        connectorResources.elementNode(child);
+        connectorResources.elementNode(node);
 
-        List<DOMNode> children = child.getChildren();
+        List<DOMNode> children = node.getChildren();
         if (children != null && !children.isEmpty()) {
             List<STNode> connectorResourceList = new ArrayList<>();
-            for (DOMNode node : children) {
+            for (DOMNode child : children) {
                 STNode connectorResource = createSimpleNode((DOMElement) child);
                 connectorResourceList.add(connectorResource);
             }
@@ -302,8 +302,10 @@ public class UnitTestFactory extends AbstractFactory {
         List<DOMNode> children = node.getChildren();
         if (children != null && !children.isEmpty()) {
             for (DOMNode child : children) {
-                TestProperty property = createTestProperty((DOMElement) child);
-                testProperties.addProperty(property);
+                if (child instanceof DOMElement) {
+                    TestProperty property = createTestProperty((DOMElement) child);
+                    testProperties.addProperty(property);
+                }
             }
         }
         return testProperties;
