@@ -145,6 +145,9 @@ public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitConnector(Connector node) {
 
+        if (node.getConfigKey() != null) {
+            addSimpleDependency(node.getConfigKey(), "connector", ArtifactType.CONNECTION);
+        }
     }
 
     @Override
