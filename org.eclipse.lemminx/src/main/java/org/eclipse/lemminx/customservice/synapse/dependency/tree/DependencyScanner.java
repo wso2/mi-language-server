@@ -71,6 +71,7 @@ public class DependencyScanner {
         AbstractDependencyVisitor visitor = dependencyVisitorFactory.createVisitor(node.getTag(), dependencyTree);
         if (visitor != null) {
             visitor.visit(node);
+            dependencyTree.setType(node.getTag().replaceAll("([a-z])([A-Z])", "$1_$2").toUpperCase());
         }
     }
 

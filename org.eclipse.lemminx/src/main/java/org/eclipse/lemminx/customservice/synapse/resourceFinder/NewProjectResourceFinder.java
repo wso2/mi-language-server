@@ -77,6 +77,8 @@ public class NewProjectResourceFinder extends AbstractResourceFinder {
             return "tasks";
         } else if (Constant.LOCAL_ENTRY.equalsIgnoreCase(type)) {
             return "local-entries";
+        } else if (Constant.INBOUND_DASH_ENDPOINT.equalsIgnoreCase(type)) {
+            return "inbound-endpoints";
         } else if (Constant.DATA_SERVICE.equalsIgnoreCase(type)) {
             return "data-services";
         } else if (Constant.DATA_SOURCE.equalsIgnoreCase(type)) {
