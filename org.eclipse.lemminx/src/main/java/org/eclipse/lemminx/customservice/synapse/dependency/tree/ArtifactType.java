@@ -47,5 +47,6 @@ public enum ArtifactType {
     VALIDATE_SCHEMA,
     XSLT_RESOURCE,
     XQUERY_VARIABLE,
-    SWAGGER
+    SWAGGER,
+    CONNECTION
 }
