@@ -69,6 +69,7 @@ public abstract class AbstractResourceFinder {
         typeToXmlTagMap.put("sequenceTemplate", "template");
         typeToXmlTagMap.put("task", "task");
         typeToXmlTagMap.put("localEntry", "localEntry");
+        typeToXmlTagMap.put("inbound-endpoint", "inboundEndpoint");
         typeToXmlTagMap.put("dataService", "data");
         typeToXmlTagMap.put("dataSource", "dataSource");
         typeToXmlTagMap.put("ws_policy", "wsp:Policy");

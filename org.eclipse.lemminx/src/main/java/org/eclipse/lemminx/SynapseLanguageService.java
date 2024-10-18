@@ -40,6 +40,8 @@ import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTestParams;
 import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTestResponse;
 import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTester;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
+import org.eclipse.lemminx.customservice.synapse.dependency.tree.OverviewModelGenerator;
+import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.OverviewModel;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorResponse;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorParam;
@@ -345,6 +347,12 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         DependencyScanner dependencyScanner = new DependencyScanner(projectUri);
         DependencyTree dependencyTree = dependencyScanner.analyzeArtifact(param.getUri());
         return CompletableFuture.supplyAsync(() -> dependencyTree);
+    }
+
+    @Override
+    public CompletableFuture<OverviewModel> getOverviewModel() {
+        OverviewModel overviewModel = OverviewModelGenerator.getOverviewModel(projectUri);
+        return CompletableFuture.supplyAsync(() -> overviewModel);
     }
 
     @Override

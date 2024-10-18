@@ -474,4 +474,11 @@ public class Constant {
     public static final String HEADER = "header";
     public static final String ELEMENTS = "elements";
     public static final String INVALID = "invalid";
+    public static final String API_UPPERCASE = "API";
+    public static final String TASK_UPPERCASE = "TASK";
+    public static final String INBOUND_UPPERCASE = "INBOUND_ENDPOINT";
+    public static final String INBOUND_DASH_ENDPOINT = "inbound-endpoint";
+    public static final String CONNECTION_UPPERCASE = "CONNECTION";
+    public static final String OTHER = "other";
+    public static final String SCHEDULED_TASK = "schedule-task";
 }

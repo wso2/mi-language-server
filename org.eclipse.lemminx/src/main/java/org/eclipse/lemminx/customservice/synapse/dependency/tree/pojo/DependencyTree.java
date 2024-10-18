@@ -24,6 +24,7 @@ import java.util.List;
 public class DependencyTree {
 
     private String name;
+    private String type;
     private String path;
     private final List<Dependency> dependencyList;
 
@@ -44,6 +45,18 @@ public class DependencyTree {
         }
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public String getType() {
+        return type;
+    }
+
     public void setName(String name) {
 
         this.name = name;
@@ -52,6 +65,10 @@ public class DependencyTree {
     public void setPath(String path) {
 
         this.path = path;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     @Override
