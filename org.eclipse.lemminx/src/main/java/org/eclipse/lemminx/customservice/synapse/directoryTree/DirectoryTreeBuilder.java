@@ -316,6 +316,9 @@ public class DirectoryTreeBuilder {
 
         File[] listOfFiles = folderNode.listFiles();
         for (File file : listOfFiles) {
+            if (Utils.isRegistryPropertiesFile(file)) {
+                continue;
+            }
             if (file.isFile() && !file.isHidden()) {
                 String name = file.getName();
                 String filePath = file.getAbsolutePath();
