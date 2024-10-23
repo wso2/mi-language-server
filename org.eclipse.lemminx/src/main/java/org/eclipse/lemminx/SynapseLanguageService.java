@@ -379,6 +379,12 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         return CompletableFuture.supplyAsync(() -> tableList);
     }
 
+    @Override
+    public CompletableFuture<DirectoryMapResponse> getProjectExplorerModel(WorkspaceFolder param) {
+        DirectoryMapResponse response = DirectoryTreeBuilder.getProjectExplorerModel(param);
+        return CompletableFuture.supplyAsync(() -> response);
+    }
+
     public String getProjectUri() {
 
         return projectUri;
