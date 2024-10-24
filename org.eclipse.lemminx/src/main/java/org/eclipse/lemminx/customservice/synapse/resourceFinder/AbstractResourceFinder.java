@@ -220,7 +220,9 @@ public abstract class AbstractResourceFinder {
                         traverseFolder(file, requestedTypeToXmlTagMap, handler, resources);
                     }
                 } else if (file.isFile() && isFileInRegistry(file)) {
-
+                    if (Utils.isRegistryPropertiesFile(file)) {
+                        continue;
+                    }
                     if (handler == null && requestedTypeToXmlTagMap == null) {
                         Resource resource = createNonXmlResource(file, Constant.REGISTRY, REGISTRY);
                         if (resource != null) {

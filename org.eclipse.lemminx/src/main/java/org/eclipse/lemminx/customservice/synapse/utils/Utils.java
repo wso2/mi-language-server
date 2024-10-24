@@ -43,6 +43,8 @@ import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -526,5 +528,16 @@ public class Utils {
             artifactPath = artifactPath.substring(7);
         }
         return artifactPath;
+    }
+
+    public static boolean isRegistryPropertiesFile(File file) {
+        Pattern registryPropertiesFilePattern = Pattern.compile("(.*)\\.properties$");
+        Matcher registryPropertiesFileMatcher = registryPropertiesFilePattern.matcher(file.getAbsolutePath());
+        if (registryPropertiesFileMatcher.matches()) {
+            String fileNameWithoutExtension = registryPropertiesFileMatcher.group(1);
+            File otherFile = new File(fileNameWithoutExtension);
+            return otherFile.exists();
+        }
+        return false;
     }
 }
