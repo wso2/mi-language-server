@@ -137,4 +137,7 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<Map<String, List<Boolean>>> fetchTables(QueryGenRequestParams requestParams);
+
+    @JsonRequest
+    CompletableFuture<DirectoryMapResponse> getProjectExplorerModel(WorkspaceFolder param);
 }

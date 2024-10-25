@@ -481,4 +481,18 @@ public class Constant {
     public static final String CONNECTION_UPPERCASE = "CONNECTION";
     public static final String OTHER = "other";
     public static final String SCHEDULED_TASK = "schedule-task";
+    public static final String TASKS = "tasks";
+    public static final String TEMPLATES = "templates";
+    public static final String APIS = "apis";
+    public static final String PROXYSERVICES = "proxyServices";
+    public static final String INBOUNDENDPOINTS = "inboundEndpoints";
+    public static final String LOCALENTRIES = "localEntries";
+    public static final String MESSAGE_PROCESSORS = "messageProcessors";
+    public static final String MESSAGE_STORES = "messageStores";
+    public static final String DATA_SERVICES = "dataServices";
+    public static final String DATA_SOURCES = "dataSources";
+    public static final String CONNECTIONS = "connections";
+    public static final String DATA_MAPPER = "datamapper";
+    public static final String FILES = "files";
+    public static final String FOLDERS = "folders";
 }
