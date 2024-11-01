@@ -18,6 +18,7 @@
 
 package org.eclipse.lemminx.customservice;
 
+import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateAPIResponse;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerParam;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerResponse;
@@ -40,6 +41,9 @@ import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.OverviewMo
 import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryMapResponse;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorResponse;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorParam;
+import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.MediatorRequest;
+import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.SynapseConfigRequest;
+import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.UISchemaRequest;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceResponse;
 import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGenFromContentRequest;
@@ -140,4 +144,16 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<DirectoryMapResponse> getProjectExplorerModel(WorkspaceFolder param);
+
+    @JsonRequest
+    CompletableFuture<JsonObject> getMediators(MediatorRequest mediatorRequest);
+
+    @JsonRequest
+    CompletableFuture<JsonObject> getMediatorUISchema(UISchemaRequest uiSchemaRequest);
+
+    @JsonRequest
+    CompletableFuture<String> generateSynapseConfig(SynapseConfigRequest synapseConfigRequest);
+
+    @JsonRequest
+    CompletableFuture<JsonObject> getMediatorUISchemaWithValues(MediatorRequest mediatorRequest);
 }
