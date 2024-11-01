@@ -1,0 +1,385 @@
+{
+  "most popular": [
+    {
+      "title": "Call Endpoint",
+      "operationName": "MEDIATORS.CALL",
+      "tooltip": "Invokes external services in blocking/non-blocking mode",
+      "form": "<CallForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></CallForm>",
+      "tag": ""
+    },
+    {
+      "title": "Property",
+      "operationName": "MEDIATORS.PROPERTY",
+      "tooltip": "Manipulates message properties by setting and/or removing property values, supporting both constant and dynamically generated values through XPath expressions",
+      "form": "<PropertyForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></PropertyForm>",
+      "tag": ""
+    },
+    {
+      "title": "Log",
+      "operationName": "MEDIATORS.LOG",
+      "tooltip": "Generates logs for messages. Log details are customisable",
+      "form": "<LogForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></LogForm>",
+      "tag": "log",
+      "mediatorClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Log",
+      "factoryClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.core.LogFactory",
+      "processingClass": "org.eclipse.lemminx.customservice.synapse.mediatorService.mediators.LogMediator",
+      "storeMethod": "processData",
+      "retrieveMethod": "getDataFromST"
+    },
+    {
+      "title": "Payload",
+      "operationName": "MEDIATORS.PAYLOAD",
+      "tooltip": "Replaces message payload with a new SOAP/JSON payload",
+      "form": "<PayloadForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></PayloadForm>",
+      "tag": ""
+    },
+    {
+      "title": "Respond",
+      "operationName": "MEDIATORS.RESPOND",
+      "tooltip": "Terminates the processing of the current message flow and returns the message to the client",
+      "form": "<RespondForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></RespondForm>",
+      "tag": "respond"
+    },
+    {
+      "title": "Data Mapper",
+      "operationName": "MEDIATORS.DATAMAPPER",
+      "tooltip": "Transforms one data format to another, or changes the data structure in the message",
+      "form": "<DataMapperForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></DataMapperForm>",
+      "tag": ""
+    }
+  ],
+  "flow control": [
+    {
+      "title": "Filter",
+      "operationName": "MEDIATORS.FILTER",
+      "tooltip": "Filters messages based on XPath/JSONPath/regex",
+      "form": "<FilterForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></FilterForm>",
+      "tag": ""
+    },
+    {
+      "title": "Switch",
+      "operationName": "MEDIATORS.SWITCH",
+      "tooltip": "Routes messages based on XPath/JSONPath/regex matching",
+      "form": "<SwitchForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></SwitchForm>",
+      "tag": ""
+    },
+    {
+      "title": "Clone",
+      "operationName": "MEDIATORS.CLONE",
+      "tooltip": "Clones a message into several messages",
+      "form": "<CloneForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></CloneForm>",
+      "tag": ""
+    },
+    {
+      "title": "Iterate",
+      "operationName": "MEDIATORS.ITERATE",
+      "tooltip": "Splits message into several for parallel processing (XPath/JSONPath)",
+      "form": "<IterateForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></IterateForm>",
+      "tag": ""
+    },
+    {
+      "title": "Foreach",
+      "operationName": "MEDIATORS.FOREACHMEDIATOR",
+      "tooltip": "Splits message based on XPath/JSONPath, processes sequentially, then merges back",
+      "form": "<ForEachMediatorForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></ForEachMediatorForm>",
+      "tag": ""
+    },
+    {
+      "title": "Aggregate",
+      "operationName": "MEDIATORS.AGGREGATE",
+      "tooltip": "Combines message responses that were split by Clone/Iterate mediator",
+      "form": "<AggregateForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></AggregateForm>",
+      "tag": ""
+    },
+    {
+      "title": "Validate",
+      "operationName": "MEDIATORS.VALIDATE",
+      "tooltip": "Validates an XML/JSON message against XML/JSON schema",
+      "form": "<ValidateForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></ValidateForm>",
+      "tag": ""
+    }
+  ],
+  "transformation": [
+    {
+      "title": "Enrich",
+      "operationName": "MEDIATORS.ENRICH",
+      "tooltip": "Enriches message content (envelope, body, etc.) based on specification",
+      "form": "<EnrichForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></EnrichForm>",
+      "tag": ""
+    },
+    {
+      "title": "Header",
+      "operationName": "MEDIATORS.HEADER",
+      "tooltip": "Sets/removes message header (SOAP/transport scope)",
+      "form": "<HeaderForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></HeaderForm>",
+      "tag": ""
+    },
+    {
+      "title": "XSLT",
+      "operationName": "MEDIATORS.XSLT",
+      "tooltip": "Transforms message payload based on an XSLT script. For faster XSLT transformation, use FastXSLT",
+      "form": "<XSLTForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></XSLTForm>",
+      "tag": ""
+    },
+    {
+      "title": "Json Transform",
+      "operationName": "MEDIATORS.JSONTRANSFORM",
+      "tooltip": "Controls XML to JSON transformations inside a mediation",
+      "form": "<JSONTransformForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></JSONTransformForm>",
+      "tag": ""
+    },
+    {
+      "title": "Fault",
+      "operationName": "MEDIATORS.FAULT",
+      "tooltip": "Transforms the current message into a fault message",
+      "form": "<FaultForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></FaultForm>",
+      "tag": ""
+    },
+    {
+      "title": "Payload",
+      "operationName": "MEDIATORS.PAYLOAD",
+      "tooltip": "Replaces message payload with a new SOAP/JSON payload",
+      "form": "<PayloadForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></PayloadForm>",
+      "tag": ""
+    },
+    {
+      "title": "Data Mapper",
+      "operationName": "MEDIATORS.DATAMAPPER",
+      "tooltip": "Transforms one data format to another, or changes the data structure in the message",
+      "form": "<DataMapperForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></DataMapperForm>",
+      "tag": ""
+    }
+  ],
+  "extension": [
+    {
+      "title": "Script",
+      "operationName": "MEDIATORS.SCRIPT",
+      "tooltip": "Invokes scripting language functions with embedded or stored script files",
+      "form": "<ScriptForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></ScriptForm>",
+      "tag": ""
+    },
+    {
+      "title": "Class",
+      "operationName": "MEDIATORS.CLASS",
+      "tooltip": "Uses custom class instance as mediator",
+      "form": "<ClassForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></ClassForm>",
+      "tag": ""
+    }
+  ],
+  "generic": [
+    {
+      "title": "Call Endpoint",
+      "operationName": "MEDIATORS.CALL",
+      "tooltip": "Invokes external services in blocking/non-blocking mode",
+      "form": "<CallForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></CallForm>",
+      "tag": ""
+    },
+    {
+      "title": "Property",
+      "operationName": "MEDIATORS.PROPERTY",
+      "tooltip": "Manipulates message properties by setting and/or removing property values, supporting both constant and dynamically generated values through XPath expressions",
+      "form": "<PropertyForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></PropertyForm>",
+      "tag": ""
+    },
+    {
+      "title": "Log",
+      "operationName": "MEDIATORS.LOG",
+      "tooltip": "Generates logs for messages. Log details are customisable",
+      "form": "<LogForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></LogForm>",
+      "tag": "log",
+      "mediatorClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Log",
+      "factoryClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.core.LogFactory",
+      "processingClass": "org.eclipse.lemminx.customservice.synapse.mediatorService.mediators.LogMediator",
+      "storeMethod": "processData",
+      "retrieveMethod": "getDataFromST"
+    },
+    {
+      "title": "Respond",
+      "operationName": "MEDIATORS.RESPOND",
+      "tooltip": "Terminates the processing of the current message flow and returns the message to the client",
+      "form": "<RespondForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></RespondForm>",
+      "tag": "respond"
+    },
+    {
+      "title": "Call Sequence",
+      "operationName": "MEDIATORS.SEQUENCE",
+      "tooltip": "Inserts reference to a sequence",
+      "form": "<SequenceForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></SequenceForm>",
+      "tag": ""
+    },
+    {
+      "title": "Call Template",
+      "operationName": "MEDIATORS.CALLTEMPLATE",
+      "tooltip": "Invokes sequence template by populating pre-configured parameters with static values or XPath expressions",
+      "form": "<CallTemplateForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></CallTemplateForm>",
+      "tag": ""
+    },
+    {
+      "title": "Drop",
+      "operationName": "MEDIATORS.DROP",
+      "tooltip": "Stops processing of the current message and terminates message flow",
+      "form": "<DropForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></DropForm>",
+      "tag": "drop"
+    },
+    {
+      "title": "Property Group",
+      "operationName": "MEDIATORS.PROPERTYGROUP",
+      "tooltip": "Sets/removes multiple properties on message context efficiently",
+      "form": "<PropertyGroupForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></PropertyGroupForm>",
+      "tag": ""
+    },
+    {
+      "title": "Cache",
+      "operationName": "MEDIATORS.CACHE",
+      "tooltip": "Utilizes cached response if a similar message has been stored previously",
+      "form": "<CacheForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></CacheForm>",
+      "tag": ""
+    },
+    {
+      "title": "Throttle",
+      "operationName": "MEDIATORS.THROTTLE",
+      "tooltip": "Restricts access to services",
+      "form": "<ThrottleForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></ThrottleForm>",
+      "tag": ""
+    },
+    {
+      "title": "Store Message",
+      "operationName": "MEDIATORS.STORE",
+      "tooltip": "Routes message to a predefined message store",
+      "form": "<StoreForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></StoreForm>",
+      "tag": ""
+    }
+  ],
+  "security": [
+    {
+      "title": "Oauth",
+      "operationName": "MEDIATORS.OAUTH",
+      "tooltip": "Validates client credentials for a RESTful service using OAuth (WSO2 IS)",
+      "form": "<OAuthForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></OAuthForm>",
+      "tag": ""
+    },
+    {
+      "title": "Entitlement Service",
+      "operationName": "MEDIATORS.ENTITLEMENT",
+      "tooltip": "Evaluates messages against XACML policy",
+      "form": "<EntitlementForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></EntitlementForm>",
+      "tag": ""
+    },
+    {
+      "title": "NTLM",
+      "operationName": "MEDIATORS.NTLM",
+      "tooltip": "Enables access to NTLM-protected services",
+      "form": "<NTLMForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></NTLMForm>",
+      "tag": ""
+    }
+  ],
+  "database": [
+    {
+      "title": "Call Dataservice",
+      "operationName": "MEDIATORS.DATASERVICECALL",
+      "tooltip": "Invokes data service operations",
+      "form": "<DataServiceCallForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></DataServiceCallForm>",
+      "tag": ""
+    },
+    {
+      "title": "DB Lookup",
+      "operationName": "MEDIATORS.DBLOOKUP",
+      "tooltip": "Executes SQL SELECT statements, and sets resulting values to message context as local properties",
+      "form": "<DBLookupForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></DBLookupForm>",
+      "tag": ""
+    },
+    {
+      "title": "DB Report",
+      "operationName": "MEDIATORS.DBREPORT",
+      "tooltip": "Executes SQL INSERT/UPDATE/DELETE statements, and sets resulting values to message context as local properties",
+      "form": "<DBReportForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></DBReportForm>",
+      "tag": ""
+    }
+  ],
+  "other": [
+    {
+      "title": "Send",
+      "operationName": "MEDIATORS.SEND",
+      "tooltip": "Invokes external service in non-blocking mode",
+      "form": "<SendForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></SendForm>",
+      "tag": "send"
+    },
+    {
+      "title": "Callout",
+      "operationName": "MEDIATORS.CALLOUT",
+      "tooltip": "Invokes external service in blocking mode",
+      "form": "<CalloutForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></CalloutForm>",
+      "tag": ""
+    },
+    {
+      "title": "Smooks",
+      "operationName": "MEDIATORS.SMOOKS",
+      "tooltip": "Applies lightweight message transformations (XML, non-XML)",
+      "form": "<SmooksForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></SmooksForm>",
+      "tag": ""
+    },
+    {
+      "title": "Transaction",
+      "operationName": "MEDIATORS.TRANSACTION",
+      "tooltip": "Provides transaction management for child mediators",
+      "form": "<TransactionForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></TransactionForm>",
+      "tag": ""
+    },
+    {
+      "title": "Builder",
+      "operationName": "MEDIATORS.BUILDER",
+      "tooltip": "Builds (converts to XML) messages even with Binary Relay enabled in the server",
+      "form": "<BuilderForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></BuilderForm>",
+      "tag": ""
+    },
+    {
+      "title": "Rule",
+      "operationName": "MEDIATORS.RULE",
+      "tooltip": "Processes XML message by applying a set of rules",
+      "form": "<RuleForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></RuleForm>",
+      "tag": ""
+    },
+    {
+      "title": "Loopback",
+      "operationName": "MEDIATORS.LOOPBACK",
+      "tooltip": "Routes messages from the inflow (In Sequence) to outflow (Out Sequence)",
+      "form": "<LoopbackForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></LoopbackForm>",
+      "tag": "loopback"
+    },
+    {
+      "title": "Fast XSLT",
+      "operationName": "MEDIATORS.FASTXSLT",
+      "tooltip": "Swiftly transforms message streams (not payloads) based on an XSLT script",
+      "form": "<FastXSLTForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></FastXSLTForm>",
+      "tag": ""
+    },
+    {
+      "title": "Rewrite",
+      "operationName": "MEDIATORS.REWRITE",
+      "tooltip": "Swiftly transforms message streams (not payloads) based on an XSLT script",
+      "form": "<RewriteForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></RewriteForm>",
+      "tag": ""
+    },
+    {
+      "title": "xquery",
+      "operationName": "MEDIATORS.XQUERY",
+      "tooltip": "Performs XQuery transformation on messages",
+      "form": "<XQueryForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></XQueryForm>",
+      "tag": ""
+    },
+    {
+      "title": "EJB",
+      "operationName": "MEDIATORS.EJB",
+      "tooltip": "Calls EJB (Stateless/Stateful) and stores result in message payload/property",
+      "form": "<EJBForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></EJBForm>",
+      "tag": ""
+    },
+    {
+      "title": "BAM",
+      "operationName": "MEDIATORS.BAM",
+      "tooltip": "Deprecated. Use PublishEvent Mediator for similar functionality",
+      "form": "<BamForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></BamForm>",
+      "tag": ""
+    }
+  ]
+}

@@ -18,6 +18,11 @@
 
 package org.eclipse.lemminx.customservice.synapse.utils;
 
+import com.github.fge.jackson.JsonLoader;
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
+import com.github.mustachejava.MustacheFactory;
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -29,26 +34,41 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.dom.DOMParser;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class Utils {
+
+    private static final Logger logger = Logger.getLogger(Utils.class.getName());
+    private static FileSystem fileSystem;
 
     /**
      * Get the inline string of the given node
@@ -539,5 +559,92 @@ public class Utils {
             return otherFile.exists();
         }
         return false;
+    }
+
+    public static Map<String, JsonObject> getUISchemaMap(String resourceFolderName) {
+        Map<String, JsonObject> jsonMap = new HashMap<>();
+        try {
+            URI resourceURI = Utils.class.getClassLoader().getResource(resourceFolderName).toURI();
+            fileSystem = FileSystems.newFileSystem(resourceURI, Map.of());
+            Path resourcePath = fileSystem.getPath(resourceFolderName);
+            Stream<Path> paths = Files.walk(resourcePath, 1);
+            paths.filter(Files::isRegularFile)
+                    .filter(path -> path.toString().endsWith(".json"))
+                    .forEach(path -> processJsonFile(path, jsonMap));
+            fileSystem.close();
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Failed to mediator UI schemas from resources.", e);;
+        }
+        return jsonMap;
+    }
+
+    private static void processJsonFile(Path path, Map<String, JsonObject> jsonMap) {
+        Gson gson = new Gson();
+        String fileName = path.getFileName().toString().replace(".json", "");
+        try (InputStreamReader reader = new InputStreamReader(Files.newInputStream(path))) {
+            JsonObject jsonObject = gson.fromJson(reader, JsonObject.class);
+            jsonMap.put(fileName, jsonObject);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Failed to load UI schema: " + fileName, e);
+        }
+    }
+
+    public static JsonObject getMediatorList(String version) {
+        InputStream inputStream = JsonLoader.class
+                .getResourceAsStream("/org/eclipse/lemminx/mediators/mediators_"
+                        + version.replace(".", "") + ".json");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        return JsonParser.parseReader(reader).getAsJsonObject();
+    }
+
+    public static String getServerVersion(String projectPath, String defaultVersion) {
+        try {
+            Path pomPath = Path.of(projectPath, "pom.xml");
+            File pomFile = pomPath.toFile();
+            DOMDocument document = getDOMDocument(pomFile);
+
+            NodeList propertiesList = document.getElementsByTagName("properties");
+
+            if (propertiesList.getLength() > 0) {
+                Element properties = (Element) propertiesList.item(0);
+                NodeList runtimeVersionList = properties.getElementsByTagName("project.runtime.version");
+
+                if (runtimeVersionList.getLength() > 0) {
+                    return runtimeVersionList.item(0).getTextContent().trim();
+                }
+            }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error occurred while extracting server runtime version.", e);
+        }
+        return defaultVersion;
+    }
+
+    public static Map<String, Mustache> getTemplateMap(String resourceFolderName) {
+        Map<String, Mustache> templateMap = new HashMap<>();
+        try {
+            URI resourceURI = Utils.class.getClassLoader().getResource(resourceFolderName).toURI();
+            fileSystem = FileSystems.newFileSystem(resourceURI, Map.of());
+            Path templatesPath = fileSystem.getPath(resourceFolderName);
+            Stream<Path> paths = Files.walk(templatesPath, 1);
+            paths.filter(Files::isRegularFile)
+                    .filter(path -> path.toString().endsWith(".mustache"))
+                    .forEach(path -> loadTemplate(path, resourceFolderName, templateMap));
+            fileSystem.close();
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Failed to load mustache templates from resources.", e);;
+        }
+        return templateMap;
+    }
+
+    private static void loadTemplate(Path path, String resourceFolder, Map<String, Mustache> templateMap) {
+        String templateName = path.getFileName().toString().replace(".mustache", "");
+        MustacheFactory mustacheFactory = new DefaultMustacheFactory();
+        try (InputStreamReader reader = new InputStreamReader(
+                Utils.class.getClassLoader().getResourceAsStream(resourceFolder + "/" + path.getFileName()))) {
+            Mustache template = mustacheFactory.compile(reader, templateName);
+            templateMap.put(templateName, template);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Failed to load template: " + templateName, e);
+        }
     }
 }
