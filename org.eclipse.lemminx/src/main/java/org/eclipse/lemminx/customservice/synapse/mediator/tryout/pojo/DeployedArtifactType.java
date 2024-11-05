@@ -16,37 +16,10 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.debugger.entity;
+package org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo;
 
-import java.util.ArrayList;
-import java.util.List;
+public enum DeployedArtifactType {
 
-public class StepOverInfo {
-
-    List<Breakpoint> stepOverBreakpoints;
-
-    public StepOverInfo() {
-
-        this.stepOverBreakpoints = new ArrayList<>();
-    }
-
-    public void add(Breakpoint breakpoint) {
-
-        this.stepOverBreakpoints.add(breakpoint);
-    }
-
-    public boolean isEmpty() {
-
-        return this.stepOverBreakpoints.isEmpty();
-    }
-
-    public int size() {
-
-        return this.stepOverBreakpoints.size();
-    }
-
-    public List<Breakpoint> getStepOverBreakpoints() {
-
-        return stepOverBreakpoints;
-    }
+    APIS,
+    SEQUENCES
 }

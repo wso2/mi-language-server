@@ -47,11 +47,13 @@ import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnect
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.DependencyScanner;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.DependencyTree;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutRequest;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.MediatorHandler;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.MediatorRequest;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.SynapseConfigRequest;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.SynapseConfigResponse;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.UISchemaRequest;
+import org.eclipse.lemminx.customservice.synapse.mediator.schema.generate.ServerLessTryoutHandler;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.AbstractResourceFinder;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ArtifactFileScanner;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.RegistryFileScanner;
@@ -80,6 +82,8 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeGenerator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeResponse;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.MediatorFactoryFinder;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.TryOutHandler;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.settings.SharedSettings;
@@ -116,6 +120,9 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     private AbstractResourceFinder resourceFinder;
     private final InboundConnectorHolder inboundConnectorHolder;
     private Path synapseXSDPath;
+    private TryOutHandler tryOutHandler;
+    private ServerLessTryoutHandler serverLessTryoutHandler;
+    private String miServerPath;
 
     public SynapseLanguageService(XMLTextDocumentService xmlTextDocumentService, XMLLanguageServer xmlLanguageServer) {
 
@@ -131,6 +138,8 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         this.languageClient = languageClient;
         if (settings != null) {
             extensionPath = ((JsonObject) settings).get("extensionPath").getAsString();
+            // TODO: remove this after fixing the issue with the miServerPath
+            miServerPath = ((JsonObject) settings).get("miServerPath").getAsString();
         }
         if (projectUri != null) {
             this.projectUri = projectUri;
@@ -141,6 +150,9 @@ public class SynapseLanguageService implements ISynapseLanguageService {
             MediatorFactoryFinder.getInstance().setConnectorHolder(connectorHolder);
             try {
                 DynamicClassLoader.updateClassLoader(Path.of(projectUri, "deployment", "libs").toFile());
+                this.tryOutHandler = new TryOutHandler(projectUri);
+                tryOutHandler.initAsync(miServerPath);
+                this.serverLessTryoutHandler = new ServerLessTryoutHandler(projectUri);
             } catch (Exception e) {
                 log.log(Level.SEVERE, "Error while updating class loader for DB drivers.", e);
             }
@@ -393,6 +405,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
     @Override
     public CompletableFuture<DirectoryMapResponse> getProjectExplorerModel(WorkspaceFolder param) {
+
         DirectoryMapResponse response = DirectoryTreeBuilder.getProjectExplorerModel(param);
         return CompletableFuture.supplyAsync(() -> response);
     }
@@ -420,7 +433,29 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
     @Override
     public CompletableFuture<JsonObject> getMediatorUISchemaWithValues(MediatorRequest mediatorRequest) {
-        return CompletableFuture.supplyAsync(() ->  mediatorHandler.getSchemaWithValues(mediatorRequest.documentIdentifier, mediatorRequest.position));
+
+        return CompletableFuture.supplyAsync(
+                () -> mediatorHandler.getSchemaWithValues(mediatorRequest.documentIdentifier,
+                        mediatorRequest.position));
+    }
+
+    @Override
+    public CompletableFuture<MediatorTryoutInfo> tryOutMediator(MediatorTryoutRequest request) {
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return tryOutHandler.handle(request);
+            } catch (InterruptedException e) {
+                log.log(Level.SEVERE, "Error while trying out the mediator.", e);
+                return null;
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<MediatorTryoutInfo> mediatorInputOutputSchema(MediatorTryoutRequest request) {
+
+        return CompletableFuture.supplyAsync(() -> serverLessTryoutHandler.handle(request));
     }
 
     public String getProjectUri() {

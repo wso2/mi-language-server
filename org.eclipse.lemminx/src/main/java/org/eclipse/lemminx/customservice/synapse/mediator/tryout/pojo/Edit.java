@@ -16,37 +16,38 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.debugger.entity;
+package org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.eclipse.lsp4j.Range;
 
-public class StepOverInfo {
+public class Edit {
 
-    List<Breakpoint> stepOverBreakpoints;
+    private String text;
+    private Range range;
 
-    public StepOverInfo() {
+    public Edit(String text, Range range) {
 
-        this.stepOverBreakpoints = new ArrayList<>();
+        this.text = text;
+        this.range = range;
     }
 
-    public void add(Breakpoint breakpoint) {
+    public String getText() {
 
-        this.stepOverBreakpoints.add(breakpoint);
+        return text;
     }
 
-    public boolean isEmpty() {
+    public void setText(String text) {
 
-        return this.stepOverBreakpoints.isEmpty();
+        this.text = text;
     }
 
-    public int size() {
+    public Range getRange() {
 
-        return this.stepOverBreakpoints.size();
+        return range;
     }
 
-    public List<Breakpoint> getStepOverBreakpoints() {
+    public void setRange(Range range) {
 
-        return stepOverBreakpoints;
+        this.range = range;
     }
 }
