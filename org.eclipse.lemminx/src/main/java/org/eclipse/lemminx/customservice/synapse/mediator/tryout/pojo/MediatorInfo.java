@@ -26,8 +26,6 @@ import java.util.List;
 public class MediatorInfo {
 
     private JsonPrimitive payload;
-
-    // Old types
     private List<Property> synapse;
     private List<Property> axis2;
     private List<Property> axis2Client;
