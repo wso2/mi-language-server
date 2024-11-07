@@ -28,6 +28,8 @@ import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwag
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectionHandler;
 import org.eclipse.lemminx.customservice.synapse.connectors.NewProjectConnectorLoader;
 import org.eclipse.lemminx.customservice.synapse.connectors.OldProjectConnectorLoader;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connection;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectionParameter;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectionUIParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connections;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorParam;
@@ -43,6 +45,7 @@ import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTestResponse;
 import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTester;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.OverviewModelGenerator;
+import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.Dependency;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.OverviewModel;
 import org.eclipse.lemminx.customservice.synapse.expression.ExpressionHelperProvider;
 import org.eclipse.lemminx.customservice.synapse.expression.ExpressionSignatureProvider;
@@ -73,6 +76,7 @@ import org.eclipse.lemminx.customservice.synapse.parser.pom.PomParser;
 import org.eclipse.lemminx.customservice.synapse.parser.ConnectorDownloadManager;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.AbstractResourceFinder;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ArtifactFileScanner;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.CertificateScanner;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.RegistryFileScanner;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointInfoResponse;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointsRequest;
@@ -118,7 +122,9 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either3;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -292,6 +298,62 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
         List<String> registryFiles = RegistryFileScanner.scanRegistryFiles(projectUri);
         return CompletableFuture.supplyAsync(() -> registryFiles);
+    }
+
+    @Override
+    public CompletableFuture<Map<String, List<String>>> getResourceUsages() {
+
+        Map<String, List<String>> resourceUsageMap = new HashMap<>();
+        List<String> updatedRegistryFileNames = new ArrayList<>();
+        // collect resources
+        List<String> registryFiles = RegistryFileScanner.scanRegistryFiles(projectUri);
+        List<String> certificateFiles = CertificateScanner.scanCertificates(projectUri);
+
+        // add each registry file as a key to map
+        for (String registryFile : registryFiles) {
+            String updatedRegistryFileName = registryFile.replaceFirst(File.separator, ":");
+            resourceUsageMap.put(updatedRegistryFileName, new ArrayList<>());
+            updatedRegistryFileNames.add(updatedRegistryFileName);
+        }
+        // add each certificate file as a key to map
+        for (String certificateFile : certificateFiles) {
+            resourceUsageMap.put(certificateFile, new ArrayList<>());
+        }
+
+        // get all project files
+        List<String> artifactFilePaths = ArtifactFileScanner.scanArtifactFiles(projectUri, true);
+
+        // get all dependency trees for each project file
+        DependencyScanner dependencyScanner = new DependencyScanner(projectUri);
+
+        for (String artifactFilePath : artifactFilePaths) {
+            DependencyTree artifactDependencyTree = dependencyScanner.analyzeArtifact(artifactFilePath);
+            List<Dependency> dependencyList = artifactDependencyTree.getDependencyList();
+            for (Dependency dependency : dependencyList) {
+                String dependencyName = dependency.getName();
+                // check whether dependency is in updated registry file names
+                if (updatedRegistryFileNames.contains(dependencyName)) {
+                    // add to usage map
+                    resourceUsageMap.get(dependencyName).add(artifactFilePath);
+                }
+            }
+        }
+
+        Either<Connections, Map<String, Connections>> foundConnections =
+                ConnectionFinder.findConnections(projectUri, "http", connectorHolder, isLegacyProject);
+        if (foundConnections.isLeft()) {
+            Connections connections = foundConnections.getLeft();
+            for (Connection connection : connections.getConnections()) {
+                List<ConnectionParameter> parameters = connection.getParameters();
+                for (ConnectionParameter parameter : parameters) {
+                    if (certificateFiles.contains(parameter.getValue())) {
+                        resourceUsageMap.get(parameter.getValue()).add(connection.getPath());
+                    }
+                }
+            }
+        }
+
+        return CompletableFuture.supplyAsync(() -> resourceUsageMap);
     }
 
     @Override

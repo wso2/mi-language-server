@@ -118,6 +118,9 @@ public interface ISynapseLanguageService {
     CompletableFuture<Either<Connections, Map<String, Connections>>> connectorConnections(ConnectorParam param);
 
     @JsonRequest
+    CompletableFuture<Map<String, List<String>>> getResourceUsages();
+
+    @JsonRequest
     CompletableFuture<SchemaGenResponse> generateSchema(SchemaGenRequest schemaGenRequest);
 
     @JsonRequest
