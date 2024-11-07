@@ -46,4 +46,9 @@ public class ConnectionParameter {
 
         this.expression = expression;
     }
+
+    public String getValue() {
+
+        return value;
+    }
 }
