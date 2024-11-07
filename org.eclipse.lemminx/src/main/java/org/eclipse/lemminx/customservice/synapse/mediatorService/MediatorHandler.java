@@ -23,11 +23,19 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.eclipse.lemminx.commons.BadLocationException;
+import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.SynapseConfigResponse;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.MediatorFactoryFinder;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
+import java.io.File;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -39,11 +47,21 @@ import java.util.logging.Logger;
 public class MediatorHandler {
 
     private static final Logger logger = Logger.getLogger(MediatorHandler.class.getName());
+    private JsonObject mediatorList;
+    private Map<String, JsonObject> uiSchemaMap;
+    private Map<String, Mustache> templateMap;
 
-    public static JsonObject getSupportedMediators(DOMDocument document, Position position,
-                                                   JsonObject mediatorList) {
+    public void init(String projectServerVersion) {
+
+        this.mediatorList = Utils.getMediatorList(projectServerVersion);
+        this.templateMap = Utils.getTemplateMap("org/eclipse/lemminx/mediators/"
+                + projectServerVersion.replace(".", "") + "/templates");
+        this.uiSchemaMap = Utils.getUISchemaMap("org/eclipse/lemminx/mediators/"
+                + projectServerVersion.replace(".", "") + "/ui-schemas");
+    }
+
+    public JsonObject getSupportedMediators(DOMDocument document, Position position) {
         try {
-            position = new Position(position.getLine() - 1, position.getCharacter() - 1);
             List<String> lastMediators = Arrays.asList("send","drop","loopback", "respond");
             List<String> iterateMediators = Arrays.asList("iterate","foreach");
             int offset = document.offsetAt(position);
@@ -65,22 +83,41 @@ public class MediatorHandler {
         return null;
     }
 
-    public static String generateSynapseConfig(String mediator, Map<String, Object> data, Map<String,
-                                               Mustache> templateMap, JsonObject mediatorList) {
+    public SynapseConfigResponse generateSynapseConfig(String documentUri, Range range, String mediator,
+                                                       Map<String, Object> data, List<String> dirtyFields) {
         try {
+            STNode node = getMediatorNodeAtPosition(Utils.getDOMDocument(new File(documentUri)), range.getStart());
             for (Map.Entry<String, JsonElement> entry : mediatorList.entrySet()) {
                 JsonArray mediatorsArray = entry.getValue().getAsJsonArray();
                 for (JsonElement mediatorElement : mediatorsArray) {
                     JsonObject mediatorObject = mediatorElement.getAsJsonObject();
                     if (mediator.equals(mediatorObject.get("tag").getAsString())) {
+                        String mediatorClass = mediatorObject.get("mediatorClass").getAsString();
                         String processingClass = mediatorObject.get("processingClass").getAsString();
                         String processingMethod = mediatorObject.get("storeMethod").getAsString();
                         Class<?> mediatorProcessor = Class.forName(processingClass);
                         Object processorInstance = mediatorProcessor.getDeclaredConstructor().newInstance();
-                        Method processorMethod = mediatorProcessor.getMethod(processingMethod, Map.class);
-                        Object processedData = processorMethod.invoke(processorInstance, data);
-                        StringWriter writer = new StringWriter();
-                        return templateMap.get(mediator).execute(writer, processedData).toString();
+                        Method processorMethod = mediatorProcessor.getMethod(processingMethod, Map.class,Class.forName(mediatorClass), List.class);
+
+                        Either<Map<String, Object>,Map<Range, Map<String, Object>>>
+                                processedData =
+                                (Either<Map<String, Object>, Map<Range, Map<String, Object>>>) processorMethod.invoke(processorInstance, data, node, dirtyFields);
+                        if (processedData.isLeft()){
+                            StringWriter writer = new StringWriter();
+                            String edit =  templateMap.get(mediator).execute(writer, processedData.getLeft()).toString();
+                            TextEdit textEdit = new TextEdit(range, edit);
+                            return new SynapseConfigResponse(textEdit);
+                        } else {
+                            Map<Range, Map<String, Object>> editsData = processedData.getRight();
+                            SynapseConfigResponse edits = new SynapseConfigResponse();
+                            for (Map.Entry<Range, Map<String, Object>> entry1 : editsData.entrySet()) {
+                                StringWriter writer = new StringWriter();
+                                String edit =  templateMap.get(mediator).execute(writer, entry1.getValue()).toString();
+                                TextEdit textEdit = new TextEdit(entry1.getKey(), edit);
+                                edits.addTextEdit(textEdit);
+                            }
+                            return edits;
+                        }
                     }
                 }
             }
@@ -90,13 +127,11 @@ public class MediatorHandler {
         return null;
     }
 
-    public static JsonObject getSchemaWithValues(DOMDocument document, Position position,
-                                                 Map<String, JsonObject> uiSchemaMap, JsonObject mediatorList) {
+    public JsonObject getSchemaWithValues(DOMDocument document, Position position) {
+
         try {
-            position = new Position(position.getLine() - 1, position.getCharacter() - 1);
-            int offset = document.offsetAt(position);
-            DOMNode node = document.findNodeAt(offset);
-            String mediatorName = node.getNodeName();
+            STNode node = getMediatorNodeAtPosition(document, position);
+            String mediatorName = node.getTag();
             JsonObject uiSchema = uiSchemaMap.get(mediatorName);
             for (Map.Entry<String, JsonElement> entry : mediatorList.entrySet()) {
                 JsonArray mediatorsArray = entry.getValue().getAsJsonArray();
@@ -104,17 +139,13 @@ public class MediatorHandler {
                     JsonObject mediator = mediatorElement.getAsJsonObject();
                     if (mediatorName.equals(mediator.get("tag").getAsString())) {
                         String mediatorClass = mediator.get("mediatorClass").getAsString();
-                        String factoryClass = mediator.get("factoryClass").getAsString();
                         String processingClass = mediator.get("processingClass").getAsString();
                         String processingMethod = mediator.get("retrieveMethod").getAsString();
-                        Class<?> mediatorFactory = Class.forName(factoryClass);
-                        Method buildMethod = mediatorFactory.getMethod("create", DOMElement.class);
-                        Object factoryInstance = mediatorFactory.getDeclaredConstructor().newInstance();
-                        Object mediatorObject = buildMethod.invoke(factoryInstance, node);
                         Class<?> mediatorProcessor = Class.forName(processingClass);
                         Object processorInstance = mediatorProcessor.getDeclaredConstructor().newInstance();
                         Method processorMethod = mediatorProcessor.getMethod(processingMethod, Class.forName(mediatorClass));
-                        Object data = processorMethod.invoke(processorInstance, mediatorObject);
+                        Object data = processorMethod.invoke(processorInstance, node);
+
                         return UISchemaMapper.mapInputToUISchema(new Gson().toJsonTree(data).getAsJsonObject(), uiSchema);
                     }
                 }
@@ -125,7 +156,18 @@ public class MediatorHandler {
         return null;
     }
 
-    private static JsonObject removeMediators(JsonObject jsonObject, List<String> mediatorsToRemove) {
+    private STNode getMediatorNodeAtPosition(DOMDocument document, Position position) throws BadLocationException {
+
+        position = new Position(position.getLine(), position.getCharacter() + 1);
+        int offset = document.offsetAt(position);
+        DOMNode node = document.findNodeAt(offset);
+        if (node != null) {
+            return MediatorFactoryFinder.getInstance().getMediator(node);
+        }
+        return null;
+    }
+
+    private JsonObject removeMediators(JsonObject jsonObject, List<String> mediatorsToRemove) {
         JsonObject filteredMediators = new JsonObject();
         for (String key : jsonObject.keySet()) {
             JsonArray mediatorsArray = jsonObject.getAsJsonArray(key);
@@ -140,5 +182,10 @@ public class MediatorHandler {
             filteredMediators.add(key, filteredArray);
         }
         return filteredMediators;
+    }
+
+    public JsonObject getUiSchema(String mediatorName) {
+
+        return uiSchemaMap.get(mediatorName);
     }
 }

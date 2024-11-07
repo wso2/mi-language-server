@@ -18,10 +18,17 @@
 
 package org.eclipse.lemminx.customservice.synapse.mediatorService.pojo;
 
+import org.eclipse.lsp4j.Range;
+
+import java.util.List;
 import java.util.Map;
 
 public class SynapseConfigRequest {
 
-    public String mediatorName;
-    public Map<String, Object> formData;
+    public String documentUri;
+    public Range range;
+    public String mediatorType;
+    public Map<String, Object> values;
+    public List<String> dirtyFields;
+
 }

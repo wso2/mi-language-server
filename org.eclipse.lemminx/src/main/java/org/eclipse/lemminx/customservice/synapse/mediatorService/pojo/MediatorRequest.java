@@ -25,4 +25,13 @@ public class MediatorRequest {
 
     public TextDocumentIdentifier documentIdentifier;
     public Position position;
+
+    @Override
+    public String toString() {
+
+        return "MediatorRequest{" +
+                "documentIdentifier=" + documentIdentifier +
+                ", position=" + position +
+                '}';
+    }
 }

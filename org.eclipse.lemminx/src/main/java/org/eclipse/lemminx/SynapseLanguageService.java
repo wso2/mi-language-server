@@ -18,7 +18,6 @@
 
 package org.eclipse.lemminx;
 
-import com.github.mustachejava.Mustache;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.ISynapseLanguageService;
@@ -51,6 +50,7 @@ import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.Dependency
 import org.eclipse.lemminx.customservice.synapse.mediatorService.MediatorHandler;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.MediatorRequest;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.SynapseConfigRequest;
+import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.SynapseConfigResponse;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.UISchemaRequest;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.AbstractResourceFinder;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ArtifactFileScanner;
@@ -110,9 +110,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     private String projectUri;
     private boolean isLegacyProject;
     private String projectServerVersion;
-    private JsonObject mediatorList;
-    private Map<String, JsonObject> uiSchemaMap;
-    private Map<String, Mustache> templateMap;
+    private MediatorHandler mediatorHandler;
     private ConnectorHolder connectorHolder;
     private AbstractResourceFinder resourceFinder;
     private InboundConnectorHolder inboundConnectorHolder;
@@ -123,6 +121,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         this.xmlLanguageServer = xmlLanguageServer;
         this.connectorHolder = new ConnectorHolder();
         this.inboundConnectorHolder = new InboundConnectorHolder();
+        mediatorHandler = new MediatorHandler();
     }
 
     public void init(String projectUri, Object settings, SynapseLanguageClientAPI languageClient) {
@@ -135,11 +134,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
             this.projectUri = projectUri;
             this.isLegacyProject = Utils.isLegacyProject(projectUri);
             this.projectServerVersion = Utils.getServerVersion(projectUri, "4.3.0");
-            this.mediatorList = Utils.getMediatorList(projectServerVersion);
-            this.templateMap = Utils.getTemplateMap("org/eclipse/lemminx/mediators/"
-                    + projectServerVersion.replace(".", "") + "/templates");
-            this.uiSchemaMap = Utils.getUISchemaMap("org/eclipse/lemminx/mediators/"
-                    + projectServerVersion.replace(".", "") + "/ui-schemas");
+            mediatorHandler.init(projectServerVersion);
             initializeConnectorLoader();
             MediatorFactoryFinder.getInstance().setConnectorHolder(connectorHolder);
             try {
@@ -404,31 +399,29 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     public CompletableFuture<JsonObject> getMediators(MediatorRequest mediatorRequest) {
 
         return xmlTextDocumentService.computeDOMAsync(mediatorRequest.documentIdentifier,
-                (document, cancelChecker) -> MediatorHandler
-                        .getSupportedMediators(document, mediatorRequest.position, mediatorList));
+                (document, cancelChecker) -> mediatorHandler.getSupportedMediators(document, mediatorRequest.position));
     }
 
     @Override
     public CompletableFuture<JsonObject> getMediatorUISchema(UISchemaRequest uiSchemaRequest) {
 
-        JsonObject uiSchema = uiSchemaMap.get(uiSchemaRequest.mediatorName);
-        return CompletableFuture.supplyAsync(() -> uiSchema);
+        return CompletableFuture.supplyAsync(() -> mediatorHandler.getUiSchema(uiSchemaRequest.mediatorType));
     }
 
     @Override
-    public CompletableFuture<String> generateSynapseConfig(SynapseConfigRequest synapseConfigRequest) {
+    public CompletableFuture<SynapseConfigResponse> generateSynapseConfig(SynapseConfigRequest synapseConfigRequest) {
 
-        String synapseConfig = MediatorHandler.generateSynapseConfig(synapseConfigRequest.mediatorName, synapseConfigRequest.formData,
-                templateMap, mediatorList);
-        return CompletableFuture.supplyAsync(() -> synapseConfig);
+        return CompletableFuture.supplyAsync(
+                () -> mediatorHandler.generateSynapseConfig(synapseConfigRequest.documentUri,
+                        synapseConfigRequest.range, synapseConfigRequest.mediatorType, synapseConfigRequest.values,
+                        synapseConfigRequest.dirtyFields));
     }
 
     @Override
     public CompletableFuture<JsonObject> getMediatorUISchemaWithValues(MediatorRequest mediatorRequest) {
 
         return xmlTextDocumentService.computeDOMAsync(mediatorRequest.documentIdentifier,
-                (document, cancelChecker) -> MediatorHandler
-                        .getSchemaWithValues(document, mediatorRequest.position, uiSchemaMap, mediatorList));
+                (document, cancelChecker) -> mediatorHandler.getSchemaWithValues(document, mediatorRequest.position));
     }
 
     public String getProjectUri() {
