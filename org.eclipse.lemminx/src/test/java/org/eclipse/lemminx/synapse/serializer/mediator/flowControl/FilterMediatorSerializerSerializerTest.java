@@ -23,9 +23,9 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator.
 import org.eclipse.lemminx.synapse.serializer.mediator.MediatorSerializerTest;
 import org.junit.jupiter.api.Test;
 
-public class FilterMediatorSerializerTest extends MediatorSerializerTest {
+public class FilterMediatorSerializerSerializerTest extends MediatorSerializerTest {
 
-    public FilterMediatorSerializerTest() {
+    public FilterMediatorSerializerSerializerTest() {
 
         factory = new FilterFactory();
         serializer = new FilterMediatorSerializer();
