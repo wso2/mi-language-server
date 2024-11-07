@@ -20,5 +20,5 @@ package org.eclipse.lemminx.customservice.synapse.mediatorService.pojo;
 
 public class UISchemaRequest {
 
-    public String mediatorName;
+    public String mediatorType;
 }

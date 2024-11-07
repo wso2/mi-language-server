@@ -19,9 +19,13 @@
 package org.eclipse.lemminx.customservice.synapse.mediatorService.mediators;
 
 import com.google.gson.internal.LinkedTreeMap;
+import org.eclipse.lemminx.customservice.synapse.mediatorService.MediatorUtils;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.ExpressionFieldValue;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.Namespace;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Log;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle.Throttle;
+import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -32,7 +36,10 @@ import java.util.stream.Collectors;
 
 public class LogMediator {
 
-    public static Map<String, Object> processData(Map<String, Object> data) {
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+                                                                                           Log log,
+                                                                                           List<String> dirtyFields) {
+
         String level = (String) data.get("level");
         if (level != null) {
             data.put("level", level.toLowerCase());
@@ -46,15 +53,18 @@ public class LogMediator {
                     String propertyName = property.get("propertyName").toString();
                     ExpressionFieldValue value;
                     if (property.containsKey("expression")) {
-                        if (property.get("namespaces") instanceof List<?> && !((List<?>) property.get("namespaces")).isEmpty()) {
+                        if (property.get("namespaces") instanceof List<?> &&
+                                !((List<?>) property.get("namespaces")).isEmpty()) {
                             List<Namespace> namespaces = new ArrayList<>();
                             for (Object namespace : (List<?>) property.get("namespaces")) {
                                 if (namespace instanceof LinkedTreeMap) {
                                     LinkedTreeMap ns = (LinkedTreeMap) namespace;
-                                    namespaces.add(new Namespace(ns.get("prefix").toString(), ns.get("uri").toString()));
+                                    namespaces.add(
+                                            new Namespace(ns.get("prefix").toString(), ns.get("uri").toString()));
                                 }
                             }
-                            value = new ExpressionFieldValue(property.get("expression").toString(), true, namespaces.toArray(new Namespace[0]));
+                            value = new ExpressionFieldValue(property.get("expression").toString(), true,
+                                    namespaces.toArray(new Namespace[0]));
                         } else {
                             value = new ExpressionFieldValue(property.get("expression").toString(), true, null);
                         }
@@ -79,10 +89,11 @@ public class LogMediator {
             data.put("selfClosed", true);
         }
         data.put("properties", properties);
-        return data;
+        return Either.forLeft(data);
     }
 
     public static Map<String, Object> getDataFromST(Log node) {
+
         Map<String, Object> data = new HashMap<>();
         if (node.getCategory() != null) {
             data.put("category", node.getCategory());
@@ -97,25 +108,11 @@ public class LogMediator {
                 Map<String, Object> propertyData = new HashMap<>();
                 propertyData.put("value", property.getValue() != null ? property.getValue() : property.getExpression());
                 propertyData.put("isExpression", property.getExpression() != null);
-                propertyData.put("namespaces", transformNamespaces(property.getNamespaces()));
-                return new Object[] { property.getName(), propertyData };
+                propertyData.put("namespaces", MediatorUtils.transformNamespaces(property.getNamespaces()));
+                return new Object[]{property.getName(), propertyData};
             }).collect(Collectors.toList());
             data.put("properties", properties);
         }
         return data;
-    }
-
-    private static List<Namespace> transformNamespaces(Map<String, String> namespaces) {
-        List<Namespace> transformedNamespaces = new ArrayList<>();
-        if (namespaces != null && !namespaces.isEmpty()) {
-            for (Map.Entry<String, String> entry : namespaces.entrySet()) {
-                String key = entry.getKey();
-                String uri = entry.getValue();
-                String[] parts = key.split(":");
-                String prefix = parts.length > 1 ? parts[1] : "";
-                transformedNamespaces.add(new Namespace(prefix, uri));
-            }
-        }
-        return transformedNamespaces;
     }
 }

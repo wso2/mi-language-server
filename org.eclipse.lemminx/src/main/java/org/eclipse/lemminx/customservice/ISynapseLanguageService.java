@@ -43,6 +43,7 @@ import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnect
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.MediatorRequest;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.SynapseConfigRequest;
+import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.SynapseConfigResponse;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.UISchemaRequest;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceResponse;
@@ -152,7 +153,7 @@ public interface ISynapseLanguageService {
     CompletableFuture<JsonObject> getMediatorUISchema(UISchemaRequest uiSchemaRequest);
 
     @JsonRequest
-    CompletableFuture<String> generateSynapseConfig(SynapseConfigRequest synapseConfigRequest);
+    CompletableFuture<SynapseConfigResponse> generateSynapseConfig(SynapseConfigRequest synapseConfigRequest);
 
     @JsonRequest
     CompletableFuture<JsonObject> getMediatorUISchemaWithValues(MediatorRequest mediatorRequest);
