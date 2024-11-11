@@ -5,14 +5,24 @@
       "operationName": "MEDIATORS.CALL",
       "tooltip": "Invokes external services in blocking/non-blocking mode",
       "form": "<CallForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></CallForm>",
-      "tag": "call"
+      "tag": "call",
+      "mediatorClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.call.Call",
+      "factoryClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.core.CallFactory",
+      "processingClass": "org.eclipse.lemminx.customservice.synapse.mediatorService.mediators.CallMediator",
+      "storeMethod": "processData",
+      "retrieveMethod": "getDataFromST"
     },
     {
       "title": "Property",
       "operationName": "MEDIATORS.PROPERTY",
       "tooltip": "Manipulates message properties by setting and/or removing property values, supporting both constant and dynamically generated values through XPath expressions",
       "form": "<PropertyForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></PropertyForm>",
-      "tag": "property"
+      "tag": "property",
+      "mediatorClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Property",
+      "factoryClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.core.PropertyFactory",
+      "processingClass": "org.eclipse.lemminx.customservice.synapse.mediatorService.mediators.PropertyMediator",
+      "storeMethod": "processData",
+      "retrieveMethod": "getDataFromST"
     },
     {
       "title": "Log",
@@ -38,7 +48,12 @@
       "operationName": "MEDIATORS.RESPOND",
       "tooltip": "Terminates the processing of the current message flow and returns the message to the client",
       "form": "<RespondForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></RespondForm>",
-      "tag": "respond"
+      "tag": "respond",
+      "mediatorClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Respond",
+      "factoryClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.core.RespondFactory",
+      "processingClass": "org.eclipse.lemminx.customservice.synapse.mediatorService.mediators.RespondMediator",
+      "storeMethod": "processData",
+      "retrieveMethod": "getDataFromST"
     },
     {
       "title": "Data Mapper",
@@ -205,7 +220,12 @@
       "operationName": "MEDIATORS.SEQUENCE",
       "tooltip": "Inserts reference to a sequence",
       "form": "<SequenceForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></SequenceForm>",
-      "tag": "sequence"
+      "tag": "sequence",
+      "mediatorClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.SequenceMediator",
+      "factoryClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.core.SequenceFactory",
+      "processingClass": "org.eclipse.lemminx.customservice.synapse.mediatorService.mediators.SequenceMediator",
+      "storeMethod": "processData",
+      "retrieveMethod": "getDataFromST"
     },
     {
       "title": "Call Template",
@@ -219,7 +239,12 @@
       "operationName": "MEDIATORS.DROP",
       "tooltip": "Stops processing of the current message and terminates message flow",
       "form": "<DropForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></DropForm>",
-      "tag": "drop"
+      "tag": "drop",
+      "mediatorClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Drop",
+      "factoryClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.core.DropFactory",
+      "processingClass": "org.eclipse.lemminx.customservice.synapse.mediatorService.mediators.DropMediator",
+      "storeMethod": "processData",
+      "retrieveMethod": "getDataFromST"
     },
     {
       "title": "Property Group",

@@ -142,18 +142,18 @@ public class SynapseLanguageService implements ISynapseLanguageService {
             } catch (Exception e) {
                 log.log(Level.SEVERE, "Error while updating class loader for DB drivers.", e);
             }
-        } else{
+        } else {
             log.log(Level.SEVERE, "Project path is null. Language server initialization failed.");
         }
         resourceFinder = ResourceFinderFactory.getResourceFinder(isLegacyProject);
         inboundConnectorHolder.init(projectUri);
     }
 
-    private void initializeConnectorLoader(){
-        if(isLegacyProject){
-            connectorLoader = new OldProjectConnectorLoader(languageClient,connectorHolder);
-        } else{
-            connectorLoader = new NewProjectConnectorLoader(languageClient,connectorHolder);
+    private void initializeConnectorLoader() {
+        if (isLegacyProject) {
+            connectorLoader = new OldProjectConnectorLoader(languageClient, connectorHolder);
+        } else {
+            connectorLoader = new NewProjectConnectorLoader(languageClient, connectorHolder);
         }
         connectorLoader.init(projectUri);
         updateConnectors();
@@ -398,8 +398,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     @Override
     public CompletableFuture<JsonObject> getMediators(MediatorRequest mediatorRequest) {
 
-        return xmlTextDocumentService.computeDOMAsync(mediatorRequest.documentIdentifier,
-                (document, cancelChecker) -> mediatorHandler.getSupportedMediators(document, mediatorRequest.position));
+        return CompletableFuture.supplyAsync(() -> mediatorHandler.getSupportedMediators(mediatorRequest.documentIdentifier, mediatorRequest.position));
     }
 
     @Override
@@ -419,9 +418,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
     @Override
     public CompletableFuture<JsonObject> getMediatorUISchemaWithValues(MediatorRequest mediatorRequest) {
-
-        return xmlTextDocumentService.computeDOMAsync(mediatorRequest.documentIdentifier,
-                (document, cancelChecker) -> mediatorHandler.getSchemaWithValues(document, mediatorRequest.position));
+        return CompletableFuture.supplyAsync(() ->  mediatorHandler.getSchemaWithValues(mediatorRequest.documentIdentifier, mediatorRequest.position));
     }
 
     public String getProjectUri() {

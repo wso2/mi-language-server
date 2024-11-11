@@ -2,9 +2,7 @@ package org.eclipse.lemminx.customservice.synapse.mediatorService;
 
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.Namespace;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MediatorUtils {
 
@@ -26,5 +24,22 @@ public class MediatorUtils {
     public static boolean anyMatch(List<String> first, List<String> second) {
 
         return first.stream().anyMatch(second::contains);
+    }
+
+    public static List<Map<String, Object>> filterNamespaces(List<Map<String, Object>> namespaces) {
+        List<Map<String, Object>> filteredNamespaces = new ArrayList<>();
+        Set<String> prefixes = new HashSet<>();
+        Set<String> uris = new HashSet<>();
+
+        for (Map<String, Object> namespace : namespaces) {
+            String key = (String) namespace.get("prefix");
+            String uri = (String) namespace.get("uri");
+            if (!prefixes.contains(key) && !uris.contains(uri)) {
+                prefixes.add(key);
+                uris.add(uri);
+                filteredNamespaces.add(namespace);
+            }
+        }
+        return filteredNamespaces;
     }
 }

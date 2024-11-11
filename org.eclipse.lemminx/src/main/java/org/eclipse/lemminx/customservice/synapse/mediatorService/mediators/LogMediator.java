@@ -23,7 +23,6 @@ import org.eclipse.lemminx.customservice.synapse.mediatorService.MediatorUtils;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.ExpressionFieldValue;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.Namespace;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Log;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.throttle.Throttle;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
@@ -47,41 +46,45 @@ public class LogMediator {
         List<Map<String, Object>> properties = new ArrayList<>();
         Object propertyObj = data.get("properties");
         if (propertyObj instanceof List<?>) {
-            for (Object propertyElement : (List<?>) propertyObj) {
-                if (propertyElement instanceof LinkedTreeMap) {
-                    LinkedTreeMap property = (LinkedTreeMap) propertyElement;
-                    String propertyName = property.get("propertyName").toString();
-                    ExpressionFieldValue value;
-                    if (property.containsKey("expression")) {
-                        if (property.get("namespaces") instanceof List<?> &&
-                                !((List<?>) property.get("namespaces")).isEmpty()) {
-                            List<Namespace> namespaces = new ArrayList<>();
-                            for (Object namespace : (List<?>) property.get("namespaces")) {
-                                if (namespace instanceof LinkedTreeMap) {
-                                    LinkedTreeMap ns = (LinkedTreeMap) namespace;
-                                    namespaces.add(
-                                            new Namespace(ns.get("prefix").toString(), ns.get("uri").toString()));
+            for (Object property : (List<?>) propertyObj) {
+                if (property instanceof List) {
+                    String propertyName = (String) ((List<?>) property).get(0);
+                    Object propertyElementObj = ((List<?>) property).get(1);
+                    if (propertyElementObj instanceof LinkedTreeMap) {
+                        ExpressionFieldValue value;
+                        LinkedTreeMap propertyElement = (LinkedTreeMap) propertyElementObj;
+                        Boolean isExpression = (Boolean) propertyElement.get("isExpression");
+                        if (isExpression) {
+                            if (propertyElement.get("namespaces") instanceof List<?> &&
+                                    !((List<?>) propertyElement.get("namespaces")).isEmpty()) {
+                                List<Namespace> namespaces = new ArrayList<>();
+                                for (Object namespace : (List<?>) propertyElement.get("namespaces")) {
+                                    if (namespace instanceof LinkedTreeMap) {
+                                        LinkedTreeMap ns = (LinkedTreeMap) namespace;
+                                        namespaces.add(
+                                                new Namespace(ns.get("prefix").toString(), ns.get("uri").toString()));
+                                    }
                                 }
+                                value = new ExpressionFieldValue(propertyElement.get("expression").toString(), true,
+                                        namespaces.toArray(new Namespace[0]));
+                            } else {
+                                value = new ExpressionFieldValue(propertyElement.get("value").toString(), true, null);
                             }
-                            value = new ExpressionFieldValue(property.get("expression").toString(), true,
-                                    namespaces.toArray(new Namespace[0]));
                         } else {
-                            value = new ExpressionFieldValue(property.get("expression").toString(), true, null);
+                            value = new ExpressionFieldValue(propertyElement.get("value").toString(), false, null);
                         }
-                    } else {
-                        value = new ExpressionFieldValue(property.get("value").toString(), false, null);
+                        boolean isExpressionValue = value.isExpression();
+                        Object namespaces = value.getNamespaces();
+                        Map<String, Object> propertyData = new HashMap<>();
+                        propertyData.put("propertyName", propertyName);
+                        if (!isExpressionValue) {
+                            propertyData.put("value", value.getValue());
+                        } else {
+                            propertyData.put("expression", value.getValue());
+                        }
+                        propertyData.put("namespaces", namespaces);
+                        properties.add(propertyData);
                     }
-                    boolean isExpressionValue = value.isExpression();
-                    Object namespaces = value.getNamespaces();
-                    Map<String, Object> propertyData = new HashMap<>();
-                    propertyData.put("propertyName", propertyName);
-                    if (!isExpressionValue) {
-                        propertyData.put("value", value.getValue());
-                    } else {
-                        propertyData.put("expression", value.getValue());
-                    }
-                    propertyData.put("namespaces", namespaces);
-                    properties.add(propertyData);
                 }
             }
         }
