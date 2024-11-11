@@ -27,11 +27,13 @@ import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.SynapseConfigResponse;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.MediatorFactoryFinder;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.InvalidMediator;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
@@ -60,10 +62,11 @@ public class MediatorHandler {
                 + projectServerVersion.replace(".", "") + "/ui-schemas");
     }
 
-    public JsonObject getSupportedMediators(DOMDocument document, Position position) {
+    public JsonObject getSupportedMediators(TextDocumentIdentifier documentIdentifier, Position position) {
         try {
-            List<String> lastMediators = Arrays.asList("send","drop","loopback", "respond");
-            List<String> iterateMediators = Arrays.asList("iterate","foreach");
+            DOMDocument document = Utils.getDOMDocument(new File(documentIdentifier.getUri().replaceFirst("file://", "")));
+            List<String> lastMediators = Arrays.asList("send", "drop", "loopback", "respond");
+            List<String> iterateMediators = Arrays.asList("iterate", "foreach");
             int offset = document.offsetAt(position);
             DOMNode currentNode = document.findNodeAt(offset);
             DOMNode nextMediator = currentNode.getNextSibling();
@@ -86,7 +89,8 @@ public class MediatorHandler {
     public SynapseConfigResponse generateSynapseConfig(String documentUri, Range range, String mediator,
                                                        Map<String, Object> data, List<String> dirtyFields) {
         try {
-            STNode node = getMediatorNodeAtPosition(Utils.getDOMDocument(new File(documentUri)), range.getStart());
+            boolean isUpdate = !(range.getEnd().getCharacter() - range.getStart().getCharacter() == 0);
+            STNode node = getMediatorNodeAtPosition(Utils.getDOMDocument(new File(documentUri)), range.getStart(),isUpdate);
             for (Map.Entry<String, JsonElement> entry : mediatorList.entrySet()) {
                 JsonArray mediatorsArray = entry.getValue().getAsJsonArray();
                 for (JsonElement mediatorElement : mediatorsArray) {
@@ -97,14 +101,14 @@ public class MediatorHandler {
                         String processingMethod = mediatorObject.get("storeMethod").getAsString();
                         Class<?> mediatorProcessor = Class.forName(processingClass);
                         Object processorInstance = mediatorProcessor.getDeclaredConstructor().newInstance();
-                        Method processorMethod = mediatorProcessor.getMethod(processingMethod, Map.class,Class.forName(mediatorClass), List.class);
+                        Method processorMethod = mediatorProcessor.getMethod(processingMethod, Map.class, Class.forName(mediatorClass), List.class);
 
-                        Either<Map<String, Object>,Map<Range, Map<String, Object>>>
+                        Either<Map<String, Object>, Map<Range, Map<String, Object>>>
                                 processedData =
                                 (Either<Map<String, Object>, Map<Range, Map<String, Object>>>) processorMethod.invoke(processorInstance, data, node, dirtyFields);
-                        if (processedData.isLeft()){
+                        if (processedData.isLeft()) {
                             StringWriter writer = new StringWriter();
-                            String edit =  templateMap.get(mediator).execute(writer, processedData.getLeft()).toString();
+                            String edit = templateMap.get(mediator).execute(writer, processedData.getLeft()).toString();
                             TextEdit textEdit = new TextEdit(range, edit);
                             return new SynapseConfigResponse(textEdit);
                         } else {
@@ -112,7 +116,7 @@ public class MediatorHandler {
                             SynapseConfigResponse edits = new SynapseConfigResponse();
                             for (Map.Entry<Range, Map<String, Object>> entry1 : editsData.entrySet()) {
                                 StringWriter writer = new StringWriter();
-                                String edit =  templateMap.get(mediator).execute(writer, entry1.getValue()).toString();
+                                String edit = templateMap.get(mediator).execute(writer, entry1.getValue()).toString();
                                 TextEdit textEdit = new TextEdit(entry1.getKey(), edit);
                                 edits.addTextEdit(textEdit);
                             }
@@ -127,12 +131,12 @@ public class MediatorHandler {
         return null;
     }
 
-    public JsonObject getSchemaWithValues(DOMDocument document, Position position) {
-
+    public JsonObject getSchemaWithValues(TextDocumentIdentifier documentIdentifier, Position position) {
         try {
-            STNode node = getMediatorNodeAtPosition(document, position);
+            DOMDocument document = Utils.getDOMDocument(new File(documentIdentifier.getUri().replaceFirst("file://", "")));
+            STNode node = getMediatorNodeAtPosition(document, position, Boolean.TRUE);
             String mediatorName = node.getTag();
-            JsonObject uiSchema = uiSchemaMap.get(mediatorName);
+            JsonObject uiSchema = uiSchemaMap.get(mediatorName).deepCopy();
             for (Map.Entry<String, JsonElement> entry : mediatorList.entrySet()) {
                 JsonArray mediatorsArray = entry.getValue().getAsJsonArray();
                 for (JsonElement mediatorElement : mediatorsArray) {
@@ -156,13 +160,16 @@ public class MediatorHandler {
         return null;
     }
 
-    private STNode getMediatorNodeAtPosition(DOMDocument document, Position position) throws BadLocationException {
+    private STNode getMediatorNodeAtPosition(DOMDocument document, Position position, Boolean isUpdate) throws BadLocationException {
 
-        position = new Position(position.getLine(), position.getCharacter() + 1);
+        position = new Position(position.getLine(), position.getCharacter() + (isUpdate ? 1 : 0));
         int offset = document.offsetAt(position);
         DOMNode node = document.findNodeAt(offset);
         if (node != null) {
-            return MediatorFactoryFinder.getInstance().getMediator(node);
+            STNode mediator = MediatorFactoryFinder.getInstance().getMediator(node);
+            if (mediator != null && !(mediator instanceof InvalidMediator)) {
+                return mediator;
+            }
         }
         return null;
     }
