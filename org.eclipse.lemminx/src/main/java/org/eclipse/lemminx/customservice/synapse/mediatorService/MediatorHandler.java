@@ -89,7 +89,7 @@ public class MediatorHandler {
     public SynapseConfigResponse generateSynapseConfig(String documentUri, Range range, String mediator,
                                                        Map<String, Object> data, List<String> dirtyFields) {
         try {
-            boolean isUpdate = !(range.getEnd().getCharacter() - range.getStart().getCharacter() == 0);
+            boolean isUpdate = range.getEnd().equals(range.getStart());
             STNode node = getMediatorNodeAtPosition(Utils.getDOMDocument(new File(documentUri)), range.getStart(),isUpdate);
             for (Map.Entry<String, JsonElement> entry : mediatorList.entrySet()) {
                 JsonArray mediatorsArray = entry.getValue().getAsJsonArray();
