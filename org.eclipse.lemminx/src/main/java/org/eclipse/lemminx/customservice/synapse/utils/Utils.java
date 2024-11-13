@@ -603,14 +603,16 @@ public class Utils {
             File pomFile = pomPath.toFile();
             DOMDocument document = getDOMDocument(pomFile);
 
-            NodeList propertiesList = document.getElementsByTagName("properties");
-
-            if (propertiesList.getLength() > 0) {
-                Element properties = (Element) propertiesList.item(0);
-                NodeList runtimeVersionList = properties.getElementsByTagName("project.runtime.version");
-
-                if (runtimeVersionList.getLength() > 0) {
-                    return runtimeVersionList.item(0).getTextContent().trim();
+            DOMNode propertiesList = getChildNodeByName(document.getDocumentElement(), "properties");
+            if (propertiesList != null) {
+                DOMNode runtimeVersionList = getChildNodeByName(propertiesList, "project.runtime.version");
+                if (runtimeVersionList != null) {
+                    String version = getInlineString(runtimeVersionList.getFirstChild());
+                    Pattern pattern = Pattern.compile("^\\d+\\.\\d+\\.\\d+$");
+                    Matcher matcher = pattern.matcher(version);
+                    if (matcher.matches()) {
+                        return version;
+                    }
                 }
             }
         } catch (Exception e) {
