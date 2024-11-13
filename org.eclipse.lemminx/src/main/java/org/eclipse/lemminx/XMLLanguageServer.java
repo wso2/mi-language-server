@@ -102,7 +102,7 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 	private Integer parentProcessId;
 	private XMLCapabilityManager capabilityManager;
 	private TelemetryManager telemetryManager;
-	public final SynapseLanguageService synapseLanguageService;
+	private final SynapseLanguageService synapseLanguageService;
 
 	public XMLLanguageServer() {
 		xmlTextDocumentService = new XMLTextDocumentService(this);
