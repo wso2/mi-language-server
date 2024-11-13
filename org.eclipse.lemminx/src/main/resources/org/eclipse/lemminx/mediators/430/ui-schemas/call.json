@@ -13,7 +13,7 @@
                 "comboValues": [
                     "NONE"
                 ],
-                "isCreateNew":true,
+                "canAddNew":true,
                 "required": true,
                 "keyType":"endpoint",
                 "helpTip": "Choose an existing endpoint, or specify a new one"

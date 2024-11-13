@@ -89,7 +89,7 @@ public class MediatorHandler {
     public SynapseConfigResponse generateSynapseConfig(String documentUri, Range range, String mediator,
                                                        Map<String, Object> data, List<String> dirtyFields) {
         try {
-            boolean isUpdate = range.getEnd().equals(range.getStart());
+            boolean isUpdate = !range.getEnd().equals(range.getStart());
             STNode node = getMediatorNodeAtPosition(Utils.getDOMDocument(new File(documentUri)), range.getStart(),isUpdate);
             for (Map.Entry<String, JsonElement> entry : mediatorList.entrySet()) {
                 JsonArray mediatorsArray = entry.getValue().getAsJsonArray();
@@ -108,7 +108,7 @@ public class MediatorHandler {
                                 (Either<Map<String, Object>, Map<Range, Map<String, Object>>>) processorMethod.invoke(processorInstance, data, node, dirtyFields);
                         if (processedData.isLeft()) {
                             StringWriter writer = new StringWriter();
-                            String edit = templateMap.get(mediator).execute(writer, processedData.getLeft()).toString();
+                            String edit = templateMap.get(mediator).execute(writer, processedData.getLeft()).toString().trim();
                             TextEdit textEdit = new TextEdit(range, edit);
                             return new SynapseConfigResponse(textEdit);
                         } else {
@@ -116,7 +116,7 @@ public class MediatorHandler {
                             SynapseConfigResponse edits = new SynapseConfigResponse();
                             for (Map.Entry<Range, Map<String, Object>> entry1 : editsData.entrySet()) {
                                 StringWriter writer = new StringWriter();
-                                String edit = templateMap.get(mediator).execute(writer, entry1.getValue()).toString();
+                                String edit = templateMap.get(mediator).execute(writer, entry1.getValue()).toString().trim();
                                 TextEdit textEdit = new TextEdit(entry1.getKey(), edit);
                                 edits.addTextEdit(textEdit);
                             }

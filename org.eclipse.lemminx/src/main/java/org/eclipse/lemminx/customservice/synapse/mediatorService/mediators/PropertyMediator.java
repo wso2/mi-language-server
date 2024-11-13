@@ -1,5 +1,6 @@
 package org.eclipse.lemminx.customservice.synapse.mediatorService.mediators;
 
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.PropertyMediatorType;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Property;
@@ -18,7 +19,7 @@ public class PropertyMediator {
 
         List<Map<String, Object>> namespaces = new ArrayList<>();
 
-        Map<String, Object> propertyName = (Map<String, Object>) data.get("propertyName");
+        Map<String, Object> propertyName = data.get("propertyName") instanceof Map<?,?> ? (Map<String, Object>) data.get("propertyName") : null;
         if (propertyName != null && Boolean.TRUE.equals(propertyName.get("isExpression"))) {
             namespaces.addAll((List<Map<String, Object>>) propertyName.getOrDefault("namespaces", new ArrayList<>()));
             data.put("propertyName", "{" + propertyName.get("value") + "}");
@@ -28,7 +29,7 @@ public class PropertyMediator {
 
         if ("OM".equals(data.get("propertyDataType"))) {
             data.remove("value");
-            Map<String, Object> omValue = (Map<String, Object>) data.get("OMValue");
+            Map<String, Object> omValue = data.get("OMValue") instanceof Map<?,?> ? (Map<String, Object>) data.get("OMValue") : null;
             if (omValue != null && Boolean.TRUE.equals(omValue.get("isExpression"))) {
                 namespaces.addAll((List<Map<String, Object>>) omValue.getOrDefault("namespaces", new ArrayList<>()));
                 data.put("expression", omValue.get("value"));
@@ -57,7 +58,7 @@ public class PropertyMediator {
             data.remove("valueStringCapturingGroup");
         }
 
-        Map<String, Object> value = (Map<String, Object>) data.get("value");
+        Map<String, Object> value = data.get("value") instanceof Map<?,?> ? (Map<String, Object>) data.get("value") : null;
         if (value != null && Boolean.TRUE.equals(value.get("isExpression"))) {
             namespaces.addAll((List<Map<String, Object>>) value.getOrDefault("namespaces", new ArrayList<>()));
             data.put("expression", value.get("value"));
@@ -78,24 +79,22 @@ public class PropertyMediator {
         Map<String, Object> data = new HashMap<>();
         data.put("description", node.getDescription());
 
+        Map<String, Object> propertyName = new HashMap<>();
         if (node.getName() != null && node.getName().startsWith("{") && node.getName().endsWith("}")) {
-            Map<String, Object> propertyName = new HashMap<>();
             propertyName.put("isExpression", true);
             propertyName.put("value", node.getName().substring(1, node.getName().length() - 1));
             propertyName.put("namespaces", MediatorUtils.transformNamespaces(node.getNamespaces()));
-            data.put("propertyName", propertyName);
         } else {
-            Map<String, Object> propertyName = new HashMap<>();
             propertyName.put("isExpression", false);
             propertyName.put("value", node.getName());
-            data.put("propertyName", propertyName);
         }
+        data.put("propertyName", propertyName);
 
         if (node.getType() != null) {
             data.put("propertyDataType", node.getType());
         }
 
-        if ("OM".equals(node.getType())) {
+        if (PropertyMediatorType.OM.equals(node.getType())) {
             Map<String, Object> omValue = new HashMap<>();
             if (node.getExpression() != null) {
                 omValue.put("isExpression", true);
