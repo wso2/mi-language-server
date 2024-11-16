@@ -219,7 +219,7 @@ public abstract class AbstractResourceFinder {
                     if (!".meta".equals(file.getName())) {
                         traverseFolder(file, requestedTypeToXmlTagMap, handler, resources);
                     }
-                } else if (file.isFile() && isFileInRegistry(file)) {
+                } else if (file.isFile()) {
                     if (Utils.isRegistryPropertiesFile(file)) {
                         continue;
                     }

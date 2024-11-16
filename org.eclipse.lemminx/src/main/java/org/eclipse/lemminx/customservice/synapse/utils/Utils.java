@@ -263,6 +263,11 @@ public class Utils {
         return file.exists();
     }
 
+    public static boolean isFileInRegistry(File file) {
+
+        return file.getAbsolutePath().contains(Constant.REGISTRY + File.separator + Constant.GOV) || file.getAbsolutePath().contains(Constant.REGISTRY + File.separator + Constant.CONF);
+    }
+
     public static boolean isZipFile(File file) {
 
         String fileName = file.getName();
