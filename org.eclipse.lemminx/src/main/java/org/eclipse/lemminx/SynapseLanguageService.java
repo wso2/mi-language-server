@@ -78,7 +78,6 @@ import org.eclipse.lemminx.customservice.synapse.parser.pom.PomParser;
 import org.eclipse.lemminx.customservice.synapse.parser.ConnectorDownloadManager;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.AbstractResourceFinder;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ArtifactFileScanner;
-import org.eclipse.lemminx.customservice.synapse.resourceFinder.CertificateScanner;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.RegistryFileScanner;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointInfoResponse;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.BreakpointsRequest;
@@ -87,6 +86,7 @@ import org.eclipse.lemminx.customservice.synapse.debugger.DebuggerHelper;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.ValidationResponse;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateAPIParam;
 import org.eclipse.lemminx.customservice.synapse.api.generator.RestApiAdmin;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceFileScanner;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceFinderFactory;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceResponse;
@@ -301,6 +301,13 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
         List<String> registryFiles = RegistryFileScanner.scanRegistryFiles(projectUri);
         return CompletableFuture.supplyAsync(() -> registryFiles);
+    }
+
+    @Override
+    public CompletableFuture<List<String>> getResourceFiles() {
+
+        List<String> resourceFiles = ResourceFileScanner.scanResourceFiles(projectUri);
+        return CompletableFuture.supplyAsync(() -> resourceFiles);
     }
 
     @Override

@@ -104,6 +104,9 @@ public interface ISynapseLanguageService {
     CompletableFuture<List<String>> getRegistryFiles(TextDocumentIdentifier param);
 
     @JsonRequest
+    CompletableFuture<List<String>> getResourceFiles();
+
+    @JsonRequest
     CompletableFuture<List<ConfigurableEntry>> getConfigurableEntries();
 
     @JsonRequest
