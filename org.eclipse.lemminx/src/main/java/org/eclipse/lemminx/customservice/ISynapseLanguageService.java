@@ -22,6 +22,7 @@ import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateAPIResponse;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerParam;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerResponse;
+import org.eclipse.lemminx.customservice.synapse.configurable.ConfigurableEntry;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectionUIParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connections;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorParam;
@@ -103,6 +104,9 @@ public interface ISynapseLanguageService {
     CompletableFuture<List<String>> getRegistryFiles(TextDocumentIdentifier param);
 
     @JsonRequest
+    CompletableFuture<List<ConfigurableEntry>> getConfigurableEntries();
+
+    @JsonRequest
     CompletableFuture<List<String>> getArtifactFiles(TextDocumentIdentifier param);
 
     @JsonRequest
@@ -182,7 +186,7 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<MediatorTryoutInfo> mediatorInputOutputSchema(MediatorTryoutRequest request);
-  
+
     @JsonRequest
     CompletableFuture<OverviewPageDetailsResponse> getOverviewPageDetails();
 

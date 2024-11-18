@@ -25,6 +25,8 @@ import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateAPIResponse;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerParam;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerResponse;
+import org.eclipse.lemminx.customservice.synapse.configurable.ConfigurableEntry;
+import org.eclipse.lemminx.customservice.synapse.configurable.ConfigurableEntryScanner;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectionHandler;
 import org.eclipse.lemminx.customservice.synapse.connectors.NewProjectConnectorLoader;
 import org.eclipse.lemminx.customservice.synapse.connectors.OldProjectConnectorLoader;
@@ -121,6 +123,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.messages.Either3;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -298,6 +301,18 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
         List<String> registryFiles = RegistryFileScanner.scanRegistryFiles(projectUri);
         return CompletableFuture.supplyAsync(() -> registryFiles);
+    }
+
+    @Override
+    public CompletableFuture<List<ConfigurableEntry>> getConfigurableEntries() {
+
+        try {
+            List<ConfigurableEntry> configurableEntries = ConfigurableEntryScanner.scanConfigurableEntries(projectUri);
+            return CompletableFuture.supplyAsync(() -> configurableEntries);
+        } catch (IOException e) {
+            log.log(Level.SEVERE, "Error while scanning configurable entries.", e);
+            return CompletableFuture.supplyAsync(() -> new ArrayList<>());
+        }
     }
 
     @Override
