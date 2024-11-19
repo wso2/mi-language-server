@@ -163,9 +163,8 @@ public class Utils {
     public static DOMDocument getDOMDocument(File file) throws IOException {
 
         Path path = file.toPath();
-        String text = "";
-        text = Files.readString(path);
-        TextDocument document = new TextDocument(text, file.getName());
+        String text = Files.readString(path);
+        TextDocument document = new TextDocument(text, path.toUri().toString());
         DOMDocument domDocument = DOMParser.getInstance().parse(document, null);
         return domDocument;
     }

@@ -325,7 +325,9 @@ public class MIServer {
         while (iterator.hasNext()) {
             File deployedFile = new File(iterator.next());
             try {
-                Files.delete(deployedFile.toPath());
+                if (deployedFile.exists()) {
+                    Files.delete(deployedFile.toPath());
+                }
                 iterator.remove();
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, String.format("Error while deleting the file: %s", deployedFile), e);
@@ -350,7 +352,7 @@ public class MIServer {
                 return;
             }
         }
-        LOGGER.log(Level.WARNING, "Server did not start within the timeout period.");
+        LOGGER.log(Level.WARNING, "Server did not start within the timeout period");
     }
 
     private boolean isServerRunning() {

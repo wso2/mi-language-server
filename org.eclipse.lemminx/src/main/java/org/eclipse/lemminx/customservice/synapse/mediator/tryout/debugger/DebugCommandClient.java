@@ -78,6 +78,9 @@ public class DebugCommandClient {
 
     public boolean isConnected() {
 
+        if (socket == null) {
+            return false;
+        }
         return socket.isConnected();
     }
 

@@ -35,8 +35,8 @@ public class Utils {
 
     private static final Logger LOGGER = Logger.getLogger(Utils.class.getName());
     public static void visitSequence(Sequence seq, MediatorTryoutInfo info, Position position) {
-        if (seq != null && checkNodeInRange(seq, position)) {
 
+        if (seq != null && checkNodeInRange(seq, position)) {
             List<Mediator> mediatorList = seq.getMediatorList();
             if (mediatorList != null) {
                 visitMediators(mediatorList, info, position);
@@ -52,6 +52,7 @@ public class Utils {
             if (checkNodeInRange(mediator, position)) {
                 break;
             }
+            info.swapInputOutput();
         }
     }
 

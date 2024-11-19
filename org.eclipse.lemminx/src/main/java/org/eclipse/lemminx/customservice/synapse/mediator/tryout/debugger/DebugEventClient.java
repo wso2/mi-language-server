@@ -97,6 +97,9 @@ public class DebugEventClient extends Thread {
 
     public boolean isConnected() {
 
+        if (socket == null) {
+            return false;
+        }
         return socket.isConnected();
     }
 

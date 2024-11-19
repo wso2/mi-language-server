@@ -150,7 +150,7 @@ public class TryoutMediatorVisitor extends AbstractMediatorVisitor {
     protected void visitPayloadFactory(PayloadFactory node) {
 
         String content = (String) node.getFormat().getContent();
-        info.getOutput().setPayload(new JsonPrimitive(content));
+        info.setInputPayload(new JsonPrimitive(content));
     }
 
     @Override
@@ -299,32 +299,32 @@ public class TryoutMediatorVisitor extends AbstractMediatorVisitor {
         String propertyName = node.getName();
         PropertyScope scope = node.getScope();
         org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property property =
-                new org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property(propertyName, "");
+                new org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property(propertyName, node.getValue()!=null ? node.getValue() : node.getExpression());
         if (scope != null) {
             switch (scope) {
                 case AXIS2:
-                    info.getOutput().getAxis2().add(property);
+                    info.addOutputAxis2Properties(property);
                     break;
                 case AXIS2_CLIENT:
-                    info.getOutput().getAxis2Client().add(property);
+                    info.addOutputAxis2ClientProperties(property);
                     break;
                 case OPERATION:
-                    info.getOutput().getAxis2Operation().add(property);
+                    info.addOutputAxis2OperationProperties(property);
                     break;
                 case TRANSPORT:
-                    info.getOutput().getAxis2Transport().add(property);
+                    info.addInputAxis2TransportProperties(property);
                     break;
                 default:
-                    info.getOutput().getSynapse().add(property);
+                    info.addOutputSynapseProperties(property);
             }
         } else {
-            info.getOutput().getSynapse().add(property);
+            info.addOutputSynapseProperties(property);
         }
     }
 
     @Override
     protected void visitForeach(Foreach node) {
-
+        // Do nothing
     }
 
     @Override
@@ -355,6 +355,7 @@ public class TryoutMediatorVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitDrop(Drop node) {
 
+        // Do nothing
     }
 
     @Override

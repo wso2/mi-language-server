@@ -18,6 +18,8 @@
 
 package org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo;
 
+import com.google.gson.JsonPrimitive;
+
 public class MediatorTryoutInfo {
 
     private MediatorInfo input;
@@ -49,17 +51,84 @@ public class MediatorTryoutInfo {
 
     public MediatorInfo getInput() {
 
-        return input;
+        return input.clone();
     }
 
     public MediatorInfo getOutput() {
 
-        return output;
+        return output.clone();
     }
 
     public String getError() {
 
         return error;
+    }
+
+    public void setInputPayload(JsonPrimitive jsonPrimitive) {
+
+        input.setPayload(jsonPrimitive);
+    }
+
+    public void addInputSynapseProperties(Property property) {
+
+        input.addSynapseProperty(property);
+    }
+
+    public void addInputAxis2Properties(Property property) {
+
+        input.addAxis2Property(property);
+    }
+
+    public void addInputAxis2ClientProperties(Property property) {
+
+        input.addAxis2ClientProperty(property);
+    }
+
+    public void addInputAxis2TransportProperties(Property property) {
+
+        input.addAxis2TransportProperty(property);
+    }
+
+    public void addInputAxis2OperationProperties(Property property) {
+
+        input.addAxis2OperationProperty(property);
+    }
+
+    public void setOutputPayload(JsonPrimitive jsonPrimitive) {
+
+        output.setPayload(jsonPrimitive);
+    }
+
+    public void addOutputSynapseProperties(Property property) {
+
+        output.addSynapseProperty(property);
+    }
+
+    public void addOutputAxis2Properties(Property property) {
+
+        output.addAxis2Property(property);
+    }
+
+    public void addOutputAxis2ClientProperties(Property property) {
+
+        output.addAxis2ClientProperty(property);
+    }
+
+    public void addOutputAxis2TransportProperties(Property property) {
+
+        output.addAxis2TransportProperty(property);
+    }
+
+    public void addOutputAxis2OperationProperties(Property property) {
+
+        output.addAxis2OperationProperty(property);
+    }
+
+    public void swapInputOutput() {
+
+        MediatorInfo temp = input.clone();
+        input = output.clone();
+        output = temp;
     }
 
     @Override

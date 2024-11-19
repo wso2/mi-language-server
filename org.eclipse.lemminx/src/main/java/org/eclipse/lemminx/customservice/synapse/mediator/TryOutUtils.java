@@ -101,7 +101,7 @@ public class TryOutUtils {
      * @param tryoutFile the file in which the mediator is getting tried out
      * @param edits      the edits to be applied
      * @param tempFolder the temporary folder to clone the project
-     * @return
+     * @return the path of the file in which the edits are applied
      * @throws IOException
      */
     public static Path cloneAndPreprocessProject(String projectUri, String tryoutFile, Edit[] edits, Path tempFolder)

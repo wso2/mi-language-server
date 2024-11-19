@@ -55,7 +55,7 @@ public class ServerLessTryoutHandler {
             if (request.getInputPayload() != null) {
                 payload = new JsonPrimitive(request.getInputPayload());
             }
-            mediatorTryoutInfo.getInput().setPayload(payload);
+            mediatorTryoutInfo.setInputPayload(payload);
             DOMDocument domDocument = Utils.getDOMDocument(new File(filePath));
             STNode node = SyntaxTreeGenerator.buildTree(domDocument.getDocumentElement());
             if (node != null) {
