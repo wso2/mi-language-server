@@ -284,6 +284,22 @@ public class DirectoryTreeBuilder {
         analyzeRegistryResources(directoryTree);
         analyzeConnectorResources(directoryTree);
         analyzeMetadataResources(directoryTree);
+        analyzeNewResources(directoryTree);
+    }
+
+    private static void analyzeNewResources(IntegrationDirectoryTree directoryTree) {
+
+        String registryPath = projectPath + File.separator + Constant.SRC + File.separator +
+                MAIN + File.separator + WSO2MI + File.separator + RESOURCES;
+        File folder = new File(registryPath);
+        if (folder != null && folder.exists()) {
+            if (!folder.isHidden()) {
+                String folderName = folder.getName();
+                FolderNode registryFolderNode = new FolderNode(folderName, registryPath);
+                traverseFolder(registryFolderNode, directoryTree);
+                directoryTree.getResources().setFolderNode(registryFolderNode);
+            }
+        }
     }
 
     private static void analyzeRegistryResources(IntegrationDirectoryTree directoryTree) {

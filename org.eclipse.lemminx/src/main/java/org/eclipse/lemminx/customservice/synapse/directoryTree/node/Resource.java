@@ -26,12 +26,23 @@ public class Resource {
     private RegistryResource registry;
     private List<Node> connectors;
     private List<Node> metadata;
+    private FolderNode folderNode;
 
     public Resource() {
 
         registry = new RegistryResource();
         connectors = new ArrayList<>();
         metadata = new ArrayList<>();
+    }
+
+    public FolderNode getFolderNode() {
+
+        return folderNode;
+    }
+
+    public void setFolderNode(FolderNode folderNode) {
+
+        this.folderNode = folderNode;
     }
 
     public void addConnector(Node connector) {
