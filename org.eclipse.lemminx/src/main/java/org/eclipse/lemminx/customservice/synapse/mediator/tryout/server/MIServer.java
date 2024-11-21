@@ -94,6 +94,7 @@ public class MIServer {
         assignServerPort();
         assignDebuggerPorts();
         updateDeploymentConfiguration();
+        updateHotDeploymentInterval();
         if (!serverPath.toFile().exists()) {
             return;
         }
@@ -159,11 +160,25 @@ public class MIServer {
                             debuggerEventPort + "\n";
             String serverConfRegEx = "(?s)(?<=\\[server\\]\\n)(.*?)(?=\\n\\[|$)";
             String mediationConfRegEx = "(?s)(?<=\\[mediation\\]\\n)(.*?)(?=\\n\\[|$)";
-            String updatedConfig = deploymentConfig.replace(serverConfRegEx, serverConfig)
-                    .replace(mediationConfRegEx, mediationConfig);
+            String updatedConfig = deploymentConfig.replaceAll(serverConfRegEx, serverConfig)
+                    .replaceAll(mediationConfRegEx, mediationConfig);
             Files.write(deploymentConfigPath, updatedConfig.getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, String.format("Error updating deployment configuration: %s", e.getMessage()));
+        }
+    }
+
+    private void updateHotDeploymentInterval() {
+
+        Path carbonConfigPath = Path.of(serverPath.toString(), "conf", "carbon.xml");
+        try {
+            String carbonConfig = Files.readString(carbonConfigPath);
+            String hotDeploymentInterval = "1";
+            String deploymentIntervalRegex = "(?s)(?<=<DeploymentUpdateInterval>)(.*?)(?=</DeploymentUpdateInterval>)";
+            String updatedConfig = carbonConfig.replaceFirst(deploymentIntervalRegex, hotDeploymentInterval);
+            Files.write(carbonConfigPath, updatedConfig.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, String.format("Error updating hot deployment interval: %s", e.getMessage()));
         }
     }
 
@@ -238,10 +253,7 @@ public class MIServer {
 
     public void deployProject(String tempProjectUri, String file) throws ArtifactDeploymentException {
 
-        String repositoryPath =
-                Path.of(serverPath.toString(), "repository", "deployment", "server", "synapse-configs", "default")
-                        .toString();
-        copyToMI(tempProjectUri, repositoryPath);
+        copyToMI(tempProjectUri);
         // TODO: Change it to check all the artifacts
         waitForDeployment(Path.of(file));
     }
@@ -299,19 +311,61 @@ public class MIServer {
         return Boolean.FALSE;
     }
 
-    private void copyToMI(String tempFolderPath, String miPath) throws ArtifactDeploymentException {
+    private void copyToMI(String tempFolderPath) throws ArtifactDeploymentException {
 
         try {
-            Path artifactPath = Path.of(tempFolderPath, "src", "main", "wso2mi", "artifacts");
-
-            for (Map.Entry<String, String> entry : ARTIFACT_FOLDERS_MAP.entrySet()) {
-                Path sourcePath = artifactPath.resolve(entry.getKey());
-                Path targetPath = Path.of(miPath, entry.getValue());
-                Utils.copyFolder(sourcePath, targetPath, deployedFiles);
-            }
+            copyArtifactsToMI(tempFolderPath);
+            copyConnectorsToMI(tempFolderPath);
+            copyClassMediatorsToMI(tempFolderPath);
+            copyDataMapperConfigsToMI(tempFolderPath);
+            copyRegistryResourcesToMI(tempFolderPath);
         } catch (IOException e) {
             throw new ArtifactDeploymentException("Error copying artifacts to MI", e);
         }
+    }
+
+    private void copyArtifactsToMI(String tempFolderPath) throws IOException {
+
+        String repositoryPath =
+                Path.of(serverPath.toString(), "repository", "deployment", "server", "synapse-configs",
+                        "default").toString();
+        Path artifactPath = Path.of(tempFolderPath, "src", "main", "wso2mi", "artifacts");
+
+        for (Map.Entry<String, String> entry : ARTIFACT_FOLDERS_MAP.entrySet()) {
+            Path sourcePath = artifactPath.resolve(entry.getKey());
+            Path targetPath = Path.of(repositoryPath, entry.getValue());
+            Utils.copyFolder(sourcePath, targetPath, deployedFiles);
+        }
+    }
+
+    private void copyConnectorsToMI(String tempFolderPath) throws IOException {
+
+        Path connectorPath = Path.of(tempFolderPath, "src", "main", "wso2mi", "resources", "connectors");
+        Path targetPath = Path.of(serverPath.toString(), "repository", "deployment", "server", "synapse-libs");
+        Utils.copyFolder(connectorPath, targetPath, deployedFiles);
+    }
+
+    private void copyClassMediatorsToMI(String tempFolderPath) {
+
+        //TODO: Implement this
+    }
+
+    private void copyDataMapperConfigsToMI(String tempFolderPath) {
+
+        //TODO: Implement this
+    }
+
+    private void copyRegistryResourcesToMI(String tempFolderPath) throws IOException {
+
+        Path registryPath = Path.of(tempFolderPath, "src", "main", "wso2mi", "resources", "registry");
+        Path govRegistryPath = registryPath.resolve("gov");
+        Path configRegistryPath = registryPath.resolve("conf");
+
+        Path targetGovPath = Path.of(serverPath.toString(), "registry", "governance");
+        Path targetConfPath = Path.of(serverPath.toString(), "registry", "config");
+
+        Utils.copyFolder(govRegistryPath, targetGovPath, deployedFiles);
+        Utils.copyFolder(configRegistryPath, targetConfPath, deployedFiles);
     }
 
     public void deleteDeployedFilesAsync() {

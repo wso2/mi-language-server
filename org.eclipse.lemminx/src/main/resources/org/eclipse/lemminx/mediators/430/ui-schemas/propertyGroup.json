@@ -3,6 +3,7 @@
   "type": "mediator",
   "title": "Property Group Mediator",
   "help": "Sets/removes multiple properties on message context efficiently.",
+  "canTryout" : true,
   "elements": [
     {
       "type": "table",

@@ -3,6 +3,7 @@
   "type": "mediator",
   "title": "Payload Mediator",
   "help": "Replaces message payload with a new SOAP/JSON payload.",
+  "canTryout": true,
   "elements": [
     {
       "type": "attribute",

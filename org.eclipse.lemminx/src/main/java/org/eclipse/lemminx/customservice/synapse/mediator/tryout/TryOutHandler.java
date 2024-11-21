@@ -400,7 +400,7 @@ public class TryOutHandler {
 
         Path filePath = Path.of(file);
         Path relativePath = Path.of(projectUri).relativize(filePath);
-        Path apiRelativePath = Path.of("src", "main", "wso2mi", "artifacts", "api");
+        Path apiRelativePath = Path.of("src", "main", "wso2mi", "artifacts", "apis");
         return relativePath.startsWith(apiRelativePath);
     }
 
@@ -507,7 +507,8 @@ public class TryOutHandler {
             if (TryOutConstants.POST.equalsIgnoreCase(methodType)) {
                 if (inputPayload != null && !inputPayload.isEmpty()) {
                     request.append("Content-Type: ").append(contentType).append("\r\n")
-                            .append("Content-Length: ").append(inputPayload.length()).append("\r\n")
+                            .append("Content-Length: ").append(inputPayload.getBytes(StandardCharsets.UTF_8).length)
+                            .append("\r\n")
                             .append("\r\n")
                             .append(inputPayload);
                 } else {

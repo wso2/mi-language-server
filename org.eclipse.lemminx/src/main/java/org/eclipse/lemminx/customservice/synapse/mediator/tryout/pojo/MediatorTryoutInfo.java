@@ -124,11 +124,9 @@ public class MediatorTryoutInfo {
         output.addAxis2OperationProperty(property);
     }
 
-    public void swapInputOutput() {
+    public void replaceInputWithOutput() {
 
-        MediatorInfo temp = input.clone();
         input = output.clone();
-        output = temp;
     }
 
     @Override

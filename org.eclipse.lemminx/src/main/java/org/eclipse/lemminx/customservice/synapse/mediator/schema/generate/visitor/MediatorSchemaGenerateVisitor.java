@@ -76,12 +76,12 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transf
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
 import org.eclipse.lsp4j.Position;
 
-public class TryoutMediatorVisitor extends AbstractMediatorVisitor {
+public class MediatorSchemaGenerateVisitor extends AbstractMediatorVisitor {
 
     MediatorTryoutInfo info;
     Position position;
 
-    public TryoutMediatorVisitor(MediatorTryoutInfo info, Position position) {
+    public MediatorSchemaGenerateVisitor(MediatorTryoutInfo info, Position position) {
 
         this.info = info;
         this.position = position;
@@ -312,7 +312,7 @@ public class TryoutMediatorVisitor extends AbstractMediatorVisitor {
                     info.addOutputAxis2OperationProperties(property);
                     break;
                 case TRANSPORT:
-                    info.addInputAxis2TransportProperties(property);
+                    info.addOutputAxis2TransportProperties(property);
                     break;
                 default:
                     info.addOutputSynapseProperties(property);

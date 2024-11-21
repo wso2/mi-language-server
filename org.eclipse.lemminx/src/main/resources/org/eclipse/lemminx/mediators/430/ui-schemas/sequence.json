@@ -3,6 +3,7 @@
   "type": "mediator",
   "title": "Sequence Mediator",
   "help": "Inserts reference to a sequence.",
+  "canTryout": true,
   "elements": [
     {
       "type": "attribute",

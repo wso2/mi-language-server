@@ -46,13 +46,13 @@ public class Utils {
 
     private static void visitMediators(List<Mediator> mediatorList, MediatorTryoutInfo info, Position position) {
 
-        TryoutMediatorVisitor mediatorVisitor = new TryoutMediatorVisitor(info, position);
+        MediatorSchemaGenerateVisitor mediatorVisitor = new MediatorSchemaGenerateVisitor(info, position);
         for (Mediator mediator : mediatorList) {
             visitMediator(mediator, mediatorVisitor);
             if (checkNodeInRange(mediator, position)) {
                 break;
             }
-            info.swapInputOutput();
+            info.replaceInputWithOutput();
         }
     }
 
