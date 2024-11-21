@@ -20,6 +20,10 @@ public class BamMediator {
 
         Map<String, Object> data = new HashMap<>();
         data.put("description", node.getDescription());
+        data.put("serverProfileName", node.getServerProfile().getName());
+        data.put("streamName", node.getServerProfile().getStreamConfig().getName());
+        data.put("streamVersion", node.getServerProfile().getStreamConfig().getVersion());
+
         return data;
     }
 }

@@ -55,9 +55,8 @@ public class CallMediator {
                 break;
         }
 
-        Object endpointObj = data.get("endpoint");
-        Map<String, Object> endpoint = endpointObj instanceof Map<?, ?> ? (Map<String, Object>) endpointObj : null;
-
+        Map<String, Object> endpoint = data.get("endpoint") instanceof Map<?, ?> ? (Map<String, Object>) data.get("endpoint") : null;
+//TODO: inline xml
         if (endpoint != null && !"INLINE".equals(endpoint.get("value"))) {
             data.remove("inlineEndpoint");
             data.put("registryOrXpathEndpoint", true);
@@ -68,7 +67,7 @@ public class CallMediator {
             }
         }
 
-        if (data.containsKey("contentType") && ((String) data.get("contentType")).isEmpty()) {
+        if (data.containsKey("contentType") && data.get("contentType") instanceof String &&((String) data.get("contentType")).isEmpty()) {
             data.remove("contentType");
         }
 

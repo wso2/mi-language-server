@@ -1,10 +1,11 @@
 package org.eclipse.lemminx.customservice.synapse.mediatorService.mediators;
 
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Drop;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.other.builder.Builder;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.other.builder.BuilderMessageBuilder;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,14 +14,38 @@ public class BuilderMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
                                                                                            Builder builder,
                                                                                            List<String> dirtyFields) {
+        List<Object> messageBuildersData = data.get("messageBuilders") instanceof List<?> ? (List<Object>) data.get("messageBuilders") : new ArrayList<>();
+        List<Map<String,String>> messageBuilders = new ArrayList<>();
+
+        for (Object messageBuilderDataObj : messageBuildersData) {
+            if (messageBuilderDataObj instanceof List<?>) {
+                Map<String,String> messageBuilder = new HashMap<>();
+                List<Object> messageBuilderData = (List<Object>) messageBuilderDataObj;
+                messageBuilder.put("contentType", messageBuilderData.get(0) instanceof String ? (String) messageBuilderData.get(0) : "");
+                messageBuilder.put("builderClass", messageBuilderData.get(1) instanceof String ? (String) messageBuilderData.get(1) : "");
+                messageBuilder.put("formatterClass", messageBuilderData.get(2) instanceof String ? (String) messageBuilderData.get(2) : "");
+                messageBuilders.add(messageBuilder);
+            }
+        }
+        data.put("messageBuilders",messageBuilders);
+
         return Either.forLeft(data);
 
     }
 
     public static Map<String, Object> getDataFromST(Builder node) {
-
         Map<String, Object> data = new HashMap<>();
         data.put("description", node.getDescription());
+
+        List<List<String>> messageBuilders = new ArrayList<>();
+        for (BuilderMessageBuilder messageBuilder : node.getMessageBuilders()) {
+            List<String> messageBuilderData = new ArrayList<>();
+            messageBuilderData.add(messageBuilder.getContentType());
+            messageBuilderData.add(messageBuilder.getClazz());
+            messageBuilderData.add(messageBuilder.getFormatterClass());
+            messageBuilders.add(messageBuilderData);
+        }
+        data.put("messageBuilders", messageBuilders);
         return data;
     }
 }

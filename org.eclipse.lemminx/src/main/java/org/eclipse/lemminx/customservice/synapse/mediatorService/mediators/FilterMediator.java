@@ -2,7 +2,6 @@ package org.eclipse.lemminx.customservice.synapse.mediatorService.mediators;
 
 import org.eclipse.lemminx.customservice.synapse.mediatorService.MediatorUtils;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.Namespace;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.TagRanges;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.filter.Filter;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -65,7 +64,7 @@ public class FilterMediator {
         return data;
     }
 
-    public static String getFilterDescription(Filter node) {
+    private static String getFilterDescription(Filter node) {
         if (node.getRegex() != null && node.getSource() != null) {
             return node.getSource() + " matches " + node.getRegex();
         }

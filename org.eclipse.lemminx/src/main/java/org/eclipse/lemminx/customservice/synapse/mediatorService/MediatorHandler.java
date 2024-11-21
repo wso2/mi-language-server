@@ -30,6 +30,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.InvalidMediator;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -70,12 +71,10 @@ public class MediatorHandler {
             int offset = document.offsetAt(position);
             DOMNode currentNode = document.findNodeAt(offset);
             DOMNode nextMediator = currentNode.getNextSibling();
-            DOMNode parentMediator = currentNode.getParentNode();
             if (lastMediators.contains(currentNode.getNodeName())) {
                 return new JsonObject();
             } else {
-                if (nextMediator != null ||
-                        (parentMediator != null && iterateMediators.contains(parentMediator.getNodeName()))) {
+                if (nextMediator != null || isIterateMediator(currentNode, iterateMediators)) {
                     return removeMediators(mediatorList, lastMediators);
                 }
                 return mediatorList;
@@ -90,7 +89,7 @@ public class MediatorHandler {
                                                        Map<String, Object> data, List<String> dirtyFields) {
         try {
             boolean isUpdate = !range.getEnd().equals(range.getStart());
-            STNode node = getMediatorNodeAtPosition(Utils.getDOMDocument(new File(documentUri)), range.getStart(),isUpdate);
+            STNode node = getMediatorNodeAtPosition(Utils.getDOMDocument(new File(documentUri)), range.getStart(), isUpdate);
             for (Map.Entry<String, JsonElement> entry : mediatorList.entrySet()) {
                 JsonArray mediatorsArray = entry.getValue().getAsJsonArray();
                 for (JsonElement mediatorElement : mediatorsArray) {
@@ -135,7 +134,7 @@ public class MediatorHandler {
         try {
             DOMDocument document = Utils.getDOMDocument(new File(documentIdentifier.getUri().replaceFirst("file://", "")));
             STNode node = getMediatorNodeAtPosition(document, position, Boolean.TRUE);
-            String mediatorName = node.getTag();
+            String mediatorName = sanitizeMediator(node.getTag());
             JsonObject uiSchema = uiSchemaMap.get(mediatorName).deepCopy();
             for (Map.Entry<String, JsonElement> entry : mediatorList.entrySet()) {
                 JsonArray mediatorsArray = entry.getValue().getAsJsonArray();
@@ -160,17 +159,31 @@ public class MediatorHandler {
         return null;
     }
 
+    private String sanitizeMediator(String tag) {
+        if (tag != null && tag.contains(":")) {
+            return tag.split(":")[1];
+        }
+        return tag;
+    }
+
     private STNode getMediatorNodeAtPosition(DOMDocument document, Position position, Boolean isUpdate) throws BadLocationException {
 
         position = new Position(position.getLine(), position.getCharacter() + (isUpdate ? 1 : 0));
         int offset = document.offsetAt(position);
         DOMNode node = document.findNodeAt(offset);
-        if (node != null) {
-            STNode mediator = MediatorFactoryFinder.getInstance().getMediator(node);
-            if (mediator != null && !(mediator instanceof InvalidMediator)) {
-                return mediator;
-            }
+        if (node == null) {
+            return null;
         }
+
+        if (node instanceof DOMElement && ((DOMElement) node).getEndTagOpenOffset() == offset) {
+            return null;
+        }
+
+        STNode mediator = MediatorFactoryFinder.getInstance().getMediator(node);
+        if (mediator != null && !(mediator instanceof InvalidMediator)) {
+            return mediator;
+        }
+
         return null;
     }
 
@@ -189,6 +202,26 @@ public class MediatorHandler {
             filteredMediators.add(key, filteredArray);
         }
         return filteredMediators;
+    }
+
+    private boolean isIterateMediator(DOMNode currentNode, List<String> iterateMediators) {
+        DOMNode parentNode = currentNode.getParentNode();
+        if (parentNode == null) {
+            return false;
+        }
+        DOMNode grandParentNode = parentNode.getParentNode();
+        if (iterateMediators.contains(parentNode.getNodeName()) ||
+                (grandParentNode != null && iterateMediators.contains(grandParentNode.getNodeName()))) {
+            return true;
+        }
+        if (currentNode.getNodeName().equals("#text") && grandParentNode != null) {
+            if (iterateMediators.contains(grandParentNode.getNodeName())) {
+                return true;
+            }
+            DOMNode grandGrandParentNode = grandParentNode.getParentNode();
+            return iterateMediators.contains(grandGrandParentNode.getNodeName());
+        }
+        return false;
     }
 
     public JsonObject getUiSchema(String mediatorName) {
