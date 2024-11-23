@@ -43,6 +43,9 @@ public class SimpleResourceHandler extends NonXMLRegistryHandler {
         nonXmlTypeToExtensionMap.put("xsl", "xsl");
         nonXmlTypeToExtensionMap.put("xslt", "xslt");
         nonXmlTypeToExtensionMap.put("yaml", "yaml");
+        nonXmlTypeToExtensionMap.put("crt", "crt");
+        nonXmlTypeToExtensionMap.put("txt", "txt");
+        nonXmlTypeToExtensionMap.put("xml", "xml");
     }
 
     public SimpleResourceHandler(List<RequestedResource> requestedResources, List<Resource> resources) {
