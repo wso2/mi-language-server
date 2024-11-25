@@ -18,6 +18,7 @@
 
 package org.eclipse.lemminx.customservice.synapse.mediator.tryout.server;
 
+import org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.ArtifactDeploymentException;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.DeployedArtifactType;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeGenerator;
@@ -57,6 +58,14 @@ public class MIServer {
     private static final int DEFAULT_DEBUGGER_COMMAND_PORT = 9007;
     private static final int DEFAULT_DEBUGGER_EVENT_PORT = 9008;
     private static final int SERVER_START_TIMEOUT = 30000;
+    private static final String SERVER_CONFIG_REGEX = "(?s)(?<=\\[server\\]\\n)(.*?)(?=\\n\\[|$)";
+    private static final String MEDIATION_CONFIG_REGEX = "(?s)(?<=\\[mediation\\]\\n)(.*?)(?=\\n\\[|$)";
+    private static final String IS_MEDIATION_CONFIG_EXISTS_REGEX = "(?s).*(?<!#)\\s*\\[mediation\\].*";
+    private static final String DEPLOYMENT_INTERVAL_REGEX =
+            "(?s)(?<=<DeploymentUpdateInterval>)(.*?)(?=</DeploymentUpdateInterval>)";
+    private static final String HOT_DEPLOYMENT_INTERVAL = "1";
+    private static final String ENTER_PASSWORD_REGEX = ".*Enter KeyStore and Private Key Password.*";
+    private static final String SERVER_START_REGEX = ".*Listen on ports : Command \\d+ - Event \\d+.*";
     private int debuggerCommandPort;
     private int debuggerEventPort;
     private int offset; // Port offset for starting the server.
@@ -119,24 +128,26 @@ public class MIServer {
         if (isPortAvailable(DEFAULT_SERVER_PORT)) {
             offset = 0;
         } else {
-            offset = getFreePortOffset(DEFAULT_SERVER_PORT);
+            offset = getFreePortOffset(DEFAULT_SERVER_PORT, List.of(8290));
         }
     }
 
     private void assignDebuggerPorts() {
 
-        int debuggerCommandPortOffset = getFreePortOffset(DEFAULT_DEBUGGER_COMMAND_PORT);
+        int debuggerCommandPortOffset = getFreePortOffset(DEFAULT_DEBUGGER_COMMAND_PORT, List.of(getServerPort()));
         debuggerCommandPort = DEFAULT_DEBUGGER_COMMAND_PORT + debuggerCommandPortOffset;
-        int debuggerEventPortOffset = getFreePortOffset(DEFAULT_DEBUGGER_EVENT_PORT);
+        int debuggerEventPortOffset =
+                getFreePortOffset(DEFAULT_DEBUGGER_EVENT_PORT, List.of(getServerPort(), debuggerCommandPort));
         debuggerEventPort = DEFAULT_DEBUGGER_EVENT_PORT + debuggerEventPortOffset;
     }
 
-    private int getFreePortOffset(int port) {
+    private int getFreePortOffset(int port, List<Integer> excludedPorts) {
 
-        while (!isPortAvailable(port)) {
-            port++;
+        int tempPort = port;
+        while (excludedPorts.contains(tempPort) || !isPortAvailable(tempPort)) {
+            tempPort++;
         }
-        return port - DEFAULT_SERVER_PORT;
+        return tempPort - port;
     }
 
     private boolean isPortAvailable(int port) {
@@ -151,17 +162,21 @@ public class MIServer {
 
     private void updateDeploymentConfiguration() {
 
-        Path deploymentConfigPath = Path.of(serverPath.toString(), "conf", "deployment.toml");
+        Path deploymentConfigPath = serverPath.resolve(TryOutConstants.DEPLOYMENT_TOML_PATH);
         try {
             String deploymentConfig = Files.readString(deploymentConfigPath);
             String serverConfig = "hostname = \"localhost\"\n" + "offset = " + offset + "\n";
             String mediationConfig =
                     "synapse.command_debugger_port=" + debuggerCommandPort + "\n" + "synapse.event_debugger_port=" +
                             debuggerEventPort + "\n";
-            String serverConfRegEx = "(?s)(?<=\\[server\\]\\n)(.*?)(?=\\n\\[|$)";
-            String mediationConfRegEx = "(?s)(?<=\\[mediation\\]\\n)(.*?)(?=\\n\\[|$)";
-            String updatedConfig = deploymentConfig.replaceAll(serverConfRegEx, serverConfig)
-                    .replaceAll(mediationConfRegEx, mediationConfig);
+            String updatedConfig;
+            if (deploymentConfig.matches(IS_MEDIATION_CONFIG_EXISTS_REGEX)) {
+                updatedConfig = deploymentConfig.replaceAll(SERVER_CONFIG_REGEX, serverConfig)
+                        .replaceAll(MEDIATION_CONFIG_REGEX, mediationConfig);
+            } else {
+                String updateText = serverConfig + "\n[mediation]\n" + mediationConfig;
+                updatedConfig = deploymentConfig.replaceAll(SERVER_CONFIG_REGEX, updateText);
+            }
             Files.write(deploymentConfigPath, updatedConfig.getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, String.format("Error updating deployment configuration: %s", e.getMessage()));
@@ -170,13 +185,18 @@ public class MIServer {
 
     private void updateHotDeploymentInterval() {
 
-        Path carbonConfigPath = Path.of(serverPath.toString(), "conf", "carbon.xml");
         try {
+            // Update carbon.xml
+            Path carbonConfigPath = serverPath.resolve(TryOutConstants.CARBON_XML_PATH);
             String carbonConfig = Files.readString(carbonConfigPath);
-            String hotDeploymentInterval = "1";
-            String deploymentIntervalRegex = "(?s)(?<=<DeploymentUpdateInterval>)(.*?)(?=</DeploymentUpdateInterval>)";
-            String updatedConfig = carbonConfig.replaceFirst(deploymentIntervalRegex, hotDeploymentInterval);
+            String updatedConfig = carbonConfig.replaceFirst(DEPLOYMENT_INTERVAL_REGEX, HOT_DEPLOYMENT_INTERVAL);
             Files.write(carbonConfigPath, updatedConfig.getBytes(StandardCharsets.UTF_8));
+            Path carbonConfigJ2Path = serverPath.resolve(TryOutConstants.CARBON_XML_J2_PATH);
+
+            // Update carbon.xml.j2
+            String carbonConfigJ2 = Files.readString(carbonConfigJ2Path);
+            String updatedJ2Config = carbonConfigJ2.replaceFirst(DEPLOYMENT_INTERVAL_REGEX, HOT_DEPLOYMENT_INTERVAL);
+            Files.write(carbonConfigJ2Path, updatedJ2Config.getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, String.format("Error updating hot deployment interval: %s", e.getMessage()));
         }
@@ -205,11 +225,11 @@ public class MIServer {
 
             String line;
             while ((line = reader.readLine()) != null) {
-                if (line.toLowerCase().matches("Enter KeyStore and Private Key Password")) {
+                if (line.toLowerCase().matches(ENTER_PASSWORD_REGEX)) {
                     String password = "wso2carbon\n";
                     writer.write(password);
                     writer.flush();
-                } else if (line.matches(".*Listen on ports : Command \\d+ - Event \\d+.*")) {
+                } else if (line.matches(SERVER_START_REGEX)) {
                     isStarted = true;
                     break;
                 }
@@ -326,11 +346,8 @@ public class MIServer {
 
     private void copyArtifactsToMI(String tempFolderPath) throws IOException {
 
-        String repositoryPath =
-                Path.of(serverPath.toString(), "repository", "deployment", "server", "synapse-configs",
-                        "default").toString();
-        Path artifactPath = Path.of(tempFolderPath, "src", "main", "wso2mi", "artifacts");
-
+        String repositoryPath = serverPath.resolve(TryOutConstants.MI_REPOSITORY_PATH).toString();
+        Path artifactPath = Path.of(tempFolderPath).resolve(TryOutConstants.PROJECT_ARTIFACT_PATH);
         for (Map.Entry<String, String> entry : ARTIFACT_FOLDERS_MAP.entrySet()) {
             Path sourcePath = artifactPath.resolve(entry.getKey());
             Path targetPath = Path.of(repositoryPath, entry.getValue());
@@ -340,8 +357,8 @@ public class MIServer {
 
     private void copyConnectorsToMI(String tempFolderPath) throws IOException {
 
-        Path connectorPath = Path.of(tempFolderPath, "src", "main", "wso2mi", "resources", "connectors");
-        Path targetPath = Path.of(serverPath.toString(), "repository", "deployment", "server", "synapse-libs");
+        Path connectorPath = Path.of(tempFolderPath).resolve(TryOutConstants.PROJECT_CONNECTOR_PATH);
+        Path targetPath = serverPath.resolve(TryOutConstants.MI_CONNECTOR_PATH);
         Utils.copyFolder(connectorPath, targetPath, deployedFiles);
     }
 
@@ -357,12 +374,12 @@ public class MIServer {
 
     private void copyRegistryResourcesToMI(String tempFolderPath) throws IOException {
 
-        Path registryPath = Path.of(tempFolderPath, "src", "main", "wso2mi", "resources", "registry");
-        Path govRegistryPath = registryPath.resolve("gov");
-        Path configRegistryPath = registryPath.resolve("conf");
+        Path registryPath = Path.of(tempFolderPath).resolve(TryOutConstants.PROJECT_REGSTRY_PATH);
+        Path govRegistryPath = registryPath.resolve(TryOutConstants.GOV);
+        Path configRegistryPath = registryPath.resolve(TryOutConstants.CONF);
 
-        Path targetGovPath = Path.of(serverPath.toString(), "registry", "governance");
-        Path targetConfPath = Path.of(serverPath.toString(), "registry", "config");
+        Path targetGovPath = serverPath.resolve(TryOutConstants.MI_GOV_PATH);
+        Path targetConfPath = serverPath.resolve(TryOutConstants.MI_CONF_PATH);
 
         Utils.copyFolder(govRegistryPath, targetGovPath, deployedFiles);
         Utils.copyFolder(configRegistryPath, targetConfPath, deployedFiles);

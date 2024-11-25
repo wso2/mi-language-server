@@ -168,6 +168,7 @@ public class TryOutHandler {
             return new MediatorTryoutInfo(e.getMessage());
         } finally {
             breakpointEventProcessor.reset();
+            cleanUp();
             executor.execute(() -> {
                 try {
                     Utils.deleteDirectory(TEMP_FOLDER_PATH);
