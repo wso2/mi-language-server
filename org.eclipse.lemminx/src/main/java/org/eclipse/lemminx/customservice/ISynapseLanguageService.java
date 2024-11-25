@@ -40,6 +40,7 @@ import org.eclipse.lemminx.customservice.synapse.debugger.entity.ValidationRespo
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.DependencyTree;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.OverviewModel;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryMapResponse;
+import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionCompletionParam;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorResponse;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutRequest;
@@ -60,9 +61,12 @@ import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGenRequest
 import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGenResponse;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeResponse;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
 import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
+import org.eclipse.lsp4j.SignatureHelp;
+import org.eclipse.lsp4j.SignatureHelpParams;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceFolder;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -187,4 +191,10 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<String> updateConnectorDependencies();
+
+    @JsonRequest
+    CompletableFuture<ICompletionResponse> expressionCompletion(ExpressionCompletionParam param);
+
+    @JsonRequest
+    CompletableFuture<SignatureHelp> signatureHelp(SignatureHelpParams params);
 }

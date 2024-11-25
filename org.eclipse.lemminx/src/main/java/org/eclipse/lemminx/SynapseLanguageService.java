@@ -44,6 +44,9 @@ import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTester;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.OverviewModelGenerator;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.OverviewModel;
+import org.eclipse.lemminx.customservice.synapse.expression.ExpressionSignatureProvider;
+import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionCompletionParam;
+import org.eclipse.lemminx.customservice.synapse.expression.ExpressionCompletionsProvider;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorResponse;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorParam;
@@ -98,11 +101,14 @@ import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTr
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.TryOutHandler;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
+import org.eclipse.lsp4j.SignatureHelp;
+import org.eclipse.lsp4j.SignatureHelpParams;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceFolder;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -482,6 +488,18 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     public CompletableFuture<OverviewPageDetailsResponse> getOverviewPageDetails() {
         OverviewPageDetailsResponse response = OverviewPage.getDetails(projectUri);
         return CompletableFuture.supplyAsync(() -> response);
+    }
+
+    @Override
+    public CompletableFuture<ICompletionResponse> expressionCompletion(ExpressionCompletionParam param) {
+
+        return CompletableFuture.supplyAsync(() -> ExpressionCompletionsProvider.getCompletions(param));
+    }
+
+    @Override
+    public CompletableFuture<SignatureHelp> signatureHelp(SignatureHelpParams params) {
+
+        return CompletableFuture.supplyAsync(() -> ExpressionSignatureProvider.getFunctionSignatures(params));
     }
 
     @Override

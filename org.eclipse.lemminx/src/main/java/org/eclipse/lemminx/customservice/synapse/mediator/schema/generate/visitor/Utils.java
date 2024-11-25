@@ -18,7 +18,7 @@
 
 package org.eclipse.lemminx.customservice.synapse.mediator.schema.generate.visitor;
 
-import org.eclipse.lemminx.customservice.synapse.debugger.visitor.AbstractMediatorVisitor;
+import org.eclipse.lemminx.customservice.synapse.AbstractMediatorVisitor;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
@@ -46,7 +46,7 @@ public class Utils {
 
     private static void visitMediators(List<Mediator> mediatorList, MediatorTryoutInfo info, Position position) {
 
-        MediatorSchemaGenerateVisitor mediatorVisitor = new MediatorSchemaGenerateVisitor(info, position);
+        MediatorSchemaVisitor mediatorVisitor = new MediatorSchemaVisitor(info, position);
         for (Mediator mediator : mediatorList) {
             visitMediator(mediator, mediatorVisitor);
             if (checkNodeInRange(mediator, position)) {

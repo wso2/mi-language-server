@@ -1,0 +1,249 @@
+[
+  {
+    "label": "length(value:string)",
+    "insertText": "length($1)",
+    "details": "Returns the length of the string or length of the array when the value is a JSON array",
+    "signature": [{"value": "string"}],
+    "category": 1
+  },
+  {
+    "label": "toUpper(value:string)",
+    "insertText": "toUpper($1)",
+    "details": "Converts the string to uppercase",
+    "category": 1
+  },
+  {
+    "label": "toLower(value:string)",
+    "insertText": "toLower($1)",
+    "details": "Converts the string to lowercase",
+    "category": 1
+  },
+  {
+    "label": "subString(value:string, start:integer)",
+    "insertText": "subString($1, $2)",
+    "details": "Extracts a substring from starting index",
+    "category": 1
+  },
+  {
+    "label": "subString(value:string, start:integer, end:integer)",
+    "insertText": "subString($1, $2, $3)",
+    "details": "Extracts a substring from start to end",
+    "category": 1
+  },
+  {
+    "label": "startsWith(value:string, prefix:string)",
+    "insertText": "startsWith($1, $2)",
+    "details": "Checks if the string starts with a prefix",
+    "category": 1
+  },
+  {
+    "label": "endsWith(value:string, suffix:string)",
+    "insertText": "endsWith($1, $2)",
+    "details": "Checks if the string ends with a suffix",
+    "category": 1
+  },
+  {
+    "label": "contains(value:string, substring:string)",
+    "insertText": "contains($1, $2)",
+    "details": "Checks if the string contains a substring",
+    "category": 1
+  },
+  {
+    "label": "trim(value:string)",
+    "insertText": "trim($1)",
+    "details": "Removes leading and trailing whitespace",
+    "category": 1
+  },
+  {
+    "label": "replace(value:string, old:string, new:string)",
+    "insertText": "replace($1, $2, $3)",
+    "details": "Replaces occurrences of old with new",
+    "category": 1
+  },
+  {
+    "label": "split(value:string, delimiter:string)",
+    "insertText": "split($1, $2)",
+    "details": "Splits the string into an array using delimiter",
+    "category": 1
+  },
+  {
+    "label": "charAt(value:string, index:integer)",
+    "insertText": "charAt($1, $2)",
+    "details": "Return the char at given index.",
+    "category": 1
+  },
+  {
+    "label": "indexOf(value:string, input:string)",
+    "insertText": "indexOf($1, $2)",
+    "details": "Return the position of the first occurrence of input in value",
+    "category": 1
+  },
+  {
+    "label": "indexOf(value:string, input:string, afterIndex:integer)",
+    "insertText": "indexOf($1, $2, $3)",
+    "details": "Return the position of the first occurrence of input in value after index",
+    "category": 1
+  },
+  {
+    "label": "xpath(xpath:string)",
+    "insertText": "xpath($1)",
+    "details": "Evaluate XPATH expression",
+    "category": 2
+  },
+  {
+    "label": "abs(value:number)",
+    "insertText": "abs($1)",
+    "details": "Returns the absolute value",
+    "category": 3
+  },
+  {
+    "label": "floor(value:number)",
+    "insertText": "floor($1)",
+    "details": "Returns the largest integer less than or equal to the value",
+    "category": 3
+  },
+  {
+    "label": "ceil(value:number)",
+    "insertText": "ceil($1)",
+    "details": "Returns the smallest integer greater than or equal to the value",
+    "category": 3
+  },
+  {
+    "label": "sqrt(value:number)",
+    "insertText": "sqrt($1)",
+    "details": "Returns the square root",
+    "category": 3
+  },
+  {
+    "label": "log(value:number)",
+    "insertText": "log($1)",
+    "details": "Returns the natural logarithm (base e)",
+    "category": 3
+  },
+  {
+    "label": "pow(base:integer, exponent:integer)",
+    "insertText": "pow($1, $2)",
+    "details": "Returns the result of raising base to the power of exponent",
+    "category": 3
+  },
+  {
+    "label": "not(value:boolean)",
+    "insertText": "not($1)",
+    "details": "Negate the boolean value",
+    "category": 4
+  },
+  {
+    "label": "registry(path:string)",
+    "insertText": "registry($1)",
+    "details": "Retrieve the registry value at the specified path",
+    "category": 5
+  },
+  {
+    "label": "secret(alias:string)",
+    "insertText": "secret($1)",
+    "details": "Retrieves the secret associated with the given alias",
+    "category": 6
+  },
+  {
+    "label": "base64encode(value:string)",
+    "insertText": "base64encode($1)",
+    "details": "Encodes the value using Base64",
+    "category": 7
+  },
+  {
+    "label": "base64encode(value:string, charset:string)",
+    "insertText": "base64encode($1, $2)",
+    "details": "Encodes the value using Base64 with the specified charset",
+    "category": 7
+  },
+  {
+    "label": "base64decode(value:string)",
+    "insertText": "base64decode($1)",
+    "details": "Decodes a Base64-encoded value",
+    "category": 7
+  },
+  {
+    "label": "urlEncode(value:string)",
+    "insertText": "urlEncode($1)",
+    "details": "Encodes a string for safe inclusion in a URL",
+    "category": 7
+  },
+  {
+    "label": "urlDecode(value:string)",
+    "insertText": "urlDecode($1)",
+    "details": "Decodes a URL-encoded string",
+    "category": 7
+  },
+  {
+    "label": "isNumber(value:any)",
+    "insertText": "isNumber($1)",
+    "details": "Checks if the value is a number",
+    "category": 8
+  },
+  {
+    "label": "isString(value:any)",
+    "insertText": "isString($1)",
+    "details": "Checks if the value is a string",
+    "category": 8
+  },
+  {
+    "label": "isArray(value:any)",
+    "insertText": "isArray($1)",
+    "details": "Checks if the value is an array",
+    "category": 8
+  },
+  {
+    "label": "isObject(value:any)",
+    "insertText": "isObject($1)",
+    "details": "Checks if the value is an object",
+    "category": 8
+  },
+  {
+    "label": "integer(value:string)",
+    "insertText": "integer($1)",
+    "details": "Converts the value to an integer",
+    "category": 9
+  },
+  {
+    "label": "float(value:string)",
+    "insertText": "float($1)",
+    "details": "Converts the value to a floating-point number",
+    "category": 9
+  },
+  {
+    "label": "string(value:any)",
+    "insertText": "string($1)",
+    "details": "Converts the value to a string",
+    "category": 9
+  },
+  {
+    "label": "boolean(value:any)",
+    "insertText": "boolean($1)",
+    "details": "Converts the value to a boolean",
+    "category": 9
+  },
+  {
+    "label": "object(value:string)",
+    "insertText": "object($1)",
+    "details": "Convert string representation of JSON object to a JSON object",
+    "category": 9
+  },
+  {
+    "label": "array(value:string)",
+    "insertText": "array($1)",
+    "details": "Convert string representation of JSON array to a JSON array",
+    "category": 9
+  },
+  {
+    "label": "exists(value:any)",
+    "insertText": "exists($1)",
+    "details": "Check if the value exists",
+    "category": 10
+  },
+  {
+    "label": "now()",
+    "insertText": "now()",
+    "details": "Current time",
+    "category": 11
+  }
+]

@@ -503,6 +503,21 @@ public class Utils {
         return null;
     }
 
+    /**
+     * Get the JSON object from the given content
+     *
+     * @param content the content
+     * @return the JSON object from the given content
+     */
+    public static JsonArray getJsonArray(String content) {
+
+        JsonElement jsonElement = JsonParser.parseString(content);
+        if (jsonElement.isJsonArray()) {
+            return jsonElement.getAsJsonArray();
+        }
+        return null;
+    }
+
     public static <T extends Enum<T>> T getEnumFromValue(String value, Class<T> enumClass) {
 
         if (value != null) {

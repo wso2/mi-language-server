@@ -18,6 +18,7 @@
 
 package org.eclipse.lemminx.customservice.synapse.debugger.visitor;
 
+import org.eclipse.lemminx.customservice.synapse.AbstractMediatorVisitor;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.debuginfo.IDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.visitor.breakpoint.BreakpointMediatorVisitor;
