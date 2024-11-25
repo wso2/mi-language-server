@@ -526,6 +526,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         return CompletableFuture.supplyAsync(() -> serverLessTryoutHandler.handle(request));
     }
 
+    @Override
     public CompletableFuture<OverviewPageDetailsResponse> getOverviewPageDetails() {
         OverviewPageDetailsResponse response = OverviewPage.getDetails(projectUri);
         return CompletableFuture.supplyAsync(() -> response);
