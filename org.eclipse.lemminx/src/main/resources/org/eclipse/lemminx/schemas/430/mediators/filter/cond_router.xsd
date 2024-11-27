@@ -18,14 +18,14 @@
   ~  under the License.
   -->
 
-<xs:schema 
-        xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-        elementFormDefault="qualified" 
-        targetNamespace="http://ws.apache.org/ns/synapse" 
+<xs:schema
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        elementFormDefault="qualified"
+        targetNamespace="http://ws.apache.org/ns/synapse"
         xmlns="http://ws.apache.org/ns/synapse">
 
-    <xs:include schemaLocation="../../misc/target.xsd" />
-    <xs:include schemaLocation="../../misc/evaluators.xsd" />
+    <xs:include schemaLocation="../../misc/target.xsd"/>
+    <xs:include schemaLocation="../../misc/evaluators.xsd"/>
 
     <xs:element name="conditionalRouter">
         <xs:annotation>
@@ -48,19 +48,19 @@
                                 <!-- TODO : point to the evaluators xsd -->
                                 <xs:complexType>
                                     <xs:sequence>
-                                        <xs:element ref="equal" minOccurs="1" maxOccurs="1" />
+                                        <xs:element ref="equal" minOccurs="1" maxOccurs="1"/>
                                     </xs:sequence>
                                 </xs:complexType>
                             </xs:element>
-                            <xs:element ref="target" minOccurs="1" maxOccurs="1" />
+                            <xs:element ref="target" minOccurs="1" maxOccurs="1"/>
                         </xs:sequence>
-                        <xs:attribute name="asynchronous" type="xs:boolean" default="false" />
-                        <xs:attribute name="breakRoute" type="xs:boolean" default="false" />
+                        <xs:attribute name="asynchronous" type="xs:boolean" default="false"/>
+                        <xs:attribute name="breakRoute" type="xs:boolean" default="false"/>
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>
-            <xs:attribute name="continueAfter" type="xs:boolean" use="optional" default="false" />
-            <xs:attribute name="description" type="xs:string" use="optional" />
+            <xs:attribute name="continueAfter" type="xs:boolean" use="optional" default="false"/>
+            <xs:attribute name="description" type="xs:string" use="optional"/>
         </xs:complexType>
     </xs:element>
 

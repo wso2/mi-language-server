@@ -18,22 +18,23 @@
   ~  under the License.
   -->
 
-<xs:schema 
+<xs:schema
         xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
         jaxb:version="2.0"
-        elementFormDefault="qualified" 
-        targetNamespace="http://ws.apache.org/ns/synapse" 
+        elementFormDefault="qualified"
+        targetNamespace="http://ws.apache.org/ns/synapse"
         xmlns="http://ws.apache.org/ns/synapse"
         xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
-        xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+>
 
     <xs:import namespace="http://schemas.xmlsoap.org/ws/2004/09/policy" schemaLocation="../../misc/ws-policy.xsd"/>
-    <xs:import namespace="http://www.wso2.org/products/wso2commons/throttle" schemaLocation="../../misc/throttle_policy.xsd"/>
+    <xs:import namespace="http://www.wso2.org/products/wso2commons/throttle"
+               schemaLocation="../../misc/throttle_policy.xsd"/>
 
 
-    <xs:include schemaLocation="../mediators.xsd" />
-    <xs:include schemaLocation="../../misc/common.xsd" />
+    <xs:include schemaLocation="../mediators.xsd"/>
+    <xs:include schemaLocation="../../misc/common.xsd"/>
 
     <xs:element name="throttle">
         <xs:annotation>
@@ -47,30 +48,30 @@
                 <xs:element name="policy" minOccurs="0" maxOccurs="1">
                     <xs:complexType mixed="true">
                         <xs:sequence>
-                            <xs:element ref="wsp:Policy" minOccurs="0" maxOccurs="1" />
+                            <xs:element ref="wsp:Policy" minOccurs="0" maxOccurs="1"/>
                         </xs:sequence>
-                        <xs:attribute name="key" type="xs:string" use="optional" />
+                        <xs:attribute name="key" type="xs:string" use="optional"/>
                     </xs:complexType>
                 </xs:element>
-                <xs:element name="onAccept" type="sequence" minOccurs="0" maxOccurs="1" />
-                <xs:element name="onReject" type="sequence" minOccurs="0" maxOccurs="1" />
+                <xs:element name="onAccept" type="sequence" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="onReject" type="sequence" minOccurs="0" maxOccurs="1"/>
             </xs:all>
-            <xs:attribute name="id" type="xs:string" use="required" />
+            <xs:attribute name="id" type="xs:string" use="required"/>
             <xs:attribute name="onAccept" type="xs:string" use="optional">
                 <xs:annotation>
                     <xs:appinfo>
-                        <jaxb:property name="onAccept_attribute" />
+                        <jaxb:property name="onAccept_attribute"/>
                     </xs:appinfo>
                 </xs:annotation>
             </xs:attribute>
             <xs:attribute name="onReject" type="xs:string" use="optional">
                 <xs:annotation>
                     <xs:appinfo>
-                        <jaxb:property name="onReject_attribute" />
+                        <jaxb:property name="onReject_attribute"/>
                     </xs:appinfo>
                 </xs:annotation>
             </xs:attribute>
-            <xs:attribute name="description" type="xs:string" use="optional" />
+            <xs:attribute name="description" type="xs:string" use="optional"/>
         </xs:complexType>
     </xs:element>
 

@@ -18,18 +18,19 @@
   ~  under the License.
   -->
 
-<xs:schema 
-        xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-        elementFormDefault="qualified" 
-        targetNamespace="http://ws.apache.org/ns/synapse" 
+<xs:schema
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        elementFormDefault="qualified"
+        targetNamespace="http://ws.apache.org/ns/synapse"
         xmlns="http://ws.apache.org/ns/synapse">
 
-    <xs:include schemaLocation="../mediators.xsd" />
+    <xs:include schemaLocation="../mediators.xsd"/>
 
     <xs:element name="dataServiceCall">
         <xs:annotation>
             <xs:documentation source="description">
-                Used to invoke data service operations. It automatically creates a payload and sets up the necessary headers to invoke the data service.
+                Used to invoke data service operations. It automatically creates a payload and sets up the necessary
+                headers to invoke the data service.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
@@ -39,8 +40,8 @@
                         <xs:attribute name="type" use="optional">
                             <xs:simpleType>
                                 <xs:restriction base="xs:string">
-                                    <xs:enumeration value="inline" />
-                                    <xs:enumeration value="body" />
+                                    <xs:enumeration value="inline"/>
+                                    <xs:enumeration value="body"/>
                                 </xs:restriction>
                             </xs:simpleType>
                         </xs:attribute>
@@ -54,23 +55,23 @@
                                     <xs:sequence>
                                         <xs:element name="param" minOccurs="0" maxOccurs="unbounded">
                                             <xs:complexType>
-                                                <xs:attribute name="name" type="xs:string" use="required" />
-                                                <xs:attribute name="value" type="xs:string" use="optional" />
-                                                <xs:attribute name="expression" type="xs:string" use="optional" />
-                                                <xs:attribute name="evaluator" type="xs:string" use="optional" />
+                                                <xs:attribute name="name" type="xs:string" use="required"/>
+                                                <xs:attribute name="value" type="xs:string" use="optional"/>
+                                                <xs:attribute name="expression" type="xs:string" use="optional"/>
+                                                <xs:attribute name="evaluator" type="xs:string" use="optional"/>
                                             </xs:complexType>
                                         </xs:element>
                                     </xs:sequence>
-                                    <xs:attribute name="name" type="xs:string" use="required" />
+                                    <xs:attribute name="name" type="xs:string" use="required"/>
                                 </xs:complexType>
                             </xs:element>
                         </xs:sequence>
                         <xs:attribute name="type" use="optional">
                             <xs:simpleType>
                                 <xs:restriction base="xs:string">
-                                    <xs:enumeration value="single" />
-                                    <xs:enumeration value="batch" />
-                                    <xs:enumeration value="request-box" />
+                                    <xs:enumeration value="single"/>
+                                    <xs:enumeration value="batch"/>
+                                    <xs:enumeration value="request-box"/>
                                 </xs:restriction>
                             </xs:simpleType>
                         </xs:attribute>
@@ -81,17 +82,17 @@
                         <xs:attribute name="type" use="optional">
                             <xs:simpleType>
                                 <xs:restriction base="xs:string">
-                                    <xs:enumeration value="body" />
-                                    <xs:enumeration value="property" />
+                                    <xs:enumeration value="body"/>
+                                    <xs:enumeration value="property"/>
                                 </xs:restriction>
                             </xs:simpleType>
                         </xs:attribute>
-                        <xs:attribute name="name" type="xs:string" use="optional" />
+                        <xs:attribute name="name" type="xs:string" use="optional"/>
                     </xs:complexType>
                 </xs:element>
             </xs:all>
-            <xs:attribute name="serviceName" type="xs:string" use="required" />
-            <xs:attribute name="description" type="xs:string" use="optional" />
+            <xs:attribute name="serviceName" type="xs:string" use="required"/>
+            <xs:attribute name="description" type="xs:string" use="optional"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>

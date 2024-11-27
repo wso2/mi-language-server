@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
- Copyright (c) 2023, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ Copyright (c) 2024, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 -->
 
 <xs:schema attributeFormDefault="unqualified"
-    elementFormDefault="qualified" targetNamespace="http://wso2.org/carbon/rules"
-    xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:syn="http://ws.apache.org/ns/synapse">
+           elementFormDefault="qualified" targetNamespace="http://wso2.org/carbon/rules"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:syn="http://ws.apache.org/ns/synapse">
 
-    <xs:import namespace="http://ws.apache.org/ns/synapse" schemaLocation="../mediators.xsd" />
+    <xs:import namespace="http://ws.apache.org/ns/synapse" schemaLocation="../mediators.xsd"/>
 
     <xs:element name="rule">
         <xs:complexType>
@@ -28,7 +28,7 @@
                     <xs:complexType>
                         <xs:simpleContent>
                             <xs:extension base="xs:string">
-                                <xs:attribute name="xpath" type="xs:string" use="required" />
+                                <xs:attribute name="xpath" type="xs:string" use="required"/>
                             </xs:extension>
                         </xs:simpleContent>
                     </xs:complexType>
@@ -37,9 +37,9 @@
                     <xs:complexType>
                         <xs:simpleContent>
                             <xs:extension base="xs:string">
-                                <xs:attribute name="action" type="xs:string" use="required" />
-                                <xs:attribute name="resultXpath" type="xs:string" use="required" />
-                                <xs:attribute name="xpath" type="xs:string" use="required" />
+                                <xs:attribute name="action" type="xs:string" use="required"/>
+                                <xs:attribute name="resultXpath" type="xs:string" use="required"/>
+                                <xs:attribute name="xpath" type="xs:string" use="required"/>
                             </xs:extension>
                         </xs:simpleContent>
                     </xs:complexType>
@@ -50,7 +50,8 @@
                             <xs:element name="properties">
                                 <xs:complexType>
                                     <xs:sequence>
-                                        <xs:element name="property" type="syn:mediatorProperty" minOccurs="0" maxOccurs="unbounded" />
+                                        <xs:element name="property" type="syn:mediatorProperty" minOccurs="0"
+                                                    maxOccurs="unbounded"/>
                                     </xs:sequence>
                                 </xs:complexType>
                             </xs:element>
@@ -59,9 +60,9 @@
                                     <xs:simpleContent>
                                         <xs:extension base="xs:string">
                                             <xs:attribute name="resourceType" type="xs:string"
-                                                use="required" />
+                                                          use="required"/>
                                             <xs:attribute name="sourceType" type="xs:string"
-                                                use="required" />
+                                                          use="required"/>
                                         </xs:extension>
                                     </xs:simpleContent>
                                 </xs:complexType>
@@ -74,15 +75,15 @@
                         <xs:sequence>
                             <xs:element name="fact" maxOccurs="unbounded">
                                 <xs:complexType>
-                                    <xs:attribute name="elementName" type="xs:string" use="required" />
-                                    <xs:attribute name="namespace" type="xs:string" use="optional" />
-                                    <xs:attribute name="type" type="xs:string" use="optional" />
-                                    <xs:attribute name="xpath" type="xs:string" use="optional" />
+                                    <xs:attribute name="elementName" type="xs:string" use="required"/>
+                                    <xs:attribute name="namespace" type="xs:string" use="optional"/>
+                                    <xs:attribute name="type" type="xs:string" use="optional"/>
+                                    <xs:attribute name="xpath" type="xs:string" use="optional"/>
                                 </xs:complexType>
                             </xs:element>
                         </xs:sequence>
-                        <xs:attribute name="namespace" type="xs:string" use="optional" />
-                        <xs:attribute name="wrapperElementName" type="xs:string" use="optional" />
+                        <xs:attribute name="namespace" type="xs:string" use="optional"/>
+                        <xs:attribute name="wrapperElementName" type="xs:string" use="optional"/>
                     </xs:complexType>
                 </xs:element>
                 <xs:element name="output" minOccurs="1" maxOccurs="1">
@@ -90,25 +91,25 @@
                         <xs:sequence>
                             <xs:element name="fact" maxOccurs="unbounded">
                                 <xs:complexType>
-                                    <xs:attribute name="elementName" type="xs:string" use="required" />
-                                    <xs:attribute name="namespace" type="xs:string" use="optional" />
-                                    <xs:attribute name="type" type="xs:string" use="optional" />
+                                    <xs:attribute name="elementName" type="xs:string" use="required"/>
+                                    <xs:attribute name="namespace" type="xs:string" use="optional"/>
+                                    <xs:attribute name="type" type="xs:string" use="optional"/>
                                 </xs:complexType>
                             </xs:element>
                         </xs:sequence>
-                        <xs:attribute name="namespace" type="xs:string" use="optional" />
-                        <xs:attribute name="wrapperElementName" type="xs:string" use="optional" />
+                        <xs:attribute name="namespace" type="xs:string" use="optional"/>
+                        <xs:attribute name="wrapperElementName" type="xs:string" use="optional"/>
                     </xs:complexType>
                 </xs:element>
                 <xs:element name="childMediators" minOccurs="0" maxOccurs="1">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:group ref="syn:mediatorList" minOccurs="0" maxOccurs="unbounded" />
+                            <xs:group ref="syn:mediatorList" minOccurs="0" maxOccurs="unbounded"/>
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>
-            <xs:attribute name="description" type="xs:string" use="required" />
+            <xs:attribute name="description" type="xs:string" use="required"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>

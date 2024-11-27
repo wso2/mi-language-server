@@ -18,12 +18,12 @@
   ~  under the License.
   -->
 
-<xs:schema 
-        xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+<xs:schema
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
         elementFormDefault="qualified"
         targetNamespace="http://ws.apache.org/ns/synapse"
         xmlns="http://ws.apache.org/ns/synapse"
-        xmlns:wsdl11="http://schemas.xmlsoap.org/wsdl/" 
+        xmlns:wsdl11="http://schemas.xmlsoap.org/wsdl/"
         xmlns:wsdl20="http://www.w3.org/ns/wsdl">
 
     <xs:include schemaLocation="../mediators/mediators.xsd"/>
@@ -80,7 +80,7 @@
             <xs:element ref="wsdl20:description" minOccurs="0" maxOccurs="1"/>
         </xs:choice>
     </xs:group>
-    
+
     <xs:attributeGroup name="monitoringAspect">
         <xs:annotation>
             <xs:documentation source="description">
@@ -159,7 +159,7 @@
 
     <xs:complexType name="sequence">
         <xs:sequence>
-            <xs:group ref="mediatorList" minOccurs="0" maxOccurs="unbounded" />
+            <xs:group ref="mediatorList" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 

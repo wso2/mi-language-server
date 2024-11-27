@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
- Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ Copyright (c) 2024, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,13 +15,13 @@
 * limitations under the License.
 -->
 
-<xs:schema 
-        xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-        elementFormDefault="qualified" 
-        targetNamespace="http://ws.apache.org/ns/synapse" 
+<xs:schema
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        elementFormDefault="qualified"
+        targetNamespace="http://ws.apache.org/ns/synapse"
         xmlns="http://ws.apache.org/ns/synapse">
 
-    <xs:include schemaLocation="../../endpoint.xsd" />
+    <xs:include schemaLocation="../../endpoint.xsd"/>
 
     <xs:element name="call">
         <xs:annotation>
@@ -36,16 +36,16 @@
 
                     <xs:complexType mixed="true">
                         <xs:sequence>
-                            <xs:any minOccurs="0" processContents="skip" />
+                            <xs:any minOccurs="0" processContents="skip"/>
                         </xs:sequence>
-                        <xs:attribute name="contentType" type="xs:string" use="optional" />
+                        <xs:attribute name="contentType" type="xs:string" use="optional"/>
                         <xs:attribute name="type" use="required">
                             <xs:simpleType>
                                 <xs:restriction base="xs:string">
-                                    <xs:enumeration value="custom" />
-                                    <xs:enumeration value="inline" />
-                                    <xs:enumeration value="property" />
-                                    <xs:enumeration value="body" />
+                                    <xs:enumeration value="custom"/>
+                                    <xs:enumeration value="inline"/>
+                                    <xs:enumeration value="property"/>
+                                    <xs:enumeration value="body"/>
                                 </xs:restriction>
                             </xs:simpleType>
                         </xs:attribute>
@@ -56,18 +56,18 @@
                         <xs:attribute name="type" use="required">
                             <xs:simpleType>
                                 <xs:restriction base="xs:string">
-                                    <xs:enumeration value="property" />
-                                    <xs:enumeration value="body" />
+                                    <xs:enumeration value="property"/>
+                                    <xs:enumeration value="body"/>
                                 </xs:restriction>
                             </xs:simpleType>
                         </xs:attribute>
                     </xs:complexType>
                 </xs:element>
-                <xs:element name="endpoint" type="NamedEndpoint" minOccurs="0" maxOccurs="1" />
+                <xs:element name="endpoint" type="NamedEndpoint" minOccurs="0" maxOccurs="1"/>
             </xs:all>
-            <xs:attribute name="blocking" type="xs:boolean" use="optional" default="true" />
-            <xs:attribute name="initAxis2ClientOptions" type="xs:boolean" use="optional" default="true" />
-            <xs:attribute name="description" type="xs:string" use="optional" />
+            <xs:attribute name="blocking" type="xs:boolean" use="optional" default="true"/>
+            <xs:attribute name="initAxis2ClientOptions" type="xs:boolean" use="optional" default="true"/>
+            <xs:attribute name="description" type="xs:string" use="optional"/>
         </xs:complexType>
     </xs:element>
 

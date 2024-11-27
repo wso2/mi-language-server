@@ -680,7 +680,7 @@ public class Utils {
             throw new IOException("Folder " + resourceFolder + " not found!");
         }
 
-        if (resourceURL.getProtocol().equals("jar")) {
+        if (resourceURL.getProtocol().equals(Constant.JAR)) {
             // Resource is inside a JAR
             String jarPath = resourceURL.getPath().substring(5, resourceURL.getPath().indexOf("!"));
             try (JarFile jarFile = new JarFile(Paths.get(jarPath).toFile())) {
@@ -707,7 +707,7 @@ public class Utils {
         Object initParams = params.getInitializationOptions();
         Gson gson = new Gson();
         JsonElement jsonElement = gson.toJsonTree(initParams);
-        JsonObject settings = jsonElement.getAsJsonObject().getAsJsonObject("settings");
+        JsonObject settings = jsonElement.getAsJsonObject().getAsJsonObject(Constant.SETTINGS);
         Path catalogPath = copyXSDFiles(projectUri);
         JsonElement updatedParams = updateSynapseCatalogSettings(settings, catalogPath);
         params.setInitializationOptions(updatedParams);
@@ -719,7 +719,7 @@ public class Utils {
 
         JsonArray catalogsArray = new JsonArray();
         catalogsArray.add(new JsonPrimitive(catalogPath.toString()));
-        settings.getAsJsonObject("xml").add("catalogs", catalogsArray);
+        settings.getAsJsonObject(Constant.XML).add(Constant.CATALOGS, catalogsArray);
         return settings;
     }
 }

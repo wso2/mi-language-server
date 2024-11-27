@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
- Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ Copyright (c) 2024, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 * limitations under the License.
 -->
 
-<xs:schema 
+<xs:schema
         xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
         jaxb:version="2.0"
@@ -23,8 +23,8 @@
         targetNamespace="http://ws.apache.org/ns/synapse"
         xmlns="http://ws.apache.org/ns/synapse">
 
-    <xs:include schemaLocation="../mediators/mediators.xsd" />
-    <xs:include schemaLocation="./common.xsd" />
+    <xs:include schemaLocation="../mediators/mediators.xsd"/>
+    <xs:include schemaLocation="./common.xsd"/>
 
 
     <xs:complexType name="APIResource">
@@ -34,19 +34,19 @@
             </xs:documentation>
         </xs:annotation>
         <xs:all>
-            <xs:element name="inSequence" type="sequence" minOccurs="0" maxOccurs="1" />
-            <xs:element name="outSequence" type="sequence" minOccurs="0" maxOccurs="1" />
-            <xs:element name="faultSequence" type="sequence" minOccurs="0" maxOccurs="1" />
+            <xs:element name="inSequence" type="sequence" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="outSequence" type="sequence" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="faultSequence" type="sequence" minOccurs="0" maxOccurs="1"/>
         </xs:all>
         <xs:attribute name="methods" use="required">
             <xs:simpleType>
                 <xs:restriction base="xs:string">
                     <xs:pattern
-                        value="(GET|POST|PUT|DELETE|OPTIONS|HEAD|PATCH)( (GET|POST|PUT|DELETE|OPTIONS|HEAD|PATCH))*" />
+                            value="(GET|POST|PUT|DELETE|OPTIONS|HEAD|PATCH)( (GET|POST|PUT|DELETE|OPTIONS|HEAD|PATCH))*"/>
                 </xs:restriction>
             </xs:simpleType>
         </xs:attribute>
-         <xs:attribute name="protocol" use="optional">
+        <xs:attribute name="protocol" use="optional">
             <xs:simpleType>
                 <xs:restriction base="xs:string">
                     <xs:enumeration value="http"/>
@@ -58,21 +58,21 @@
         <xs:attribute name="inSequence" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:appinfo>
-                    <jaxb:property name="inSequence_attribute" />
+                    <jaxb:property name="inSequence_attribute"/>
                 </xs:appinfo>
             </xs:annotation>
         </xs:attribute>
         <xs:attribute name="outSequence" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:appinfo>
-                    <jaxb:property name="outSequence_attribute" />
+                    <jaxb:property name="outSequence_attribute"/>
                 </xs:appinfo>
             </xs:annotation>
         </xs:attribute>
         <xs:attribute name="faultSequence" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:appinfo>
-                    <jaxb:property name="faultSequence_attribute" />
+                    <jaxb:property name="faultSequence_attribute"/>
                 </xs:appinfo>
             </xs:annotation>
         </xs:attribute>

@@ -18,7 +18,7 @@
   ~  under the License.
   -->
 
-<xs:schema 
+<xs:schema
         xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
         jaxb:version="2.0"
@@ -26,9 +26,9 @@
         targetNamespace="http://ws.apache.org/ns/synapse"
         xmlns="http://ws.apache.org/ns/synapse">
 
-    <xs:include schemaLocation="../endpoint.xsd" />
-    <xs:include schemaLocation="../mediators/mediators.xsd" />
-    <xs:include schemaLocation="../misc/common.xsd" />
+    <xs:include schemaLocation="../endpoint.xsd"/>
+    <xs:include schemaLocation="../mediators/mediators.xsd"/>
+    <xs:include schemaLocation="../misc/common.xsd"/>
 
     <xs:element name="target" type="Target">
         <xs:annotation>
@@ -45,20 +45,20 @@
             </xs:documentation>
         </xs:annotation>
         <xs:all>
-            <xs:element name="sequence" type="sequence" minOccurs="0" maxOccurs="1" />
+            <xs:element name="sequence" type="sequence" minOccurs="0" maxOccurs="1"/>
             <xs:element name="endpoint" type="NamedEndpoint" minOccurs="0" maxOccurs="1"/>
         </xs:all>
-        <xs:attribute name="sequence" type="xs:string" use="optional" >
+        <xs:attribute name="sequence" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:appinfo>
-                    <jaxb:property name="sequence_attribute" />
+                    <jaxb:property name="sequence_attribute"/>
                 </xs:appinfo>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="endpoint" type="xs:string" use="optional" >
+        <xs:attribute name="endpoint" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:appinfo>
-                    <jaxb:property name="endpoint_attribute" />
+                    <jaxb:property name="endpoint_attribute"/>
                 </xs:appinfo>
             </xs:annotation>
         </xs:attribute>
@@ -73,36 +73,36 @@
             </xs:documentation>
         </xs:annotation>
         <xs:all>
-            <xs:element name="inSequence" type="sequence" minOccurs="0" maxOccurs="1" />
-            <xs:element name="outSequence" type="sequence" minOccurs="0" maxOccurs="1" />
-            <xs:element name="faultSequence" type="sequence" minOccurs="0" maxOccurs="1" />
-            <xs:element name="endpoint" type="NamedEndpoint" minOccurs="0" maxOccurs="1" />
+            <xs:element name="inSequence" type="sequence" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="outSequence" type="sequence" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="faultSequence" type="sequence" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="endpoint" type="NamedEndpoint" minOccurs="0" maxOccurs="1"/>
         </xs:all>
         <xs:attribute name="inSequence" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:appinfo>
-                    <jaxb:property name="inSequence_attribute" />
+                    <jaxb:property name="inSequence_attribute"/>
                 </xs:appinfo>
             </xs:annotation>
         </xs:attribute>
         <xs:attribute name="outSequence" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:appinfo>
-                    <jaxb:property name="outSequence_attribute" />
+                    <jaxb:property name="outSequence_attribute"/>
                 </xs:appinfo>
             </xs:annotation>
         </xs:attribute>
         <xs:attribute name="faultSequence" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:appinfo>
-                    <jaxb:property name="faultSequence_attribute" />
+                    <jaxb:property name="faultSequence_attribute"/>
                 </xs:appinfo>
             </xs:annotation>
         </xs:attribute>
         <xs:attribute name="endpoint" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:appinfo>
-                    <jaxb:property name="endpoint_attribute" />
+                    <jaxb:property name="endpoint_attribute"/>
                 </xs:appinfo>
             </xs:annotation>
         </xs:attribute>

@@ -496,4 +496,7 @@ public class Constant {
     public static final String FILES = "files";
     public static final String FOLDERS = "folders";
     public static final String DEFAULT_MI_VERSION = "4.3.0";
+    public static final String CATALOGS = "catalogs";
+    public static final String SETTINGS = "settings";
+    public static final String JAR = "jar";
 }

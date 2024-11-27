@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
- Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ Copyright (c) 2024, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,13 +15,13 @@
 * limitations under the License.
 -->
 
-<xs:schema 
-        xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-        elementFormDefault="qualified" 
-        targetNamespace="http://ws.apache.org/ns/synapse" 
+<xs:schema
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        elementFormDefault="qualified"
+        targetNamespace="http://ws.apache.org/ns/synapse"
         xmlns="http://ws.apache.org/ns/synapse">
 
-    <xs:include schemaLocation="misc/common.xsd" />
+    <xs:include schemaLocation="misc/common.xsd"/>
 
     <xs:element name="inboundEndpoint" type="InboundEndpoint">
         <xs:annotation>
@@ -29,7 +29,8 @@
                 &lt;inbound endpoint&gt; declarations for the synapse configuration
             </xs:documentation>
             <xs:appinfo>
-                <sch:pattern name="Test constraints on the Root element" xmlns:sch="http://purl.oclc.org/dsdl/schematron">
+                <sch:pattern name="Test constraints on the Root element"
+                             xmlns:sch="http://purl.oclc.org/dsdl/schematron">
                     <sch:rule context="inboundEndpoint">
                         <sch:assert test="@protocol and @class">
                             On an inboundEndpoint element only one of the attributes protocol and class are allowed, not
@@ -54,18 +55,18 @@
             <xs:element name="parameters" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element ref="parameter" minOccurs="0" maxOccurs="unbounded" />
+                        <xs:element ref="parameter" minOccurs="0" maxOccurs="unbounded"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
         </xs:sequence>
-        <xs:attributeGroup ref="monitoringAspect" />
-        <xs:attribute name="name" type="xs:string" use="required" />
-        <xs:attribute name="sequence" type="xs:string" use="optional" />
-        <xs:attribute name="protocol" type="xs:string" use="optional" />
-        <xs:attribute name="onError" type="xs:string" use="optional" />
-        <xs:attribute name="suspend" type="xs:boolean" use="required" />
-        <xs:attribute name="class" type="xs:string" use="optional" />
+        <xs:attributeGroup ref="monitoringAspect"/>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="sequence" type="xs:string" use="optional"/>
+        <xs:attribute name="protocol" type="xs:string" use="optional"/>
+        <xs:attribute name="onError" type="xs:string" use="optional"/>
+        <xs:attribute name="suspend" type="xs:boolean" use="required"/>
+        <xs:attribute name="class" type="xs:string" use="optional"/>
     </xs:complexType>
 
 </xs:schema>
