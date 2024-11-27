@@ -707,19 +707,27 @@ public class Utils {
         Object initParams = params.getInitializationOptions();
         Gson gson = new Gson();
         JsonElement jsonElement = gson.toJsonTree(initParams);
-        JsonObject settings = jsonElement.getAsJsonObject().getAsJsonObject(Constant.SETTINGS);
-        Path catalogPath = copyXSDFiles(projectUri);
-        JsonElement updatedParams = updateSynapseCatalogSettings(settings, catalogPath);
-        params.setInitializationOptions(updatedParams);
-        return catalogPath;
+        if (jsonElement != null && jsonElement.isJsonObject() && jsonElement.getAsJsonObject().has(Constant.SETTINGS)) {
+            JsonObject settings = jsonElement.getAsJsonObject().getAsJsonObject(Constant.SETTINGS);
+            Path catalogPath = copyXSDFiles(projectUri);
+            JsonElement updatedParams = updateSynapseCatalogSettings(settings, catalogPath);
+            params.setInitializationOptions(updatedParams);
+            return catalogPath;
+
+        }
+        return null;
     }
 
     public static JsonElement updateSynapseCatalogSettings(JsonObject settings, Path catalogPath)
             throws IOException, URISyntaxException {
 
-        JsonArray catalogsArray = new JsonArray();
-        catalogsArray.add(new JsonPrimitive(catalogPath.toString()));
-        settings.getAsJsonObject(Constant.XML).add(Constant.CATALOGS, catalogsArray);
+        if (catalogPath != null) {
+            JsonArray catalogsArray = new JsonArray();
+            catalogsArray.add(new JsonPrimitive(catalogPath.toString()));
+            if (settings != null && settings.isJsonObject() && settings.has(Constant.XML)) {
+                settings.getAsJsonObject(Constant.XML).add(Constant.CATALOGS, catalogsArray);
+            }
+        }
         return settings;
     }
 }
