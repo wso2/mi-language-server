@@ -68,7 +68,8 @@ public class IterateMediator {
             TagRanges targetRange = iterate.getTarget().getRange();
             Range editRange = new Range(
                     targetRange.getStartTagRange().getStart(),
-                    targetRange.getEndTagRange() != null ? targetRange.getEndTagRange().getEnd() : targetRange.getStartTagRange().getEnd()
+                    targetRange.getEndTagRange() != null && targetRange.getEndTagRange().getEnd() != null
+                            ? targetRange.getEndTagRange().getEnd() : targetRange.getStartTagRange().getEnd()
             );
 
             editsData.put(editRange, dataCopy);
@@ -104,11 +105,6 @@ public class IterateMediator {
         }
 
         data.put("description", node.getDescription());
-        data.put("ranges", Map.of(
-                "iterate", node.getRange() != null ? node.getRange() : "",
-                "target", node.getTarget() != null ? node.getTarget().getRange() : ""
-        ));
-
         data.put("isSelfClosed", node.isSelfClosed());
 
         return data;

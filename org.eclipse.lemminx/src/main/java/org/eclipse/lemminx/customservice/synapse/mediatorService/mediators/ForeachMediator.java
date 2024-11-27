@@ -33,17 +33,19 @@ public class ForeachMediator {
             TagRanges range = foreach.getRange();
             Range editRange = range.getStartTagRange();
 
-            if ("Anonymous".equals(foreach.getSequenceAttribute()) && "Key".equals(data.get("sequenceType"))) {
+            if (foreach.getSequenceAttribute() == null && "Key".equals(data.get("sequenceType"))) {
                 editRange = new Range(
                         range.getStartTagRange().getStart(),
-                        range.getEndTagRange() != null ? range.getEndTagRange().getEnd() : range.getStartTagRange().getEnd()
+                        range.getEndTagRange() != null && range.getEndTagRange().getEnd() != null ?
+                                range.getEndTagRange().getEnd() : range.getStartTagRange().getEnd()
                 );
-            } else if ("Key".equals(foreach.getSequenceAttribute()) && "Anonymous".equals(data.get("sequenceType"))) {
+            } else if (foreach.getSequenceAttribute() != null  && "Anonymous".equals(data.get("sequenceType"))) {
                 data.put("isAnnonymousSequence", true);
                 data.put("addSequence", true);
                 editRange = new Range(
                         range.getStartTagRange().getStart(),
-                        range.getEndTagRange() != null ? range.getEndTagRange().getEnd() : range.getStartTagRange().getEnd()
+                        range.getEndTagRange() != null && range.getEndTagRange().getEnd() != null ?
+                                range.getEndTagRange().getEnd() : range.getStartTagRange().getEnd()
                 );
             }
 
@@ -51,11 +53,7 @@ public class ForeachMediator {
                 data.remove("forEachID");
             }
 
-            return Either.forRight(
-                    Map.of(
-                            editRange,
-                            data
-                    )
+            return Either.forRight(Map.of(editRange, data)
             );
         }
 
@@ -73,11 +71,10 @@ public class ForeachMediator {
         if (node.getSequenceAttribute() != null) {
             data.put("sequenceType", "Key");
             data.put("sequenceKey", node.getSequenceAttribute());
-        }else if (node.getSequence() != null) {
+        } else if (node.getSequence() != null) {
             data.put("sequenceType", "Anonymous");
         }
         data.put("prevSequenceType", data.get("sequenceType"));
-        data.put("range", node.getRange());
         return data;
     }
 }

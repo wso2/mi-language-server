@@ -1,3 +1,7 @@
+    {{#endTag}}
+    </validate>
+    {{/endTag}}
+    {{^endTag}}
     {{#isNewMediator}}
     <validate {{#source}}source="{{value}}"{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} {{/source}}{{#enableSchemaCaching}}cache-schema="{{enableSchemaCaching}}" {{/enableSchemaCaching}}{{#description}}description="{{description}}" {{/description}}>
     {{#schemas}}
@@ -24,3 +28,4 @@
     <resource key="{{locationKey}}" location="{{location}}" />
     {{/resources}}
     {{/isNewMediator}}
+    {{/endTag}}

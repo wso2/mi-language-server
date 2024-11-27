@@ -74,7 +74,8 @@ public class MediatorHandler {
             if (lastMediators.contains(currentNode.getNodeName())) {
                 return new JsonObject();
             } else {
-                if (nextMediator != null || isIterateMediator(currentNode, iterateMediators)) {
+                if ((nextMediator != null && !("faultSequence".equals(((DOMElement) nextMediator).getTagName()))
+                        || isIterateMediator(currentNode, iterateMediators))) {
                     return removeMediators(mediatorList, lastMediators);
                 }
                 return mediatorList;
@@ -88,6 +89,7 @@ public class MediatorHandler {
     public SynapseConfigResponse generateSynapseConfig(String documentUri, Range range, String mediator,
                                                        Map<String, Object> data, List<String> dirtyFields) {
         try {
+            mediator = sanitizeMediator(mediator);
             boolean isUpdate = !range.getEnd().equals(range.getStart());
             STNode node = getMediatorNodeAtPosition(Utils.getDOMDocument(new File(documentUri)), range.getStart(), isUpdate);
             for (Map.Entry<String, JsonElement> entry : mediatorList.entrySet()) {
@@ -134,22 +136,24 @@ public class MediatorHandler {
         try {
             DOMDocument document = Utils.getDOMDocument(new File(documentIdentifier.getUri().replaceFirst("file://", "")));
             STNode node = getMediatorNodeAtPosition(document, position, Boolean.TRUE);
-            String mediatorName = sanitizeMediator(node.getTag());
-            JsonObject uiSchema = uiSchemaMap.get(mediatorName).deepCopy();
-            for (Map.Entry<String, JsonElement> entry : mediatorList.entrySet()) {
-                JsonArray mediatorsArray = entry.getValue().getAsJsonArray();
-                for (JsonElement mediatorElement : mediatorsArray) {
-                    JsonObject mediator = mediatorElement.getAsJsonObject();
-                    if (mediatorName.equals(mediator.get("tag").getAsString())) {
-                        String mediatorClass = mediator.get("mediatorClass").getAsString();
-                        String processingClass = mediator.get("processingClass").getAsString();
-                        String processingMethod = mediator.get("retrieveMethod").getAsString();
-                        Class<?> mediatorProcessor = Class.forName(processingClass);
-                        Object processorInstance = mediatorProcessor.getDeclaredConstructor().newInstance();
-                        Method processorMethod = mediatorProcessor.getMethod(processingMethod, Class.forName(mediatorClass));
-                        Object data = processorMethod.invoke(processorInstance, node);
+            if (node != null) {
+                String mediatorName = sanitizeMediator(node.getTag());
+                JsonObject uiSchema = uiSchemaMap.get(mediatorName).deepCopy();
+                for (Map.Entry<String, JsonElement> entry : mediatorList.entrySet()) {
+                    JsonArray mediatorsArray = entry.getValue().getAsJsonArray();
+                    for (JsonElement mediatorElement : mediatorsArray) {
+                        JsonObject mediator = mediatorElement.getAsJsonObject();
+                        if (mediatorName.equals(mediator.get("tag").getAsString())) {
+                            String mediatorClass = mediator.get("mediatorClass").getAsString();
+                            String processingClass = mediator.get("processingClass").getAsString();
+                            String processingMethod = mediator.get("retrieveMethod").getAsString();
+                            Class<?> mediatorProcessor = Class.forName(processingClass);
+                            Object processorInstance = mediatorProcessor.getDeclaredConstructor().newInstance();
+                            Method processorMethod = mediatorProcessor.getMethod(processingMethod, Class.forName(mediatorClass));
+                            Object data = processorMethod.invoke(processorInstance, node);
 
-                        return UISchemaMapper.mapInputToUISchema(new Gson().toJsonTree(data).getAsJsonObject(), uiSchema);
+                            return UISchemaMapper.mapInputToUISchema(new Gson().toJsonTree(data).getAsJsonObject(), uiSchema);
+                        }
                     }
                 }
             }

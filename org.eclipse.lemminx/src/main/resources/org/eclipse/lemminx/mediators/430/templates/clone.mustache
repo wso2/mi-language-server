@@ -1,3 +1,6 @@
+{{#empty}}
+{{/empty}}
+{{^empty}}
     {{#newMediator}}
     <clone {{#continueParent}}continueParent="{{continueParent}}" {{/continueParent}}{{#cloneId}}id="{{cloneId}}" {{/cloneId}}{{#sequentialMediation}}sequential="{{sequentialMediation}}" {{/sequentialMediation}}{{#description}}description="{{description}}" {{/description}}>
     {{#targets}}
@@ -58,3 +61,4 @@
 {{/newTarget}}
 {{/editClone}}
 {{/newMediator}}
+{{/empty}}

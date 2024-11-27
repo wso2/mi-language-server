@@ -1,7 +1,11 @@
 package org.eclipse.lemminx.customservice.synapse.mediatorService.mediators;
 
+import org.eclipse.lemminx.customservice.synapse.mediatorService.MediatorUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.TagRanges;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Feature;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.validate.Validate;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.validate.ValidateResource;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.validate.ValidateSchema;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
@@ -31,10 +35,10 @@ public class ValidateMediator {
             for (Object featureObj : (List<?>) featuresData) {
                 if (featureObj instanceof List<?>) {
                     List<?> feature = (List<?>) featureObj;
-                    if (feature.size() >= 2 && feature.get(0) instanceof String && feature.get(1) instanceof Boolean) {
+                    if (feature.size() >= 2 && feature.get(0) instanceof String) {
                         features.add(Map.of(
                                 "featureName", feature.get(0),
-                                "featureEnable", (Boolean) feature.get(1) ? "true" : "false"
+                                "featureEnable", feature.get(1) != null && (Boolean) feature.get(1) ? "true" : "false"
                         ));
                     }
                 }
@@ -75,7 +79,8 @@ public class ValidateMediator {
             TagRanges validateRange = validate.getRange();
             TagRanges onFailRange = validate.getOnFail().getRange();
 
-            if (onFailRange != null && onFailRange.getEndTagRange() != null) {
+            if (onFailRange != null && onFailRange.getEndTagRange() != null
+                    && onFailRange.getEndTagRange().getEnd() != null) {
                 Range editRange = new Range(
                         validateRange.getStartTagRange().getStart(),
                         onFailRange.getStartTagRange().getStart()
@@ -86,7 +91,7 @@ public class ValidateMediator {
                         onFailRange.getEndTagRange().getEnd(),
                         validateRange.getEndTagRange().getEnd()
                 );
-                edits.put(editRange,  Map.of("endXML", true));
+                edits.put(editRange, Map.of("endTag", true));
             } else {
                 data.put("isNewMediator", true);
                 Range editRange = new Range(
@@ -98,8 +103,6 @@ public class ValidateMediator {
                 edits.put(editRange, data);
             }
         }
-
-//        edits.sort(Comparator.comparingInt(edit -> ((Range) edit.get("range")).getStart().getLine()));
         return edits;
     }
 
@@ -107,6 +110,33 @@ public class ValidateMediator {
 
         Map<String, Object> data = new HashMap<>();
         data.put("description", node.getDescription());
+        data.put("source", Map.of("isExpression", true,
+                "value", node.getSource() != null ? node.getSource() : "",
+                "namespaces", MediatorUtils.transformNamespaces(node.getNamespaces())));
+        data.put("enableSchemaCaching", node.isCacheSchema());
+        if (node.getFeature() != null && node.getFeature().length != 0) {
+            List<List<Object>> features = new ArrayList<>();
+            for (Feature entry : node.getFeature()) {
+                features.add(List.of(entry.getName() != null ? entry.getName() : "", entry.isValue()));
+            }
+            data.put("features", features);
+        }
+        if (node.getSchema() != null && node.getSchema().length != 0) {
+            List<List<Object>> schemas = new ArrayList<>();
+            for (ValidateSchema entry : node.getSchema()) {
+                schemas.add(List.of(entry.getKey() != null ? entry.getKey() : ""));
+            }
+            data.put("schemas", schemas);
+        }
+        if (node.getResource() != null && node.getResource().length != 0) {
+            List<List<Object>> resources = new ArrayList<>();
+            for (ValidateResource entry : node.getResource()) {
+                resources.add(List.of(entry.getLocation() != null ? entry.getLocation() : "",
+                        entry.getKey() != null ? entry.getKey() : ""));
+            }
+            data.put("resources", resources);
+        }
+
         return data;
     }
 }

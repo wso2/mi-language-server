@@ -9,6 +9,8 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CallMediator {
 
@@ -56,7 +58,7 @@ public class CallMediator {
         }
 
         Map<String, Object> endpoint = data.get("endpoint") instanceof Map<?, ?> ? (Map<String, Object>) data.get("endpoint") : null;
-//TODO: inline xml
+
         if (endpoint != null && !"INLINE".equals(endpoint.get("value"))) {
             data.remove("inlineEndpoint");
             data.put("registryOrXpathEndpoint", true);
@@ -67,7 +69,7 @@ public class CallMediator {
             }
         }
 
-        if (data.containsKey("contentType") && data.get("contentType") instanceof String &&((String) data.get("contentType")).isEmpty()) {
+        if (data.containsKey("contentType") && data.get("contentType") instanceof String && ((String) data.get("contentType")).isEmpty()) {
             data.remove("contentType");
         }
 
@@ -84,6 +86,11 @@ public class CallMediator {
             if (endpoint.getKey() == null && endpoint.getKeyExpression() == null) {
                 endpointData.put("isExpression", false);
                 endpointData.put("value", "INLINE");
+
+                String endpointXml = node.getInlineEndpointXml();
+                if (endpointXml != null) {
+                    data.put("inlineEndpoint", endpointXml);
+                }
             } else {
                 endpointData.put("isExpression", endpoint.getKeyExpression() != null);
                 endpointData.put("value", endpoint.getKey() != null ? endpoint.getKey() : endpoint.getKeyExpression());
@@ -127,5 +134,32 @@ public class CallMediator {
         return data;
     }
 
-
+//    private static String getInlineEndpoint(String endpointXml) {
+//        Pattern leadingPattern = Pattern.compile("^(\\s+)<endpoint", Pattern.MULTILINE);
+//        Matcher leadingMatcher = leadingPattern.matcher(endpointXml);
+//        String leadingSpaces = "";
+//        if (leadingMatcher.find()) {
+//            leadingSpaces = leadingMatcher.group(1).replaceAll("\n", "").replace("\t", "    ");
+//        }
+//
+//        String[] lines = endpointXml.split("\n");
+//        StringBuilder sb = new StringBuilder();
+//
+//        for (String line : lines) {
+//            if (!line.isEmpty()) {
+//                Matcher lineMatcher = Pattern.compile("^(\\s+)").matcher(line);
+//                if (lineMatcher.find()) {
+//                    String leading = lineMatcher.group(1)
+//                            .replace("\t", "    ")
+//                            .replace(leadingSpaces, "");
+//                    line = lineMatcher.replaceFirst(Matcher.quoteReplacement(leading));
+//                }
+//            } else {
+//                line = "";
+//            }
+//            sb.append(line).append("\n");
+//        }
+//
+//        return sb.toString().trim();
+//    }
 }

@@ -3,15 +3,12 @@ package org.eclipse.lemminx.customservice.synapse.mediatorService.mediators;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.MediatorUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.NamedEndpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Send;
-import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class SendMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
@@ -35,12 +32,12 @@ public class SendMediator {
             }
         }
 
-        // Remove endpoint if invalid
         if (data.get("endpoint") == null || "".equals(data.get("endpoint")) || "NONE".equals(data.get("endpoint"))) {
             data.remove("endpoint");
+        }else if("INLINE".equals(data.get("endpoint"))){
+            data.put("isInline", true);
         }
 
-        // Handle skipSerialization flag
         if (Boolean.TRUE.equals(data.get("skipSerialization"))) {
             data.remove("receivingSequence");
             data.remove("buildMessageBeforeSending");
@@ -91,24 +88,10 @@ public class SendMediator {
             if (endpoint.getKey() == null && endpoint.getKeyExpression() == null) {
                 data.put("endpoint", "INLINE");
 
-                Position endpointClosePosition = endpoint.isSelfClosed()
-                        ? endpoint.getRange().getStartTagRange().getEnd()
-                        : endpoint.getRange().getEndTagRange() != null
-                        ? endpoint.getRange().getEndTagRange().getEnd()
-                        : node.getRange().getEndTagRange().getStart();
-
-                // Retrieve XML content using RpcClient TODO:inline xml
-                String xml = "";
-
-                String leadingSpaces = xml.split("\n")[0].replaceAll("\\n", "").replaceAll("\t", "    ");
-                String inlineEndpoint = Arrays.stream(xml.split("\n"))
-                        .map(line -> !line.isEmpty()
-                                ? line.replaceAll("^(\\s+)", "$1".replace(leadingSpaces, ""))
-                                : "")
-                        .collect(Collectors.joining("\n"))
-                        .trim();
-
-                data.put("inlineEndpoint", inlineEndpoint);
+                String endpointXml = node.getInlineEndpointXml();
+                if (endpointXml != null) {
+                    data.put("inlineEndpoint", endpointXml);
+                }
             } else {
                 data.put("endpoint", endpoint.getKey() != null ? endpoint.getKey() : endpoint.getKeyExpression());
             }
@@ -119,4 +102,32 @@ public class SendMediator {
         data.put("range", node.getRange());
         return data;
     }
+//    private static String getInlineEndpoint(String endpointXml) {
+//        Pattern leadingPattern = Pattern.compile("^(\\s+)<endpoint", Pattern.MULTILINE);
+//        Matcher leadingMatcher = leadingPattern.matcher(endpointXml);
+//        String leadingSpaces = "";
+//        if (leadingMatcher.find()) {
+//            leadingSpaces = leadingMatcher.group(1).replaceAll("\n", "").replace("\t", "    ");
+//        }
+//
+//        String[] lines = endpointXml.split("\n");
+//        StringBuilder sb = new StringBuilder();
+//
+//        for (String line : lines) {
+//            if (!line.isEmpty()) {
+//                Matcher lineMatcher = Pattern.compile("^(\\s+)").matcher(line);
+//                if (lineMatcher.find()) {
+//                    String leading = lineMatcher.group(1)
+//                            .replace("\t", "    ")
+//                            .replace(leadingSpaces, "");
+//                    line = lineMatcher.replaceFirst(Matcher.quoteReplacement(leading));
+//                }
+//            } else {
+//                line = "";
+//            }
+//            sb.append(line).append("\n");
+//        }
+//
+//        return sb.toString().trim();
+//    }
 }
