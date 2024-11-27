@@ -495,4 +495,5 @@ public class Constant {
     public static final String DATA_MAPPER = "datamapper";
     public static final String FILES = "files";
     public static final String FOLDERS = "folders";
+    public static final String DEFAULT_MI_VERSION = "4.3.0";
 }

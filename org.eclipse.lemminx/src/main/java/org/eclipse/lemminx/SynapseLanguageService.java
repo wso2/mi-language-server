@@ -79,6 +79,7 @@ import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGeneratorH
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeGenerator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeResponse;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.MediatorFactoryFinder;
+import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.settings.SharedSettings;
@@ -114,6 +115,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     private ConnectorHolder connectorHolder;
     private AbstractResourceFinder resourceFinder;
     private InboundConnectorHolder inboundConnectorHolder;
+    private Path xsdCatalogPath;
 
     public SynapseLanguageService(XMLTextDocumentService xmlTextDocumentService, XMLLanguageServer xmlLanguageServer) {
 
@@ -133,7 +135,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         if (projectUri != null) {
             this.projectUri = projectUri;
             this.isLegacyProject = Utils.isLegacyProject(projectUri);
-            this.projectServerVersion = Utils.getServerVersion(projectUri, "4.3.0");
+            this.projectServerVersion = Utils.getServerVersion(projectUri, Constant.DEFAULT_MI_VERSION);
             mediatorHandler.init(projectServerVersion);
             initializeConnectorLoader();
             MediatorFactoryFinder.getInstance().setConnectorHolder(connectorHolder);
@@ -434,5 +436,15 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     public static String getExtensionPath() {
 
         return extensionPath;
+    }
+
+    public Path getXsdCatalogPath() {
+
+        return xsdCatalogPath;
+    }
+
+    public void setXsdCatalogPath(Path xsdCatalogPath) {
+
+        this.xsdCatalogPath = xsdCatalogPath;
     }
 }
