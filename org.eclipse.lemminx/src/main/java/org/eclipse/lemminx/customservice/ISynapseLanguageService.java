@@ -40,6 +40,9 @@ import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.OverviewMo
 import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryMapResponse;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorResponse;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorParam;
+import org.eclipse.lemminx.customservice.synapse.parser.ConfigFileEditRequest;
+import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
+import org.eclipse.lemminx.customservice.synapse.parser.PomXmlEditRequest;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceResponse;
 import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGenFromContentRequest;
@@ -49,6 +52,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeResponse;
 import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceFolder;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -140,4 +144,18 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<DirectoryMapResponse> getProjectExplorerModel(WorkspaceFolder param);
+
+    @JsonRequest
+    CompletableFuture<OverviewPageDetailsResponse> getOverviewPageDetails();
+
+    @JsonRequest
+    CompletableFuture<String> removeContentFromPomXml(Range range);
+
+    @JsonRequest
+    CompletableFuture<String> addContentToPomXml(PomXmlEditRequest request);
+
+    @JsonRequest
+    CompletableFuture<String> updatePomValue(PomXmlEditRequest request);
+    @JsonRequest
+    CompletableFuture<String> updateConfigFileValue(ConfigFileEditRequest request);
 }

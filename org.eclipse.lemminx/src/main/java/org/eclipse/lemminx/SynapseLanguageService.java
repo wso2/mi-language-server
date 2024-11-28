@@ -47,6 +47,12 @@ import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnect
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.DependencyScanner;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.DependencyTree;
+import org.eclipse.lemminx.customservice.synapse.parser.ConfigFileEditRequest;
+import org.eclipse.lemminx.customservice.synapse.parser.OverviewPage;
+import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
+import org.eclipse.lemminx.customservice.synapse.parser.PomXmlEditRequest;
+import org.eclipse.lemminx.customservice.synapse.parser.config.ConfigParser;
+import org.eclipse.lemminx.customservice.synapse.parser.pom.PomParser;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.AbstractResourceFinder;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ArtifactFileScanner;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.RegistryFileScanner;
@@ -81,6 +87,7 @@ import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceFolder;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -382,6 +389,36 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     @Override
     public CompletableFuture<DirectoryMapResponse> getProjectExplorerModel(WorkspaceFolder param) {
         DirectoryMapResponse response = DirectoryTreeBuilder.getProjectExplorerModel(param);
+        return CompletableFuture.supplyAsync(() -> response);
+    }
+
+    @Override
+    public CompletableFuture<OverviewPageDetailsResponse> getOverviewPageDetails() {
+        OverviewPageDetailsResponse response = OverviewPage.getDetails(projectUri);
+        return CompletableFuture.supplyAsync(() -> response);
+    }
+
+    @Override
+    public CompletableFuture<String> removeContentFromPomXml(Range range) {
+        String response = PomParser.removeContent(projectUri, range);
+        return CompletableFuture.supplyAsync(() -> response);
+    }
+
+    @Override
+    public CompletableFuture<String> addContentToPomXml(PomXmlEditRequest request) {
+        String response = PomParser.addContent(projectUri, request);
+        return CompletableFuture.supplyAsync(() -> response);
+    }
+
+    @Override
+    public CompletableFuture<String> updatePomValue(PomXmlEditRequest request) {
+        String response = PomParser.updateValue(projectUri,  request);
+        return CompletableFuture.supplyAsync(() -> response);
+    }
+
+    @Override
+    public CompletableFuture<String> updateConfigFileValue(ConfigFileEditRequest request) {
+        String response = ConfigParser.updateConfigFileValue(projectUri, request);
         return CompletableFuture.supplyAsync(() -> response);
     }
 
