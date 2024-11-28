@@ -23,9 +23,11 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.legacyBuilder.utils.ProjectType;
@@ -34,8 +36,7 @@ import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.dom.DOMParser;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
+import org.eclipse.lsp4j.InitializeParams;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -48,14 +49,21 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Map;
@@ -648,5 +656,78 @@ public class Utils {
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Failed to load template: " + templateName, e);
         }
+    }
+
+    public static Path copyXSDFiles(String projectUri) throws IOException {
+
+        String version = getServerVersion(projectUri, Constant.DEFAULT_MI_VERSION);
+        String versionFolder = version.replace(".", "");
+        String schemasPath = "org/eclipse/lemminx/schemas/" + versionFolder;
+        File tempFolder = Files.createTempDirectory("synapse").toFile();
+        tempFolder.deleteOnExit();
+        extractJarFolder(schemasPath, tempFolder.toPath());
+        return tempFolder.toPath();
+    }
+
+    public static void extractJarFolder(String resourceFolder, Path targetDirectory) throws IOException {
+
+        Files.createDirectories(targetDirectory);
+        ClassLoader classLoader = Utils.class.getClassLoader();
+        URL resourceURL = classLoader.getResource(resourceFolder);
+
+        if (resourceURL == null) {
+            throw new IOException("Folder " + resourceFolder + " not found!");
+        }
+
+        if (resourceURL.getProtocol().equals(Constant.JAR)) {
+            // Resource is inside a JAR
+            String jarPath = resourceURL.getPath().substring(5, resourceURL.getPath().indexOf("!"));
+            try (JarFile jarFile = new JarFile(Paths.get(jarPath).toFile())) {
+                Enumeration<JarEntry> entries = jarFile.entries();
+                while (entries.hasMoreElements()) {
+                    JarEntry entry = entries.nextElement();
+                    String entryName = entry.getName();
+                    if (entryName.startsWith(resourceFolder) && !entry.isDirectory()) {
+                        // Extract each file
+                        try (InputStream inputStream = jarFile.getInputStream(entry)) {
+                            Path targetFile = targetDirectory.resolve(entryName.substring(resourceFolder.length() + 1));
+                            Files.createDirectories(targetFile.getParent());
+                            Files.copy(inputStream, targetFile, StandardCopyOption.REPLACE_EXISTING);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public static Path updateSynapseCatalogSettings(InitializeParams params) throws IOException, URISyntaxException {
+
+        String projectUri = params.getRootPath();
+        Object initParams = params.getInitializationOptions();
+        Gson gson = new Gson();
+        JsonElement jsonElement = gson.toJsonTree(initParams);
+        if (jsonElement != null && jsonElement.isJsonObject() && jsonElement.getAsJsonObject().has(Constant.SETTINGS)) {
+            JsonObject settings = jsonElement.getAsJsonObject().getAsJsonObject(Constant.SETTINGS);
+            Path schemaPath = copyXSDFiles(projectUri);
+            JsonElement updatedParams = updateSynapseCatalogSettings(settings, schemaPath);
+            params.setInitializationOptions(updatedParams);
+            return schemaPath;
+
+        }
+        return null;
+    }
+
+    public static JsonElement updateSynapseCatalogSettings(JsonObject settings, Path schemaPath)
+            throws IOException, URISyntaxException {
+
+        if (schemaPath != null) {
+            Path catalogPath = schemaPath.resolve("catalog.xml");
+            JsonArray catalogsArray = new JsonArray();
+            catalogsArray.add(new JsonPrimitive(catalogPath.toString()));
+            if (settings != null && settings.isJsonObject() && settings.has(Constant.XML)) {
+                settings.getAsJsonObject(Constant.XML).add(Constant.CATALOGS, catalogsArray);
+            }
+        }
+        return settings;
     }
 }
