@@ -115,7 +115,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     private ConnectorHolder connectorHolder;
     private AbstractResourceFinder resourceFinder;
     private InboundConnectorHolder inboundConnectorHolder;
-    private Path xsdCatalogPath;
+    private Path synapseXSDPath;
 
     public SynapseLanguageService(XMLTextDocumentService xmlTextDocumentService, XMLLanguageServer xmlLanguageServer) {
 
@@ -244,9 +244,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         connectorLoader.loadConnector();
 
         //Generate xsd schema for the available connectors and write it to the schema file.
-        String connectorPath =
-                extensionPath + File.separator + "synapse-schemas" + File.separator +
-                        "mediators" + File.separator + "connectors.xsd";
+        String connectorPath = synapseXSDPath.resolve("mediators").resolve("connectors.xsd").toString();
         SchemaGenerate.generate(connectorHolder, connectorPath);
     }
 
@@ -438,13 +436,13 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         return extensionPath;
     }
 
-    public Path getXsdCatalogPath() {
+    public Path getSynapseXSDPath() {
 
-        return xsdCatalogPath;
+        return synapseXSDPath;
     }
 
-    public void setXsdCatalogPath(Path xsdCatalogPath) {
+    public void setSynapseXSDPath(Path synapseXSDPath) {
 
-        this.xsdCatalogPath = xsdCatalogPath;
+        this.synapseXSDPath = synapseXSDPath;
     }
 }

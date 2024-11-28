@@ -662,12 +662,11 @@ public class Utils {
 
         String version = getServerVersion(projectUri, Constant.DEFAULT_MI_VERSION);
         String versionFolder = version.replace(".", "");
-        String catalogPath = "org/eclipse/lemminx/schemas/" + versionFolder;
+        String schemasPath = "org/eclipse/lemminx/schemas/" + versionFolder;
         File tempFolder = Files.createTempDirectory("synapse").toFile();
         tempFolder.deleteOnExit();
-        extractJarFolder(catalogPath, tempFolder.toPath());
-        String catalogFilePath = tempFolder.getAbsolutePath() + File.separator + "catalog.xml";
-        return Paths.get(catalogFilePath);
+        extractJarFolder(schemasPath, tempFolder.toPath());
+        return tempFolder.toPath();
     }
 
     public static void extractJarFolder(String resourceFolder, Path targetDirectory) throws IOException {
@@ -709,18 +708,19 @@ public class Utils {
         JsonElement jsonElement = gson.toJsonTree(initParams);
         if (jsonElement != null && jsonElement.isJsonObject() && jsonElement.getAsJsonObject().has(Constant.SETTINGS)) {
             JsonObject settings = jsonElement.getAsJsonObject().getAsJsonObject(Constant.SETTINGS);
-            Path catalogPath = copyXSDFiles(projectUri);
-            JsonElement updatedParams = updateSynapseCatalogSettings(settings, catalogPath);
+            Path schemaPath = copyXSDFiles(projectUri);
+            JsonElement updatedParams = updateSynapseCatalogSettings(settings, schemaPath);
             params.setInitializationOptions(updatedParams);
-            return catalogPath;
+            return schemaPath;
 
         }
         return null;
     }
 
-    public static JsonElement updateSynapseCatalogSettings(JsonObject settings, Path catalogPath)
+    public static JsonElement updateSynapseCatalogSettings(JsonObject settings, Path schemaPath)
             throws IOException, URISyntaxException {
 
+        Path catalogPath = schemaPath.resolve("catalog.xml");
         if (catalogPath != null) {
             JsonArray catalogsArray = new JsonArray();
             catalogsArray.add(new JsonPrimitive(catalogPath.toString()));

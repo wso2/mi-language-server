@@ -121,8 +121,8 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 	@Override
 	public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
 		try {
-			Path synapseCatalogPath = Utils.updateSynapseCatalogSettings(params);
-			synapseLanguageService.setXsdCatalogPath(synapseCatalogPath);
+			Path synapseSchemaPath = Utils.updateSynapseCatalogSettings(params);
+			synapseLanguageService.setSynapseXSDPath(synapseSchemaPath);
 		} catch (IOException | URISyntaxException e) {
 			LOGGER.log(Level.SEVERE, "Error while updating synapse catalog settings", e);
 		}
@@ -192,7 +192,7 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 		}
 		try {
 			initOptions = Utils.updateSynapseCatalogSettings((JsonObject) initOptions,
-					synapseLanguageService.getXsdCatalogPath());
+					synapseLanguageService.getSynapseXSDPath());
 		} catch (IOException | URISyntaxException e) {
 			LOGGER.log(Level.SEVERE, "Error while updating synapse catalog settings", e);
 		}
