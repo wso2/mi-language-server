@@ -17,8 +17,10 @@
  */
 package org.eclipse.lemminx.customservice.synapse.parser;
 
+import org.eclipse.lsp4j.Range;
+
 public class PomXmlEditRequest {
 
     public String value;
-    public Object range;
+    public Range range;
 }

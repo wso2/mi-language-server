@@ -79,84 +79,62 @@ public class PomParser {
                     lines.remove(i);
                 }
             }
-            return lines.toString();
+            return String.join("\n", lines);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     public static String addContent(String projectUri, PomXmlEditRequest request) {
-        // Read the POM file into a list of lines
         List<String> lines = null;
         try {
-            // Step 1: Read all lines from the pom.xml file
             lines = Files.readAllLines(Paths.get(projectUri + File.separator + "pom.xml"));
-
-            // Step 2: Insert new content at the specified line (adjust for 0-based index)
-            int index = ((Range) request.range).getStart().getLine() - 1; // Convert to 0-based index
+            int index = request.range.getStart().getLine();
             List<String> newLines = new ArrayList<>(lines);
-
-            // Split the new content into lines and insert at the specific line
             String[] newContentLines = request.value.split("\n");
             for (int i = newContentLines.length - 1; i >= 0; i--) {
-                newLines.add(index, newContentLines[i]);  // Add each new line before the current position
+                newLines.add(index, newContentLines[i]);
             }
-            return newLines.toString();
+            return String.join("\n", newLines);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     public static String updateValue(String projectUri, PomXmlEditRequest request) {
-        // Read the POM file into a list of lines
-        List<String> lines = null;
         try {
-            // Step 1: Read all lines from the XML file
-            lines = Files.readAllLines(Paths.get(projectUri + File.separator + "pom.xml"));
-            Range range = (Range) request.range;
-            int startLine = range.getStart().getLine();
-            int endLine = range.getEnd().getLine();
-            int startColumn = range.getEnd().getCharacter();
-            int endColumn = range.getEnd().getCharacter();
-            // Step 2: Modify the lines within the specified range
-            for (int i = startLine - 1; i < endLine; i++) {  // Adjust for 0-based index
+            List<String> lines = Files.readAllLines(Paths.get(projectUri + File.separator + "pom.xml"));
+            int startLine = request.range.getStart().getLine();
+            int endLine = request.range.getEnd().getLine();
+            int startColumn = request.range.getStart().getCharacter();
+            int endColumn = request.range.getEnd().getCharacter();
+            for (int i = startLine - 1; i < endLine; i++) {
                 String line = lines.get(i);
-
-                // Ensure the line is long enough to contain content in the specified column range
-                if (line.length() > startColumn) {
-                    // Get the substring that needs to be replaced
-                    String beforeReplacement = line.substring(0, startColumn);
-                    String afterReplacement = line.length() > endColumn
-                            ? line.substring(endColumn)
-                            : "";
-
-                    // Replace the content between the startColumn and endColumn with newValue
+                if (line.length() >= startColumn) {
+                    String beforeReplacement = line.substring(0, startColumn - 1);
+                    String afterReplacement = (line.length() > endColumn) ?
+                            line.substring(endColumn - 1) : "";
                     String modifiedLine = beforeReplacement + request.value + afterReplacement;
-
-                    // Replace the line with the modified content
                     lines.set(i, modifiedLine);
                 }
             }
-            return lines.toString();
+            return String.join("\n", lines);
+
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error reading or modifying the POM file: " + e.getMessage(), e);
         }
     }
 
     private static void extractPomContent(String projectUri) {
         try {
             File pomFile = new File(projectUri + File.separator + "pom.xml");
-
-            // Verify the file exists
             if (!pomFile.exists()) {
                 LOGGER.log(Level.SEVERE, "POM file does not exist: " + pomFile.getAbsolutePath());
                 return;
             }
-
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser saxParser = factory.newSAXParser();
 
-            // Parse the XML file with a custom handler
             PluginHandler handler = new PluginHandler(pomDetailsResponse);
             saxParser.parse(pomFile, handler);
         } catch (ParserConfigurationException e) {
@@ -189,18 +167,15 @@ class PluginHandler extends DefaultHandler {
 
     @Override
     public void setDocumentLocator(Locator locator) {
-        this.locator = locator; // Assign the locator for line/column tracking
+        this.locator = locator;
     }
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) {
-        contentBuffer.setLength(0); // Clear buffer
+        contentBuffer.setLength(0);
 
-        // Record the starting position of the element content
         valueStartLine = locator.getLineNumber();
         valueStartColumn = locator.getColumnNumber();
-
-        // Set flags for dependencies and plugins sections
         if ("dependency".equals(qName)) {
             isDependency = true;
             groupId = new Node();
@@ -208,20 +183,20 @@ class PluginHandler extends DefaultHandler {
             version = new Node();
             dependencyStartLine = locator.getLineNumber();
             dependencyStartColumn = locator.getColumnNumber() - (qName.length() + 2);
-            dependencyType = ""; // Reset version
+            dependencyType = "";
         } else if ("plugin".equals(qName)) {
-            isPlugin = true; // Start of a plugin section
-            pluginArtifactId = ""; // Reset artifact ID
-            pluginVersion = ""; // Reset version
+            isPlugin = true;
+            pluginArtifactId = "";
+            pluginVersion = "";
             range = new Range();
         } else if ("repository".equals(qName)) {
-            isRepository = true; // Start of a plugin section
+            isRepository = true;
         } else if ("pluginRepository".equals(qName)) {
-            isPluginRepository = true; // Start of a plugin section
+            isPluginRepository = true;
         } else if ("properties".equals(qName)) {
-            isProperties = true; // Start of a plugin section
+            isProperties = true;
         } else if ("images".equals(qName) && isPlugin) {
-            isImages = true; // Start processing images
+            isImages = true;
         }
     }
 
@@ -275,7 +250,6 @@ class PluginHandler extends DefaultHandler {
                             valueEndLine, valueEndColumn - closingTagLength)));
                     break;
                 case "plugin":
-                    // End of plugin, validate the artifact ID
                     switch (pluginArtifactId.trim()) {
                         case "vscode-car-plugin":
                             pomDetailsResponse.setProjectBuildPluginVersion(pluginVersion, range);
@@ -287,7 +261,7 @@ class PluginHandler extends DefaultHandler {
                             pomDetailsResponse.setUnitTestPluginVersion(new Node(pluginVersion, range));
                             break;
                     }
-                    isPlugin = false; // Reset flag
+                    isPlugin = false;
                     break;
             }
         } else if (isDependency) {
@@ -321,7 +295,7 @@ class PluginHandler extends DefaultHandler {
                     }
                     pomDetailsResponse.setLastDependencyEndTagRange(getRange(valueEndLine,
                             valueEndColumn - closingTagLength, valueEndLine, valueEndColumn));
-                    isDependency = false; // Reset flag
+                    isDependency = false;
                     break;
             }
         } else if (isRepository) {
@@ -386,13 +360,7 @@ class PluginHandler extends DefaultHandler {
 
     @Override
     public void characters(char[] ch, int start, int length) {
-        // Append character data to buffer
         contentBuffer.append(new String(ch, start, length));
-    }
-
-    private void printWithRange(String label, String value, int startLine, int startColumn, int endLine, int endColumn) {
-        System.out.printf("%s: %s [Start: Line %d, Column %d, End: Line %d, Column %d]%n",
-                label, value, startLine, startColumn, endLine, endColumn);
     }
 
     private Range getRange(int startLine, int startColumn, int endLine, int endColumn) {
