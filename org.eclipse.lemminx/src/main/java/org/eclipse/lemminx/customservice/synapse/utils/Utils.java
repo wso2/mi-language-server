@@ -720,8 +720,8 @@ public class Utils {
     public static JsonElement updateSynapseCatalogSettings(JsonObject settings, Path schemaPath)
             throws IOException, URISyntaxException {
 
-        Path catalogPath = schemaPath.resolve("catalog.xml");
-        if (catalogPath != null) {
+        if (schemaPath != null) {
+            Path catalogPath = schemaPath.resolve("catalog.xml");
             JsonArray catalogsArray = new JsonArray();
             catalogsArray.add(new JsonPrimitive(catalogPath.toString()));
             if (settings != null && settings.isJsonObject() && settings.has(Constant.XML)) {
