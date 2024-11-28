@@ -53,31 +53,36 @@ public class PomParser {
     }
 
     public static String removeContent(String projectUri, Range range) {
-        // Read the POM file into a list of lines
         List<String> lines = null;
         try {
             lines = Files.readAllLines(Paths.get(projectUri + File.separator + "pom.xml"));
-            // Modify the list of lines based on the start and end positions
             int startLine = range.getStart().getLine();
             int endLine = range.getEnd().getLine();
-            for (int i = startLine - 1; i <= endLine - 1; i++) {
-                String line = lines.get(i);
-                if (i == startLine - 1) {
-                    // Modify the start line, remove from start column
-                    lines.set(i, line.substring(0, range.getStart().getCharacter() - 1));
-                } else if (i == endLine - 1) {
-                    // Modify the end line, remove from end column
-                    lines.set(i, line.substring(range.getEnd().getCharacter()));
+            for (int i = endLine - 1; i >= startLine - 1; i--) {
+                if (i == (endLine - 1)) {
+                    String line = lines.get(i);
+                    String value = line.substring(range.getEnd().getCharacter() - 1);
+                    if (value.trim().isEmpty()) {
+                        lines.remove(i);
+                    } else {
+                        lines.set(i, value);
+                    }
+                } else if (i == (startLine - 1)) {
+                    String line = lines.get(i);
+                    String value = line.substring(0, range.getStart().getCharacter() - 1);
+                    if (value.trim().isEmpty()) {
+                        lines.remove(i);
+                    } else {
+                        lines.set(i, value);
+                    }
                 } else {
-                    // Remove the whole line in-between
-                    lines.set(i, "");
+                    lines.remove(i);
                 }
             }
             return lines.toString();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     public static String addContent(String projectUri, PomXmlEditRequest request) {
