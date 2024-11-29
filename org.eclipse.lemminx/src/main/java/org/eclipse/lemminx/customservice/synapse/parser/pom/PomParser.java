@@ -63,21 +63,9 @@ public class PomParser {
             int endLine = range.getEnd().getLine();
             for (int i = endLine - 1; i >= startLine - 1; i--) {
                 if (i == (endLine - 1)) {
-                    String line = lines.get(i);
-                    String value = line.substring(range.getEnd().getCharacter() - 1);
-                    if (value.trim().isEmpty()) {
-                        lines.remove(i);
-                    } else {
-                        lines.set(i, value);
-                    }
+                    processString(lines, lines.get(i).substring(range.getEnd().getCharacter() - 1), i);
                 } else if (i == (startLine - 1)) {
-                    String line = lines.get(i);
-                    String value = line.substring(0, range.getStart().getCharacter() - 1);
-                    if (value.trim().isEmpty()) {
-                        lines.remove(i);
-                    } else {
-                        lines.set(i, value);
-                    }
+                    processString(lines, lines.get(i).substring(0, range.getStart().getCharacter() - 1), i);
                 } else {
                     lines.remove(i);
                 }
@@ -96,7 +84,7 @@ public class PomParser {
                 return null;
             }
             List<String> lines = Files.readAllLines(pomFile.toPath());
-            int index = request.range.getStart().getLine();
+            int index = request.range.getLeft().getStart().getLine();
             List<String> newLines = new ArrayList<>(lines);
             String[] newContentLines = request.value.split("\n");
             for (int i = newContentLines.length - 1; i >= 0; i--) {
@@ -116,24 +104,35 @@ public class PomParser {
                 return null;
             }
             List<String> lines = Files.readAllLines(pomFile.toPath());
-            int startLine = request.range.getStart().getLine();
-            int endLine = request.range.getEnd().getLine();
-            int startColumn = request.range.getStart().getCharacter();
-            int endColumn = request.range.getEnd().getCharacter();
-            for (int i = startLine - 1; i < endLine; i++) {
-                String line = lines.get(i);
-                if (line.length() >= startColumn) {
-                    String beforeReplacement = line.substring(0, startColumn - 1);
-                    String afterReplacement = (line.length() > endColumn) ?
-                            line.substring(endColumn - 1) : "";
-                    String modifiedLine = beforeReplacement + request.value + afterReplacement;
-                    lines.set(i, modifiedLine);
+            if (request.range.isRight()) {
+                for (Range range : request.range.getRight()) {
+                    updateValue(lines, request.value, range);
                 }
+                return String.join("\n", lines);
+            } else {
+                updateValue(lines, request.value, request.range.getLeft());
+                return String.join("\n", lines);
             }
-            return String.join("\n", lines);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Error modifying the POM file: " + e.getMessage());
             return null;
+        }
+    }
+
+    private static void updateValue(List<String> lines, String value, Range range) {
+        int startLine = range.getStart().getLine();
+        int endLine = range.getEnd().getLine();
+        int startColumn = range.getStart().getCharacter();
+        int endColumn = range.getEnd().getCharacter();
+        for (int i = startLine - 1; i < endLine; i++) {
+            String line = lines.get(i);
+            if (line.length() >= startColumn) {
+                String beforeReplacement = line.substring(0, startColumn - 1);
+                String afterReplacement = (line.length() > endColumn) ?
+                        line.substring(endColumn - 1) : "";
+                String modifiedLine = beforeReplacement + value + afterReplacement;
+                lines.set(i, modifiedLine);
+            }
         }
     }
 
@@ -163,6 +162,14 @@ public class PomParser {
         }
         return true;
     }
+
+    private static void processString(List<String> lines, String value, int lineNumber) {
+        if (value.trim().isEmpty()) {
+            lines.remove(lineNumber);
+        } else {
+            lines.set(lineNumber, value);
+        }
+    }
 }
 
 class PluginHandler extends DefaultHandler {
@@ -191,7 +198,6 @@ class PluginHandler extends DefaultHandler {
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) {
         contentBuffer.setLength(0);
-
         valueStartLine = locator.getLineNumber();
         valueStartColumn = locator.getColumnNumber();
         if (Constants.DEPENDENCY.equals(qName)) {
@@ -225,97 +231,11 @@ class PluginHandler extends DefaultHandler {
         int valueEndLine = locator.getLineNumber();
         int valueEndColumn = locator.getColumnNumber();
         if (isPlugin) {
-            switch (qName) {
-                case Constants.ARTIFACT_ID:
-                    pluginArtifactId = value;
-                    break;
-                case Constants.VERSION:
-                    pluginVersion = value;
-                    range = getRange(valueStartLine, valueStartColumn, valueEndLine,
-                            valueEndColumn - closingTagLength);
-                    break;
-                case Constants.NAME:
-                    if (pluginArtifactId.equals("docker-maven-plugin")) {
-                        pomDetailsResponse.setDockerName(new Node(value, getRange(valueStartLine, valueStartColumn,
-                                valueEndLine, valueEndColumn - closingTagLength)));
-                    }
-                    break;
-                case Constants.IMAGE:
-                    isImages = false;
-                    break;
-                case Constants.TEST_SERVER_TYPE:
-                    pomDetailsResponse.setServerType(new Node(value, getRange(valueStartLine, valueStartColumn,
-                            valueEndLine, valueEndColumn - closingTagLength)));
-                    break;
-                case Constants.TEST_SERVER_HOST:
-                    pomDetailsResponse.setServerHost(new Node(value, getRange(valueStartLine, valueStartColumn,
-                            valueEndLine, valueEndColumn - closingTagLength)));
-                    break;
-                case Constants.TEST_SERVER_PORT:
-                    pomDetailsResponse.setServerPort(new Node(value, getRange(valueStartLine, valueStartColumn,
-                            valueEndLine, valueEndColumn - closingTagLength)));
-                    break;
-                case Constants.TEST_SERVER_PATH:
-                    pomDetailsResponse.setServerPath(new Node(value, getRange(valueStartLine, valueStartColumn,
-                            valueEndLine, valueEndColumn - closingTagLength)));
-                    break;
-                case Constants.TEST_SERVER_VERSION:
-                    pomDetailsResponse.setServerVersion(new Node(value, getRange(valueStartLine, valueStartColumn,
-                            valueEndLine, valueEndColumn - closingTagLength)));
-                    break;
-                case Constants.TEST_SERVER_DOWNLOAD_LINK:
-                    pomDetailsResponse.setServerDownloadLink(new Node(value, getRange(valueStartLine, valueStartColumn,
-                            valueEndLine, valueEndColumn - closingTagLength)));
-                    break;
-                case Constants.PLUGIN:
-                    switch (pluginArtifactId.trim()) {
-                        case Constants.VSCODE_CAR_PLUGIN:
-                            pomDetailsResponse.setProjectBuildPluginVersion(pluginVersion, range);
-                            break;
-                        case Constants.MI_CONTAINER_CONFIG_MAPPER:
-                            pomDetailsResponse.setMiContainerPluginVersion(new Node(pluginVersion, range));
-                            break;
-                        case Constants.SYNAPSE_UNIT_TEST_MAVEN_PLUGIN:
-                            pomDetailsResponse.setUnitTestPluginVersion(new Node(pluginVersion, range));
-                            break;
-                    }
-                    isPlugin = false;
-                    break;
-            }
+            processPlugins(qName, value, valueStartLine, valueStartColumn, valueEndLine, valueEndColumn,
+                    closingTagLength);
         } else if (isDependency) {
-            switch (qName) {
-                case Constants.GROUP_ID:
-                    groupId = new Node( StringUtils.getString(value), getRange(valueStartLine, valueStartColumn,
-                            valueEndLine, valueEndColumn - closingTagLength));
-                    break;
-                case Constants.ARTIFACT_ID:
-                    artifactId = new Node( StringUtils.getString(value), getRange(valueStartLine, valueStartColumn,
-                            valueEndLine, valueEndColumn - closingTagLength));
-                    break;
-                case Constants.VERSION:
-                    version = new Node( StringUtils.getString(value), getRange(valueStartLine, valueStartColumn,
-                            valueEndLine, valueEndColumn - closingTagLength));
-                    break;
-                case Constants.TYPE:
-                    dependencyType = value;
-                    break;
-                case Constants.DEPENDENCY:
-                    Map<String, Node> dependency = new HashMap<>();;
-                    dependency.put("groupId", groupId);
-                    dependency.put("artifactId", artifactId);
-                    dependency.put("version", version);
-                    dependency.put("fullRange", new Node("", getRange(dependencyStartLine, dependencyStartColumn,
-                            valueEndLine, valueEndColumn)));
-                    if (dependencyType.equals("zip")) {
-                        pomDetailsResponse.setConnectorDependencies(dependency);
-                    } else {
-                        pomDetailsResponse.setOtherDependencies(dependency);
-                    }
-                    pomDetailsResponse.setLastDependencyEndTagRange(getRange(valueEndLine,
-                            valueEndColumn - closingTagLength, valueEndLine, valueEndColumn));
-                    isDependency = false;
-                    break;
-            }
+            processDependencies(qName, value, valueStartLine, valueStartColumn, valueEndLine, valueEndColumn,
+                    closingTagLength);
         } else if (isRepository) {
             if (Constants.REPOSITORY.equals(qName)) {
                 isRepository = false;
@@ -325,54 +245,163 @@ class PluginHandler extends DefaultHandler {
                 isPluginRepository = false;
             }
         } else if (isProperties) {
-            Range range = getRange(valueStartLine, valueStartColumn, valueEndLine,
+            processProperties(qName, value, valueStartLine, valueStartColumn, valueEndLine,
                     valueEndColumn - closingTagLength);
-            switch (qName) {
-                case Constants.PROJECT_RUNTIME_VERSION:
-                    pomDetailsResponse.setRuntimeVersion(new Node(value, range));
-                    break;
-                case Constants.KEY_STORE_TYPE:
-                    pomDetailsResponse.setKeyStoreType(new Node(value, range));
-                    break;
-                case Constants.KEY_STORE_NAME:
-                    pomDetailsResponse.setKeyStoreName(new Node(value, range));
-                    break;
-                case Constants.KEY_STORE_PASSWORD:
-                    pomDetailsResponse.setKeyStorePassword(new Node(value, range));
-                    break;
-                case Constants.KEY_STORE_ALIAS:
-                    pomDetailsResponse.setKeyStoreAlias(new Node(value, range));
-                    break;
-                case Constants.CIPHER_TOOL_ENABLE:
-                    pomDetailsResponse.setCipherToolEnable(new Node(value, range));
-                    break;
-                case Constants.DOCKER_FILE_BASE_IMAGE:
-                    pomDetailsResponse.setDockerFileBaseImage(new Node(value, range));
-                    break;
-                case Constants.PROPERTIES:
-                    isProperties = false;
-                    break;
-            }
         } else {
-            Range range = getRange(valueStartLine, valueStartColumn, valueEndLine,
+            processPrimaryDetails(qName, value, valueStartLine, valueStartColumn, valueEndLine,
                     valueEndColumn - closingTagLength);
-            switch (qName) {
-                case Constants.GROUP_ID:
-                    pomDetailsResponse.setProjectGroupId(new Node(value, range));
-                    break;
-                case Constants.ARTIFACT_ID:
-                    pomDetailsResponse.setProjectArtifactId(new Node(value, range));
-                    break;
-                case Constants.VERSION:
-                    pomDetailsResponse.setProjectVersion(new Node(value, range));
-                    break;
-                case Constants.DESCRIPTION:
-                    pomDetailsResponse.setProjectDescription(new Node(value, range));
-                    break;
-                case Constants.NAME:
-                    pomDetailsResponse.setProjectName(new Node(value, range));
-                    break;
-            }
+
+        }
+    }
+
+    private void processPlugins(String qName, String value, int valueStartLine, int valueStartColumn,
+                                int valueEndLine, int valueEndColumn, int closingTagLength) {
+        switch (qName) {
+            case Constants.ARTIFACT_ID:
+                pluginArtifactId = value;
+                break;
+            case Constants.VERSION:
+                pluginVersion = value;
+                range = getRange(valueStartLine, valueStartColumn, valueEndLine,
+                        valueEndColumn - closingTagLength);
+                break;
+            case Constants.NAME:
+                if (pluginArtifactId.equals(Constants.DOCKER_MAVEN_PLUGIN)) {
+                    pomDetailsResponse.setDockerName(new Node(value, getRange(valueStartLine, valueStartColumn,
+                            valueEndLine, valueEndColumn - closingTagLength)));
+                }
+                break;
+            case Constants.IMAGE:
+                isImages = false;
+                break;
+            case Constants.TEST_SERVER_TYPE:
+                pomDetailsResponse.setServerType(new Node(value, getRange(valueStartLine, valueStartColumn,
+                        valueEndLine, valueEndColumn - closingTagLength)));
+                break;
+            case Constants.TEST_SERVER_HOST:
+                pomDetailsResponse.setServerHost(new Node(value, getRange(valueStartLine, valueStartColumn,
+                        valueEndLine, valueEndColumn - closingTagLength)));
+                break;
+            case Constants.TEST_SERVER_PORT:
+                pomDetailsResponse.setServerPort(new Node(value, getRange(valueStartLine, valueStartColumn,
+                        valueEndLine, valueEndColumn - closingTagLength)));
+                break;
+            case Constants.TEST_SERVER_PATH:
+                pomDetailsResponse.setServerPath(new Node(value, getRange(valueStartLine, valueStartColumn,
+                        valueEndLine, valueEndColumn - closingTagLength)));
+                break;
+            case Constants.TEST_SERVER_VERSION:
+                pomDetailsResponse.setServerVersion(new Node(value, getRange(valueStartLine, valueStartColumn,
+                        valueEndLine, valueEndColumn - closingTagLength)));
+                break;
+            case Constants.TEST_SERVER_DOWNLOAD_LINK:
+                pomDetailsResponse.setServerDownloadLink(new Node(value, getRange(valueStartLine, valueStartColumn,
+                        valueEndLine, valueEndColumn - closingTagLength)));
+                break;
+            case Constants.PLUGIN:
+                switch (pluginArtifactId.trim()) {
+                    case Constants.VSCODE_CAR_PLUGIN:
+                        pomDetailsResponse.setProjectBuildPluginVersion(pluginVersion, range);
+                        break;
+                    case Constants.MI_CONTAINER_CONFIG_MAPPER:
+                        pomDetailsResponse.setMiContainerPluginVersion(new Node(pluginVersion, range));
+                        break;
+                    case Constants.SYNAPSE_UNIT_TEST_MAVEN_PLUGIN:
+                        pomDetailsResponse.setUnitTestPluginVersion(new Node(pluginVersion, range));
+                        break;
+                }
+                isPlugin = false;
+                break;
+        }
+    }
+
+    private void processDependencies(String qName, String value, int valueStartLine, int valueStartColumn,
+                                   int valueEndLine, int valueEndColumn, int closingTagLength) {
+        switch (qName) {
+            case Constants.GROUP_ID:
+                groupId = new Node( StringUtils.getString(value), getRange(valueStartLine, valueStartColumn,
+                        valueEndLine, valueEndColumn - closingTagLength));
+                break;
+            case Constants.ARTIFACT_ID:
+                artifactId = new Node( StringUtils.getString(value), getRange(valueStartLine, valueStartColumn,
+                        valueEndLine, valueEndColumn - closingTagLength));
+                break;
+            case Constants.VERSION:
+                version = new Node( StringUtils.getString(value), getRange(valueStartLine, valueStartColumn,
+                        valueEndLine, valueEndColumn - closingTagLength));
+                break;
+            case Constants.TYPE:
+                dependencyType = value;
+                break;
+            case Constants.DEPENDENCY:
+                Map<String, Node> dependency = new HashMap<>();;
+                dependency.put("groupId", groupId);
+                dependency.put("artifactId", artifactId);
+                dependency.put("version", version);
+                dependency.put("fullRange", new Node("", getRange(dependencyStartLine, dependencyStartColumn,
+                        valueEndLine, valueEndColumn)));
+                if (dependencyType.equals("zip")) {
+                    pomDetailsResponse.setConnectorDependencies(dependency);
+                } else {
+                    pomDetailsResponse.setOtherDependencies(dependency);
+                }
+                pomDetailsResponse.setLastDependencyEndTagRange(getRange(valueEndLine,
+                        valueEndColumn - closingTagLength, valueEndLine, valueEndColumn));
+                isDependency = false;
+                break;
+        }
+    }
+
+    private void processProperties(String qName, String value, int valueStartLine, int valueStartColumn,
+                                   int valueEndLine, int valueEndColumn) {
+        Range range = getRange(valueStartLine, valueStartColumn, valueEndLine, valueEndColumn);
+        switch (qName) {
+            case Constants.PROJECT_RUNTIME_VERSION:
+                pomDetailsResponse.setRuntimeVersion(new Node(value, range));
+                break;
+            case Constants.KEY_STORE_TYPE:
+                pomDetailsResponse.setKeyStoreType(new Node(value, range));
+                break;
+            case Constants.KEY_STORE_NAME:
+                pomDetailsResponse.setKeyStoreName(new Node(value, range));
+                break;
+            case Constants.KEY_STORE_PASSWORD:
+                pomDetailsResponse.setKeyStorePassword(new Node(value, range));
+                break;
+            case Constants.KEY_STORE_ALIAS:
+                pomDetailsResponse.setKeyStoreAlias(new Node(value, range));
+                break;
+            case Constants.CIPHER_TOOL_ENABLE:
+                pomDetailsResponse.setCipherToolEnable(new Node(value, range));
+                break;
+            case Constants.DOCKER_FILE_BASE_IMAGE:
+                pomDetailsResponse.setDockerFileBaseImage(new Node(value, range));
+                break;
+            case Constants.PROPERTIES:
+                isProperties = false;
+                break;
+        }
+    }
+
+    private void processPrimaryDetails(String qName, String value, int valueStartLine, int valueStartColumn,
+                                       int valueEndLine, int valueEndColumn) {
+        Range range = getRange(valueStartLine, valueStartColumn, valueEndLine, valueEndColumn);
+        switch (qName) {
+            case Constants.GROUP_ID:
+                pomDetailsResponse.setProjectGroupId(new Node(value, range));
+                break;
+            case Constants.ARTIFACT_ID:
+                pomDetailsResponse.setProjectArtifactId(new Node(value, range));
+                break;
+            case Constants.VERSION:
+                pomDetailsResponse.setProjectVersion(new Node(value, range));
+                break;
+            case Constants.DESCRIPTION:
+                pomDetailsResponse.setProjectDescription(new Node(value, range));
+                break;
+            case Constants.NAME:
+                pomDetailsResponse.setProjectName(new Node(value, range));
+                break;
         }
     }
 

@@ -63,7 +63,6 @@ public class OverviewPageDetailsResponse {
         configs = new ArrayList<>();
     }
 
-
     public void setRuntimeVersion(Node runtimeVersion) {
         this.runtimeVersion = runtimeVersion;
     }
