@@ -399,14 +399,14 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     }
 
     @Override
-    public CompletableFuture<String> removeContentFromPomXml(Range range) {
-        String response = PomParser.removeContent(projectUri, range);
+    public CompletableFuture<String> removeDependency(Range range) {
+        String response = PomParser.removeDependency(projectUri, range);
         return CompletableFuture.supplyAsync(() -> response);
     }
 
     @Override
-    public CompletableFuture<String> addContentToPomXml(PomXmlEditRequest request) {
-        String response = PomParser.addContent(projectUri, request);
+    public CompletableFuture<String> addDependency(PomXmlEditRequest request) {
+        String response = PomParser.addDependency(projectUri, request);
         return CompletableFuture.supplyAsync(() -> response);
     }
 

@@ -149,10 +149,10 @@ public interface ISynapseLanguageService {
     CompletableFuture<OverviewPageDetailsResponse> getOverviewPageDetails();
 
     @JsonRequest
-    CompletableFuture<String> removeContentFromPomXml(Range range);
+    CompletableFuture<String> removeDependency(Range range);
 
     @JsonRequest
-    CompletableFuture<String> addContentToPomXml(PomXmlEditRequest request);
+    CompletableFuture<String> addDependency(PomXmlEditRequest request);
 
     @JsonRequest
     CompletableFuture<String> updatePomValue(PomXmlEditRequest request);

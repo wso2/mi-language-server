@@ -17,6 +17,7 @@
  */
 package org.eclipse.lemminx.customservice.synapse.parser.pom;
 
+import org.eclipse.lemminx.customservice.synapse.parser.Constants;
 import org.eclipse.lemminx.customservice.synapse.parser.Node;
 import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
 import org.eclipse.lemminx.customservice.synapse.parser.PomXmlEditRequest;
@@ -34,7 +35,6 @@ import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -52,10 +52,13 @@ public class PomParser {
         extractPomContent(projectUri);
     }
 
-    public static String removeContent(String projectUri, Range range) {
-        List<String> lines = null;
+    public static String removeDependency(String projectUri, Range range) {
         try {
-            lines = Files.readAllLines(Paths.get(projectUri + File.separator + "pom.xml"));
+            File pomFile = new File(projectUri + File.separator + Constants.POM_FILE);
+            if (!isPomFileExist(pomFile)) {
+                return null;
+            }
+            List<String> lines = Files.readAllLines(pomFile.toPath());
             int startLine = range.getStart().getLine();
             int endLine = range.getEnd().getLine();
             for (int i = endLine - 1; i >= startLine - 1; i--) {
@@ -81,14 +84,18 @@ public class PomParser {
             }
             return String.join("\n", lines);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            LOGGER.log(Level.SEVERE, "Error removing the dependency from the POM file: " + e.getMessage());
+            return null;
         }
     }
 
-    public static String addContent(String projectUri, PomXmlEditRequest request) {
-        List<String> lines = null;
+    public static String addDependency(String projectUri, PomXmlEditRequest request) {
         try {
-            lines = Files.readAllLines(Paths.get(projectUri + File.separator + "pom.xml"));
+            File pomFile = new File(projectUri + File.separator + Constants.POM_FILE);
+            if (!isPomFileExist(pomFile)) {
+                return null;
+            }
+            List<String> lines = Files.readAllLines(pomFile.toPath());
             int index = request.range.getStart().getLine();
             List<String> newLines = new ArrayList<>(lines);
             String[] newContentLines = request.value.split("\n");
@@ -97,13 +104,18 @@ public class PomParser {
             }
             return String.join("\n", newLines);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            LOGGER.log(Level.SEVERE, "Error adding the dependency to the POM file: " + e.getMessage());
+            return null;
         }
     }
 
     public static String updateValue(String projectUri, PomXmlEditRequest request) {
         try {
-            List<String> lines = Files.readAllLines(Paths.get(projectUri + File.separator + "pom.xml"));
+            File pomFile = new File(projectUri + File.separator + Constants.POM_FILE);
+            if (!isPomFileExist(pomFile)) {
+                return null;
+            }
+            List<String> lines = Files.readAllLines(pomFile.toPath());
             int startLine = request.range.getStart().getLine();
             int endLine = request.range.getEnd().getLine();
             int startColumn = request.range.getStart().getCharacter();
@@ -119,39 +131,45 @@ public class PomParser {
                 }
             }
             return String.join("\n", lines);
-
         } catch (IOException e) {
-            throw new RuntimeException("Error reading or modifying the POM file: " + e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, "Error modifying the POM file: " + e.getMessage());
+            return null;
         }
     }
 
     private static void extractPomContent(String projectUri) {
         try {
-            File pomFile = new File(projectUri + File.separator + "pom.xml");
-            if (!pomFile.exists()) {
-                LOGGER.log(Level.SEVERE, "POM file does not exist: " + pomFile.getAbsolutePath());
+            File pomFile = new File(projectUri + File.separator + Constants.POM_FILE);
+            if (!isPomFileExist(pomFile)) {
                 return;
             }
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser saxParser = factory.newSAXParser();
-
             PluginHandler handler = new PluginHandler(pomDetailsResponse);
             saxParser.parse(pomFile, handler);
         } catch (ParserConfigurationException e) {
-            throw new RuntimeException(e);
+            LOGGER.log(Level.SEVERE, "Error configuring the parser for the POM file: " + e.getMessage());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            LOGGER.log(Level.SEVERE, "Error accessing the POM file: " + e.getMessage());
         } catch (SAXException e) {
-            throw new RuntimeException(e);
+            LOGGER.log(Level.SEVERE, "Error parsing the POM file: " + e.getMessage());
         }
+    }
+
+    private static boolean isPomFileExist(File pomFile) {
+        if (!pomFile.exists()) {
+            LOGGER.log(Level.SEVERE, "POM file does not exist: " + pomFile.getAbsolutePath());
+            return false;
+        }
+        return true;
     }
 }
 
 class PluginHandler extends DefaultHandler {
-    private Locator locator; // Tracks current position in the file
-    private final StringBuilder contentBuffer = new StringBuilder(); // Buffer for element content
-    private boolean isDependency, isPlugin, isRepository, isPluginRepository, isProperties, isImages; // Flags for sections
-    private int valueStartLine, valueStartColumn, dependencyStartLine, dependencyStartColumn; // Start position of current value
+    private Locator locator;
+    private final StringBuilder contentBuffer = new StringBuilder();
+    private boolean isDependency, isPlugin, isRepository, isPluginRepository, isProperties, isImages;
+    private int valueStartLine, valueStartColumn, dependencyStartLine, dependencyStartColumn;
 
     private String pluginArtifactId, pluginVersion, dependencyType = "";
     private Range range;
@@ -176,7 +194,7 @@ class PluginHandler extends DefaultHandler {
 
         valueStartLine = locator.getLineNumber();
         valueStartColumn = locator.getColumnNumber();
-        if ("dependency".equals(qName)) {
+        if (Constants.DEPENDENCY.equals(qName)) {
             isDependency = true;
             groupId = new Node();
             artifactId = new Node();
@@ -184,18 +202,18 @@ class PluginHandler extends DefaultHandler {
             dependencyStartLine = locator.getLineNumber();
             dependencyStartColumn = locator.getColumnNumber() - (qName.length() + 2);
             dependencyType = "";
-        } else if ("plugin".equals(qName)) {
+        } else if (Constants.PLUGIN.equals(qName)) {
             isPlugin = true;
             pluginArtifactId = "";
             pluginVersion = "";
             range = new Range();
-        } else if ("repository".equals(qName)) {
+        } else if (Constants.REPOSITORY.equals(qName)) {
             isRepository = true;
-        } else if ("pluginRepository".equals(qName)) {
+        } else if (Constants.PLUGIN_REPOSITORY.equals(qName)) {
             isPluginRepository = true;
-        } else if ("properties".equals(qName)) {
+        } else if (Constants.PROPERTIES.equals(qName)) {
             isProperties = true;
-        } else if ("images".equals(qName) && isPlugin) {
+        } else if (Constants.IMAGES.equals(qName) && isPlugin) {
             isImages = true;
         }
     }
@@ -208,56 +226,56 @@ class PluginHandler extends DefaultHandler {
         int valueEndColumn = locator.getColumnNumber();
         if (isPlugin) {
             switch (qName) {
-                case "artifactId":
+                case Constants.ARTIFACT_ID:
                     pluginArtifactId = value;
                     break;
-                case "version":
+                case Constants.VERSION:
                     pluginVersion = value;
                     range = getRange(valueStartLine, valueStartColumn, valueEndLine,
                             valueEndColumn - closingTagLength);
                     break;
-                case "name":
+                case Constants.NAME:
                     if (pluginArtifactId.equals("docker-maven-plugin")) {
                         pomDetailsResponse.setDockerName(new Node(value, getRange(valueStartLine, valueStartColumn,
                                 valueEndLine, valueEndColumn - closingTagLength)));
                     }
                     break;
-                case "image":
+                case Constants.IMAGE:
                     isImages = false;
                     break;
-                case "testServerType":
+                case Constants.TEST_SERVER_TYPE:
                     pomDetailsResponse.setServerType(new Node(value, getRange(valueStartLine, valueStartColumn,
                             valueEndLine, valueEndColumn - closingTagLength)));
                     break;
-                case "testServerHost":
+                case Constants.TEST_SERVER_HOST:
                     pomDetailsResponse.setServerHost(new Node(value, getRange(valueStartLine, valueStartColumn,
                             valueEndLine, valueEndColumn - closingTagLength)));
                     break;
-                case "testServerPort":
+                case Constants.TEST_SERVER_PORT:
                     pomDetailsResponse.setServerPort(new Node(value, getRange(valueStartLine, valueStartColumn,
                             valueEndLine, valueEndColumn - closingTagLength)));
                     break;
-                case "testServerPath":
+                case Constants.TEST_SERVER_PATH:
                     pomDetailsResponse.setServerPath(new Node(value, getRange(valueStartLine, valueStartColumn,
                             valueEndLine, valueEndColumn - closingTagLength)));
                     break;
-                case "testServerVersion":
+                case Constants.TEST_SERVER_VERSION:
                     pomDetailsResponse.setServerVersion(new Node(value, getRange(valueStartLine, valueStartColumn,
                             valueEndLine, valueEndColumn - closingTagLength)));
                     break;
-                case "testServerDownloadLink":
+                case Constants.TEST_SERVER_DOWNLOAD_LINK:
                     pomDetailsResponse.setServerDownloadLink(new Node(value, getRange(valueStartLine, valueStartColumn,
                             valueEndLine, valueEndColumn - closingTagLength)));
                     break;
-                case "plugin":
+                case Constants.PLUGIN:
                     switch (pluginArtifactId.trim()) {
-                        case "vscode-car-plugin":
+                        case Constants.VSCODE_CAR_PLUGIN:
                             pomDetailsResponse.setProjectBuildPluginVersion(pluginVersion, range);
                             break;
-                        case "mi-container-config-mapper":
+                        case Constants.MI_CONTAINER_CONFIG_MAPPER:
                             pomDetailsResponse.setMiContainerPluginVersion(new Node(pluginVersion, range));
                             break;
-                        case "synapse-unit-test-maven-plugin":
+                        case Constants.SYNAPSE_UNIT_TEST_MAVEN_PLUGIN:
                             pomDetailsResponse.setUnitTestPluginVersion(new Node(pluginVersion, range));
                             break;
                     }
@@ -266,22 +284,22 @@ class PluginHandler extends DefaultHandler {
             }
         } else if (isDependency) {
             switch (qName) {
-                case "groupId":
+                case Constants.GROUP_ID:
                     groupId = new Node( StringUtils.getString(value), getRange(valueStartLine, valueStartColumn,
                             valueEndLine, valueEndColumn - closingTagLength));
                     break;
-                case "artifactId":
+                case Constants.ARTIFACT_ID:
                     artifactId = new Node( StringUtils.getString(value), getRange(valueStartLine, valueStartColumn,
                             valueEndLine, valueEndColumn - closingTagLength));
                     break;
-                case "version":
+                case Constants.VERSION:
                     version = new Node( StringUtils.getString(value), getRange(valueStartLine, valueStartColumn,
                             valueEndLine, valueEndColumn - closingTagLength));
                     break;
-                case "type":
+                case Constants.TYPE:
                     dependencyType = value;
                     break;
-                case "dependency":
+                case Constants.DEPENDENCY:
                     Map<String, Node> dependency = new HashMap<>();;
                     dependency.put("groupId", groupId);
                     dependency.put("artifactId", artifactId);
@@ -299,39 +317,39 @@ class PluginHandler extends DefaultHandler {
                     break;
             }
         } else if (isRepository) {
-            if ("repository".equals(qName)) {
+            if (Constants.REPOSITORY.equals(qName)) {
                 isRepository = false;
             }
         } else if (isPluginRepository) {
-            if ("pluginRepository".equals(qName)) {
+            if (Constants.PLUGIN_REPOSITORY.equals(qName)) {
                 isPluginRepository = false;
             }
         } else if (isProperties) {
             Range range = getRange(valueStartLine, valueStartColumn, valueEndLine,
                     valueEndColumn - closingTagLength);
             switch (qName) {
-                case "project.runtime.version":
+                case Constants.PROJECT_RUNTIME_VERSION:
                     pomDetailsResponse.setRuntimeVersion(new Node(value, range));
                     break;
-                case "keystore.type":
+                case Constants.KEY_STORE_TYPE:
                     pomDetailsResponse.setKeyStoreType(new Node(value, range));
                     break;
-                case "keystore.name":
+                case Constants.KEY_STORE_NAME:
                     pomDetailsResponse.setKeyStoreName(new Node(value, range));
                     break;
-                case "keystore.password":
+                case Constants.KEY_STORE_PASSWORD:
                     pomDetailsResponse.setKeyStorePassword(new Node(value, range));
                     break;
-                case "keystore.alias":
+                case Constants.KEY_STORE_ALIAS:
                     pomDetailsResponse.setKeyStoreAlias(new Node(value, range));
                     break;
-                case "ciphertool.enable":
+                case Constants.CIPHER_TOOL_ENABLE:
                     pomDetailsResponse.setCipherToolEnable(new Node(value, range));
                     break;
-                case "dockerfile.base.image":
+                case Constants.DOCKER_FILE_BASE_IMAGE:
                     pomDetailsResponse.setDockerFileBaseImage(new Node(value, range));
                     break;
-                case "properties":
+                case Constants.PROPERTIES:
                     isProperties = false;
                     break;
             }
@@ -339,19 +357,19 @@ class PluginHandler extends DefaultHandler {
             Range range = getRange(valueStartLine, valueStartColumn, valueEndLine,
                     valueEndColumn - closingTagLength);
             switch (qName) {
-                case "groupId":
+                case Constants.GROUP_ID:
                     pomDetailsResponse.setProjectGroupId(new Node(value, range));
                     break;
-                case "artifactId":
+                case Constants.ARTIFACT_ID:
                     pomDetailsResponse.setProjectArtifactId(new Node(value, range));
                     break;
-                case "version":
+                case Constants.VERSION:
                     pomDetailsResponse.setProjectVersion(new Node(value, range));
                     break;
-                case "description":
+                case Constants.DESCRIPTION:
                     pomDetailsResponse.setProjectDescription(new Node(value, range));
                     break;
-                case "name":
+                case Constants.NAME:
                     pomDetailsResponse.setProjectName(new Node(value, range));
                     break;
             }

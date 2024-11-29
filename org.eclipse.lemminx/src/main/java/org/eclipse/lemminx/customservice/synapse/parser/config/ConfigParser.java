@@ -18,6 +18,7 @@
 package org.eclipse.lemminx.customservice.synapse.parser.config;
 
 import org.eclipse.lemminx.customservice.synapse.parser.ConfigFileEditRequest;
+import org.eclipse.lemminx.customservice.synapse.parser.Constants;
 import org.eclipse.lemminx.customservice.synapse.parser.Node;
 import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
 import org.eclipse.lsp4j.Position;
@@ -28,90 +29,81 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ConfigParser {
 
     private static final Logger LOGGER = Logger.getLogger(ConfigParser.class.getName());
+    private File propertiesFile;
 
     public static void getConfigDetails(String projectUri, OverviewPageDetailsResponse detailsResponse) {
-        File propertiesFile = new File(projectUri + File.separator + "src" + File.separator + "main" +
-                File.separator + "wso2mi" + File.separator + "resources" + File.separator +  "conf" +
-                File.separator + "config.properties");
-        // Verify the file exists
-        if (!propertiesFile.exists()) {
-            LOGGER.log(Level.SEVERE, "Config file does not exist: " + propertiesFile.getAbsolutePath());
-            return;
-        }
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(propertiesFile))) {
-            String line;
-            int lineNumber = 0;
-
-            while ((line = reader.readLine()) != null) {
-                lineNumber++;
-
-                // Skip comments and blank lines
-                line = line.trim();
-                if (line.startsWith("#") || line.isEmpty()) {
-                    continue;
+        List<String> fileLines = new ArrayList<>();
+        File propertyFilePath = getFilePath(projectUri);
+        if (isConfigFileExist(propertyFilePath)) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(propertyFilePath))) {
+                String line;
+                int lineNumber = 0;
+                while ((line = reader.readLine()) != null) {
+                    lineNumber++;
+                    line = line.trim();
+                    if (line.startsWith("#") || line.isEmpty()) {
+                        continue;
+                    }
+                    int delimiterIndex = line.indexOf(':');
+                    if (delimiterIndex != -1) {
+                        String key = line.substring(0, delimiterIndex).trim();
+                        String value = line.substring(delimiterIndex + 1).trim();
+                        detailsResponse.setConfig(new Node(key, value, new Range(new Position(lineNumber,
+                                line.indexOf(key)), new Position(lineNumber, line.indexOf(value) +
+                                value.length() - 1))));
+                    }
                 }
-
-                // Find the delimiter '='
-                int delimiterIndex = line.indexOf(':');
-                if (delimiterIndex != -1) {
-                    // Extract key and value
-                    String key = line.substring(0, delimiterIndex).trim();
-                    String value = line.substring(delimiterIndex + 1).trim();
-                    detailsResponse.setConfig(new Node(key, value, new Range(new Position(lineNumber, line.indexOf(key)),
-                            new Position(lineNumber, line.indexOf(value) + value.length() - 1))));
-                }
+            } catch (FileNotFoundException e) {
+                LOGGER.log(Level.SEVERE, "Config file does not exist: " + e.getMessage());
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, "Error accessing the config file: " + e.getMessage());
             }
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 
     public static String updateConfigFileValue(String projectUri, ConfigFileEditRequest request) {
-        File propertiesFile = new File(projectUri + File.separator + "src" + File.separator + "main" +
-                File.separator + "wso2mi" + File.separator + "resources" + File.separator +  "conf" +
-                File.separator + "config.properties");
         List<String> fileLines = new ArrayList<>();
-        try {
-            if (!propertiesFile.exists()) {
-                LOGGER.log(Level.SEVERE, "Config file does not exist: " + propertiesFile.getAbsolutePath());
-                return null;
-            }
+        File propertyFilePath = getFilePath(projectUri);
+        if (isConfigFileExist(propertyFilePath)) {
+            try {
+                fileLines = new ArrayList<>(Files.readAllLines(propertyFilePath.toPath()));
+                int targetLine = request.range.getStart().getLine() - 1;
+                if (targetLine >= 0 && targetLine < fileLines.size()) {
+                    String trimmedLine = fileLines.get(targetLine).trim();
 
-            try (BufferedReader reader = new BufferedReader(new FileReader(propertiesFile))) {
-                String line;
-                int lineNumber = 0;
-
-                while ((line = reader.readLine()) != null) {
-                    lineNumber++;
-                    String trimmedLine = line.trim();
-
-                    // Skip comments and blank lines
-                    if (trimmedLine.startsWith("#") || trimmedLine.isEmpty()) {
-                        fileLines.add(line);
-                        continue;
+                    if (!trimmedLine.startsWith("#") && !trimmedLine.isEmpty()) {
+                        fileLines.set(targetLine, request.key + ":" + request.value);
                     }
-                    if (((Range) request.range).getStart().getLine() == lineNumber) {
-                        line = request.key + ":" + request.value;
-                    }
-                    fileLines.add(line);
+                } else {
+                    LOGGER.log(Level.WARNING, "Specified line number is out of bounds: " + (targetLine + 1));
                 }
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, "Error updating properties file: " + e.getMessage());
             }
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Error updating properties file: " + e.getMessage());
         }
-        return Arrays.toString(fileLines.toArray());
+        return String.join("\n", fileLines);
+    }
+
+    private static File getFilePath(String projectUri) {
+        return new File(projectUri + File.separator + Constants.SRC + File.separator + Constants.MAIN +
+                File.separator + Constants.WSO2_MI + File.separator + Constants.RESOURCES + File.separator +
+                Constants.CONF + File.separator + Constants.CONFIG_FILE);
+    }
+
+    private static boolean isConfigFileExist(File propertiesFile) {
+        if (!propertiesFile.exists()) {
+            LOGGER.log(Level.SEVERE, "Config file does not exist: " + propertiesFile.getAbsolutePath());
+            return false;
+        }
+        return true;
     }
 }
