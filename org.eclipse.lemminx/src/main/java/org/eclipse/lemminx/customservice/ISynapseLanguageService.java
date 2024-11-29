@@ -156,6 +156,7 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<String> updatePomValue(PomXmlEditRequest request);
+
     @JsonRequest
     CompletableFuture<String> updateConfigFileValue(ConfigFileEditRequest request);
 }

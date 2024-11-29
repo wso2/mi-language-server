@@ -18,31 +18,26 @@
 package org.eclipse.lemminx.customservice.synapse.parser;
 
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Node {
 
-    Range range;
+    Either<Range, List<Range>> range;
     String value;
     String key;
-    List<Range> ranges = new ArrayList<>();
 
     public Node() {
     }
 
-    public Node(String value, Range range) {
+    public Node(String value, Either<Range, List<Range>> range) {
         this.range = range;
         this.value = value;
     }
 
-    public Node(String value, List<Range> ranges) {
-        this.ranges = ranges;
-        this.value = value;
-    }
-
-    public Node(String key, String value, Range range) {
+    public Node(String key, String value, Either<Range, List<Range>> range) {
         this.range = range;
         this.key = key;
         this.value = value;

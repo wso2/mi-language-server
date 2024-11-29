@@ -18,6 +18,7 @@
 package org.eclipse.lemminx.customservice.synapse.parser;
 
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,7 +90,7 @@ public class OverviewPageDetailsResponse {
 
     public void setProjectBuildPluginVersion(String pluginVersion, Range range) {
         ranges.add(range);
-        this.projectBuildPluginVersion = new Node(pluginVersion, ranges);
+        this.projectBuildPluginVersion = new Node(pluginVersion, Either.forRight(ranges));
     }
 
     public void setConnectorDependencies(Map<String, Node> connectorDependencies) {

@@ -24,6 +24,7 @@ import org.eclipse.lemminx.customservice.synapse.parser.PomXmlEditRequest;
 import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
@@ -267,36 +268,36 @@ class PluginHandler extends DefaultHandler {
                 break;
             case Constants.NAME:
                 if (pluginArtifactId.equals(Constants.DOCKER_MAVEN_PLUGIN)) {
-                    pomDetailsResponse.setDockerName(new Node(value, getRange(valueStartLine, valueStartColumn,
-                            valueEndLine, valueEndColumn - closingTagLength)));
+                    pomDetailsResponse.setDockerName(new Node(value, Either.forLeft(getRange(valueStartLine,
+                            valueStartColumn, valueEndLine, valueEndColumn - closingTagLength))));
                 }
                 break;
             case Constants.IMAGE:
                 isImages = false;
                 break;
             case Constants.TEST_SERVER_TYPE:
-                pomDetailsResponse.setServerType(new Node(value, getRange(valueStartLine, valueStartColumn,
-                        valueEndLine, valueEndColumn - closingTagLength)));
+                pomDetailsResponse.setServerType(new Node(value, Either.forLeft(getRange(valueStartLine,
+                        valueStartColumn, valueEndLine, valueEndColumn - closingTagLength))));
                 break;
             case Constants.TEST_SERVER_HOST:
-                pomDetailsResponse.setServerHost(new Node(value, getRange(valueStartLine, valueStartColumn,
-                        valueEndLine, valueEndColumn - closingTagLength)));
+                pomDetailsResponse.setServerHost(new Node(value, Either.forLeft(getRange(valueStartLine,
+                        valueStartColumn, valueEndLine, valueEndColumn - closingTagLength))));
                 break;
             case Constants.TEST_SERVER_PORT:
-                pomDetailsResponse.setServerPort(new Node(value, getRange(valueStartLine, valueStartColumn,
-                        valueEndLine, valueEndColumn - closingTagLength)));
+                pomDetailsResponse.setServerPort(new Node(value, Either.forLeft(getRange(valueStartLine,
+                        valueStartColumn, valueEndLine, valueEndColumn - closingTagLength))));
                 break;
             case Constants.TEST_SERVER_PATH:
-                pomDetailsResponse.setServerPath(new Node(value, getRange(valueStartLine, valueStartColumn,
-                        valueEndLine, valueEndColumn - closingTagLength)));
+                pomDetailsResponse.setServerPath(new Node(value, Either.forLeft(getRange(valueStartLine,
+                        valueStartColumn, valueEndLine, valueEndColumn - closingTagLength))));
                 break;
             case Constants.TEST_SERVER_VERSION:
-                pomDetailsResponse.setServerVersion(new Node(value, getRange(valueStartLine, valueStartColumn,
-                        valueEndLine, valueEndColumn - closingTagLength)));
+                pomDetailsResponse.setServerVersion(new Node(value, Either.forLeft(getRange(valueStartLine,
+                        valueStartColumn, valueEndLine, valueEndColumn - closingTagLength))));
                 break;
             case Constants.TEST_SERVER_DOWNLOAD_LINK:
-                pomDetailsResponse.setServerDownloadLink(new Node(value, getRange(valueStartLine, valueStartColumn,
-                        valueEndLine, valueEndColumn - closingTagLength)));
+                pomDetailsResponse.setServerDownloadLink(new Node(value, Either.forLeft(getRange(valueStartLine,
+                        valueStartColumn, valueEndLine, valueEndColumn - closingTagLength))));
                 break;
             case Constants.PLUGIN:
                 switch (pluginArtifactId.trim()) {
@@ -304,10 +305,10 @@ class PluginHandler extends DefaultHandler {
                         pomDetailsResponse.setProjectBuildPluginVersion(pluginVersion, range);
                         break;
                     case Constants.MI_CONTAINER_CONFIG_MAPPER:
-                        pomDetailsResponse.setMiContainerPluginVersion(new Node(pluginVersion, range));
+                        pomDetailsResponse.setMiContainerPluginVersion(new Node(pluginVersion, Either.forLeft(range)));
                         break;
                     case Constants.SYNAPSE_UNIT_TEST_MAVEN_PLUGIN:
-                        pomDetailsResponse.setUnitTestPluginVersion(new Node(pluginVersion, range));
+                        pomDetailsResponse.setUnitTestPluginVersion(new Node(pluginVersion, Either.forLeft(range)));
                         break;
                 }
                 isPlugin = false;
@@ -319,16 +320,16 @@ class PluginHandler extends DefaultHandler {
                                    int valueEndLine, int valueEndColumn, int closingTagLength) {
         switch (qName) {
             case Constants.GROUP_ID:
-                groupId = new Node( StringUtils.getString(value), getRange(valueStartLine, valueStartColumn,
-                        valueEndLine, valueEndColumn - closingTagLength));
+                groupId = new Node( StringUtils.getString(value), Either.forLeft(getRange(valueStartLine,
+                        valueStartColumn, valueEndLine, valueEndColumn - closingTagLength)));
                 break;
             case Constants.ARTIFACT_ID:
-                artifactId = new Node( StringUtils.getString(value), getRange(valueStartLine, valueStartColumn,
-                        valueEndLine, valueEndColumn - closingTagLength));
+                artifactId = new Node( StringUtils.getString(value), Either.forLeft(getRange(valueStartLine,
+                        valueStartColumn, valueEndLine, valueEndColumn - closingTagLength)));
                 break;
             case Constants.VERSION:
-                version = new Node( StringUtils.getString(value), getRange(valueStartLine, valueStartColumn,
-                        valueEndLine, valueEndColumn - closingTagLength));
+                version = new Node( StringUtils.getString(value), Either.forLeft(getRange(valueStartLine,
+                        valueStartColumn, valueEndLine, valueEndColumn - closingTagLength)));
                 break;
             case Constants.TYPE:
                 dependencyType = value;
@@ -338,8 +339,8 @@ class PluginHandler extends DefaultHandler {
                 dependency.put("groupId", groupId);
                 dependency.put("artifactId", artifactId);
                 dependency.put("version", version);
-                dependency.put("fullRange", new Node("", getRange(dependencyStartLine, dependencyStartColumn,
-                        valueEndLine, valueEndColumn)));
+                dependency.put("fullRange", new Node("", Either.forLeft(getRange(dependencyStartLine,
+                        dependencyStartColumn, valueEndLine, valueEndColumn))));
                 if (dependencyType.equals("zip")) {
                     pomDetailsResponse.setConnectorDependencies(dependency);
                 } else {
@@ -357,25 +358,25 @@ class PluginHandler extends DefaultHandler {
         Range range = getRange(valueStartLine, valueStartColumn, valueEndLine, valueEndColumn);
         switch (qName) {
             case Constants.PROJECT_RUNTIME_VERSION:
-                pomDetailsResponse.setRuntimeVersion(new Node(value, range));
+                pomDetailsResponse.setRuntimeVersion(new Node(value, Either.forLeft(range)));
                 break;
             case Constants.KEY_STORE_TYPE:
-                pomDetailsResponse.setKeyStoreType(new Node(value, range));
+                pomDetailsResponse.setKeyStoreType(new Node(value, Either.forLeft(range)));
                 break;
             case Constants.KEY_STORE_NAME:
-                pomDetailsResponse.setKeyStoreName(new Node(value, range));
+                pomDetailsResponse.setKeyStoreName(new Node(value, Either.forLeft(range)));
                 break;
             case Constants.KEY_STORE_PASSWORD:
-                pomDetailsResponse.setKeyStorePassword(new Node(value, range));
+                pomDetailsResponse.setKeyStorePassword(new Node(value, Either.forLeft(range)));
                 break;
             case Constants.KEY_STORE_ALIAS:
-                pomDetailsResponse.setKeyStoreAlias(new Node(value, range));
+                pomDetailsResponse.setKeyStoreAlias(new Node(value, Either.forLeft(range)));
                 break;
             case Constants.CIPHER_TOOL_ENABLE:
-                pomDetailsResponse.setCipherToolEnable(new Node(value, range));
+                pomDetailsResponse.setCipherToolEnable(new Node(value, Either.forLeft(range)));
                 break;
             case Constants.DOCKER_FILE_BASE_IMAGE:
-                pomDetailsResponse.setDockerFileBaseImage(new Node(value, range));
+                pomDetailsResponse.setDockerFileBaseImage(new Node(value, Either.forLeft(range)));
                 break;
             case Constants.PROPERTIES:
                 isProperties = false;
@@ -388,19 +389,19 @@ class PluginHandler extends DefaultHandler {
         Range range = getRange(valueStartLine, valueStartColumn, valueEndLine, valueEndColumn);
         switch (qName) {
             case Constants.GROUP_ID:
-                pomDetailsResponse.setProjectGroupId(new Node(value, range));
+                pomDetailsResponse.setProjectGroupId(new Node(value, Either.forLeft(range)));
                 break;
             case Constants.ARTIFACT_ID:
-                pomDetailsResponse.setProjectArtifactId(new Node(value, range));
+                pomDetailsResponse.setProjectArtifactId(new Node(value, Either.forLeft(range)));
                 break;
             case Constants.VERSION:
-                pomDetailsResponse.setProjectVersion(new Node(value, range));
+                pomDetailsResponse.setProjectVersion(new Node(value, Either.forLeft(range)));
                 break;
             case Constants.DESCRIPTION:
-                pomDetailsResponse.setProjectDescription(new Node(value, range));
+                pomDetailsResponse.setProjectDescription(new Node(value, Either.forLeft(range)));
                 break;
             case Constants.NAME:
-                pomDetailsResponse.setProjectName(new Node(value, range));
+                pomDetailsResponse.setProjectName(new Node(value, Either.forLeft(range)));
                 break;
         }
     }

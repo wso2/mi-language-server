@@ -23,6 +23,7 @@ import org.eclipse.lemminx.customservice.synapse.parser.Node;
 import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -57,9 +58,9 @@ public class ConfigParser {
                     if (delimiterIndex != -1) {
                         String key = line.substring(0, delimiterIndex).trim();
                         String value = line.substring(delimiterIndex + 1).trim();
-                        detailsResponse.setConfig(new Node(key, value, new Range(new Position(lineNumber,
+                        detailsResponse.setConfig(new Node(key, value, Either.forLeft(new Range(new Position(lineNumber,
                                 line.indexOf(key)), new Position(lineNumber, line.indexOf(value) +
-                                value.length() - 1))));
+                                value.length() - 1)))));
                     }
                 }
             } catch (FileNotFoundException e) {
