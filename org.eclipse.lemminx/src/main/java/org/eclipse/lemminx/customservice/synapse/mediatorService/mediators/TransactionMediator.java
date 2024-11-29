@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 public class TransactionMediator {
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Transaction transaction,
                                                                                            List<String> dirtyFields) {
         if (data.containsKey("action") && data.get("action") instanceof String) {
@@ -45,7 +45,7 @@ public class TransactionMediator {
 
     }
 
-    public static Map<String, Object> getDataFromST(Transaction node) {
+    public static Map<String, Object> getDataFromST430(Transaction node) {
 
         Map<String, Object> data = new HashMap<>();
         data.put("description", node.getDescription());

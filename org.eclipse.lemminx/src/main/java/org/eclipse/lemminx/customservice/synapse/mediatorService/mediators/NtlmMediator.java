@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 public class NtlmMediator {
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Ntlm ntlm,
                                                                                            List<String> dirtyFields) {
         // Process username
@@ -55,7 +55,7 @@ public class NtlmMediator {
 
     }
 
-    public static Map<String, Object> getDataFromST(Ntlm node) {
+    public static Map<String, Object> getDataFromST430(Ntlm node) {
 
         Map<String, Object> data = new HashMap<>();
         data.put("description", node.getDescription());

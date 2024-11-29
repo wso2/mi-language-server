@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 public class FastXSLTMediator {
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            FastXSLT fastXSLT,
                                                                                            List<String> dirtyFields) {
         if (data.containsKey("schemaKay") && data.get("schemaKay") instanceof Map<?, ?>) {
@@ -26,7 +26,7 @@ public class FastXSLTMediator {
 
     }
 
-    public static Map<String, Object> getDataFromST(FastXSLT node) {
+    public static Map<String, Object> getDataFromST430(FastXSLT node) {
 
         Map<String, Object> data = new HashMap<>();
         data.put("description", node.getDescription());

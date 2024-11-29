@@ -10,7 +10,7 @@ import java.util.*;
 
 public class FilterMediator {
 
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data, Filter filter, List<String> dirtyFields) {
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data, Filter filter, List<String> dirtyFields) {
         data.put("isNewMediator", filter == null);
 
         String conditionType = (String) data.get("conditionType");
@@ -37,7 +37,7 @@ public class FilterMediator {
         return Either.forLeft(data);
     }
 
-    public static Map<String, Object> getDataFromST(Filter node) {
+    public static Map<String, Object> getDataFromST430(Filter node) {
         Map<String, Object> data = new HashMap<>();
         data.put("description", node.getDescription());
         data.put("regularExpression", node.getRegex());

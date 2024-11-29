@@ -10,7 +10,7 @@ import java.util.*;
 
 public class SwitchMediator {
 
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data, Switch switchMediator, List<String> dirtyFields) {
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data, Switch switchMediator, List<String> dirtyFields) {
 
         if (switchMediator == null) {
             data.put("isNewMediator", true);
@@ -136,7 +136,7 @@ public class SwitchMediator {
     }
 
     private static List<SwitchCase> filterRemovedElements(SwitchCase[] originalCases, List<List<Object>> updatedCases) {
-        if (originalCases == null || originalCases.length == 0 || updatedCases == null || updatedCases.isEmpty()) {
+        if (originalCases == null || updatedCases == null) {
             return Collections.emptyList();
         }
         Set<Integer> set2 = new HashSet<>();
@@ -155,7 +155,7 @@ public class SwitchMediator {
         return removedCases;
     }
 
-    public static Map<String, Object> getDataFromST(Switch node) {
+    public static Map<String, Object> getDataFromST430(Switch node) {
         Map<String, Object> data = new HashMap<>();
 
         data.put("sourceXPath", Map.of("isExpression", true,

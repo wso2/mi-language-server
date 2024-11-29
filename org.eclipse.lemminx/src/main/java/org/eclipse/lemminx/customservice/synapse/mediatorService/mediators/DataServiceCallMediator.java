@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 public class DataServiceCallMediator {
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            DataServiceCall dataServiceCall,
                                                                                            List<String> dirtyFields) {
         if (data.containsKey("operationType") && data.get("operationType") instanceof String) {
@@ -77,7 +77,7 @@ public class DataServiceCallMediator {
 
     }
 
-    public static Map<String, Object> getDataFromST(DataServiceCall node) {
+    public static Map<String, Object> getDataFromST430(DataServiceCall node) {
         Map<String, Object> data = new HashMap<>();
         data.put("serviceName",node.getServiceName());
         data.put("description", node.getDescription());
@@ -89,7 +89,7 @@ public class DataServiceCallMediator {
         }
 
         data.put("targetProperty", node.getTarget() != null ? node.getTarget().getName() : null);
-        data.put("operationType", node.getOperations() != null && node.getOperations().getType() != null ? node.getOperations().getType().getValue() : null);
+        data.put("operationType", node.getOperations() != null && node.getOperations().getType() != null ? node.getOperations().getType().getValue().toUpperCase() : null);
 
         // Process operations
         if (node.getOperations() != null && node.getOperations().getOperation() != null) {
@@ -107,7 +107,7 @@ public class DataServiceCallMediator {
                     paramData.add(param.getValue());
                     paramData.add(Map.of(
                             "isExpression", true,
-                            "value", param.getExpression()
+                            "value", param.getExpression() != null ? param.getExpression() : ""
                     ));
                     parameters.add(paramData);
                 }

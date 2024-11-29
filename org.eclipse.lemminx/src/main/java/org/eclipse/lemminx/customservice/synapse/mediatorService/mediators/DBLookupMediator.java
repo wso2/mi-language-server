@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DBLookupMediator {
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            DbMediator dbLookup,
                                                                                            List<String> dirtyFields) {
         boolean isDbConnection = "DB_CONNECTION".equals(data.get("connectionType"));
@@ -77,7 +77,7 @@ public class DBLookupMediator {
 
     }
 
-    public static Map<String, Object> getDataFromST(DbMediator node) {
+    public static Map<String, Object> getDataFromST430(DbMediator node) {
         Map<String, Object> data = new HashMap<>();
         data.put("description", node.getDescription());
 

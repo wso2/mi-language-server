@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 public class PropertyGroupMediator {
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            PropertyGroup propertyGroup,
                                                                                            List<String> dirtyFields) {
         List<Object> propertiesList = data.get("properties") instanceof List<?> ? (List<Object>) data.get("properties") : new ArrayList<>();
@@ -81,7 +81,7 @@ public class PropertyGroupMediator {
 
     }
 
-    public static Map<String, Object> getDataFromST(PropertyGroup node) {
+    public static Map<String, Object> getDataFromST430(PropertyGroup node) {
 
         Map<String, Object> data = new HashMap<>();
         data.put("description", node.getDescription());
@@ -103,17 +103,19 @@ public class PropertyGroupMediator {
                 omValue = property.getExpression();
             }
 
+            String expression = property.getExpression() != null ? property.getExpression() : "";
+            String value = property.getValue() != null ? property.getValue() : "";
             properties.add(List.of(
                     Map.of(
                             "isExpression", isNameExpression,
                             "value", name,
                             "namespaces", namespaces
                     ),
-                    property.getAction(),
-                    property.getType().toString(),
+                    property.getAction() != null ? property.getAction() : "",
+                    property.getType() != null ? property.getType().toString() : "",
                     Map.of(
                             "isExpression", isValueExpression,
-                            "value", isValueExpression ? property.getExpression() : property.getValue(),
+                            "value", isValueExpression ? expression : value,
                             "namespaces", namespaces
                     ),
                     Map.of(
@@ -122,9 +124,9 @@ public class PropertyGroupMediator {
                             "namespaces", namespaces
                     ),
                     property.getScope() != null ? property.getScope().getValue().toUpperCase() : "",
-                    property.getPattern(),
-                    property.getGroup(),
-                    property.getDescription()
+                    property.getPattern() != null ? property.getPattern() : "",
+                    property.getGroup() != null ? property.getGroup() : "",
+                    property.getDescription() != null ? property.getDescription() : ""
             ));
         }
         data.put("properties", properties);

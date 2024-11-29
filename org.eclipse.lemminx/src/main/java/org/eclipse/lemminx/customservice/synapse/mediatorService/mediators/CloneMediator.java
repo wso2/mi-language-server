@@ -12,7 +12,7 @@ import java.util.*;
 public class CloneMediator {
     public static List<String> cloneAttributes = List.of("cloneId", "sequentialMediation", "continueParent", "description");
 
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Clone clone,
                                                                                            List<String> dirtyFields) {
         data.remove("soapAction");
@@ -83,7 +83,7 @@ public class CloneMediator {
 
         if (dirtyFields.contains("targets")) {
             Object targetList = data.get("targets");
-            if (targetList instanceof List<?> && !((List<?>) targetList).isEmpty()) {
+            if (targetList instanceof List<?>) {
                 for (Object targetObj : (List<?>) targetList) {
                     List<?> target = (List<?>) targetObj;
                     Map<String, Object> targetData = processTargetData(target);
@@ -155,7 +155,7 @@ public class CloneMediator {
     }
 
     private static List<CloneTarget> filterRemovedElements(CloneTarget[] originalTargets, List<List<Object>> updatedTargets) {
-        if (originalTargets == null || originalTargets.length == 0 || updatedTargets == null || updatedTargets.isEmpty()) {
+        if (originalTargets == null || updatedTargets == null) {
             return Collections.emptyList();
         }
         Set<Integer> set2 = new HashSet<>();
@@ -173,7 +173,7 @@ public class CloneMediator {
         return removedTargets;
     }
 
-    public static Map<String, Object> getDataFromST(Clone node) {
+    public static Map<String, Object> getDataFromST430(Clone node) {
 
         Map<String, Object> data = new HashMap<>();
         data.put("newMediator", false);

@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 public class XsltMediator {
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Xslt xslt,
                                                                                            List<String> dirtyFields) {
         if (data.containsKey("properties") && data.get("properties") instanceof List<?>) {
@@ -97,7 +97,7 @@ public class XsltMediator {
 
     }
 
-    public static Map<String, Object> getDataFromST(Xslt node) {
+    public static Map<String, Object> getDataFromST430(Xslt node) {
 
         Map<String, Object> data = new HashMap<>();
         data.put("sourceXPath", Map.of(

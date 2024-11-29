@@ -9,7 +9,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import java.util.*;
 
 public class CallTemplateMediator {
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            CallTemplate callTemplate,
                                                                                            List<String> dirtyFields) {
         List<Object> parameterNameTable = data.get("parameterNameTable") instanceof List<?> ? (List<Object>) data.get("parameterNameTable") : new ArrayList<>();
@@ -20,12 +20,13 @@ public class CallTemplateMediator {
                 Map<String, Object> value = property.get(1) instanceof Map<?, ?> ? (Map<String, Object>) property.get(1) : null;
                 if (value != null) {
                     boolean isExpressionValue = (boolean) value.get("isExpression");
-                    Map<String, String> namespaces = isExpressionValue ? (Map<String, String>) value.get("namespaces") : null;
-                    Map<String,Object> propertyValue = new HashMap<>();
+                    List<Object> namespaces = isExpressionValue && value.get("namespaces") instanceof List<?> ?
+                            (List<Object>) value.get("namespaces") : null;
+                    Map<String, Object> propertyValue = new HashMap<>();
                     propertyValue.put("parameterName", property.get(0));
                     propertyValue.put("parameterValue", isExpressionValue ? "{" + value.get("value") + "}" : value.get("value"));
-                    if (namespaces != null){
-                        propertyValue.put("namespaces",  namespaces);
+                    if (namespaces != null) {
+                        propertyValue.put("namespaces", namespaces);
                     }
                     parameterName.add(propertyValue);
                 }
@@ -38,7 +39,7 @@ public class CallTemplateMediator {
     }
 
 
-    public static Map<String, Object> getDataFromST(CallTemplate node) {
+    public static Map<String, Object> getDataFromST430(CallTemplate node) {
         Map<String, Object> data = new HashMap<>();
         data.put("targetTemplate", node.getTarget());
         data.put("description", node.getDescription());

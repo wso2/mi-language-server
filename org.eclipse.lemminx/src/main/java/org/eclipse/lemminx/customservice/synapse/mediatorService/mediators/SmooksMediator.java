@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 public class SmooksMediator {
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Smooks smooks,
                                                                                            List<String> dirtyFields) {
         String outputMethod = (String) data.get("outputMethod");
@@ -26,7 +26,7 @@ public class SmooksMediator {
 
     }
 
-    public static Map<String, Object> getDataFromST(Smooks node) {
+    public static Map<String, Object> getDataFromST430(Smooks node) {
 
         Map<String, Object> data = new HashMap<>();
         data.put("description", node.getDescription());

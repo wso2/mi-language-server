@@ -12,7 +12,7 @@ import java.util.Map;
 import static org.eclipse.lemminx.customservice.synapse.mediatorService.MediatorUtils.transformNamespaces;
 
 public class CalloutMediator {
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Callout callout,
                                                                                            List<String> dirtyFields) {
         boolean xpathPayload = "XPATH".equals(data.get("payloadType"));
@@ -46,14 +46,16 @@ public class CalloutMediator {
     }
 
 
-    public static Map<String, Object> getDataFromST(Callout node) {
+    public static Map<String, Object> getDataFromST430(Callout node) {
         Map<String, Object> data = new HashMap<>();
-
+        data.put("description", node.getDescription());
         if (node.getServiceURL() != null) {
             data.put("endpointType", "URL");
+            data.put("serviceURL", node.getServiceURL());
         }
         if (node.getEndpointKey() != null) {
             data.put("endpointType", "AddressEndpoint");
+            data.put("addressEndpoint", node.getEndpointKey());
         }
         if (node.getAction() != null) {
             data.put("soapAction", node.getAction());

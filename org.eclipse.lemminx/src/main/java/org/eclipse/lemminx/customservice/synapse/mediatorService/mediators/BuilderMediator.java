@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public class BuilderMediator {
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Builder builder,
                                                                                            List<String> dirtyFields) {
         List<Object> messageBuildersData = data.get("messageBuilders") instanceof List<?> ? (List<Object>) data.get("messageBuilders") : new ArrayList<>();
@@ -33,7 +33,7 @@ public class BuilderMediator {
 
     }
 
-    public static Map<String, Object> getDataFromST(Builder node) {
+    public static Map<String, Object> getDataFromST430(Builder node) {
         Map<String, Object> data = new HashMap<>();
         data.put("description", node.getDescription());
 

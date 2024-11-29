@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class PayloadFactoryMediator {
 
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            PayloadFactory payloadFactory,
                                                                                            List<String> dirtyFields) {
         data.put("isInlined", "Inline".equals(data.get("payloadFormat")));
@@ -50,7 +50,7 @@ public class PayloadFactoryMediator {
         return Either.forLeft(data);
     }
 
-    public static Map<String, Object> getDataFromST(PayloadFactory node) {
+    public static Map<String, Object> getDataFromST430(PayloadFactory node) {
         Map<String, Object> data = new HashMap<>();
         data.put("description", node.getDescription());
 
@@ -99,7 +99,9 @@ public class PayloadFactoryMediator {
                 argMap.put("value", arg.getValue() != null ? arg.getValue() : arg.getExpression());
                 argMap.put("namespaces", MediatorUtils.transformNamespaces(arg.getNamespaces()));
 
-                args.add(List.of(argMap, arg.getEvaluator(), arg.isLiteral()));
+                args.add(List.of(argMap,
+                        arg.getEvaluator() != null ? arg.getEvaluator().toString() : "",
+                        arg.isLiteral()));
             }
             data.put("args", args);
         } else {

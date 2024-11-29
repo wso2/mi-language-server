@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 public class RewriteMediator {
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Rewrite rewrite,
                                                                                            List<String> dirtyFields) {
         if (data.containsKey("urlRewriteRules") && data.get("urlRewriteRules") instanceof List<?>) {
@@ -26,7 +26,11 @@ public class RewriteMediator {
                     List<Object> rewriteRule = (List<Object>) ruleObj;
 
                     Map<String, Object> processedRule = new HashMap<>();
-                    processedRule.put("condition", rewriteRule.size() > 1 ? rewriteRule.get(1) : null);
+                    if (rewriteRule.size() > 1 &&
+                            rewriteRule.get(1) instanceof String &&
+                            !rewriteRule.get(1).toString().isEmpty()) {
+                        processedRule.put("condition", rewriteRule.get(1));
+                    }
 
                     if (rewriteRule.get(0) instanceof List<?>) {
                         List<Object> ruleActions = (List<Object>) rewriteRule.get(0);
@@ -63,14 +67,13 @@ public class RewriteMediator {
 
     }
 
-    public static Map<String, Object> getDataFromST(Rewrite node) {
+    public static Map<String, Object> getDataFromST430(Rewrite node) {
 
         Map<String, Object> data = new HashMap<>();
         data.put("inProperty", node.getInProperty());
         data.put("outProperty", node.getOutProperty());
         data.put("description", node.getDescription());
 
-        // Process URL rewrite rules
         List<List<Object>> urlRewriteRules = new ArrayList<>();
         for (RewriteRewriterule rewriteRule : node.getRewriterule()) {
             List<List<Object>> actions = new ArrayList<>();
@@ -79,21 +82,21 @@ public class RewriteMediator {
                 List<Namespace> namespaces = MediatorUtils.transformNamespaces(action.getNamespaces());
 
                 List<Object> ruleAction = List.of(
-                        action.getType(),
-                        action.getFragment(),
+                        action.getType() != null ? action.getType().toString() : "",
+                        action.getFragment() != null ? action.getFragment().toString() : "",
                         action.getValue() != null ? "Literal" : "Expression",
-                        action.getValue(),
+                        action.getValue() != null ? action.getValue() : "",
                         Map.of(
                                 "isExpression", true,
-                                "value", action.getXpath(),
+                                "value", action.getXpath() != null ? action.getXpath() : "",
                                 "namespaces", namespaces
                         ),
-                        action.getRegex()
+                        action.getRegex() != null ? action.getRegex() : ""
                 );
                 actions.add(ruleAction);
             }
 
-            urlRewriteRules.add(List.of(actions, rewriteRule.getCondition() != null ? rewriteRule.getCondition().getCondition() : null));
+            urlRewriteRules.add(List.of(actions, rewriteRule.getCondition() != null ? rewriteRule.getCondition().getCondition() : ""));
         }
 
         data.put("urlRewriteRules", urlRewriteRules);

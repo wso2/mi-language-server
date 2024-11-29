@@ -19,7 +19,7 @@ public class CacheMediator {
     public static List<String> onCacheHitTagAttributes = List.of("sequenceType", "sequenceKey");
     public static List<String> implementationTagAttributes = List.of("maxEntryCount", "implementationType", "cacheType");
 
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Cache cache,
                                                                                            List<String> dirtyFields) {
         data.replaceAll((key, value) -> {
@@ -27,7 +27,7 @@ public class CacheMediator {
                 return String.valueOf(((Double) value).longValue());
             }
             return value;
-        });
+        });// remove decimal points
         Object scope = data.get("scope");
         if (scope instanceof String) {
             data.put("scope", ((String) scope).toLowerCase());
@@ -140,7 +140,7 @@ public class CacheMediator {
         return edits;
     }
 
-    public static Map<String, Object> getDataFromST(Cache node) {
+    public static Map<String, Object> getDataFromST430(Cache node) {
 
         Map<String, Object> data = new HashMap<>();
         data.put("description", node.getDescription());

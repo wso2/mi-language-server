@@ -13,10 +13,10 @@
     {{^isNewMediator}}
     {{#editIterate}}
     {{#isSelfClosed}}
-    <iterate {{#preservePayload}}{{#attachPath}} attachPath="{{attachPath}}"{{/attachPath}}{{/preservePayload}} {{#continueParent}}continueParent="{{continueParent}}"{{/continueParent}} expression="{{iterateExpression}}"{{#iterateID}} id="{{iterateID}}"{{/iterateID}}{{#preservePayload}}preservePayload="{{preservePayload}}"{{/preservePayload}} {{#sequentialMediation}}sequential="{{sequentialMediation}}" {{/sequentialMediation}}{{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}/>
+    <iterate {{#preservePayload}}{{#attachPath}} attachPath="{{attachPath}}"{{/attachPath}}{{/preservePayload}} {{#continueParent}}continueParent="{{continueParent}}"{{/continueParent}} expression="{{iterateExpression}}"{{#iterateID}} id="{{iterateID}}"{{/iterateID}} {{#preservePayload}}preservePayload="{{preservePayload}}"{{/preservePayload}} {{#sequentialMediation}}sequential="{{sequentialMediation}}" {{/sequentialMediation}} {{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}/>
     {{/isSelfClosed}}
     {{^isSelfClosed}}
-    <iterate {{#preservePayload}}{{#attachPath}} attachPath="{{attachPath}}"{{/attachPath}}{{/preservePayload}} {{#continueParent}}continueParent="{{continueParent}}"{{/continueParent}} expression="{{iterateExpression}}"{{#iterateID}} id="{{iterateID}}"{{/iterateID}}{{#preservePayload}}preservePayload="{{preservePayload}}"{{/preservePayload}} {{#sequentialMediation}}sequential="{{sequentialMediation}}" {{/sequentialMediation}}{{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}>
+    <iterate {{#preservePayload}}{{#attachPath}} attachPath="{{attachPath}}"{{/attachPath}}{{/preservePayload}} {{#continueParent}}continueParent="{{continueParent}}"{{/continueParent}} expression="{{iterateExpression}}"{{#iterateID}} id="{{iterateID}}"{{/iterateID}} {{#preservePayload}}preservePayload="{{preservePayload}}"{{/preservePayload}} {{#sequentialMediation}}sequential="{{sequentialMediation}}" {{/sequentialMediation}} {{#description}}description="{{description}}"{{/description}}{{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}}>
     {{/isSelfClosed}}
     {{/editIterate}}
     {{#editTarget}}

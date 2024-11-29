@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 public class XqueryMediator {
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Xquery xquery,
                                                                                            List<String> dirtyFields) {
         if ("Static".equals(data.get("scriptKeyType"))) {
@@ -57,7 +57,7 @@ public class XqueryMediator {
 
     }
 
-    public static Map<String, Object> getDataFromST(Xquery node) {
+    public static Map<String, Object> getDataFromST430(Xquery node) {
 
         Map<String, Object> data = new HashMap<>();
         data.put("description", node.getDescription());
@@ -94,16 +94,16 @@ public class XqueryMediator {
             for (XqueryVariable var1 : node.getVariable()) {
                 List<Namespace> namespaces = MediatorUtils.transformNamespaces(var1.getNamespaces());
                 variables.add(List.of(
-                        var1.getName(),
-                        var1.getType().toString(),
+                        var1.getName() != null ? var1.getName() : "",
+                        var1.getType() != null ? var1.getType().toString() : "",
                         var1.getValue() != null ? "LITERAL" : "EXPRESSION",
-                        var1.getValue(),
+                        var1.getValue() != null ? var1.getValue() : "",
                         Map.of(
                                 "isExpression", true,
                                 "value", var1.getExpression() != null ? var1.getExpression() : "",
                                 "namespaces", namespaces
                         ),
-                        var1.getKey()
+                        var1.getKey() != null ? var1.getKey() : ""
                 ));
             }
             data.put("variables", variables);

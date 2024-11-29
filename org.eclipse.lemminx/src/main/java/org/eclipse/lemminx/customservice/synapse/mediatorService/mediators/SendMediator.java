@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public class SendMediator {
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Send send,
                                                                                            List<String> dirtyFields) {
         if ("Static".equals(data.get("receivingSequenceType"))) {
@@ -48,7 +48,7 @@ public class SendMediator {
 
     }
 
-    public static Map<String, Object> getDataFromST(Send node) {
+    public static Map<String, Object> getDataFromST430(Send node) {
 
         Map<String, Object> data = new HashMap<>();
         data.put("skipSerialization", false);
@@ -102,32 +102,4 @@ public class SendMediator {
         data.put("range", node.getRange());
         return data;
     }
-//    private static String getInlineEndpoint(String endpointXml) {
-//        Pattern leadingPattern = Pattern.compile("^(\\s+)<endpoint", Pattern.MULTILINE);
-//        Matcher leadingMatcher = leadingPattern.matcher(endpointXml);
-//        String leadingSpaces = "";
-//        if (leadingMatcher.find()) {
-//            leadingSpaces = leadingMatcher.group(1).replaceAll("\n", "").replace("\t", "    ");
-//        }
-//
-//        String[] lines = endpointXml.split("\n");
-//        StringBuilder sb = new StringBuilder();
-//
-//        for (String line : lines) {
-//            if (!line.isEmpty()) {
-//                Matcher lineMatcher = Pattern.compile("^(\\s+)").matcher(line);
-//                if (lineMatcher.find()) {
-//                    String leading = lineMatcher.group(1)
-//                            .replace("\t", "    ")
-//                            .replace(leadingSpaces, "");
-//                    line = lineMatcher.replaceFirst(Matcher.quoteReplacement(leading));
-//                }
-//            } else {
-//                line = "";
-//            }
-//            sb.append(line).append("\n");
-//        }
-//
-//        return sb.toString().trim();
-//    }
 }

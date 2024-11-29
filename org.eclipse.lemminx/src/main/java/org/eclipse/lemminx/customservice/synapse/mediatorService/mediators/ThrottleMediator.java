@@ -35,7 +35,7 @@ public class ThrottleMediator {
     public static final List<String> onRejectTagAttributes = Arrays.asList(
             "onRejectBranchsequenceType", "onRejectBranchsequenceKey");
 
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Throttle throttle,
                                                                                            List<String> dirtyFields) {
 
@@ -56,7 +56,7 @@ public class ThrottleMediator {
                                 "maxRequestCount", entry.get(3),
                                 "unitTime", entry.get(4),
                                 "prohibitPeriod", entry.get(5)
-                                                            ))
+                        ))
                         .collect(Collectors.toList());
                 data.put("policyEntries", formattedEntries);
                 data.put("hasPolicyEntries", !formattedEntries.isEmpty());
@@ -140,8 +140,8 @@ public class ThrottleMediator {
             Position start = range.getStartTagRange().getStart();
             Position end = editStartTagOnly
                     ? range.getStartTagRange().getEnd() :
-                    (range.getEndTagRange().getEnd() != null ? range.getEndTagRange().getEnd() :
-                            range.getStartTagRange().getEnd());
+                    (range.getEndTagRange() != null && range.getEndTagRange().getEnd() != null ?
+                            range.getEndTagRange().getEnd() : range.getStartTagRange().getEnd());
 
             editRange = new Range(start, end);
 
@@ -156,7 +156,7 @@ public class ThrottleMediator {
         editsData.put(editRange, dataCopy);
     }
 
-    public static Map<String, Object> getDataFromST(Throttle node) {
+    public static Map<String, Object> getDataFromST430(Throttle node) {
 
         Map<String, Object> data = new HashMap<>();
 
@@ -218,7 +218,7 @@ public class ThrottleMediator {
                                     extractedPolicy.get("maxRequestCount"),
                                     extractedPolicy.get("unitTime"),
                                     extractedPolicy.get("prohibitPeriod")
-                                                        );
+                            );
                             policyEntries.add(entry);
                         }
                         data.put("policyEntries", policyEntries);

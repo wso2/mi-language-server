@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ScriptMediator {
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Script script,
                                                                                            List<String> dirtyFields) {
         if (!"INLINE".equals(data.get("scriptType"))) {
@@ -56,7 +56,7 @@ public class ScriptMediator {
 
     }
 
-    public static Map<String, Object> getDataFromST(Script node) {
+    public static Map<String, Object> getDataFromST430(Script node) {
 
         Map<String, Object> data = new HashMap<>();
         if (node.getInclude() != null) {
@@ -81,13 +81,13 @@ public class ScriptMediator {
         if (node.getKey() != null && node.getKey().startsWith("{") && node.getKey().endsWith("}")) {
             data.put("scriptKey", Map.of(
                     "isExpression", true,
-                    "value", node.getKey().substring(1, node.getKey().length() - 1),
+                    "value", node.getKey() != null ? node.getKey().substring(1, node.getKey().length() - 1) : "",
                     "namespaces", MediatorUtils.transformNamespaces(node.getNamespaces())
             ));
         } else {
             data.put("scriptKey", Map.of(
                     "isExpression", false,
-                    "value", node.getKey()
+                    "value", node.getKey() != null ? node.getKey() : ""
             ));
         }
 
@@ -96,18 +96,21 @@ public class ScriptMediator {
         data.put("mediateFunction", node.getFunction());
 
         // Process script body
-        if (node.getContent() != null && node.getContent() instanceof String[]) {
-            data.put("scriptBody", getScriptBody(List.of((String[]) node.getContent())));
+        if (node.getContent() != null) {
+            data.put("scriptBody", getScriptBody(node.getContent()));
         }
         return data;
     }
 
-    private static String getScriptBody(List<String> content) {
-        for (String c : content) {
-            if (c.matches("<!\\[CDATA\\[(.*?)]]>")) {
-                return c.replaceAll("<!\\[CDATA\\[(.*?)]]>", "$1");
+    private static String getScriptBody(Object[] content) {
+        for (Object object : content) {
+            if (object instanceof String) {
+                String c = (String) object;
+                if (c.matches("<!\\[CDATA\\[(.*?)]]>")) {
+                    return c.replaceAll("<!\\[CDATA\\[(.*?)]]>", "$1");
+                }
+                return c;
             }
-            return c;
         }
         return null;
     }

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 public class FaultMediator {
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Makefault makefault,
                                                                                            List<String> dirtyFields) {
         if (data.containsKey("detail") && data.get("detail") instanceof Map<?, ?>) {
@@ -47,6 +47,7 @@ public class FaultMediator {
                     break;
                 case "soap12":
                     data.put("soapUri", "http://www.w3.org/2003/05/soap-envelope");
+                    data.put("code", data.get("soap12"));
                     data.remove("actor");
                     break;
                 case "pox":
@@ -69,13 +70,13 @@ public class FaultMediator {
 
     }
 
-    public static Map<String, Object> getDataFromST(Makefault node) {
+    public static Map<String, Object> getDataFromST430(Makefault node) {
 
         Map<String, Object> data = new HashMap<>();
         if (node.getDetail() != null && node.getDetail().getExpression() != null) {
             data.put("detail", Map.of(
                     "isExpression", true,
-                    "value", node.getDetail().getExpression(),
+                    "value", node.getDetail().getExpression() != null ? node.getDetail().getExpression() : "",
                     "namespaces", MediatorUtils.transformNamespaces(node.getDetail().getNamespaces())
             ));
         } else {
@@ -89,7 +90,7 @@ public class FaultMediator {
         if (node.getReason() != null && node.getReason().getExpression() != null) {
             data.put("reason", Map.of(
                     "isExpression", true,
-                    "value", node.getReason().getExpression(),
+                    "value", node.getReason().getExpression() != null ? node.getReason().getExpression() : "",
                     "namespaces", MediatorUtils.transformNamespaces(node.getReason().getNamespaces())
             ));
         } else {
@@ -100,7 +101,7 @@ public class FaultMediator {
         }
 
         // Process soapVersion
-        data.put("soapVersion", node.getVersion());
+        data.put("soapVersion", node.getVersion().toString());
 
         // Process description
         data.put("description", node.getDescription());
@@ -122,7 +123,7 @@ public class FaultMediator {
 
         // Process serializeResponse
         data.put("serializeResponse", false);
-        if (node.isResponse() != null && node.isResponse()) {
+        if (node.isResponse() != null) {
             data.put("serializeResponse", true);
             data.put("markAsResponse", node.isResponse());
         }

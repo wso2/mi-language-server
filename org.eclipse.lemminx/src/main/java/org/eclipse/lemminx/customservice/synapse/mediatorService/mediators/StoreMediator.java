@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public class StoreMediator {
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Store store,
                                                                                            List<String> dirtyFields) {
         if (data.containsKey("messageStore") && data.get("messageStore") instanceof Map<?, ?>) {
@@ -24,7 +24,7 @@ public class StoreMediator {
 
     }
 
-    public static Map<String, Object> getDataFromST(Store node) {
+    public static Map<String, Object> getDataFromST430(Store node) {
 
         Map<String, Object> data = new HashMap<>();
         data.put("description", node.getDescription());

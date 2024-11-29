@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ForeachMediator {
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Foreach foreach,
                                                                                            List<String> dirtyFields) {
         if ("Anonymous".equals(data.get("sequenceType"))) {
@@ -59,7 +59,7 @@ public class ForeachMediator {
 
     }
 
-    public static Map<String, Object> getDataFromST(Foreach node) {
+    public static Map<String, Object> getDataFromST430(Foreach node) {
 
         Map<String, Object> data = new HashMap<>();
         data.put("description", node.getDescription());

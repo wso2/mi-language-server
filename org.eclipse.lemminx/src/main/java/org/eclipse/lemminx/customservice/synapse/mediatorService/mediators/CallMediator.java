@@ -9,12 +9,10 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class CallMediator {
 
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Call call,
                                                                                            List<String> dirtyFields) {
 
@@ -76,7 +74,7 @@ public class CallMediator {
         return Either.forLeft(data);
     }
 
-    public static Map<String, Object> getDataFromST(Call node) {
+    public static Map<String, Object> getDataFromST430(Call node) {
 
         Map<String, Object> data = new HashMap<>();
         Map<String, Object> endpointData = new HashMap<>();
@@ -105,7 +103,7 @@ public class CallMediator {
         data.put("enableBlockingCalls", node.isBlocking());
         data.put("description", node.getDescription());
         data.put("contentType", node.getSource() != null ? node.getSource().getContentType() : null);
-        data.put("sourceType", node.getSource() != null ? node.getSource().getType() : null);
+        data.put("sourceType", node.getSource() != null ? node.getSource().getType().toString() : null);
 
         if ("custom".equals(data.get("sourceType"))) {
             Map<String, Object> sourceXPath = new HashMap<>();
@@ -122,44 +120,9 @@ public class CallMediator {
         data.put("targetProperty", node.getTarget() != null ? node.getTarget().getTextNode() : null);
         data.put("initAxis2ClientOptions", node.getInitAxis2ClientOptions());
 
-        Map<String, Object> ranges = new HashMap<>();
-        ranges.put("call", node.getRange());
-        ranges.put("endpoint", endpoint != null ? endpoint.getRange() : null);
-        ranges.put("source", node.getSource() != null ? node.getSource().getRange() : null);
-        ranges.put("target", node.getTarget() != null ? node.getTarget().getRange() : null);
-        data.put("ranges", ranges);
 
         data.put("isCallSelfClosed", node.isSelfClosed());
 
         return data;
     }
-
-//    private static String getInlineEndpoint(String endpointXml) {
-//        Pattern leadingPattern = Pattern.compile("^(\\s+)<endpoint", Pattern.MULTILINE);
-//        Matcher leadingMatcher = leadingPattern.matcher(endpointXml);
-//        String leadingSpaces = "";
-//        if (leadingMatcher.find()) {
-//            leadingSpaces = leadingMatcher.group(1).replaceAll("\n", "").replace("\t", "    ");
-//        }
-//
-//        String[] lines = endpointXml.split("\n");
-//        StringBuilder sb = new StringBuilder();
-//
-//        for (String line : lines) {
-//            if (!line.isEmpty()) {
-//                Matcher lineMatcher = Pattern.compile("^(\\s+)").matcher(line);
-//                if (lineMatcher.find()) {
-//                    String leading = lineMatcher.group(1)
-//                            .replace("\t", "    ")
-//                            .replace(leadingSpaces, "");
-//                    line = lineMatcher.replaceFirst(Matcher.quoteReplacement(leading));
-//                }
-//            } else {
-//                line = "";
-//            }
-//            sb.append(line).append("\n");
-//        }
-//
-//        return sb.toString().trim();
-//    }
 }

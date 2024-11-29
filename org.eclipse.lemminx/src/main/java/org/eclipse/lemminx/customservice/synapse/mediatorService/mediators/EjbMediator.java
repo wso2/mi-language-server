@@ -14,7 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class EjbMediator {
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Ejb ejb,
                                                                                            List<String> dirtyFields) {
         if ("EXPRESSION".equals(data.get("sessionIdType"))) {
@@ -56,7 +56,7 @@ public class EjbMediator {
 
     }
 
-    public static Map<String, Object> getDataFromST(Ejb node) {
+    public static Map<String, Object> getDataFromST430(Ejb node) {
         Map<String, Object> data = new HashMap<>();
 
         Pattern regex = Pattern.compile("\\{([^}]*)}");

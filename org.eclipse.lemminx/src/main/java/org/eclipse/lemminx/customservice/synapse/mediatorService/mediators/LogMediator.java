@@ -31,7 +31,7 @@ import java.util.Map;
 
 public class LogMediator {
 
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Log log,
                                                                                            List<String> dirtyFields) {
 
@@ -72,7 +72,7 @@ public class LogMediator {
         return Either.forLeft(data);
     }
 
-    public static Map<String, Object> getDataFromST(Log node) {
+    public static Map<String, Object> getDataFromST430(Log node) {
 
         Map<String, Object> data = new HashMap<>();
 

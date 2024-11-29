@@ -20,7 +20,7 @@ public class EntitlementServiceMediator {
     public static List<String> adviceTagAttributes = List.of("adviceSequenceType");
     public static List<String> obligationTagAttributes = List.of("obligationsSequenceType");
 
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            EntitlementService entitlementService,
                                                                                            List<String> dirtyFields) {
         String client = data.get("entitlementClientType").toString();
@@ -40,7 +40,7 @@ public class EntitlementServiceMediator {
         }
 
         String callbackHandler = data.get("callbackHandler").toString();
-        data.put("callbackClassName", "");
+        Object callbackClassName = data.get("callbackClassName");
         switch (callbackHandler) {
             case "UT":
                 data.put("callbackClassName", "org.wso2.carbon.identity.entitlement.mediator.callback.UTEntitlementCallbackHandler");
@@ -55,7 +55,7 @@ public class EntitlementServiceMediator {
                 data.put("callbackClassName", "org.wso2.carbon.identity.entitlement.mediator.callback.KerberosEntitlementCallbackHandler");
                 break;
             case "Custom":
-                data.put("callbackClassName", data.get("callbackClassName"));
+                data.put("callbackClassName", callbackClassName);
                 break;
         }
 
@@ -228,7 +228,7 @@ public class EntitlementServiceMediator {
         return input.substring(0, 1).toUpperCase() + input.substring(1);
     }
 
-    public static Map<String, Object> getDataFromST(EntitlementService node) {
+    public static Map<String, Object> getDataFromST430(EntitlementService node) {
 
         Map<String, Object> data = new HashMap<>();
 

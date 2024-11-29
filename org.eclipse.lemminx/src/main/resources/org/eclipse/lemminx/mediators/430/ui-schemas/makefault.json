@@ -45,8 +45,8 @@
     {
       "type": "attribute",
       "value": {
-        "name": "code",
-        "displayName": "Code",
+        "name": "soap12",
+        "displayName": "SOAP12",
         "inputType": "combo",
         "defaultValue": "Receiver",
         "comboValues": [
@@ -54,7 +54,7 @@
           "MustUnderstand",
           "DataEncordingUnknown",
           "Sender",
-          "Reciever"
+          "Receiver"
         ],
         "required": false,
         "helpTip": "",
