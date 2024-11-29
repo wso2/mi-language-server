@@ -113,6 +113,27 @@ public class Properties {
         return axis2Operation;
     }
 
+    public List<Property> getPropertiesByType(Type type) {
+
+        if (type == null) {
+            return null;
+        }
+        switch (type) {
+            case SYNAPSE:
+                return synapse;
+            case AXIS2:
+                return axis2;
+            case AXIS2_CLIENT:
+                return axis2Client;
+            case AXIS2_TRANSPORT:
+                return axis2Transport;
+            case AXIS2_OPERATION:
+                return axis2Operation;
+            default:
+                return null;
+        }
+    }
+
     @Override
     public String toString() {
 
@@ -123,5 +144,13 @@ public class Properties {
                 ", axis2Transport=" + axis2Transport +
                 ", axis2Operation=" + axis2Operation +
                 '}';
+    }
+
+    public enum Type {
+        SYNAPSE,
+        AXIS2,
+        AXIS2_CLIENT,
+        AXIS2_TRANSPORT,
+        AXIS2_OPERATION
     }
 }

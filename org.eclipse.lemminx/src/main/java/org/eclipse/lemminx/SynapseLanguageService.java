@@ -44,9 +44,11 @@ import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTester;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.OverviewModelGenerator;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.OverviewModel;
+import org.eclipse.lemminx.customservice.synapse.expression.ExpressionHelperProvider;
 import org.eclipse.lemminx.customservice.synapse.expression.ExpressionSignatureProvider;
-import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionCompletionParam;
+import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionParam;
 import org.eclipse.lemminx.customservice.synapse.expression.ExpressionCompletionsProvider;
+import org.eclipse.lemminx.customservice.synapse.expression.pojo.HelperPanelData;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorResponse;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorParam;
@@ -142,6 +144,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     private TryOutHandler tryOutHandler;
     private ServerLessTryoutHandler serverLessTryoutHandler;
     private String miServerPath;
+    private ExpressionHelperProvider expressionHelperProvider;
 
     public SynapseLanguageService(XMLTextDocumentService xmlTextDocumentService, XMLLanguageServer xmlLanguageServer) {
 
@@ -177,6 +180,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
             } catch (Exception e) {
                 log.log(Level.SEVERE, "Error while updating class loader for DB drivers.", e);
             }
+            this.expressionHelperProvider = new ExpressionHelperProvider(projectUri);
         } else {
             log.log(Level.SEVERE, "Project path is null. Language server initialization failed.");
         }
@@ -491,13 +495,13 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     }
 
     @Override
-    public CompletableFuture<ICompletionResponse> expressionCompletion(ExpressionCompletionParam param) {
+    public CompletableFuture<ICompletionResponse> expressionCompletion(ExpressionParam param) {
 
         return CompletableFuture.supplyAsync(() -> ExpressionCompletionsProvider.getCompletions(param));
     }
 
     @Override
-    public CompletableFuture<SignatureHelp> signatureHelp(SignatureHelpParams params) {
+    public CompletableFuture<SignatureHelp> signatureHelp(ExpressionParam params) {
 
         return CompletableFuture.supplyAsync(() -> ExpressionSignatureProvider.getFunctionSignatures(params));
     }
@@ -506,6 +510,12 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     public CompletableFuture<UpdateResponse> updateDependency(UpdateDependencyRequest request) {
         UpdateResponse response = PomParser.updateDependency(projectUri, request);
         return CompletableFuture.supplyAsync(() -> response);
+    }
+
+    @Override
+    public CompletableFuture<HelperPanelData> expressionHelperData(ExpressionParam param) {
+
+        return CompletableFuture.supplyAsync(() -> expressionHelperProvider.getExpressionHelperData(param));
     }
 
     @Override

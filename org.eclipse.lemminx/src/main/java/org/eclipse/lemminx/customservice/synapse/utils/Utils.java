@@ -867,4 +867,29 @@ public class Utils {
             bos.write(content.getBytes(StandardCharsets.UTF_8));
         }
     }
+
+    public static boolean isJSON(String payload) {
+
+        try {
+            JsonParser.parseString(payload);
+            return Boolean.TRUE;
+        } catch (Exception e) {
+            return Boolean.FALSE;
+        }
+    }
+
+    public static String toCamelCase(String input) {
+
+        if (input == null) {
+            return null;
+        }
+        Pattern pattern = Pattern.compile("_(.)");
+        Matcher matcher = pattern.matcher(input);
+        StringBuffer result = new StringBuffer();
+        while (matcher.find()) {
+            matcher.appendReplacement(result, matcher.group(1).toUpperCase());
+        }
+        matcher.appendTail(result);
+        return result.toString();
+    }
 }

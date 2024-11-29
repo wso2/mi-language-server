@@ -21,6 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.expression;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.eclipse.lemminx.customservice.synapse.expression.pojo.FunctionCompletionItem;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.extensions.contentmodel.participants.completion.AttributeValueCompletionResolver;
 import org.eclipse.lemminx.services.data.DataEntryField;
@@ -29,6 +30,8 @@ import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
+import org.eclipse.lsp4j.ParameterInformation;
+import org.eclipse.lsp4j.SignatureInformation;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -37,7 +40,9 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -45,11 +50,11 @@ import java.util.stream.Collectors;
 public class ExpressionCompletionUtils {
 
     private static final Logger LOGGER = Logger.getLogger(ExpressionCompletionUtils.class.getName());
-    private static List<CompletionItem> functionCompletions;
+    private static Map<String, List<CompletionItem>> functions;
 
     static {
         try {
-            functionCompletions = new ArrayList<>();
+            functions = new HashMap<>();
             loadFunctionCompletions();
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Failed to load function completions", e);
@@ -63,23 +68,38 @@ public class ExpressionCompletionUtils {
                 .getResourceAsStream("org/eclipse/lemminx/expression/functions.json")) {
 
             if (inputStream == null) {
-                LOGGER.log(Level.SEVERE, "Failed to load functions.json");
+                LOGGER.log(Level.SEVERE, "Failed to load synapse expression functions");
             }
-
-            String jsonContent = new BufferedReader(
-                    new InputStreamReader(inputStream, StandardCharsets.UTF_8)
-            ).lines().collect(Collectors.joining("\n"));
-            JsonArray jsonArray = Utils.getJsonArray(jsonContent);
-            for (JsonElement element : jsonArray) {
-                JsonObject jsonObject = element.getAsJsonObject();
-                String label = jsonObject.get("label").getAsString();
-                String insertText = jsonObject.get("insertText").getAsString();
-                String detail = jsonObject.get("details").getAsString();
-                int order = jsonObject.get("category").getAsInt();
-                functionCompletions.add(
-                        createCompletionItem(label, insertText, detail, CompletionItemKind.Function, order, true));
+            String jsonContent;
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+                jsonContent = reader.lines().collect(Collectors.joining("\n"));
+            }
+            JsonObject functionsObject = Utils.getJsonObject(jsonContent);
+            if (functionsObject != null) {
+                functionsObject.keySet().forEach(key -> {
+                    List<CompletionItem> functionList = new ArrayList<>();
+                    JsonArray jsonArray = functionsObject.getAsJsonArray(key);
+                    for (JsonElement element : jsonArray) {
+                        JsonObject jsonObject = element.getAsJsonObject();
+                        String label = jsonObject.get(ExpressionConstants.LABEL).getAsString();
+                        String insertText = jsonObject.get(ExpressionConstants.INSERT_TEXT).getAsString();
+                        String detail = jsonObject.get(ExpressionConstants.DETAIL).getAsString();
+                        int order = jsonObject.get(ExpressionConstants.CATEGORY).getAsInt();
+                        JsonObject signature = jsonObject.getAsJsonObject(ExpressionConstants.SIGNATURE);
+                        functionList.add(
+                                createFunctionCompletionItem(label, insertText, signature, detail,
+                                        CompletionItemKind.Function, order));
+                    }
+                    functions.put(key, functionList);
+                });
             }
         }
+    }
+
+    public static Map<String, List<CompletionItem>> getFunctions() {
+
+        return Collections.unmodifiableMap(functions);
     }
 
     public static void addRootLevelCompletions(ICompletionRequest request, ICompletionResponse response,
@@ -109,6 +129,8 @@ public class ExpressionCompletionUtils {
 
     private static void addFunctionCompletions(List<CompletionItem> items) {
 
+        List<CompletionItem> functionCompletions = new ArrayList<>();
+        functions.values().forEach(functionCompletions::addAll);
         items.addAll(Collections.unmodifiableCollection(functionCompletions));
     }
 
@@ -126,6 +148,52 @@ public class ExpressionCompletionUtils {
                                                    boolean isSnippet) {
 
         return addCompletionItem(request, response, completion, completion, detail, kind, order, isSnippet);
+    }
+
+    public static CompletionItem createFunctionCompletionItem(String label, String insertText, JsonObject signature,
+                                                              String detail,
+                                                              CompletionItemKind kind, int order) {
+
+        CompletionItem item = new FunctionCompletionItem();
+        item.setLabel(label);
+        item.setKind(kind);
+        item.setDetail(detail);
+        item.setInsertText(insertText);
+        item.setSortText(order + "_" + insertText);
+        item.setInsertTextFormat(InsertTextFormat.Snippet);
+
+        if (signature != null) {
+            SignatureInformation signatureInformation = new SignatureInformation();
+            signatureInformation.setLabel(label);
+            List<ParameterInformation> parameterInformation = createParameterInformation(signature);
+            signatureInformation.setParameters(parameterInformation);
+            ((FunctionCompletionItem) item).setSignature(signatureInformation);
+        }
+        return item;
+    }
+
+    private static List<ParameterInformation> createParameterInformation(JsonObject signature) {
+
+        List<ParameterInformation> parameterInformation = new ArrayList<>();
+        for (Map.Entry<String, JsonElement> entry : signature.entrySet()) {
+            ParameterInformation parameter = new ParameterInformation();
+            parameter.setLabel(entry.getKey());
+            parameter.setDocumentation(entry.getValue().getAsString());
+            parameterInformation.add(parameter);
+        }
+        return parameterInformation;
+    }
+
+    public static CompletionItem cloneCompletionItem(CompletionItem item) {
+
+        CompletionItem newItem = new CompletionItem();
+        newItem.setLabel(item.getLabel());
+        newItem.setKind(item.getKind());
+        newItem.setDetail(item.getDetail());
+        newItem.setInsertText(item.getInsertText());
+        newItem.setSortText(item.getSortText());
+        newItem.setInsertTextFormat(item.getInsertTextFormat());
+        return newItem;
     }
 
     public static CompletionItem createCompletionItem(String label, String insertText, String detail,

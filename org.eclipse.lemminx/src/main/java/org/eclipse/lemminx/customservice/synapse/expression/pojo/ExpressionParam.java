@@ -20,14 +20,20 @@ package org.eclipse.lemminx.customservice.synapse.expression.pojo;
 
 import org.eclipse.lsp4j.Position;
 
-public class ExpressionCompletionParam {
+public class ExpressionParam {
 
     private String documentUri;
     private Position position;
     private String expression;
     private int offset;
 
-    public ExpressionCompletionParam(String documentUri, Position position, String expression, int offset) {
+    public ExpressionParam(String expression, int offset) {
+
+        this.expression = expression;
+        this.offset = offset;
+    }
+
+    public ExpressionParam(String documentUri, Position position, String expression, int offset) {
 
         this.documentUri = documentUri;
         this.position = position;

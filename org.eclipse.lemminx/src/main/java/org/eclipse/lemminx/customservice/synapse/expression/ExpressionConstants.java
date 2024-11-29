@@ -26,4 +26,18 @@ public class ExpressionConstants {
             OPERATORS = List.of("+", "-", "*", "/", "?", ":", ">", "<", ">= ", "<=", "==", "!=", "&&", "||");
     public static final List<String> ATTRIBUTES_SECOND_LEVEL =
             List.of("synapse", "axis2", "axis2Client", "axis2Transport", "axis2Operation");
+    public static final String LABEL = "label";
+    public static final String INSERT_TEXT = "insertText";
+    public static final String DETAIL = "details";
+    public static final String CATEGORY = "category";
+    public static final String SIGNATURE = "signature";
+    public static final String VAR = "var";
+    public static final String ATTRIBUTES = "attributes";
+    public static final String AXIS2 = "axis2";
+    public static final String AXIS2_CLIENT = "axis2Client";
+    public static final String AXIS2_TRANSPORT = "axis2Transport";
+    public static final String AXIS2_OPERATION = "axis2Operation";
+    public static final String SYNAPSE = "synapse";
+    public static final String HEADERS = "headers";
+    public static final String PAYLOAD = "payload";
 }

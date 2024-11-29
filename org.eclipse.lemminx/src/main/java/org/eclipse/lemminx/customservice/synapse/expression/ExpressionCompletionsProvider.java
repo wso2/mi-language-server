@@ -18,15 +18,15 @@
 
 package org.eclipse.lemminx.customservice.synapse.expression;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionCompletionContext;
-import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionCompletionParam;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionCompletionRequest;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionCompletionResponse;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionCompletionType;
+import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionParam;
 import org.eclipse.lemminx.customservice.synapse.mediator.schema.generate.ServerLessTryoutHandler;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorInfo;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
@@ -46,6 +46,7 @@ import org.eclipse.lsp4j.Position;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -59,8 +60,15 @@ public class ExpressionCompletionsProvider {
     private static final Logger LOGGER = Logger.getLogger(ExpressionCompletionsProvider.class.getName());
     private static final String EXPRESSION_PREFIX = "${";
     private static final List<String> startingTokens = List.of("var", "attributes", "headers", "payload");
+    private static final String PROJECT_PATH_REGEX =
+            Pattern.quote("file:" + File.separator + File.separator) + "(.+?)" +
+                    Pattern.quote(Path.of("src", "main", "wso2mi").toString()) + ".*";
 
-    public static ICompletionResponse getCompletions(ExpressionCompletionParam param) {
+    private ExpressionCompletionsProvider() {
+
+    }
+
+    public static ICompletionResponse getCompletions(ExpressionParam param) {
 
         try {
             DOMDocument document = Utils.getDOMDocument(new File(param.getDocumentUri()));
@@ -135,7 +143,7 @@ public class ExpressionCompletionsProvider {
 
     private static MediatorTryoutInfo getMediatorProperties(ICompletionRequest request) {
 
-        Pattern pattern = Pattern.compile("file://(.+?)/src/main/wso2mi/.*");
+        Pattern pattern = Pattern.compile(PROJECT_PATH_REGEX);
         Matcher matcher = pattern.matcher(request.getXMLDocument().getDocumentURI());
         if (!matcher.matches()) {
             return null;
@@ -143,7 +151,7 @@ public class ExpressionCompletionsProvider {
         ServerLessTryoutHandler serverLessTryoutHandler = new ServerLessTryoutHandler(matcher.group(1));
         MediatorTryoutRequest
                 propertyRequest = new MediatorTryoutRequest(request.getXMLDocument().getDocumentURI().substring(7),
-                request.getPosition().getLine(), request.getPosition().getCharacter(), "", null);
+                request.getPosition().getLine(), request.getPosition().getCharacter(), StringUtils.EMPTY, null);
         return serverLessTryoutHandler.handle(propertyRequest);
     }
 
@@ -151,8 +159,21 @@ public class ExpressionCompletionsProvider {
                                                         ICompletionResponse response, int offset, boolean isNewMediator)
             throws BadLocationException {
 
+        String expression = extractExpressionString(valuePrefix, request, offset);
+        if (StringUtils.isEmpty(expression)) {
+            ExpressionCompletionUtils.addRootLevelCompletions(request, response, StringUtils.EMPTY);
+        } else {
+            ExpressionCompletionContext segment = parseExpression(expression);
+            processCompletions(request, response, segment, isNewMediator);
+        }
+    }
+
+    private static String extractExpressionString(String valuePrefix, ICompletionRequest request, int offset)
+            throws BadLocationException {
+
+        String expressionString = null;
         if (offset > 0) {
-            valuePrefix = valuePrefix.substring(0, offset);
+            expressionString = valuePrefix.substring(0, offset);
         } else {
             Position startPosition = request.getReplaceRange().getStart();
             Position endPosition = request.getPosition();
@@ -160,42 +181,40 @@ public class ExpressionCompletionsProvider {
             int endOffset = request.getXMLDocument().offsetAt(endPosition);
             int offsetDiff = endOffset - startOffset;
             if (offsetDiff > 0) {
-                valuePrefix = valuePrefix.substring(0, offsetDiff);
+                expressionString = valuePrefix.substring(0, offsetDiff);
             }
         }
         Pattern pattern = Pattern.compile("\\$\\{([^}]*)}?$");
-        Matcher matcher = pattern.matcher(valuePrefix);
+        Matcher matcher = pattern.matcher(expressionString);
         if (matcher.matches()) {
-            String expression = matcher.group(1);
-            if (expression.isEmpty()) {
-                ExpressionCompletionUtils.addRootLevelCompletions(request, response, "");
-            } else {
-                ExpressionCompletionContext segment = parseExpression(expression, request);
-                if (segment == null) {
-                    return;
-                }
-                if (ExpressionCompletionType.ROOT_LEVEL.equals(segment.getType())) {
-                    String filterText = segment.getSegment().size() == 0 ? "" :
-                            segment.getSegment().get(segment.getSegment().size() - 1);
-                    ExpressionCompletionUtils.addRootLevelCompletions(request, response, filterText);
-                } else if (ExpressionCompletionType.OBJECT_TRAVERSAL.equals(segment.getType())) {
-                    if (segment.getSegment().size() > 0) {
-                        List<String> segments = segment.getSegment();
-                        if (startingTokens.contains(segments.get(0))) {
-                            MediatorTryoutInfo info = getMediatorProperties(request);
-                            if (info != null) {
-                                getCompletionItems(request, response, info, segment, isNewMediator);
-                            }
-                        }
+            return matcher.group(1);
+        }
+        return null;
+    }
+
+    private static void processCompletions(ICompletionRequest request, ICompletionResponse response,
+                                           ExpressionCompletionContext segment, boolean isNewMediator) {
+
+        if (ExpressionCompletionType.ROOT_LEVEL.equals(segment.getType())) {
+            String filterText = segment.getSegment().isEmpty() ? StringUtils.EMPTY :
+                    segment.getSegment().get(segment.getSegment().size() - 1);
+            ExpressionCompletionUtils.addRootLevelCompletions(request, response, filterText);
+        } else if (ExpressionCompletionType.OBJECT_TRAVERSAL.equals(segment.getType())) {
+            if (!segment.getSegment().isEmpty()) {
+                List<String> segments = segment.getSegment();
+                if (startingTokens.contains(segments.get(0))) {
+                    MediatorTryoutInfo info = getMediatorProperties(request);
+                    if (info != null) {
+                        getCompletionItems(request, response, info, segment, isNewMediator);
                     }
-                } else if (ExpressionCompletionType.OPERATOR.equals(segment.getType())) {
-                    ExpressionCompletionUtils.addOperatorCompletions(request, response);
                 }
             }
+        } else if (ExpressionCompletionType.OPERATOR.equals(segment.getType())) {
+            ExpressionCompletionUtils.addOperatorCompletions(request, response);
         }
     }
 
-    private static ExpressionCompletionContext parseExpression(String expression, ICompletionRequest request) {
+    private static ExpressionCompletionContext parseExpression(String expression) {
 
         ExpressionCompletionContext currentSegment = new ExpressionCompletionContext();
         StringBuilder currentSegmentValue = new StringBuilder();
@@ -256,71 +275,129 @@ public class ExpressionCompletionsProvider {
         List<String> expressionSegments = context.getSegment();
         MediatorInfo mediatorInfo = isNewMediator ? info.getOutput() : info.getInput();
         String firstSegment = expressionSegments.get(0);
-        List<Property> properties = null;
-        JsonPrimitive payload = null;
-        List<String> itemValues;
+
         switch (firstSegment) {
-            case "var":
-                properties = mediatorInfo.getVariables();
-                expressionSegments = expressionSegments.subList(1, expressionSegments.size());
+            case ExpressionConstants.VAR:
+                handleVariableCompletions(request, response, mediatorInfo, expressionSegments, context);
                 break;
-            case "attributes":
-                Properties attributes = mediatorInfo.getAttributes();
-                if (expressionSegments.size() == 2 && !context.isNeedNext()) {
-                    ExpressionCompletionUtils.addAttributeSecondLevelCompletions(request, response,
-                            expressionSegments.get(1));
-                    return;
-                } else if (expressionSegments.size() > 1) {
-                    switch (expressionSegments.get(1)) {
-                        case "axis2":
-                            properties = attributes.getAxis2();
-                            break;
-                        case "axis2Client":
-                            properties = attributes.getAxis2Client();
-                            break;
-                        case "axis2Transport":
-                            properties = attributes.getAxis2Transport();
-                            break;
-                        case "axis2Operation":
-                            properties = attributes.getAxis2Operation();
-                            break;
-                        case "synapse":
-                            properties = attributes.getSynapse();
-                            break;
-                        default:
-                            return;
-                    }
-                    expressionSegments = expressionSegments.subList(2, expressionSegments.size());
-                } else {
-                    ExpressionCompletionUtils.addAttributeSecondLevelCompletions(request, response, "");
-                    return;
-                }
+            case ExpressionConstants.ATTRIBUTES:
+                handleAttributeCompletions(request, response, mediatorInfo, expressionSegments, context);
                 break;
-            case "headers":
-                properties = mediatorInfo.getHeaders();
-                expressionSegments = expressionSegments.subList(1, expressionSegments.size());
+            case ExpressionConstants.HEADERS:
+                handleHeaderCompletions(request, response, mediatorInfo, expressionSegments, context);
                 break;
-            case "payload":
-                payload = mediatorInfo.getPayload();
+            case ExpressionConstants.PAYLOAD:
+                handlePayloadCompletions(request, response, mediatorInfo, context);
                 break;
+            default:
+                // Do nothing
         }
-        if (properties != null) {
-            itemValues = findItemValues(expressionSegments, properties, context.isNeedNext());
-            if (itemValues != null) {
-                for (String item : itemValues) {
-                    ExpressionCompletionUtils.addCompletionItem(request, response, item, "Object",
-                            CompletionItemKind.Value, 0, false);
+    }
+
+    private static void handleVariableCompletions(
+            ICompletionRequest request,
+            ICompletionResponse response,
+            MediatorInfo mediatorInfo,
+            List<String> expressionSegments,
+            ExpressionCompletionContext context) {
+
+        List<Property> properties = mediatorInfo.getVariables();
+        List<String> itemValues = findItemValues(expressionSegments.subList(1, expressionSegments.size()), properties,
+                context.isNeedNext());
+        addCompletionItems(request, response, itemValues);
+    }
+
+    private static void handleAttributeCompletions(
+            ICompletionRequest request,
+            ICompletionResponse response,
+            MediatorInfo mediatorInfo,
+            List<String> expressionSegments,
+            ExpressionCompletionContext context) {
+
+        Properties attributes = mediatorInfo.getAttributes();
+        if (expressionSegments.size() == 2 && !context.isNeedNext()) {
+            ExpressionCompletionUtils.addAttributeSecondLevelCompletions(request, response, expressionSegments.get(1));
+            return;
+        }
+        if (expressionSegments.size() > 1) {
+            List<Property> properties = getAttributeProperties(attributes, expressionSegments.get(1));
+            if (properties == null) return;
+            expressionSegments = expressionSegments.subList(2, expressionSegments.size());
+            List<String> itemValues = findItemValues(expressionSegments, properties, context.isNeedNext());
+            addCompletionItems(request, response, itemValues);
+        } else {
+            ExpressionCompletionUtils.addAttributeSecondLevelCompletions(request, response, "");
+        }
+    }
+
+    private static List<Property> getAttributeProperties(Properties attributes, String segment) {
+
+        switch (segment) {
+            case ExpressionConstants.AXIS2:
+                return attributes.getAxis2();
+            case ExpressionConstants.AXIS2_CLIENT:
+                return attributes.getAxis2Client();
+            case ExpressionConstants.AXIS2_TRANSPORT:
+                return attributes.getAxis2Transport();
+            case ExpressionConstants.AXIS2_OPERATION:
+                return attributes.getAxis2Operation();
+            case ExpressionConstants.SYNAPSE:
+                return attributes.getSynapse();
+            default:
+                return Collections.emptyList();
+        }
+    }
+
+    private static void handleHeaderCompletions(
+            ICompletionRequest request,
+            ICompletionResponse response,
+            MediatorInfo mediatorInfo,
+            List<String> expressionSegments,
+            ExpressionCompletionContext context) {
+
+        List<Property> properties = mediatorInfo.getHeaders();
+        List<String> itemValues = findItemValues(expressionSegments.subList(1, expressionSegments.size()), properties,
+                context.isNeedNext());
+        addCompletionItems(request, response, itemValues);
+    }
+
+    private static void handlePayloadCompletions(
+            ICompletionRequest request,
+            ICompletionResponse response,
+            MediatorInfo mediatorInfo,
+            ExpressionCompletionContext context) {
+
+        JsonPrimitive payload = mediatorInfo.getPayload();
+        if (payload != null && Utils.isJSON(payload.getAsString())) {
+            JsonObject payloadJsonObject = Utils.getJsonObject(payload.getAsString());
+            if (context.getSegment().size() == 1) {
+                if (context.isNeedNext()) {
+                    List<String> items = new ArrayList<>(payloadJsonObject.keySet());
+                    addCompletionItems(request, response, items);
                 }
+                return;
             }
-        } else if (payload != null) {
-            // TODO: Implement the logic to traverse the payload values
+            List<String> itemValues = traverseJsonObject(context.getSegment(), payloadJsonObject, context.isNeedNext());
+            addCompletionItems(request, response, itemValues);
+        }
+    }
+
+    private static void addCompletionItems(
+            ICompletionRequest request,
+            ICompletionResponse response,
+            List<String> itemValues) {
+
+        if (itemValues != null) {
+            for (String item : itemValues) {
+                ExpressionCompletionUtils.addCompletionItem(request, response, item, "Object",
+                        CompletionItemKind.Value, 0, false);
+            }
         }
     }
 
     private static List<String> findItemValues(List<String> expressionSegments, List<Property> properties,
                                                boolean needNext) {
 
-        Gson gson = new Gson();
         Property property = null;
         List<String> items = new ArrayList<>();
         for (Property p : properties) {
@@ -339,35 +416,43 @@ public class ExpressionCompletionsProvider {
         }
         if (property != null) {
             String value = property.getValue();
-            if (value != null) {
-                JsonObject jsonObject = gson.fromJson(value, JsonObject.class);
-                JsonObject currentObject = jsonObject;
-                if (expressionSegments.size() > 1) {
-                    for (int i = 1; i < expressionSegments.size(); i++) {
-                        String segment = expressionSegments.get(i);
-                        if (i == expressionSegments.size() - 1 && !needNext) {
-                            break;
-                        }
-                        if (segment.isEmpty()) {
-                            break;
-                        } else if (currentObject.has(segment)) {
-                            if (currentObject.get(segment).isJsonObject()) {
-                                currentObject = currentObject.getAsJsonObject(segment);
-                                continue;
-                            }
-                        }
-                        return Collections.emptyList();
-                    }
-                }
-                if (currentObject.isJsonObject()) {
-                    items = new ArrayList<>(currentObject.keySet());
-                    String lastSegment =
-                            expressionSegments.size() > 1 ? expressionSegments.get(expressionSegments.size() - 1) : "";
-                    return filterCompletionItems(items, lastSegment);
+            return traverseJsonObject(expressionSegments, value, needNext);
+        }
+        return Collections.emptyList();
+    }
+
+    private static List<String> traverseJsonObject(List<String> expressionSegments, String value, boolean needNext) {
+
+        if (!StringUtils.isEmpty(value) && Utils.isJSON(value)) {
+            JsonObject jsonObject = Utils.getJsonObject(value);
+            return traverseJsonObject(expressionSegments, jsonObject, needNext);
+        }
+        return Collections.emptyList();
+    }
+
+    private static List<String> traverseJsonObject(List<String> expressionSegments, JsonObject jsonObject,
+                                                   boolean needNext) {
+
+        if (expressionSegments.isEmpty() || jsonObject == null) {
+            return Collections.emptyList();
+        }
+        JsonObject currentObject = jsonObject;
+        String filterText = "";
+
+        for (int i = 1; i < expressionSegments.size(); i++) {
+            String segment = expressionSegments.get(i);
+            if (segment.isEmpty() || (i == expressionSegments.size() - 1 && !needNext)) {
+                filterText = segment;
+            } else {
+                if (currentObject.has(segment) && currentObject.get(segment).isJsonObject()) {
+                    currentObject = currentObject.getAsJsonObject(segment);
+                } else {
+                    return Collections.emptyList();
                 }
             }
         }
-        return Collections.emptyList();
+        return currentObject.isJsonObject() ?
+                filterCompletionItems(new ArrayList<>(currentObject.keySet()), filterText) : Collections.emptyList();
     }
 
     private static List<String> filterCompletionItems(List<String> items, String filter) {
