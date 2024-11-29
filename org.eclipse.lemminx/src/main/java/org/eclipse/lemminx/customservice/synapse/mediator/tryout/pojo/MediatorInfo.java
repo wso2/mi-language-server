@@ -224,6 +224,11 @@ public class MediatorInfo {
         return mediatorInfo;
     }
 
+    private void addHeaders(List<Property> headers) {
+
+        this.headers.addAll(headers);
+    }
+
     @Override
     public String toString() {
 
