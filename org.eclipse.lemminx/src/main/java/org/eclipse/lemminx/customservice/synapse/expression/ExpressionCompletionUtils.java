@@ -97,13 +97,23 @@ public class ExpressionCompletionUtils {
         }
     }
 
+    /**
+     * Get all the synapse expression functions.
+     *
+     * @return functions
+     */
     public static Map<String, List<CompletionItem>> getFunctions() {
 
         return Collections.unmodifiableMap(functions);
     }
 
-    public static void addRootLevelCompletions(ICompletionRequest request, ICompletionResponse response,
-                                               String filterText) {
+    /**
+     * Add root level completions.
+     *
+     * @param response   completion response
+     * @param filterText filter text
+     */
+    public static void addRootLevelCompletions(ICompletionResponse response, String filterText) {
 
         List<CompletionItem> completionItems = new ArrayList<>();
         addRootLevelObjectCompletions(completionItems);
@@ -134,6 +144,12 @@ public class ExpressionCompletionUtils {
         items.addAll(Collections.unmodifiableCollection(functionCompletions));
     }
 
+    /**
+     * Add attribute completions.
+     *
+     * @param request  completion request
+     * @param response completion response
+     */
     public static void addOperatorCompletions(ICompletionRequest request, ICompletionResponse response) {
 
         addCompletionItem(request, response, "+", "Addition", CompletionItemKind.Operator, 0, false);
@@ -143,6 +159,18 @@ public class ExpressionCompletionUtils {
         addCompletionItem(request, response, "? ${1} : ${2}", "Ternary operator", CompletionItemKind.Operator, 0, true);
     }
 
+    /**
+     * Add completion item.
+     *
+     * @param request    completion request
+     * @param response   completion response
+     * @param completion completion text
+     * @param detail     completion detail
+     * @param kind       completion kind
+     * @param order      completion category
+     * @param isSnippet  is snippet completion
+     * @return
+     */
     public static CompletionItem addCompletionItem(ICompletionRequest request, ICompletionResponse response,
                                                    String completion, String detail, CompletionItemKind kind, int order,
                                                    boolean isSnippet) {
@@ -150,6 +178,17 @@ public class ExpressionCompletionUtils {
         return addCompletionItem(request, response, completion, completion, detail, kind, order, isSnippet);
     }
 
+    /**
+     * Create function completion item.
+     *
+     * @param label      completion label
+     * @param insertText insert text
+     * @param signature  function signature
+     * @param detail     completion detail
+     * @param kind       completion kind
+     * @param order      completion category
+     * @return
+     */
     public static CompletionItem createFunctionCompletionItem(String label, String insertText, JsonObject signature,
                                                               String detail,
                                                               CompletionItemKind kind, int order) {
@@ -184,6 +223,12 @@ public class ExpressionCompletionUtils {
         return parameterInformation;
     }
 
+    /**
+     * Clone completion item.
+     *
+     * @param item completion item
+     * @return
+     */
     public static CompletionItem cloneCompletionItem(CompletionItem item) {
 
         CompletionItem newItem = new CompletionItem();
@@ -196,6 +241,17 @@ public class ExpressionCompletionUtils {
         return newItem;
     }
 
+    /**
+     * Create completion item.
+     *
+     * @param label      completion label
+     * @param insertText insert text
+     * @param detail     completion detail
+     * @param kind       completion kind
+     * @param order      completion category
+     * @param isSnippet  is snippet completion
+     * @return
+     */
     public static CompletionItem createCompletionItem(String label, String insertText, String detail,
                                                       CompletionItemKind kind, int order, boolean isSnippet) {
 
@@ -209,6 +265,19 @@ public class ExpressionCompletionUtils {
         return item;
     }
 
+    /**
+     * Add completion item.
+     *
+     * @param request    completion request
+     * @param response   completion response
+     * @param label      completion label
+     * @param insertText insert text
+     * @param detail     completion detail
+     * @param kind       completion kind
+     * @param order      completion category
+     * @param isSnippet  is snippet completion
+     * @return
+     */
     public static CompletionItem addCompletionItem(ICompletionRequest request, ICompletionResponse response,
                                                    String label, String insertText, String detail,
                                                    CompletionItemKind kind, int order,
@@ -234,10 +303,17 @@ public class ExpressionCompletionUtils {
         item.setData(data);
     }
 
+    /**
+     * Add attribute second level completions.
+     *
+     * @param request    completion request
+     * @param response   completion response
+     * @param filterText filter text
+     */
     public static void addAttributeSecondLevelCompletions(ICompletionRequest request, ICompletionResponse response,
                                                           String filterText) {
 
-        ExpressionConstants.ATTRIBUTES_SECOND_LEVEL.forEach((value) -> {
+        ExpressionConstants.ATTRIBUTES_SECOND_LEVEL.forEach(value -> {
             if (value.startsWith(filterText)) {
                 addCompletionItem(request, response, value, value, "Attribute", CompletionItemKind.Keyword, 0, false);
             }

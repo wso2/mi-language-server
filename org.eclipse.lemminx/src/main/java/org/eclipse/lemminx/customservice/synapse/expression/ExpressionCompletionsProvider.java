@@ -161,7 +161,7 @@ public class ExpressionCompletionsProvider {
 
         String expression = extractExpressionString(valuePrefix, request, offset);
         if (StringUtils.isEmpty(expression)) {
-            ExpressionCompletionUtils.addRootLevelCompletions(request, response, StringUtils.EMPTY);
+            ExpressionCompletionUtils.addRootLevelCompletions(response, StringUtils.EMPTY);
         } else {
             ExpressionCompletionContext segment = parseExpression(expression);
             processCompletions(request, response, segment, isNewMediator);
@@ -198,7 +198,7 @@ public class ExpressionCompletionsProvider {
         if (ExpressionCompletionType.ROOT_LEVEL.equals(segment.getType())) {
             String filterText = segment.getSegment().isEmpty() ? StringUtils.EMPTY :
                     segment.getSegment().get(segment.getSegment().size() - 1);
-            ExpressionCompletionUtils.addRootLevelCompletions(request, response, filterText);
+            ExpressionCompletionUtils.addRootLevelCompletions(response, filterText);
         } else if (ExpressionCompletionType.OBJECT_TRAVERSAL.equals(segment.getType())) {
             if (!segment.getSegment().isEmpty()) {
                 List<String> segments = segment.getSegment();
@@ -220,44 +220,36 @@ public class ExpressionCompletionsProvider {
         StringBuilder currentSegmentValue = new StringBuilder();
         for (int i = 0; i < expression.length(); i++) {
             char c = expression.charAt(i);
-            if (c == '.' || c == '[' || c == ',') {
+            if (c == '.' || c == '[') {  // If the character is a dot or a square bracket, it is an object traversal.
                 currentSegment.addSegment(currentSegmentValue.toString());
-                if (c != ',') {
-                    currentSegment.setType(ExpressionCompletionType.OBJECT_TRAVERSAL);
-                    currentSegment.setNeedNext(Boolean.TRUE);
-                } else {
-                    currentSegment = new ExpressionCompletionContext(currentSegment);
-                    currentSegment.setType(ExpressionCompletionType.ROOT_LEVEL);
-                }
+                currentSegment.setType(ExpressionCompletionType.OBJECT_TRAVERSAL);
+                currentSegment.setNeedNext(Boolean.TRUE);
                 currentSegmentValue = new StringBuilder();
-            } else if (c == '(' || ExpressionConstants.OPERATORS.contains(String.valueOf(c))) {
-                currentSegment = new ExpressionCompletionContext(currentSegment);
-                currentSegmentValue = new StringBuilder();
-                currentSegmentValue.append(c);
+            } else if (c == ',') {  // If the character is a comma, the completion is for the next parameter.
                 currentSegment.addSegment(currentSegmentValue.toString());
-
-                currentSegment = new ExpressionCompletionContext(currentSegment);
-                currentSegment.setType(ExpressionCompletionType.ROOT_LEVEL);
+                currentSegment = new ExpressionCompletionContext(currentSegment, ExpressionCompletionType.ROOT_LEVEL);
                 currentSegmentValue = new StringBuilder();
-            } else if (c == ' ') {
-                if (currentSegment.getType().equals(ExpressionCompletionType.ROOT_LEVEL) ||
+            } else if (c == '(' || ExpressionConstants.OPERATORS.contains(String.valueOf(
+                    c))) {  // If the character is an opening bracket or an operator, the completion should be root level.
+                currentSegment = new ExpressionCompletionContext(currentSegment);
+                currentSegment.addSegment(String.valueOf(c));
+                currentSegment = new ExpressionCompletionContext(currentSegment, ExpressionCompletionType.ROOT_LEVEL);
+                currentSegmentValue = new StringBuilder();
+            } else if (c == ' ') { // Handle spaces
+                if (ExpressionCompletionType.ROOT_LEVEL.equals(currentSegment.getType()) ||
                         (currentSegment.getParent() != null && ExpressionConstants.OPERATORS.contains(
                                 currentSegment.getParent().getSegment().get(0)))) {
                     currentSegment.addSegment(currentSegmentValue.toString());
-                    currentSegment = new ExpressionCompletionContext(currentSegment);
-                    currentSegment.setType(ExpressionCompletionType.ROOT_LEVEL);
+                    currentSegment =
+                            new ExpressionCompletionContext(currentSegment, ExpressionCompletionType.ROOT_LEVEL);
                     currentSegmentValue = new StringBuilder();
                     continue;
                 }
                 currentSegment.setType(ExpressionCompletionType.OPERATOR);
                 currentSegmentValue.append(c);
-            } else {
-                if (c == '\'' || c == '\"' || c == ']') {
-                    continue;
-                } else if (c == ')') {
-                    currentSegment.setType(ExpressionCompletionType.OPERATOR);
-                    continue;
-                }
+            } else if (c == ')') { // If the character is a closing bracket, the completion should be an operator.
+                currentSegment.setType(ExpressionCompletionType.OPERATOR);
+            } else if (c != '\'' && c != '\"' && c != ']') { // Handle other characters
                 currentSegmentValue.append(c);
                 if (i == expression.length() - 1) {
                     currentSegment.addSegment(currentSegmentValue.toString());

@@ -20,6 +20,7 @@ package org.eclipse.lemminx.customservice.synapse.expression.pojo;
 
 import org.eclipse.lsp4j.CompletionItem;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +33,7 @@ public class HelperPanelData {
 
     public List<CompletionItem> getPayload() {
 
-        return payload;
+        return Collections.unmodifiableList(payload);
     }
 
     public void setPayload(List<CompletionItem> payload) {
@@ -42,7 +43,7 @@ public class HelperPanelData {
 
     public List<CompletionItem> getVariables() {
 
-        return variables;
+        return Collections.unmodifiableList(variables);
     }
 
     public void setVariables(List<CompletionItem> variables) {
@@ -52,7 +53,7 @@ public class HelperPanelData {
 
     public List<CompletionItem> getAttributes() {
 
-        return attributes;
+        return Collections.unmodifiableList(attributes);
     }
 
     public void setAttributes(List<CompletionItem> attributes) {
@@ -62,7 +63,7 @@ public class HelperPanelData {
 
     public Map<String, List<CompletionItem>> getFunctions() {
 
-        return functions;
+        return Collections.unmodifiableMap(functions);
     }
 
     public void setFunctions(Map<String, List<CompletionItem>> functions) {

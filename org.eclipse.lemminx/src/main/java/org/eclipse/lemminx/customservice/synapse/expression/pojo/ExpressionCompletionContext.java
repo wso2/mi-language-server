@@ -21,6 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.expression.pojo;
 import org.eclipse.lsp4j.Range;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ExpressionCompletionContext {
@@ -35,8 +36,14 @@ public class ExpressionCompletionContext {
 
     public ExpressionCompletionContext(ExpressionCompletionContext parent) {
 
-        this.parent = parent;
+        this.parent = parent.deepCopy();
         segment = new ArrayList<>();
+    }
+
+    public ExpressionCompletionContext(ExpressionCompletionContext parent, ExpressionCompletionType type) {
+
+        this.parent = parent;
+        this.type = type;
     }
 
     public ExpressionCompletionContext() {
@@ -47,8 +54,8 @@ public class ExpressionCompletionContext {
 
     public ExpressionCompletionContext(ExpressionCompletionContext parent, List<String> segment, Range range) {
 
-        this.parent = parent;
-        this.segment = segment;
+        this.parent = parent.deepCopy();
+        this.segment = new ArrayList<>(segment);
         this.range = range;
     }
 
@@ -64,12 +71,12 @@ public class ExpressionCompletionContext {
 
     public ExpressionCompletionContext getParent() {
 
-        return parent;
+        return parent.deepCopy();
     }
 
     public List<String> getSegment() {
 
-        return segment;
+        return Collections.unmodifiableList(segment);
     }
 
     public Range getRange() {
@@ -100,5 +107,18 @@ public class ExpressionCompletionContext {
     public void pop() {
 
         segment.remove(segment.size() - 1);
+    }
+
+    public ExpressionCompletionContext deepCopy() {
+
+        ExpressionCompletionContext clone = new ExpressionCompletionContext();
+        clone.segment = new ArrayList<>(segment);
+        clone.range = range;
+        clone.type = type;
+        clone.needNext = needNext;
+        if (parent != null) {
+            clone.parent = parent.deepCopy();
+        }
+        return clone;
     }
 }

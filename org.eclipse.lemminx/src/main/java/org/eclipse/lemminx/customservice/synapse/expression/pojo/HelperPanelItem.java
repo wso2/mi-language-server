@@ -61,4 +61,16 @@ public class HelperPanelItem extends CompletionItem {
         builder.add("children", children);
         return builder.toString();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        return super.equals(obj) && children.equals(((HelperPanelItem) obj).children);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return super.hashCode() + children.hashCode();
+    }
 }

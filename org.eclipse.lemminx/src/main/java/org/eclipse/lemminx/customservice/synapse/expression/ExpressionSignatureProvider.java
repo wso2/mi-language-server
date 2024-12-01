@@ -19,17 +19,18 @@
 package org.eclipse.lemminx.customservice.synapse.expression;
 
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionParam;
-import org.eclipse.lemminx.customservice.synapse.expression.pojo.FunctionInfo;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.FunctionCompletionItem;
+import org.eclipse.lemminx.customservice.synapse.expression.pojo.FunctionInfo;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SignatureInformation;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 import java.util.logging.Logger;
 
 public class ExpressionSignatureProvider {
@@ -39,6 +40,10 @@ public class ExpressionSignatureProvider {
 
     static {
         loadFunctionSignatures();
+    }
+
+    private ExpressionSignatureProvider() {
+
     }
 
     private static void loadFunctionSignatures() {
@@ -94,7 +99,7 @@ public class ExpressionSignatureProvider {
 
     public static FunctionInfo findCurrentFunction(String input, int cursorPosition) {
 
-        Stack<FunctionInfo> functionStack = new Stack<>();
+        Deque<FunctionInfo> functionDeque = new ArrayDeque<>();
 
         for (int i = 0; i < cursorPosition; i++) {
             char c = input.charAt(i);
@@ -108,20 +113,20 @@ public class ExpressionSignatureProvider {
                 start++;
 
                 String functionName = input.substring(start, i).trim();
-                functionStack.push(new FunctionInfo(functionName, 0));
+                functionDeque.push(new FunctionInfo(functionName, 0));
             } else if (c == ')') {
-                if (!functionStack.isEmpty()) {
-                    functionStack.pop();
+                if (!functionDeque.isEmpty()) {
+                    functionDeque.pop();
                 }
-            } else if (c == ',' && !functionStack.isEmpty()) {
+            } else if (c == ',' && !functionDeque.isEmpty()) {
                 // Increment parameter index of the current function context
-                functionStack.peek().incrementParameterIndex();
+                functionDeque.peek().incrementParameterIndex();
             }
         }
 
         // If the stack is not empty, we are inside a function
-        if (!functionStack.isEmpty()) {
-            FunctionInfo currentContext = functionStack.peek();
+        if (!functionDeque.isEmpty()) {
+            FunctionInfo currentContext = functionDeque.peek();
             return new FunctionInfo(currentContext.getName(), currentContext.getCurrentParameterIndex());
         }
 
