@@ -57,6 +57,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -172,6 +173,33 @@ public class DirectoryTreeBuilder {
         } catch (JsonProcessingException e) {
             LOGGER.log(Level.SEVERE, "Error occurred while building the project explorer directory tree.", e);
             return null;
+        }
+    }
+
+    public static List<String> getProjectIdentifiers(WorkspaceFolder projectFolder, List<String> filePaths) {
+
+        List<String> result = new ArrayList<>();
+        DirectoryMapResponse directoryMap = buildDirectoryTree(projectFolder);
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(directoryMap.getDirectoryMap().getAsJsonObject().toString());
+            JsonNode artifacts = root.path(Constant.SRC).path(MAIN).path(WSO2MI).path(Constant.ARTIFACTS);
+            artifacts.fields().forEachRemaining(entry -> {
+                String artifactType = entry.getKey();
+                JsonNode artifactEntries = entry.getValue();
+                if (artifactEntries.isArray()) {
+                    for (JsonNode artifactEntryNode: artifactEntries) {
+                        String path = artifactEntryNode.path(Constant.PATH).asText();
+                        if (filePaths.contains(path)) {
+                            result.add(artifactType + File.separator +
+                                    path.substring(path.lastIndexOf(File.separator) + 1).split("\\.")[0]);
+                        }
+                    }
+                }
+            });
+            return result;
+        } catch (Exception ex) {
+            return new ArrayList<>();
         }
     }
 

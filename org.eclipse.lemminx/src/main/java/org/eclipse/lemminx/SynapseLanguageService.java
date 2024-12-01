@@ -88,6 +88,8 @@ import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateAPIP
 import org.eclipse.lemminx.customservice.synapse.api.generator.RestApiAdmin;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceFileScanner;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceFinderFactory;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceUsageFinder;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceUsagesRequest;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceResponse;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
@@ -127,7 +129,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -323,59 +324,12 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     }
 
     @Override
-    public CompletableFuture<Map<String, List<String>>> getResourceUsages() {
+    public CompletableFuture<List<String>> getResourceUsages(ResourceUsagesRequest resourceUsagesRequest) {
 
-        Map<String, List<String>> resourceUsageMap = new HashMap<>();
-        List<String> updatedRegistryFileNames = new ArrayList<>();
-        // collect resources
-        List<String> registryFiles = RegistryFileScanner.scanRegistryFiles(projectUri);
-        List<String> certificateFiles = CertificateScanner.scanCertificates(projectUri);
-
-        // add each registry file as a key to map
-        for (String registryFile : registryFiles) {
-            String updatedRegistryFileName = registryFile.replaceFirst(File.separator, ":");
-            resourceUsageMap.put(updatedRegistryFileName, new ArrayList<>());
-            updatedRegistryFileNames.add(updatedRegistryFileName);
-        }
-        // add each certificate file as a key to map
-        for (String certificateFile : certificateFiles) {
-            resourceUsageMap.put(certificateFile, new ArrayList<>());
-        }
-
-        // get all project files
-        List<String> artifactFilePaths = ArtifactFileScanner.scanArtifactFiles(projectUri, true);
-
-        // get all dependency trees for each project file
-        DependencyScanner dependencyScanner = new DependencyScanner(projectUri);
-
-        for (String artifactFilePath : artifactFilePaths) {
-            DependencyTree artifactDependencyTree = dependencyScanner.analyzeArtifact(artifactFilePath);
-            List<Dependency> dependencyList = artifactDependencyTree.getDependencyList();
-            for (Dependency dependency : dependencyList) {
-                String dependencyName = dependency.getName();
-                // check whether dependency is in updated registry file names
-                if (updatedRegistryFileNames.contains(dependencyName)) {
-                    // add to usage map
-                    resourceUsageMap.get(dependencyName).add(artifactFilePath);
-                }
-            }
-        }
-
-        Either<Connections, Map<String, Connections>> foundConnections =
-                ConnectionFinder.findConnections(projectUri, "http", connectorHolder, isLegacyProject);
-        if (foundConnections.isLeft()) {
-            Connections connections = foundConnections.getLeft();
-            for (Connection connection : connections.getConnections()) {
-                List<ConnectionParameter> parameters = connection.getParameters();
-                for (ConnectionParameter parameter : parameters) {
-                    if (certificateFiles.contains(parameter.getValue())) {
-                        resourceUsageMap.get(parameter.getValue()).add(connection.getPath());
-                    }
-                }
-            }
-        }
-
-        return CompletableFuture.supplyAsync(() -> resourceUsageMap);
+        List<String> resourceUsagesProjectIdentifiers =
+                ResourceUsageFinder.findResourceUsagesProjectIdentifiers(projectUri,
+                        resourceUsagesRequest.resourceFilePath, connectorHolder, isLegacyProject);
+        return CompletableFuture.supplyAsync(() -> resourceUsagesProjectIdentifiers);
     }
 
     @Override
