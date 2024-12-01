@@ -35,8 +35,11 @@ public class Constants {
     public static final String PROPERTIES = "properties";
     public static final String IMAGES = "images";
     public static final String ARTIFACT_ID = "artifactId";
+
     public static final String VERSION = "version";
+
     public static final String NAME = "name";
+
     public static final String TYPE = "type";
     public static final String IMAGE = "image";
     public static final String TEST_SERVER_TYPE = "testServerType";
@@ -49,7 +52,11 @@ public class Constants {
     public static final String MI_CONTAINER_CONFIG_MAPPER = "mi-container-config-mapper";
     public static final String SYNAPSE_UNIT_TEST_MAVEN_PLUGIN = "synapse-unit-test-maven-plugin";
     public static final String GROUP_ID = "groupId";
+
     public static final String DESCRIPTION = "description";
+    public static final String FULL_RANGE = "fullRange";
+
+    public static final String ZIP = "zip";
     public static final String DOCKER_FILE_BASE_IMAGE = "dockerfile.base.image";
     public static final String CIPHER_TOOL_ENABLE = "ciphertool.enable";
     public static final String KEY_STORE_ALIAS = "keystore.alias";
