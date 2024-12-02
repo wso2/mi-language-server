@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package org.eclipse.lemminx.customservice.synapse.mediatorService.mediators;
 
 import com.google.gson.Gson;
@@ -13,29 +31,25 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ThrottleMediator {
 
-    public static final List<String> throttleTagAttributes = Arrays.asList(
+    private static final List<String> throttleTagAttributes = Arrays.asList(
             "groupId", "description", "onAcceptBranchsequenceKey", "onRejectBranchsequenceKey",
             "onAcceptBranchsequenceType", "onRejectBranchsequenceType");
 
-    public static final List<String> policyTagAttributes = Arrays.asList(
+    private static final List<String> policyTagAttributes = Arrays.asList(
             "policyType", "policyKey", "maximumConcurrentAccess", "policyEntries");
 
-    public static final List<String> onAcceptTagAttributes = Arrays.asList(
+    private static final List<String> onAcceptTagAttributes = Arrays.asList(
             "onAcceptBranchsequenceType", "onAcceptBranchsequenceKey");
 
-    public static final List<String> onRejectTagAttributes = Arrays.asList(
+    private static final List<String> onRejectTagAttributes = Arrays.asList(
             "onRejectBranchsequenceType", "onRejectBranchsequenceKey");
 
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    private static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Throttle throttle,
                                                                                            List<String> dirtyFields) {
 
@@ -56,7 +70,7 @@ public class ThrottleMediator {
                                 "maxRequestCount", entry.get(3),
                                 "unitTime", entry.get(4),
                                 "prohibitPeriod", entry.get(5)
-                                                            ))
+                        ))
                         .collect(Collectors.toList());
                 data.put("policyEntries", formattedEntries);
                 data.put("hasPolicyEntries", !formattedEntries.isEmpty());
@@ -140,8 +154,8 @@ public class ThrottleMediator {
             Position start = range.getStartTagRange().getStart();
             Position end = editStartTagOnly
                     ? range.getStartTagRange().getEnd() :
-                    (range.getEndTagRange().getEnd() != null ? range.getEndTagRange().getEnd() :
-                            range.getStartTagRange().getEnd());
+                    (range.getEndTagRange() != null && range.getEndTagRange().getEnd() != null ?
+                            range.getEndTagRange().getEnd() : range.getStartTagRange().getEnd());
 
             editRange = new Range(start, end);
 
@@ -156,7 +170,7 @@ public class ThrottleMediator {
         editsData.put(editRange, dataCopy);
     }
 
-    public static Map<String, Object> getDataFromST(Throttle node) {
+    public static Map<String, Object> getDataFromST430(Throttle node) {
 
         Map<String, Object> data = new HashMap<>();
 
@@ -218,7 +232,7 @@ public class ThrottleMediator {
                                     extractedPolicy.get("maxRequestCount"),
                                     extractedPolicy.get("unitTime"),
                                     extractedPolicy.get("prohibitPeriod")
-                                                        );
+                            );
                             policyEntries.add(entry);
                         }
                         data.put("policyEntries", policyEntries);
@@ -262,7 +276,7 @@ public class ThrottleMediator {
                 case "wsp:Policy":
                     if (entryObj.has("policyOrAllOrExactlyOne")) {
                         JsonArray innerPolicies = entryObj.getAsJsonArray("policyOrAllOrExactlyOne");
-                        if (innerPolicies.size() > 0) {
+                        if (!innerPolicies.isEmpty()) {
                             String accessType =
                                     innerPolicies.get(0).getAsJsonObject().get("tag").getAsString().split(":")[1];
                             policy.put("accessType", accessType);

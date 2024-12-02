@@ -30,8 +30,10 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.c
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.TargetType;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
+import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
+import org.eclipse.lsp4j.Position;
 
 import java.util.List;
 
@@ -60,6 +62,15 @@ public class CallFactory extends AbstractMediatorFactory {
                     EndpointFactory endpointFactory = new EndpointFactory();
                     NamedEndpoint namedEndpoint = (NamedEndpoint) endpointFactory.create((DOMElement) node);
                     call.setEndpoint(namedEndpoint);
+                    try {
+                        if (namedEndpoint.getKey() == null && namedEndpoint.getKeyExpression() == null) {
+                            DOMDocument document = element.getOwnerDocument();
+                            int startOffset = document.offsetAt(namedEndpoint.getRange().getStartTagRange().getStart());
+                            int endOffset = document.offsetAt(namedEndpoint.getRange().getEndTagRange().getEnd());
+                            String endpointXml = document.getText().substring(startOffset, endOffset);
+                            call.setInlineEndpointXml(endpointXml);
+                        }
+                    } catch (Exception ignored) {}
                 }
             }
         }

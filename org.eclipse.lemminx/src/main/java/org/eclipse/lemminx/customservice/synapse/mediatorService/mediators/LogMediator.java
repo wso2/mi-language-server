@@ -18,88 +18,66 @@
 
 package org.eclipse.lemminx.customservice.synapse.mediatorService.mediators;
 
-import com.google.gson.internal.LinkedTreeMap;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.MediatorUtils;
-import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.ExpressionFieldValue;
-import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.Namespace;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Log;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.MediatorProperty;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
-import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class LogMediator {
 
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Log log,
                                                                                            List<String> dirtyFields) {
 
-        String level = (String) data.get("level");
-        if (level != null) {
-            data.put("level", level.toLowerCase());
+        if (data.containsKey("level") && data.get("level") instanceof String) {
+            data.put("level", ((String) data.get("level")).toLowerCase());
         }
-        List<Map<String, Object>> properties = new ArrayList<>();
-        Object propertyObj = data.get("properties");
-        if (propertyObj instanceof List<?>) {
-            for (Object property : (List<?>) propertyObj) {
-                if (property instanceof List) {
-                    String propertyName = (String) ((List<?>) property).get(0);
-                    Object propertyElementObj = ((List<?>) property).get(1);
-                    if (propertyElementObj instanceof LinkedTreeMap) {
-                        ExpressionFieldValue value;
-                        LinkedTreeMap propertyElement = (LinkedTreeMap) propertyElementObj;
-                        Boolean isExpression = (Boolean) propertyElement.get("isExpression");
-                        if (isExpression) {
-                            if (propertyElement.get("namespaces") instanceof List<?> &&
-                                    !((List<?>) propertyElement.get("namespaces")).isEmpty()) {
-                                List<Namespace> namespaces = new ArrayList<>();
-                                for (Object namespace : (List<?>) propertyElement.get("namespaces")) {
-                                    if (namespace instanceof LinkedTreeMap) {
-                                        LinkedTreeMap ns = (LinkedTreeMap) namespace;
-                                        namespaces.add(
-                                                new Namespace(ns.get("prefix").toString(), ns.get("uri").toString()));
-                                    }
-                                }
-                                value = new ExpressionFieldValue(propertyElement.get("expression").toString(), true,
-                                        namespaces.toArray(new Namespace[0]));
-                            } else {
-                                value = new ExpressionFieldValue(propertyElement.get("value").toString(), true, null);
-                            }
-                        } else {
-                            value = new ExpressionFieldValue(propertyElement.get("value").toString(), false, null);
-                        }
-                        boolean isExpressionValue = value.isExpression();
-                        Object namespaces = value.getNamespaces();
-                        Map<String, Object> propertyData = new HashMap<>();
-                        propertyData.put("propertyName", propertyName);
+
+        List<Object> propertiesList = data.get("properties") instanceof List<?> ? (List<Object>) data.get("properties") : new ArrayList<>();
+        List<Map<String, Object>> processedProperties = new ArrayList<>();
+        if (data.containsKey("properties")) {
+            for (Object propertyObj : propertiesList) {
+                if (propertyObj instanceof List<?>) {
+                    List<Object> property = (List<Object>) propertyObj;
+
+                    if (property.size() > 1 && property.get(1) instanceof Map<?, ?>) {
+                        Map<String, Object> valueMap = (Map<String, Object>) property.get(1);
+                        boolean isExpressionValue = Boolean.TRUE.equals(valueMap.get("isExpression"));
+                        Map<String, Object> processedProperty = new HashMap<>();
+                        processedProperty.put("propertyName", property.get(0));
                         if (!isExpressionValue) {
-                            propertyData.put("value", value.getValue());
+                            processedProperty.put("value", valueMap.get("value"));
                         } else {
-                            propertyData.put("expression", value.getValue());
+                            processedProperty.put("expression", valueMap.get("value"));
                         }
-                        propertyData.put("namespaces", namespaces);
-                        properties.add(propertyData);
+                        processedProperty.put("namespaces", valueMap.get("namespaces"));
+                        processedProperties.add(processedProperty);
                     }
                 }
             }
+
+            data.put("properties", processedProperties);
         }
-        if (properties.isEmpty()) {
+
+        if (processedProperties.isEmpty() || propertiesList.isEmpty()) {
             data.put("selfClosed", true);
         }
-        data.put("properties", properties);
+
         return Either.forLeft(data);
     }
 
-    public static Map<String, Object> getDataFromST(Log node) {
+    public static Map<String, Object> getDataFromST430(Log node) {
 
         Map<String, Object> data = new HashMap<>();
+
         if (node.getCategory() != null) {
-            data.put("category", node.getCategory());
+            data.put("category", node.getCategory().toString());
         }
         if (node.getLevel() != null) {
             data.put("level", node.getLevel().toUpperCase());
@@ -107,13 +85,14 @@ public class LogMediator {
         data.put("description", node.getDescription());
         data.put("separator", node.getSeparator());
         if (node.getProperty() != null) {
-            List<Object> properties = Arrays.asList(node.getProperty()).stream().map(property -> {
-                Map<String, Object> propertyData = new HashMap<>();
-                propertyData.put("value", property.getValue() != null ? property.getValue() : property.getExpression());
-                propertyData.put("isExpression", property.getExpression() != null);
-                propertyData.put("namespaces", MediatorUtils.transformNamespaces(property.getNamespaces()));
-                return new Object[]{property.getName(), propertyData};
-            }).collect(Collectors.toList());
+            List<List<Object>> properties = new ArrayList<>();
+            for (MediatorProperty property : node.getProperty()) {
+                Map<String, Object> valueMap = new HashMap<>();
+                valueMap.put("value", property.getValue() != null ? property.getValue() : property.getExpression());
+                valueMap.put("isExpression", property.getExpression() != null);
+                valueMap.put("namespaces", MediatorUtils.transformNamespaces(property.getNamespaces()));
+                properties.add(List.of(property.getName(), valueMap));
+            }
             data.put("properties", properties);
         }
         return data;

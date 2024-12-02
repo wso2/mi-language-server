@@ -79,7 +79,7 @@
               "inputType": "codeTextArea",
               "defaultValue": "",
               "required": true,
-              "helpTip": {
+              "placeholder": {
                 "conditionField": "mediaType",
                 "values": [
                   {

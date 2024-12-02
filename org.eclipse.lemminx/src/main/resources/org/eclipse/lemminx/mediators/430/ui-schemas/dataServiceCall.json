@@ -45,7 +45,7 @@
               "comboValues": [
                 "SINGLE",
                 "BATCH",
-                "REQUESTBOX"
+                "REQUEST-BOX"
               ],
               "required": false,
               "helpTip": ""

@@ -187,6 +187,7 @@
               "defaultValue": "",
               "required": false,
               "helpTip": "",
+              "keyType":"registry",
               "enableCondition": [
                 {
                   "ruleSetSourceType": "REGISTRY_REFERENCE"

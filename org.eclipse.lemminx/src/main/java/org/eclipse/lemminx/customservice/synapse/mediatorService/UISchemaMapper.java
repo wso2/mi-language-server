@@ -26,21 +26,22 @@ public class UISchemaMapper {
 
     public static JsonObject mapInputToUISchema(JsonObject data, JsonObject uiSchema) {
         JsonArray elements = uiSchema.getAsJsonArray("elements");
+        processElements(data, elements);
+        return uiSchema;
+    }
+
+    private static void processElements(JsonObject data, JsonArray elements) {
         for (JsonElement element : elements) {
             JsonObject elementObj = element.getAsJsonObject();
             String elementType = elementObj.get("type").getAsString();
             if (elementType.equals("attributeGroup")) {
                 JsonObject groupValue = elementObj.getAsJsonObject("value");
                 JsonArray groupElements = groupValue.getAsJsonArray("elements");
-                for (JsonElement attributeElement : groupElements) {
-                    JsonObject attributeElementObj = attributeElement.getAsJsonObject();
-                    processElement(data, attributeElementObj);
-                }
+                processElements(data, groupElements);
             } else {
                 processElement(data, elementObj);
             }
         }
-        return uiSchema;
     }
 
     private static void processElement(JsonObject elementData, JsonObject elementObj) {
@@ -61,5 +62,6 @@ public class UISchemaMapper {
             }
         }
     }
+
 }
 

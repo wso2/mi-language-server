@@ -26,8 +26,10 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediat
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Send;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
+import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
+import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,8 +49,17 @@ public class SendFactory extends AbstractMediatorFactory {
         DOMNode endpointNode = Utils.getChildNodeByName(element, Constant.ENDPOINT);
         if (endpointNode != null) {
             EndpointFactory endpointFactory = new EndpointFactory();
-            NamedEndpoint endpoint = (NamedEndpoint) endpointFactory.create((DOMElement) endpointNode);
-            send.setEndpoint(endpoint);
+            NamedEndpoint namedEndpoint = (NamedEndpoint) endpointFactory.create((DOMElement) endpointNode);
+            send.setEndpoint(namedEndpoint);
+            try {
+                if (namedEndpoint.getKey() == null && namedEndpoint.getKeyExpression() == null) {
+                    DOMDocument document = element.getOwnerDocument();
+                    int startOffset = document.offsetAt(namedEndpoint.getRange().getStartTagRange().getStart());
+                    int endOffset = document.offsetAt(namedEndpoint.getRange().getEndTagRange().getEnd());
+                    String endpointXml = document.getText().substring(startOffset, endOffset);
+                    send.setInlineEndpointXml(endpointXml);
+                }
+            } catch (Exception ignored) {}
         }
         return send;
     }

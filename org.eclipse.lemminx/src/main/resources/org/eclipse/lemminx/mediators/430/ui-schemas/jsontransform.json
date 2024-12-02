@@ -10,7 +10,7 @@
         "name": "schema",
         "displayName": "Schema",
         "inputType": "key",
-        "keyType": "registry",
+        "keyType": "json",
         "required": false,
         "helpTip": ""
       }
