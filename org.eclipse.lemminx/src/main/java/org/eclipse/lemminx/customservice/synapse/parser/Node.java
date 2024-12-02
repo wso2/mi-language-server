@@ -20,14 +20,13 @@ package org.eclipse.lemminx.customservice.synapse.parser;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Node {
 
-    Either<Range, List<Range>> range;
-    String value;
-    String key;
+    private Either<Range, List<Range>> range;
+    private String value;
+    private String key;
 
     public Node() {
     }

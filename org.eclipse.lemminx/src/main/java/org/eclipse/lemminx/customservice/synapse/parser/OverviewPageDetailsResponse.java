@@ -26,36 +26,36 @@ import java.util.Map;
 
 public class OverviewPageDetailsResponse {
 
-    Node runtimeVersion;
-    Node projectGroupId;
-    Node projectArtifactId;
-    Node projectVersion;
-    Node projectDescription;
-    Node projectName;
-    Node projectBuildPluginVersion;
-    Node keyStoreType;
-    List<Map<String, Node>> connectorDependencies;
-    List<Map<String, Node>> otherDependencies;
-    Node miContainerPluginVersion;
-    Node unitTestPluginVersion;
-    Node keyStoreName;
-    Node keyStorePassword;
-    Node keyStoreAlias;
-    Node cipherToolEnable;
-    Node dockerFileBaseImage;
-    Node dockerName;
-    Node serverDownloadLink;
-    Node serverVersion;
-    Node serverPath;
-    Node serverPort;
-    Node serverHost;
-    Node serverType;
-    Node skipTest;
+    private Node runtimeVersion;
+    private Node projectGroupId;
+    private Node projectArtifactId;
+    private Node projectVersion;
+    private Node projectDescription;
+    private Node projectName;
+    private Node projectBuildPluginVersion;
+    private Node keyStoreType;
+    private List<Map<String, Node>> connectorDependencies;
+    private List<Map<String, Node>> otherDependencies;
+    private Node miContainerPluginVersion;
+    private Node unitTestPluginVersion;
+    private Node keyStoreName;
+    private Node keyStorePassword;
+    private Node keyStoreAlias;
+    private Node cipherToolEnable;
+    private Node dockerFileBaseImage;
+    private Node dockerName;
+    private Node serverDownloadLink;
+    private Node serverVersion;
+    private Node serverPath;
+    private Node serverPort;
+    private Node serverHost;
+    private Node serverType;
+    private Node skipTest;
 
-    List<Range> ranges;
+    private List<Range> ranges;
 
-    List<Node> configs;
-    Range lastDependencyEndTagRange;
+    private List<Node> configs;
+    private Range lastDependencyEndTagRange;
 
     public OverviewPageDetailsResponse() {
         connectorDependencies = new ArrayList<>();

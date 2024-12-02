@@ -39,9 +39,9 @@ public class PluginHandler extends DefaultHandler {
 
     private String pluginArtifactId, pluginVersion, dependencyType = "";
     private Range range;
-    Node groupId;
-    Node artifactId;
-    Node version;
+    private Node groupId;
+    private Node artifactId;
+    private Node version;
 
     private final OverviewPageDetailsResponse pomDetailsResponse;
 
@@ -78,8 +78,6 @@ public class PluginHandler extends DefaultHandler {
             isPluginRepository = true;
         } else if (Constants.PROPERTIES.equals(qName)) {
             isProperties = true;
-        } else if (Constants.IMAGES.equals(qName) && isPlugin) {
-            isImages = true;
         }
     }
 
@@ -129,9 +127,6 @@ public class PluginHandler extends DefaultHandler {
                     pomDetailsResponse.setDockerName(new Node(value, Either.forLeft(getRange(valueStartLine,
                             valueStartColumn, valueEndLine, valueEndColumn - closingTagLength))));
                 }
-                break;
-            case Constants.IMAGE:
-                isImages = false;
                 break;
             case Constants.TEST_SERVER_TYPE:
                 pomDetailsResponse.setServerType(new Node(value, Either.forLeft(getRange(valueStartLine,

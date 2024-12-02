@@ -31,6 +31,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -39,7 +40,6 @@ import java.util.logging.Logger;
 public class ConfigParser {
 
     private static final Logger LOGGER = Logger.getLogger(ConfigParser.class.getName());
-    private File propertiesFile;
 
     public static void getConfigDetails(String projectUri, OverviewPageDetailsResponse detailsResponse) {
         List<String> fileLines = new ArrayList<>();
@@ -95,9 +95,8 @@ public class ConfigParser {
     }
 
     private static File getFilePath(String projectUri) {
-        return new File(projectUri + File.separator + Constants.SRC + File.separator + Constants.MAIN +
-                File.separator + Constants.WSO2_MI + File.separator + Constants.RESOURCES + File.separator +
-                Constants.CONF + File.separator + Constants.CONFIG_FILE);
+        return new File(Path.of(projectUri, Constants.SRC, Constants.MAIN, Constants.WSO2_MI,
+                Constants.RESOURCES, Constants.CONF ,Constants.CONFIG_FILE).toUri());
     }
 
     private static boolean isConfigFileExist(File propertiesFile) {

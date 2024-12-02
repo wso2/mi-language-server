@@ -70,23 +70,43 @@ public class PomParser {
     }
 
     public static String addDependency(String projectUri, PomXmlEditRequest request) {
-        try {
-            File pomFile = new File(projectUri + File.separator + Constants.POM_FILE);
-            if (!isPomFileExist(pomFile)) {
-                return null;
-            }
-            List<String> lines = Files.readAllLines(pomFile.toPath());
-            int index = request.range.getLeft().getStart().getLine();
-            List<String> newLines = new ArrayList<>(lines);
-            String[] newContentLines = request.value.split("\n");
+        int index;
+        if (request.range != null) {
+            index = request.range.getLeft().getStart().getLine();
+        } else {
+            index = 0;
+        }
+        List<String> lines = getPomXmlList(projectUri);
+        assert lines != null;
+        List<String> newLines = new ArrayList<>(lines);
+        String[] newContentLines = request.value.split("\n");
+        if (index > 0) {
             for (int i = newContentLines.length - 1; i >= 0; i--) {
                 newLines.add(index, newContentLines[i]);
             }
-            return String.join("\n", newLines);
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Error adding the dependency to the POM file: " + e.getMessage());
-            return null;
+        } else {
+            int projectEndIndex = -1;
+            for (int i = lines.size() - 1; i >= 0; i--) {
+                if (lines.get(i).contains("</project>")) {
+                    projectEndIndex = i;
+                    break;
+                }
+            }
+            String value = lines.get(projectEndIndex);
+            int startColumn = value.lastIndexOf("</");
+            String afterReplacement = value.substring(startColumn);
+            String beforeReplacement = value.substring(0, startColumn);
+            if (startColumn > 0 && !beforeReplacement.trim().isEmpty()) {
+                newLines.set(projectEndIndex, beforeReplacement);
+            }
+            for (int i = newContentLines.length - 1; i >= 0; i--) {
+                projectEndIndex++;
+                newLines.add(projectEndIndex, newContentLines[i]);
+            }
+            projectEndIndex++;
+            newLines.add(projectEndIndex, afterReplacement);
         }
+        return String.join("\n", newLines);
     }
 
     public static String updateValue(String projectUri, PomXmlEditRequest request) {
@@ -160,6 +180,19 @@ public class PomParser {
             lines.remove(lineNumber);
         } else {
             lines.set(lineNumber, value);
+        }
+    }
+
+    private static List<String> getPomXmlList(String projectUri) {
+        try {
+            File pomFile = new File(projectUri + File.separator + Constants.POM_FILE);
+            if (!isPomFileExist(pomFile)) {
+                return null;
+            }
+            return Files.readAllLines(pomFile.toPath());
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Error adding the dependency to the POM file: " + e.getMessage());
+            return null;
         }
     }
 }
