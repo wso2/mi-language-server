@@ -65,4 +65,8 @@ public class Constants {
     public static final String KEY_STORE_TYPE = "keystore.type";
     public static final String PROJECT_RUNTIME_VERSION = "project.runtime.version";
     public static final String DOCKER_MAVEN_PLUGIN = "docker-maven-plugin";
+    public static final String PROJECT_END_TAG= "</project>";
+    public static final String END_TAG= "</";
+    public static final String DEPENDENCIES_START_TAG= "<dependencies>";
+    public static final String DEPENDENCIES_END_TAG= "</dependencies>";
 }

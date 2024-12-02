@@ -34,7 +34,7 @@ import java.util.Map;
 public class PluginHandler extends DefaultHandler {
     private Locator locator;
     private final StringBuilder contentBuffer = new StringBuilder();
-    private boolean isDependency, isPlugin, isRepository, isPluginRepository, isProperties, isImages;
+    private boolean isDependency, isPlugin, isRepository, isPluginRepository, isProperties;
     private int valueStartLine, valueStartColumn, dependencyStartLine, dependencyStartColumn;
 
     private String pluginArtifactId, pluginVersion, dependencyType = "";
@@ -107,7 +107,6 @@ public class PluginHandler extends DefaultHandler {
         } else {
             processPrimaryDetails(qName, value, valueStartLine, valueStartColumn, valueEndLine,
                     valueEndColumn - closingTagLength);
-
         }
     }
 

@@ -70,12 +70,7 @@ public class PomParser {
     }
 
     public static String addDependency(String projectUri, PomXmlEditRequest request) {
-        int index;
-        if (request.range != null) {
-            index = request.range.getLeft().getStart().getLine();
-        } else {
-            index = 0;
-        }
+        int index = getIndex(request);
         List<String> lines = getPomXmlList(projectUri);
         assert lines != null;
         List<String> newLines = new ArrayList<>(lines);
@@ -85,26 +80,7 @@ public class PomParser {
                 newLines.add(index, newContentLines[i]);
             }
         } else {
-            int projectEndIndex = -1;
-            for (int i = lines.size() - 1; i >= 0; i--) {
-                if (lines.get(i).contains("</project>")) {
-                    projectEndIndex = i;
-                    break;
-                }
-            }
-            String value = lines.get(projectEndIndex);
-            int startColumn = value.lastIndexOf("</");
-            String afterReplacement = value.substring(startColumn);
-            String beforeReplacement = value.substring(0, startColumn);
-            if (startColumn > 0 && !beforeReplacement.trim().isEmpty()) {
-                newLines.set(projectEndIndex, beforeReplacement);
-            }
-            for (int i = newContentLines.length - 1; i >= 0; i--) {
-                projectEndIndex++;
-                newLines.add(projectEndIndex, newContentLines[i]);
-            }
-            projectEndIndex++;
-            newLines.add(projectEndIndex, afterReplacement);
+            adNewDependency(lines, newLines, newContentLines);
         }
         return String.join("\n", newLines);
     }
@@ -194,5 +170,40 @@ public class PomParser {
             LOGGER.log(Level.SEVERE, "Error adding the dependency to the POM file: " + e.getMessage());
             return null;
         }
+    }
+
+    private static int getIndex(PomXmlEditRequest request) {
+        if (request.range != null) {
+            return request.range.getLeft().getStart().getLine();
+        } else {
+            return 0;
+        }
+    }
+
+    private static void adNewDependency(List<String> pomContent, List<String> newPomContent,String[] dependency) {
+        int projectEndIndex = -1;
+        for (int i = pomContent.size() - 1; i >= 0; i--) {
+            if (pomContent.get(i).contains(Constants.PROJECT_END_TAG)) {
+                projectEndIndex = i;
+                break;
+            }
+        }
+        String value = pomContent.get(projectEndIndex);
+        int startColumn = value.lastIndexOf(Constants.END_TAG);
+        String afterReplacement = value.substring(startColumn);
+        String beforeReplacement = value.substring(0, startColumn);
+        if (startColumn > 0 && !beforeReplacement.trim().isEmpty()) {
+            newPomContent.set(projectEndIndex, beforeReplacement);
+        }
+        projectEndIndex++;
+        newPomContent.add(projectEndIndex, Constants.DEPENDENCIES_START_TAG);
+        for (int i = dependency.length - 1; i >= 0; i--) {
+            projectEndIndex++;
+            newPomContent.add(projectEndIndex, dependency[i]);
+        }
+        projectEndIndex++;
+        newPomContent.add(projectEndIndex, Constants.DEPENDENCIES_END_TAG);
+        projectEndIndex++;
+        newPomContent.add(projectEndIndex , afterReplacement);
     }
 }
