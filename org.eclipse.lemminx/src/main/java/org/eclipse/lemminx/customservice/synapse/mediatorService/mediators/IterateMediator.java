@@ -6,15 +6,17 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.It
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class IterateMediator {
 
-    public static List<String> iterateTagAttributes = List.of(
+    private static final List<String> iterateTagAttributes = List.of(
             "attachPath", "continueParent", "iterateExpression", "iterateID", "preservePayload",
             "sequentialMediation", "description"
     );
-    public static List<String> targetTagAttributes = List.of("sequenceKey");
+    private static final List<String> targetTagAttributes = List.of("sequenceKey");
 
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Iterate iterate,

@@ -1,10 +1,10 @@
 package org.eclipse.lemminx.customservice.synapse.mediatorService.mediators;
 
+import org.eclipse.lemminx.customservice.synapse.mediatorService.MediatorUtils;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Property;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.PropertyMediatorType;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Property;
-import org.eclipse.lemminx.customservice.synapse.mediatorService.MediatorUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;

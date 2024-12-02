@@ -124,7 +124,7 @@ public class DBLookupMediator {
             data.put("connectionDSName", pool.getDsName() != null ? pool.getDsName().getTextNode() : null);
             data.put("connectionDSInitialContext", pool.getIcClass() != null ? pool.getIcClass().getTextNode() : null);
 
-            if (data.get("connectionDBDriver") != null) {
+            if (data.get("connectionDBDriver") != null || data.get("registryBasedConnectionDBDriver") != null) {
                 data.put("connectionType", "DB_CONNECTION");
             } else {
                 data.put("connectionType", "DATA_SOURCE");
@@ -177,7 +177,7 @@ public class DBLookupMediator {
         }
     }
 
-    public static void getPropertiesFromPool(DbMediatorConnectionPoolProperty[] properties, Map<String, Object> data) {
+    private static void getPropertiesFromPool(DbMediatorConnectionPoolProperty[] properties, Map<String, Object> data) {
         Map<String, String> defaults = Map.of(
                 "propertyAutocommit", "DEFAULT",
                 "propertyIsolation", "DEFAULT",

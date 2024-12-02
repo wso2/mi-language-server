@@ -20,7 +20,7 @@
       "value": {
         "name": "xsltSchemaKey",
         "displayName": "XSLT Schema Key",
-        "inputType": "resource",
+        "inputType": "keyOrExpression",
         "defaultValue": "",
         "required": true,
         "helpTip": "",

@@ -11,13 +11,13 @@ import java.util.List;
 import java.util.Map;
 
 public class CacheMediator {
-    public static List<String> cacheTagAttributes = List.of("cacheMediatorImplementation", "cacheType", "cacheTimeout",
+    private static final List<String> cacheTagAttributes = List.of("cacheMediatorImplementation", "cacheType", "cacheTimeout",
             "maxMessageSize", "scope", "hashGeneratorAttribute", "description");
-    public static List<String> protocolTagAttributes = List.of("cacheMediatorImplementation", "cacheProtocolType",
+    private static final List<String> protocolTagAttributes = List.of("cacheMediatorImplementation", "cacheProtocolType",
             "cacheProtocolMethods", "headersToIncludeInHash", "headersToExcludeInHash", "responseCodes",
             "enableCacheControl", "includeAgeHeader", "hashGenerator");
-    public static List<String> onCacheHitTagAttributes = List.of("sequenceType", "sequenceKey");
-    public static List<String> implementationTagAttributes = List.of("maxEntryCount", "implementationType", "cacheType");
+    private static final List<String> onCacheHitTagAttributes = List.of("sequenceType", "sequenceKey");
+    private static final List<String> implementationTagAttributes = List.of("maxEntryCount", "implementationType", "cacheType");
 
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Cache cache,

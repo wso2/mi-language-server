@@ -1,7 +1,6 @@
 package org.eclipse.lemminx.customservice.synapse.mediatorService.mediators;
 
 import org.eclipse.lemminx.customservice.synapse.mediatorService.MediatorUtils;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Drop;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Store;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;

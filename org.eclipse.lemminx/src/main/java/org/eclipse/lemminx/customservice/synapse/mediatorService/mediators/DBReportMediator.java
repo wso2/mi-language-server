@@ -5,21 +5,22 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanc
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DBReportMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           DbMediator dbReport,
-                                                                                           List<String> dirtyFields) {
+                                                                                              DbMediator dbReport,
+                                                                                              List<String> dirtyFields) {
         boolean isDbConnection = "DB_CONNECTION".equals(data.get("connectionType"));
         boolean isCarbonDs = "CARBON".equals(data.get("connectionType"));
 
-        // Retrieve properties
         List<Map<String, Object>> properties = getProperties(data);
 
-        // Process SQL statements
         if (data.get("sqlStatements") instanceof List<?>) {
             List<Object> sqlStatements = (List<Object>) data.get("sqlStatements");
             List<Map<String, Object>> processedStatements = new ArrayList<>();
@@ -28,10 +29,8 @@ public class DBReportMediator {
                 if (statementObj instanceof List<?>) {
                     List<Object> statement = (List<Object>) statementObj;
 
-                    // Process query string
                     String queryString = statement.get(0) instanceof String ? (String) statement.get(0) : "";
 
-                    // Process parameters
                     List<Object> parametersList = statement.get(1) instanceof List<?> ? (List<Object>) statement.get(1) : new ArrayList<>();
                     List<Map<String, Object>> parameters = new ArrayList<>();
                     for (Object parameterObj : parametersList) {
@@ -47,7 +46,6 @@ public class DBReportMediator {
                         }
                     }
 
-                    // Process results
                     List<Object> resultsList = statement.get(2) instanceof List<?> ? (List<Object>) statement.get(2) : new ArrayList<>();
                     List<Map<String, Object>> results = new ArrayList<>();
                     for (Object resultObj : resultsList) {
@@ -60,7 +58,6 @@ public class DBReportMediator {
                         }
                     }
 
-                    // Add processed statement
                     Map<String, Object> processedStatement = new HashMap<>();
                     processedStatement.put("queryString", queryString);
                     processedStatement.put("parameters", parameters);
@@ -72,7 +69,6 @@ public class DBReportMediator {
             data.put("sqlStatements", processedStatements);
         }
 
-        // Add additional properties
         data.put("isDbConnection", isDbConnection);
         data.put("isCarbonDs", isCarbonDs);
         data.put("properties", properties);
@@ -129,7 +125,7 @@ public class DBReportMediator {
             data.put("connectionDSName", pool.getDsName() != null ? pool.getDsName().getTextNode() : null);
             data.put("connectionDSInitialContext", pool.getIcClass() != null ? pool.getIcClass().getTextNode() : null);
 
-            if (data.get("connectionDBDriver") != null) {
+            if (data.get("connectionDBDriver") != null || data.get("registryBasedConnectionDBDriver") != null) {
                 data.put("connectionType", "DB_CONNECTION");
             } else {
                 data.put("connectionType", "DATA_SOURCE");

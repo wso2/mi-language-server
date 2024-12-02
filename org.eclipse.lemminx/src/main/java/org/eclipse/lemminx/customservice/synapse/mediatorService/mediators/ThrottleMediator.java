@@ -13,29 +13,25 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ThrottleMediator {
 
-    public static final List<String> throttleTagAttributes = Arrays.asList(
+    private static final List<String> throttleTagAttributes = Arrays.asList(
             "groupId", "description", "onAcceptBranchsequenceKey", "onRejectBranchsequenceKey",
             "onAcceptBranchsequenceType", "onRejectBranchsequenceType");
 
-    public static final List<String> policyTagAttributes = Arrays.asList(
+    private static final List<String> policyTagAttributes = Arrays.asList(
             "policyType", "policyKey", "maximumConcurrentAccess", "policyEntries");
 
-    public static final List<String> onAcceptTagAttributes = Arrays.asList(
+    private static final List<String> onAcceptTagAttributes = Arrays.asList(
             "onAcceptBranchsequenceType", "onAcceptBranchsequenceKey");
 
-    public static final List<String> onRejectTagAttributes = Arrays.asList(
+    private static final List<String> onRejectTagAttributes = Arrays.asList(
             "onRejectBranchsequenceType", "onRejectBranchsequenceKey");
 
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
+    private static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Throttle throttle,
                                                                                            List<String> dirtyFields) {
 
@@ -262,7 +258,7 @@ public class ThrottleMediator {
                 case "wsp:Policy":
                     if (entryObj.has("policyOrAllOrExactlyOne")) {
                         JsonArray innerPolicies = entryObj.getAsJsonArray("policyOrAllOrExactlyOne");
-                        if (innerPolicies.size() > 0) {
+                        if (!innerPolicies.isEmpty()) {
                             String accessType =
                                     innerPolicies.get(0).getAsJsonObject().get("tag").getAsString().split(":")[1];
                             policy.put("accessType", accessType);

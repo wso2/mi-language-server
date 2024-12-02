@@ -6,7 +6,9 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class FilterMediator {
 

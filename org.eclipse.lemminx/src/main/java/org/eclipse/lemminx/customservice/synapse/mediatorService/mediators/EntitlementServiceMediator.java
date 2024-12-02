@@ -12,13 +12,13 @@ import java.util.List;
 import java.util.Map;
 
 public class EntitlementServiceMediator {
-    public static List<String> entitlementTagAttributes = List.of("callbackClassName", "client", "password", "entitlementServerURL", "username", "thriftHost", "thriftPort",
+    private static final List<String> entitlementTagAttributes = List.of("callbackClassName", "client", "password", "entitlementServerURL", "username", "thriftHost", "thriftPort",
             "onAcceptSequenceKey", "onRejectSequenceKey", "obligationsSequenceKey", "adviceSequenceKey", "onAcceptSequenceType", "onRejectSequenceType",
             "obligationsSequenceType", "adviceSequenceType", "description", "callbackHandler", "entitlementClientType");
-    public static List<String> onAcceptTagAttributes = List.of("onAcceptSequenceType");
-    public static List<String> onRejectTagAttributes = List.of("onRejectSequenceType");
-    public static List<String> adviceTagAttributes = List.of("adviceSequenceType");
-    public static List<String> obligationTagAttributes = List.of("obligationsSequenceType");
+    private static final List<String> onAcceptTagAttributes = List.of("onAcceptSequenceType");
+    private static final List<String> onRejectTagAttributes = List.of("onRejectSequenceType");
+    private static final List<String> adviceTagAttributes = List.of("adviceSequenceType");
+    private static final List<String> obligationTagAttributes = List.of("obligationsSequenceType");
 
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            EntitlementService entitlementService,

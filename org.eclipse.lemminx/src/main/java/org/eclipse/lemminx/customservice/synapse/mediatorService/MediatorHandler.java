@@ -28,6 +28,7 @@ import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.SynapseCon
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.MediatorFactoryFinder;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.InvalidMediator;
+import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
@@ -74,7 +75,7 @@ public class MediatorHandler {
             if (lastMediators.contains(currentNode.getNodeName())) {
                 return new JsonObject();
             } else {
-                if ((nextMediator != null && !("faultSequence".equals(((DOMElement) nextMediator).getTagName()))
+                if ((!(nextMediator instanceof  DOMElement && Constant.FAULT_SEQUENCE.equalsIgnoreCase(((DOMElement) nextMediator).getTagName()))
                         || isIterateMediator(currentNode, iterateMediators))) {
                     return removeMediators(mediatorList, lastMediators);
                 }
@@ -175,11 +176,7 @@ public class MediatorHandler {
         position = new Position(position.getLine(), position.getCharacter() + (isUpdate ? 1 : 0));
         int offset = document.offsetAt(position);
         DOMNode node = document.findNodeAt(offset);
-        if (node == null) {
-            return null;
-        }
-
-        if (node instanceof DOMElement && ((DOMElement) node).getEndTagOpenOffset() == offset) {
+        if (node == null || (node instanceof DOMElement && ((DOMElement) node).getEndTagOpenOffset() == offset)) {
             return null;
         }
 
@@ -209,21 +206,17 @@ public class MediatorHandler {
     }
 
     private boolean isIterateMediator(DOMNode currentNode, List<String> iterateMediators) {
-        DOMNode parentNode = currentNode.getParentNode();
-        if (parentNode == null) {
-            return false;
-        }
-        DOMNode grandParentNode = parentNode.getParentNode();
-        if (iterateMediators.contains(parentNode.getNodeName()) ||
-                (grandParentNode != null && iterateMediators.contains(grandParentNode.getNodeName()))) {
-            return true;
-        }
-        if (currentNode.getNodeName().equals("#text") && grandParentNode != null) {
-            if (iterateMediators.contains(grandParentNode.getNodeName())) {
-                return true;
+        if (currentNode != null && iterateMediators != null) {
+            DOMNode node = currentNode.getNodeName().equals("#text") ? currentNode.getParentNode() : currentNode;
+            if (node != null) {
+                DOMNode parentNode = node.getParentNode();
+                if (parentNode != null && iterateMediators.contains(parentNode.getNodeName())) {
+                    return true;
+                } else {
+                    DOMNode grandParentNode = parentNode != null ? parentNode.getParentNode() : null;
+                    return grandParentNode != null && iterateMediators.contains(grandParentNode.getNodeName());
+                }
             }
-            DOMNode grandGrandParentNode = grandParentNode.getParentNode();
-            return iterateMediators.contains(grandGrandParentNode.getNodeName());
         }
         return false;
     }

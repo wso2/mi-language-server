@@ -11,13 +11,16 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class AggregateMediator {
-    public static final List<String> aggregateTagAttributes = List.of("aggregateID", "description");
-    public static final List<String> correlateOnAttributes = List.of("correlationExpression");
-    public static final List<String> completeConditionAttributes = List.of("completionTimeout", "completionMaxMessages", "completionMinMessages");
-    public static final List<String> onCompleteAttributes = List.of("aggregateElementType", "enclosingElementProperty", "aggregationExpression", "sequenceKey", "sequenceType");
+    private static final List<String> aggregateTagAttributes = List.of("aggregateID", "description");
+    private static final List<String> correlateOnAttributes = List.of("correlationExpression");
+    private static final List<String> completeConditionAttributes = List.of("completionTimeout", "completionMaxMessages", "completionMinMessages");
+    private static final List<String> onCompleteAttributes = List.of("aggregateElementType", "enclosingElementProperty", "aggregationExpression", "sequenceKey", "sequenceType");
 
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Aggregate aggregate,
@@ -25,7 +28,7 @@ public class AggregateMediator {
 
         data.replaceAll((key, value) -> {
             if (value instanceof Double) {
-                return String.valueOf(((Double) value));
+                return String.valueOf((value));
             }
             return value;
         }); // remove decimal points
@@ -45,8 +48,10 @@ public class AggregateMediator {
         }
 
         List<Object> messageCountNamespaces = new ArrayList<>();
-        Map<String, Object> completionMaxMessages = (Map<String, Object>) data.get("completionMaxMessages");
-        Map<String, Object> completionMinMessages = (Map<String, Object>) data.get("completionMinMessages");
+        Map<String, Object> completionMaxMessages = data.get("completionMaxMessages") instanceof Map<?,?> ?
+                (Map<String, Object>) data.get("completionMaxMessages") : null;
+        Map<String, Object> completionMinMessages = data.get("completionMinMessages") instanceof Map<?,?> ?
+                (Map<String, Object>) data.get("completionMinMessages") : null;
 
         if (completionMaxMessages != null && completionMaxMessages.get("namespaces") instanceof List<?>) {
             messageCountNamespaces.addAll((List<?>) completionMaxMessages.get("namespaces"));
@@ -68,7 +73,8 @@ public class AggregateMediator {
             data.remove("enclosingElementProperty");
         }
 
-        Map<String, Object> correlationExpression = (Map<String, Object>) data.get("correlationExpression");
+        Map<String, Object> correlationExpression = data.get("correlationExpression") instanceof  Map<?,?> ?
+                (Map<String, Object>) data.get("correlationExpression") : null;
         if (correlationExpression == null || correlationExpression.get("value") == null || "".equals(correlationExpression.get("value"))) {
             data.remove("correlationExpression");
         }

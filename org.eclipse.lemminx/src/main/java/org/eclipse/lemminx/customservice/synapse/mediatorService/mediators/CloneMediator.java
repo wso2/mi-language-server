@@ -10,7 +10,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import java.util.*;
 
 public class CloneMediator {
-    public static List<String> cloneAttributes = List.of("cloneId", "sequentialMediation", "continueParent", "description");
+    private static final List<String> cloneAttributes = List.of("cloneId", "sequentialMediation", "continueParent", "description");
 
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Clone clone,
