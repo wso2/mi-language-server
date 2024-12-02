@@ -436,6 +436,10 @@ public class DirectoryTreeBuilder {
             if (Utils.isRegistryPropertiesFile(file)) {
                 continue;
             }
+            if (file.getAbsolutePath().endsWith(Path.of(Constant.RESOURCES, Constant.ARTIFACT_XML).toString()) ||
+                    file.getAbsolutePath().endsWith(Path.of(Constant.RESOURCES, Constant.REGISTRY, Constant.ARTIFACT_XML).toString())) {
+                continue;
+            }
             if (file.isFile() && !file.isHidden()) {
                 String name = file.getName();
                 String filePath = file.getAbsolutePath();

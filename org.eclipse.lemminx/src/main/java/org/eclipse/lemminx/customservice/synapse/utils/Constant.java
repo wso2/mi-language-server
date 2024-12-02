@@ -465,6 +465,7 @@ public class Constant {
     public static final String CONNECTOR_RESOURCES = "connector-resources";
     public static final String FILE_NAME = "file-name";
     public static final String ARTIFACT = "artifact";
+    public static final String ARTIFACT_XML = "artifact.xml";
     public static final String REGISTRY_PATH = "registry-path";
     public static final String MOCK_SERVICE_NAME = "service-name";
     public static final String RESOURCES = "resources";
