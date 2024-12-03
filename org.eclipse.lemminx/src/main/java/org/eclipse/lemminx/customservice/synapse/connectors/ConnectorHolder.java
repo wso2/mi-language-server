@@ -38,7 +38,7 @@ public class ConnectorHolder {
         connectors.add(connector);
     }
 
-    private Boolean isAlreadyExist(Connector connector) {
+    private Boolean exists(Connector connector) {
 
         for (Connector con : connectors) {
             if (con.getName().equals(connector.getName())) {
@@ -48,7 +48,7 @@ public class ConnectorHolder {
         return false;
     }
 
-    public boolean isAlreadyExist(String connectorName) {
+    public boolean exists(String connectorName) {
 
         for (Connector connector : connectors) {
             if (connector.getName().equalsIgnoreCase(connectorName)) {

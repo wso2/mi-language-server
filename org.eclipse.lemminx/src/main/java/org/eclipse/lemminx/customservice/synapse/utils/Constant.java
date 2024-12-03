@@ -158,7 +158,7 @@ public class Constant {
     public static final String OUT_PROPERTY = "outProperty";
     public static final String REWRITE_RULE = "rewriterule";
     public static final String FRAGMENT = "fragment";
-    public static final String CONFIG_KEY = "config-key";
+    public static final String CONFIG_HYPHEN_KEY = "config-key";
     public static final String INPUT = "input";
     public static final String OUTPUT = "output";
     public static final String VARIABLE = "variable";
@@ -499,4 +499,15 @@ public class Constant {
     public static final String CATALOGS = "catalogs";
     public static final String SETTINGS = "settings";
     public static final String JAR = "jar";
+    public static final String TAG = "tag";
+    public static final String TITLE = "title";
+    public static final String OPERATION_NAME = "operationName";
+    public static final String TOOLTIP = "tooltip";
+    public static final String CONFIG_REF = "configRef";
+    public static final String CONFIG_KEY = "configKey";
+    public static final String MEDIATOR_CLASS = "mediatorClass";
+    public static final String PROCESSING_CLASS = "processingClass";
+    public static final String STORE_METHOD = "storeMethod";
+    public static final String RETRIEVE_METHOD = "retrieveMethod";
+    public static final String ICON_PATH = "iconPath";
 }

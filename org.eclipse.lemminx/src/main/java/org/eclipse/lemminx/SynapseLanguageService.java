@@ -112,9 +112,9 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     private boolean isLegacyProject;
     private String projectServerVersion;
     private MediatorHandler mediatorHandler;
-    private ConnectorHolder connectorHolder;
+    private final ConnectorHolder connectorHolder;
     private AbstractResourceFinder resourceFinder;
-    private InboundConnectorHolder inboundConnectorHolder;
+    private final InboundConnectorHolder inboundConnectorHolder;
     private Path synapseXSDPath;
 
     public SynapseLanguageService(XMLTextDocumentService xmlTextDocumentService, XMLLanguageServer xmlLanguageServer) {
@@ -136,8 +136,8 @@ public class SynapseLanguageService implements ISynapseLanguageService {
             this.projectUri = projectUri;
             this.isLegacyProject = Utils.isLegacyProject(projectUri);
             this.projectServerVersion = Utils.getServerVersion(projectUri, Constant.DEFAULT_MI_VERSION);
-            mediatorHandler.init(projectServerVersion);
             initializeConnectorLoader();
+            mediatorHandler.init(projectServerVersion, connectorHolder);
             MediatorFactoryFinder.getInstance().setConnectorHolder(connectorHolder);
             try {
                 DynamicClassLoader.updateClassLoader(Path.of(projectUri, "deployment", "libs").toFile());
@@ -242,7 +242,9 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     public void updateConnectors() {
 
         connectorLoader.loadConnector();
-
+        if (mediatorHandler.isInitialized()) {
+            mediatorHandler.reloadMediatorList(projectServerVersion);
+        }
         //Generate xsd schema for the available connectors and write it to the schema file.
         String connectorPath = synapseXSDPath.resolve("mediators").resolve("connectors.xsd").toString();
         SchemaGenerate.generate(connectorHolder, connectorPath);
