@@ -28,7 +28,9 @@ public class HelperPanelData {
 
     private List<CompletionItem> payload;
     private List<CompletionItem> variables;
-    private List<CompletionItem> attributes;
+    private List<CompletionItem> properties;
+    private List<CompletionItem> params;
+    private List<CompletionItem> headers;
     private Map<String, List<CompletionItem>> functions;
 
     public List<CompletionItem> getPayload() {
@@ -51,14 +53,34 @@ public class HelperPanelData {
         this.variables = variables;
     }
 
-    public List<CompletionItem> getAttributes() {
+    public List<CompletionItem> getProperties() {
 
-        return Collections.unmodifiableList(attributes);
+        return Collections.unmodifiableList(properties);
     }
 
-    public void setAttributes(List<CompletionItem> attributes) {
+    public void setProperties(List<CompletionItem> properties) {
 
-        this.attributes = attributes;
+        this.properties = properties;
+    }
+
+    public List<CompletionItem> getParams() {
+
+        return params;
+    }
+
+    public void setParams(List<CompletionItem> params) {
+
+        this.params = params;
+    }
+
+    public List<CompletionItem> getHeaders() {
+
+        return headers;
+    }
+
+    public void setHeaders(List<CompletionItem> headers) {
+
+        this.headers = headers;
     }
 
     public Map<String, List<CompletionItem>> getFunctions() {
@@ -74,10 +96,12 @@ public class HelperPanelData {
     @Override
     public String toString() {
 
-        return "ExpressionHelperData{" +
+        return "HelperPanelData{" +
                 "payload=" + payload +
                 ", variables=" + variables +
-                ", attributes=" + attributes +
+                ", properties=" + properties +
+                ", params=" + params +
+                ", headers=" + headers +
                 ", functions=" + functions +
                 '}';
     }

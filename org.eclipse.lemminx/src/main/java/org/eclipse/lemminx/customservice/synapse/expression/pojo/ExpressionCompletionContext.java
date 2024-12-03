@@ -44,6 +44,7 @@ public class ExpressionCompletionContext {
 
         this.parent = parent;
         this.type = type;
+        segment = new ArrayList<>();
     }
 
     public ExpressionCompletionContext() {

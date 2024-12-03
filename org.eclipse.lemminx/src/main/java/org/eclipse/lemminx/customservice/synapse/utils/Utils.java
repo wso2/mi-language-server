@@ -504,7 +504,7 @@ public class Utils {
     }
 
     /**
-     * Get the JSON object from the given content
+     * Get the JSON array from the given content
      *
      * @param content the content
      * @return the JSON object from the given content
@@ -868,11 +868,10 @@ public class Utils {
         }
     }
 
-    public static boolean isJSON(String payload) {
+    public static boolean isJSONObject(String content) {
 
         try {
-            JsonParser.parseString(payload);
-            return Boolean.TRUE;
+            return JsonParser.parseString(content).isJsonObject();
         } catch (Exception e) {
             return Boolean.FALSE;
         }

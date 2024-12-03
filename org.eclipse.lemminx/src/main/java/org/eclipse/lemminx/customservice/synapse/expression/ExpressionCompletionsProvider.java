@@ -31,6 +31,7 @@ import org.eclipse.lemminx.customservice.synapse.mediator.schema.generate.Server
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorInfo;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutRequest;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Params;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Properties;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.MediatorFactoryFinder;
@@ -59,7 +60,8 @@ public class ExpressionCompletionsProvider {
 
     private static final Logger LOGGER = Logger.getLogger(ExpressionCompletionsProvider.class.getName());
     private static final String EXPRESSION_PREFIX = "${";
-    private static final List<String> startingTokens = List.of("var", "attributes", "headers", "payload");
+    private static final List<String> startingTokens =
+            List.of("var", "properties", "props", "params", "headers", "payload");
     private static final String PROJECT_PATH_REGEX =
             Pattern.quote("file:" + File.separator + File.separator) + "(.+?)" +
                     Pattern.quote(Path.of("src", "main", "wso2mi").toString()) + ".*";
@@ -272,11 +274,15 @@ public class ExpressionCompletionsProvider {
             case ExpressionConstants.VAR:
                 handleVariableCompletions(request, response, mediatorInfo, expressionSegments, context);
                 break;
-            case ExpressionConstants.ATTRIBUTES:
+            case ExpressionConstants.PROPS:
+            case ExpressionConstants.PROPERTIES:
                 handleAttributeCompletions(request, response, mediatorInfo, expressionSegments, context);
                 break;
             case ExpressionConstants.HEADERS:
                 handleHeaderCompletions(request, response, mediatorInfo, expressionSegments, context);
+                break;
+            case ExpressionConstants.PARAMS:
+                handleParamsCompletions(request, response, mediatorInfo, context);
                 break;
             case ExpressionConstants.PAYLOAD:
                 handlePayloadCompletions(request, response, mediatorInfo, context);
@@ -306,14 +312,13 @@ public class ExpressionCompletionsProvider {
             List<String> expressionSegments,
             ExpressionCompletionContext context) {
 
-        Properties attributes = mediatorInfo.getAttributes();
+        Properties mediatorInfoProperties = mediatorInfo.getProperties();
         if (expressionSegments.size() == 2 && !context.isNeedNext()) {
             ExpressionCompletionUtils.addAttributeSecondLevelCompletions(request, response, expressionSegments.get(1));
             return;
         }
         if (expressionSegments.size() > 1) {
-            List<Property> properties = getAttributeProperties(attributes, expressionSegments.get(1));
-            if (properties == null) return;
+            List<Property> properties = getAttributeProperties(mediatorInfoProperties, expressionSegments.get(1));
             expressionSegments = expressionSegments.subList(2, expressionSegments.size());
             List<String> itemValues = findItemValues(expressionSegments, properties, context.isNeedNext());
             addCompletionItems(request, response, itemValues);
@@ -353,6 +358,36 @@ public class ExpressionCompletionsProvider {
         addCompletionItems(request, response, itemValues);
     }
 
+    private static void handleParamsCompletions(ICompletionRequest request, ICompletionResponse response,
+                                                MediatorInfo mediatorInfo, ExpressionCompletionContext context) {
+
+        List<String> expressionSegments = context.getSegment();
+        Params mediatorInfoParams = mediatorInfo.getParams();
+        if (expressionSegments.size() == 1 || (expressionSegments.size() == 2 && !context.isNeedNext())) {
+            ExpressionCompletionUtils.addParamsSecondLevelCompletions(request, response,
+                    expressionSegments.size() == 1 ? StringUtils.EMPTY : expressionSegments.get(1));
+        } else if (expressionSegments.size() > 1) {
+            List<Property> params = getParams(mediatorInfoParams, expressionSegments.get(1));
+            List<String> itemValues = findItemValues(expressionSegments.subList(2, expressionSegments.size()), params,
+                    context.isNeedNext());
+            addCompletionItems(request, response, itemValues);
+        }
+    }
+
+    private static List<Property> getParams(Params params, String type) {
+
+        switch (type) {
+            case ExpressionConstants.QUERY_PARAMS:
+                return params.getQueryParams();
+            case ExpressionConstants.URI_PARAMS:
+                return params.getUriParams();
+            case ExpressionConstants.FUNCTION_PARAMS:
+                return params.getFunctionParams();
+            default:
+                return Collections.emptyList();
+        }
+    }
+
     private static void handlePayloadCompletions(
             ICompletionRequest request,
             ICompletionResponse response,
@@ -360,7 +395,7 @@ public class ExpressionCompletionsProvider {
             ExpressionCompletionContext context) {
 
         JsonPrimitive payload = mediatorInfo.getPayload();
-        if (payload != null && Utils.isJSON(payload.getAsString())) {
+        if (payload != null && Utils.isJSONObject(payload.getAsString())) {
             JsonObject payloadJsonObject = Utils.getJsonObject(payload.getAsString());
             if (context.getSegment().size() == 1) {
                 if (context.isNeedNext()) {
@@ -415,7 +450,7 @@ public class ExpressionCompletionsProvider {
 
     private static List<String> traverseJsonObject(List<String> expressionSegments, String value, boolean needNext) {
 
-        if (!StringUtils.isEmpty(value) && Utils.isJSON(value)) {
+        if (!StringUtils.isEmpty(value) && Utils.isJSONObject(value)) {
             JsonObject jsonObject = Utils.getJsonObject(value);
             return traverseJsonObject(expressionSegments, jsonObject, needNext);
         }

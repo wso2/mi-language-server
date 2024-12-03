@@ -30,7 +30,9 @@ public class ExpressionConstants {
     public static final String CATEGORY = "category";
     public static final String SIGNATURE = "signature";
     public static final String VAR = "var";
-    public static final String ATTRIBUTES = "attributes";
+    public static final String PROPERTIES = "properties";
+    public static final String PROPS = "props";
+    public static final String PARAMS = "params";
     public static final String AXIS2 = "axis2";
     public static final String AXIS2_CLIENT = "axis2Client";
     public static final String AXIS2_TRANSPORT = "axis2Transport";
@@ -40,6 +42,10 @@ public class ExpressionConstants {
     public static final String PAYLOAD = "payload";
     public static final List<String> ATTRIBUTES_SECOND_LEVEL =
             List.of(SYNAPSE, AXIS2, AXIS2_CLIENT, AXIS2_TRANSPORT, AXIS2_OPERATION);
+    public static final String QUERY_PARAMS = "queryParams";
+    public static final String URI_PARAMS = "uriParams";
+    public static final String FUNCTION_PARAMS = "functionParams";
+    public static final List<String> PARAMS_SECOND_LEVEL = List.of(QUERY_PARAMS, URI_PARAMS, FUNCTION_PARAMS);
 
     private ExpressionConstants() {
 

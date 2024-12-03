@@ -28,6 +28,7 @@ import org.eclipse.lemminx.customservice.synapse.mediator.schema.generate.Server
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorInfo;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutRequest;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Params;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Properties;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
@@ -40,13 +41,18 @@ import java.util.Map;
 
 public class ExpressionHelperProvider {
 
-    private static final Map<Properties.Type, String> ATTRIBUTE_SECOND_LEVEL = Map.of(
+    private static final Map<Properties.Type, String> PROPERTIES_SECOND_LEVEL = Map.of(
             Properties.Type.SYNAPSE, "attributes.synapse",
             Properties.Type.AXIS2, "attributes.axis2",
             Properties.Type.AXIS2_CLIENT, "attributes.axis2Client",
             Properties.Type.AXIS2_TRANSPORT, "attributes.axis2Transport",
             Properties.Type.AXIS2_OPERATION, "attributes.axis2Operation"
-                                                                                     );
+                                                                                      );
+    private static final Map<Params.Type, String> PARAMS_SECOND_LEVEL = Map.of(
+            Params.Type.QUERY, "params.queryParams",
+            Params.Type.URI, "params.uriParams",
+            Params.Type.FUNC, "params.functionParams"
+                                                                              );
     private final ServerLessTryoutHandler tryoutHandler;
 
     public ExpressionHelperProvider(String projectPath) {
@@ -70,7 +76,9 @@ public class ExpressionHelperProvider {
         setFunctions(helperData, functions);
         helperData.setVariables(createDataList(propsData.getVariables(), ExpressionConstants.VAR));
         helperData.setPayload(createDataList(propsData.getPayload()));
-        helperData.setAttributes(createDataList(propsData.getAttributes()));
+        helperData.setProperties(createDataList(propsData.getProperties()));
+        helperData.setParams(createDataList(propsData.getParams()));
+        helperData.setHeaders(createDataList(propsData.getHeaders(), ExpressionConstants.HEADERS));
         return helperData;
     }
 
@@ -94,7 +102,7 @@ public class ExpressionHelperProvider {
 
         List<CompletionItem> dataList = new ArrayList<>();
 
-        for (Map.Entry<Properties.Type, String> entry : ATTRIBUTE_SECOND_LEVEL.entrySet()) {
+        for (Map.Entry<Properties.Type, String> entry : PROPERTIES_SECOND_LEVEL.entrySet()) {
             String label = Utils.toCamelCase(entry.getKey().toString());
             HelperPanelItem item = new HelperPanelItem(label, entry.getValue());
             item.addChildren(createDataList(attributes.getPropertiesByType(entry.getKey()), entry.getValue()));
@@ -103,10 +111,22 @@ public class ExpressionHelperProvider {
         return dataList;
     }
 
+    private List<CompletionItem> createDataList(Params params) {
+
+        List<CompletionItem> dataList = new ArrayList<>();
+        for (Map.Entry<Params.Type, String> entry : PARAMS_SECOND_LEVEL.entrySet()) {
+            String label = Utils.toCamelCase(entry.getKey().toString());
+            HelperPanelItem item = new HelperPanelItem(label, entry.getValue());
+            item.addChildren(createDataList(params.getPropertiesByType(entry.getKey()), entry.getValue()));
+            dataList.add(item);
+        }
+        return dataList;
+    }
+
     private List<CompletionItem> createDataList(JsonPrimitive payload) {
 
         List<CompletionItem> dataList = new ArrayList<>();
-        if (payload != null && Utils.isJSON(payload.toString())) {
+        if (payload != null && Utils.isJSONObject(payload.toString())) {
             JsonObject jsonObject = Utils.getJsonObject(payload.getAsString());
             if (jsonObject != null) {
                 CompletionItem item = new HelperPanelItem(ExpressionConstants.PAYLOAD, ExpressionConstants.PAYLOAD);
@@ -124,7 +144,7 @@ public class ExpressionHelperProvider {
             String expression = expressionPrefix + "." + variable.getKey();
             HelperPanelItem item = new HelperPanelItem(variable.getKey(), expression);
             String value = variable.getValue();
-            if (value != null && Utils.isJSON(value)) {
+            if (value != null && Utils.isJSONObject(value)) {
                 item.addChildren(addJsonChildren(Utils.getJsonObject(value), expression));
             }
             dataList.add(item);

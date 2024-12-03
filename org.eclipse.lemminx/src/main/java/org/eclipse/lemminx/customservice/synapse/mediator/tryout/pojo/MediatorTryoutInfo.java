@@ -51,12 +51,12 @@ public class MediatorTryoutInfo {
 
     public MediatorInfo getInput() {
 
-        return input.clone();
+        return input.deepCopy();
     }
 
     public MediatorInfo getOutput() {
 
-        return output.clone();
+        return output.deepCopy();
     }
 
     public String getError() {
@@ -126,7 +126,7 @@ public class MediatorTryoutInfo {
 
     public void replaceInputWithOutput() {
 
-        input = output.clone();
+        input = output.deepCopy();
     }
 
     @Override

@@ -418,7 +418,7 @@ public class TryOutHandler {
     private MediatorInfo createMediatorInfo(List<String> properties) {
 
         List<JsonObject> parsedProperties = parseProperties(properties);
-
+        // TODO: Update it according to the new mediator info model
         MediatorInfo mediatorInfo = new MediatorInfo();
         for (JsonObject property : parsedProperties) {
             if (property.has(TryOutConstants.SYNAPSE_PROPERTIES)) {

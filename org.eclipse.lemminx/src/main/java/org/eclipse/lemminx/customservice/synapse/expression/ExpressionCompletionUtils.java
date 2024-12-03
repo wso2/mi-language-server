@@ -127,14 +127,16 @@ public class ExpressionCompletionUtils {
 
     private static void addRootLevelObjectCompletions(List<CompletionItem> items) {
 
-        items.add(createCompletionItem("var", "var", "Access defined variables", CompletionItemKind.Keyword, 0, false));
-        items.add(createCompletionItem("attributes", "attributes", "Access defined attributes",
-                CompletionItemKind.Keyword, 0,
-                false));
-        items.add(createCompletionItem("headers", "headers", "Access defined headers", CompletionItemKind.Keyword, 0,
-                false));
-        items.add(createCompletionItem("payload", "payload", "Access defined payload", CompletionItemKind.Keyword, 0,
-                false));
+        items.add(createCompletionItem("var", "var", "Access defined variables",
+                CompletionItemKind.Keyword, 0, false));
+        items.add(createCompletionItem("props", "props", "Access mediation attributes",
+                CompletionItemKind.Keyword, 0, false));
+        items.add(createCompletionItem("params", "params", "Access params",
+                CompletionItemKind.Keyword, 0, false));
+        items.add(createCompletionItem("headers", "headers", "Access defined headers",
+                CompletionItemKind.Keyword, 0, false));
+        items.add(createCompletionItem("payload", "payload", "Access defined payload",
+                CompletionItemKind.Keyword, 0, false));
     }
 
     private static void addFunctionCompletions(List<CompletionItem> items) {
@@ -152,11 +154,16 @@ public class ExpressionCompletionUtils {
      */
     public static void addOperatorCompletions(ICompletionRequest request, ICompletionResponse response) {
 
-        addCompletionItem(request, response, "+", "Addition", CompletionItemKind.Operator, 0, false);
-        addCompletionItem(request, response, "-", "Subtraction", CompletionItemKind.Operator, 0, false);
-        addCompletionItem(request, response, "*", "Multiplication", CompletionItemKind.Operator, 0, false);
-        addCompletionItem(request, response, "/", "Division", CompletionItemKind.Operator, 0, false);
-        addCompletionItem(request, response, "? ${1} : ${2}", "Ternary operator", CompletionItemKind.Operator, 0, true);
+        addCompletionItem(request, response, "+", "Addition", CompletionItemKind.Operator,
+                0, false);
+        addCompletionItem(request, response, "-", "Subtraction", CompletionItemKind.Operator,
+                0, false);
+        addCompletionItem(request, response, "*", "Multiplication", CompletionItemKind.Operator,
+                0, false);
+        addCompletionItem(request, response, "/", "Division", CompletionItemKind.Operator,
+                0, false);
+        addCompletionItem(request, response, "? ${1} : ${2}", "Ternary operator",
+                CompletionItemKind.Operator, 0, true);
     }
 
     /**
@@ -315,7 +322,26 @@ public class ExpressionCompletionUtils {
 
         ExpressionConstants.ATTRIBUTES_SECOND_LEVEL.forEach(value -> {
             if (value.startsWith(filterText)) {
-                addCompletionItem(request, response, value, value, "Attribute", CompletionItemKind.Keyword, 0, false);
+                addCompletionItem(request, response, value, value, "Attribute", CompletionItemKind.Keyword,
+                        0, false);
+            }
+        });
+    }
+
+    /**
+     * Add params second level completions.
+     *
+     * @param request    completion request
+     * @param response   completion response
+     * @param filterText filter text
+     */
+    public static void addParamsSecondLevelCompletions(ICompletionRequest request, ICompletionResponse response,
+                                                       String filterText) {
+
+        ExpressionConstants.PARAMS_SECOND_LEVEL.forEach(value -> {
+            if (value.startsWith(filterText)) {
+                addCompletionItem(request, response, value, value, "Params", CompletionItemKind.Keyword,
+                        0, false);
             }
         });
     }

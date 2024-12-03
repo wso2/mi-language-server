@@ -29,67 +29,70 @@ public class MediatorInfo {
     private JsonPrimitive payload;
     private List<Property> variables;
     private List<Property> headers;
-    private Properties attributes;
+    private Properties properties;
+    private Params params;
 
     public MediatorInfo() {
 
         payload = new JsonPrimitive(StringUtils.EMPTY);
         variables = new ArrayList<>();
         headers = new ArrayList<>();
-        attributes = new Properties();
+        properties = new Properties();
+        params = new Params();
     }
 
     public void addSynapseProperties(List<Property> properties) {
 
-        variables.addAll(properties); // TODO: need to remove this
-        attributes.addSynapseProperties(properties);
+        variables.addAll(properties); // TODO: need to remove this once variables added to debugger
+        this.properties.addSynapseProperties(properties);
     }
 
     public void addAxis2Properties(List<Property> properties) {
 
-        attributes.addAxis2Properties(properties);
+        this.properties.addAxis2Properties(properties);
     }
 
     public void addAxis2ClientProperties(List<Property> properties) {
 
-        attributes.addAxis2ClientProperties(properties);
+        this.properties.addAxis2ClientProperties(properties);
     }
 
     public void addAxis2TransportProperties(List<Property> properties) {
 
-        attributes.addAxis2TransportProperties(properties);
+        this.properties.addAxis2TransportProperties(properties);
         headers.addAll(properties);
     }
 
     public void addAxis2OperationProperties(List<Property> properties) {
 
-        attributes.addAxis2OperationProperties(properties);
+        this.properties.addAxis2OperationProperties(properties);
     }
 
     public void addSynapseProperty(Property property) {
 
         variables.add(property);
+        properties.addSynapseProperty(property);
     }
 
     public void addAxis2Property(Property property) {
 
-        attributes.addSynapseProperty(property);
+        properties.addSynapseProperty(property);
     }
 
     public void addAxis2ClientProperty(Property property) {
 
-        attributes.addAxis2ClientProperty(property);
+        properties.addAxis2ClientProperty(property);
     }
 
     public void addAxis2TransportProperty(Property property) {
 
-        attributes.addAxis2TransportProperty(property);
+        properties.addAxis2TransportProperty(property);
         headers.add(property);
     }
 
     public void addAxis2OperationProperty(Property property) {
 
-        attributes.addAxis2OperationProperty(property);
+        properties.addAxis2OperationProperty(property);
     }
 
     public void addVariable(String key, String value) {
@@ -100,6 +103,21 @@ public class MediatorInfo {
     public void addHeader(String key, String value) {
 
         headers.add(new Property(key, value));
+    }
+
+    public void addQueryParam(String key, String value) {
+
+        params.addQueryParam(new Property(key, value));
+    }
+
+    public void addUriParam(String key, String value) {
+
+        params.addUriParam(new Property(key, value));
+    }
+
+    public void addFunctionParam(String key, String value) {
+
+        params.addFunctionParam(new Property(key, value));
     }
 
     public void setPayload(JsonPrimitive payload) {
@@ -114,27 +132,27 @@ public class MediatorInfo {
 
     public List<Property> getSynapse() {
 
-        return attributes.getSynapse();
+        return properties.getSynapse();
     }
 
     public List<Property> getAxis2() {
 
-        return attributes.getAxis2();
+        return properties.getAxis2();
     }
 
     public List<Property> getAxis2Client() {
 
-        return attributes.getAxis2Client();
+        return properties.getAxis2Client();
     }
 
     public List<Property> getAxis2Transport() {
 
-        return attributes.getAxis2Transport();
+        return properties.getAxis2Transport();
     }
 
     public List<Property> getAxis2Operation() {
 
-        return attributes.getAxis2Operation();
+        return properties.getAxis2Operation();
     }
 
     public List<Property> getVariables() {
@@ -147,27 +165,45 @@ public class MediatorInfo {
         return headers;
     }
 
-    public Properties getAttributes() {
+    public Properties getProperties() {
 
-        return attributes;
+        return properties;
     }
 
-    public MediatorInfo clone() {
+    public Params getParams() {
+
+        return params;
+    }
+
+    public void setParams(Params params) {
+
+        this.params = params;
+    }
+
+    public void setVariables(List<Property> variables) {
+
+        this.variables = variables;
+    }
+
+    public void setHeaders(List<Property> headers) {
+
+        this.headers = headers;
+    }
+
+    public void setProperties(Properties properties) {
+
+        this.properties = properties;
+    }
+
+    public MediatorInfo deepCopy() {
 
         MediatorInfo mediatorInfo = new MediatorInfo();
         mediatorInfo.setPayload(payload.deepCopy());
-        mediatorInfo.addSynapseProperties(new ArrayList<>(variables));
-        mediatorInfo.addAxis2Properties(new ArrayList<>(attributes.getAxis2()));
-        mediatorInfo.addAxis2ClientProperties(new ArrayList<>(attributes.getAxis2Client()));
-        mediatorInfo.addAxis2TransportProperties(new ArrayList<>(attributes.getAxis2Transport()));
-        mediatorInfo.addAxis2OperationProperties(new ArrayList<>(attributes.getAxis2Operation()));
-        mediatorInfo.addHeaders(new ArrayList<>(headers));
+        mediatorInfo.setVariables(new ArrayList<>(variables));
+        mediatorInfo.setProperties(properties.deepCopy());
+        mediatorInfo.setHeaders(new ArrayList<>(headers));
+        mediatorInfo.setParams(params.deepCopy());
         return mediatorInfo;
-    }
-
-    private void addHeaders(List<Property> headers) {
-
-        this.headers.addAll(headers);
     }
 
     @Override
@@ -177,7 +213,8 @@ public class MediatorInfo {
                 "payload=" + payload +
                 ", variables=" + variables +
                 ", headers=" + headers +
-                ", attributes=" + attributes +
+                ", properties=" + properties +
+                ", params=" + params +
                 '}';
     }
 }
