@@ -18,18 +18,15 @@
 package org.eclipse.lemminx.customservice.synapse.parser.pom;
 
 import org.eclipse.lemminx.customservice.synapse.parser.Constants;
+import org.eclipse.lemminx.customservice.synapse.parser.DependencyDetails;
 import org.eclipse.lemminx.customservice.synapse.parser.Node;
 import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
-import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
 import org.xml.sax.helpers.DefaultHandler;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class PluginHandler extends DefaultHandler {
     private Locator locator;
@@ -39,9 +36,9 @@ public class PluginHandler extends DefaultHandler {
 
     private String pluginArtifactId, pluginVersion, dependencyType = "";
     private Range range;
-    private Node groupId;
-    private Node artifactId;
-    private Node version;
+    private String groupId;
+    private String artifactId;
+    private String version;
 
     private final OverviewPageDetailsResponse pomDetailsResponse;
 
@@ -61,9 +58,6 @@ public class PluginHandler extends DefaultHandler {
         valueStartColumn = locator.getColumnNumber();
         if (Constants.DEPENDENCY.equals(qName)) {
             isDependency = true;
-            groupId = new Node();
-            artifactId = new Node();
-            version = new Node();
             dependencyStartLine = locator.getLineNumber();
             dependencyStartColumn = locator.getColumnNumber() - (qName.length() + 2);
             dependencyType = "";
@@ -91,8 +85,7 @@ public class PluginHandler extends DefaultHandler {
             processPlugins(qName, value, valueStartLine, valueStartColumn, valueEndLine, valueEndColumn,
                     closingTagLength);
         } else if (isDependency) {
-            processDependencies(qName, value, valueStartLine, valueStartColumn, valueEndLine, valueEndColumn,
-                    closingTagLength);
+            processDependencies(qName, value, valueEndLine, valueEndColumn);
         } else if (isRepository) {
             if (Constants.REPOSITORY.equals(qName)) {
                 isRepository = false;
@@ -168,38 +161,31 @@ public class PluginHandler extends DefaultHandler {
         }
     }
 
-    private void processDependencies(String qName, String value, int valueStartLine, int valueStartColumn,
-                                     int valueEndLine, int valueEndColumn, int closingTagLength) {
+    private void processDependencies(String qName, String value, int valueEndLine, int valueEndColumn) {
         switch (qName) {
             case Constants.GROUP_ID:
-                groupId = new Node( StringUtils.getString(value), Either.forLeft(getRange(valueStartLine,
-                        valueStartColumn, valueEndLine, valueEndColumn - closingTagLength)));
+                groupId = value;
                 break;
             case Constants.ARTIFACT_ID:
-                artifactId = new Node( StringUtils.getString(value), Either.forLeft(getRange(valueStartLine,
-                        valueStartColumn, valueEndLine, valueEndColumn - closingTagLength)));
+                artifactId = value;
                 break;
             case Constants.VERSION:
-                version = new Node( StringUtils.getString(value), Either.forLeft(getRange(valueStartLine,
-                        valueStartColumn, valueEndLine, valueEndColumn - closingTagLength)));
+                version = value;
                 break;
             case Constants.TYPE:
                 dependencyType = value;
                 break;
             case Constants.DEPENDENCY:
-                Map<String, Node> dependency = new HashMap<>();;
-                dependency.put(Constants.GROUP_ID, groupId);
-                dependency.put(Constants.ARTIFACT_ID, artifactId);
-                dependency.put(Constants.VERSION, version);
-                dependency.put(Constants.FULL_RANGE, new Node("", Either.forLeft(getRange(dependencyStartLine,
-                        dependencyStartColumn, valueEndLine, valueEndColumn))));
+                DependencyDetails dependency = new DependencyDetails();;
+                dependency.setGroupId(groupId);
+                dependency.setArtifact(artifactId);
+                dependency.setVersion(version);
+                dependency.setRange(getRange(dependencyStartLine, dependencyStartColumn, valueEndLine, valueEndColumn));
                 if (dependencyType.equals(Constants.ZIP)) {
                     pomDetailsResponse.setConnectorDependencies(dependency);
                 } else {
                     pomDetailsResponse.setOtherDependencies(dependency);
                 }
-                pomDetailsResponse.setLastDependencyEndTagRange(getRange(valueEndLine,
-                        valueEndColumn - closingTagLength, valueEndLine, valueEndColumn));
                 isDependency = false;
                 break;
         }

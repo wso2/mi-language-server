@@ -18,155 +18,124 @@
 package org.eclipse.lemminx.customservice.synapse.parser;
 
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class OverviewPageDetailsResponse {
 
-    private Node runtimeVersion;
-    private Node projectGroupId;
-    private Node projectArtifactId;
-    private Node projectVersion;
-    private Node projectDescription;
-    private Node projectName;
-    private Node projectBuildPluginVersion;
-    private Node keyStoreType;
-    private List<Map<String, Node>> connectorDependencies;
-    private List<Map<String, Node>> otherDependencies;
-    private Node miContainerPluginVersion;
-    private Node unitTestPluginVersion;
-    private Node keyStoreName;
-    private Node keyStorePassword;
-    private Node keyStoreAlias;
-    private Node cipherToolEnable;
-    private Node dockerFileBaseImage;
-    private Node dockerName;
-    private Node serverDownloadLink;
-    private Node serverVersion;
-    private Node serverPath;
-    private Node serverPort;
-    private Node serverHost;
-    private Node serverType;
-    private Node skipTest;
-
-    private List<Range> ranges;
-
+    private PrimaryDetails primaryDetails;
+    private BuildDetails buildDetails;
+    private DependenciesDetails dependenciesDetails;
+    private UnitTestDetails unitTestDetails;
     private List<Node> configs;
-    private Range lastDependencyEndTagRange;
 
     public OverviewPageDetailsResponse() {
-        connectorDependencies = new ArrayList<>();
-        otherDependencies = new ArrayList<>();
-        ranges = new ArrayList<>();
+        primaryDetails = new PrimaryDetails();
+        buildDetails = new BuildDetails();
+        dependenciesDetails = new DependenciesDetails();
+        unitTestDetails = new UnitTestDetails();
         configs = new ArrayList<>();
     }
 
     public void setRuntimeVersion(Node runtimeVersion) {
-        this.runtimeVersion = runtimeVersion;
+        this.primaryDetails.setRuntimeVersion(runtimeVersion);
     }
 
     public void setProjectGroupId(Node projectGroupId) {
-        this.projectGroupId = projectGroupId;
+        this.buildDetails.advanceDetails.setProjectGroupId(projectGroupId);
     }
 
     public void setProjectName(Node projectName) {
-        this.projectName = projectName;
+        this.primaryDetails.setProjectName(projectName);
     }
 
     public void setProjectArtifactId(Node projectArtifactId) {
-        this.projectArtifactId = projectArtifactId;
+        this.buildDetails.advanceDetails.setProjectArtifactId(projectArtifactId);
     }
 
     public void setProjectVersion(Node projectVersion) {
-        this.projectVersion = projectVersion;
+        this.primaryDetails.setProjectVersion(projectVersion);
     }
 
     public void setProjectDescription(Node projectDescription) {
-        this.projectDescription = projectDescription;
+        this.primaryDetails.setProjectDescription(projectDescription);
     }
 
     public void setProjectBuildPluginVersion(String pluginVersion, Range range) {
-        ranges.add(range);
-        this.projectBuildPluginVersion = new Node(pluginVersion, Either.forRight(ranges));
+        this.buildDetails.advanceDetails.getPluginDetails().setProjectBuildPluginVersion(pluginVersion, range);
     }
 
-    public void setConnectorDependencies(Map<String, Node> connectorDependencies) {
-        this.connectorDependencies.add(connectorDependencies);
+    public void setConnectorDependencies(DependencyDetails connectorDependencies) {
+        this.dependenciesDetails.addConnectorDependencies(connectorDependencies);
     }
 
-    public void setOtherDependencies(Map<String, Node> otherDependencies) {
-        this.otherDependencies.add(otherDependencies);
+    public void setOtherDependencies(DependencyDetails otherDependencies) {
+        this.dependenciesDetails.addOtherDependencies(otherDependencies);
     }
 
     public void setMiContainerPluginVersion(Node miContainerPluginVersion) {
-        this.miContainerPluginVersion = miContainerPluginVersion;
+        this.buildDetails.advanceDetails.getPluginDetails().setMiContainerPluginVersion(miContainerPluginVersion);
     }
 
     public void setUnitTestPluginVersion(Node unitTestPluginVersion) {
-        this.unitTestPluginVersion = unitTestPluginVersion;
+        this.buildDetails.advanceDetails.getPluginDetails().setUnitTestPluginVersion(unitTestPluginVersion);
     }
 
     public void setKeyStoreType(Node keyStoreType) {
-        this.keyStoreType = keyStoreType;
+        this.buildDetails.dockerDetails.setKeyStoreType(keyStoreType);
     }
 
     public void setKeyStoreName(Node keyStoreName) {
-        this.keyStoreName = keyStoreName;
+        this.buildDetails.dockerDetails.setKeyStoreName(keyStoreName);
     }
 
     public void setKeyStorePassword(Node keyStorePassword) {
-        this.keyStorePassword = keyStorePassword;
+        this.buildDetails.dockerDetails.setKeyStorePassword(keyStorePassword);
     }
 
     public void setKeyStoreAlias(Node keyStoreAlias) {
-        this.keyStoreAlias = keyStoreAlias;
+        this.buildDetails.dockerDetails.setKeyStoreAlias(keyStoreAlias);
     }
 
     public void setCipherToolEnable(Node cipherToolEnable) {
-        this.cipherToolEnable = cipherToolEnable;
+        this.buildDetails.dockerDetails.setCipherToolEnable(cipherToolEnable);
     }
 
     public void setDockerFileBaseImage(Node dockerFileBaseImage) {
-        this.dockerFileBaseImage = dockerFileBaseImage;
+        this.buildDetails.dockerDetails.setDockerFileBaseImage(dockerFileBaseImage);
     }
 
     public void setDockerName(Node dockerName) {
-        this.dockerName = dockerName;
+        this.buildDetails.dockerDetails.setDockerName(dockerName);
     }
 
     public void setSkipTest(Node skipTest) {
-        this.skipTest = skipTest;
+        this.unitTestDetails.setSkipTest(skipTest);
     }
 
     public void setServerType(Node serverType) {
-        this.serverType = serverType;
+        this.unitTestDetails.setServerType(serverType);
     }
 
     public void setServerHost(Node serverHost) {
-        this.serverHost = serverHost;
+        this.unitTestDetails.setServerHost(serverHost);
     }
 
     public void setServerPort(Node serverPort) {
-        this.serverPort = serverPort;
+        this.unitTestDetails.setServerPort(serverPort);
     }
 
     public void setServerPath(Node serverPath) {
-        this.serverPath = serverPath;
+        this.unitTestDetails.setServerPath(serverPath);
     }
 
     public void setServerVersion(Node serverVersion) {
-        this.serverVersion = serverVersion;
+        this.unitTestDetails.setServerVersion(serverVersion);
     }
 
     public void setServerDownloadLink(Node serverDownloadLink) {
-        this.serverDownloadLink = serverDownloadLink;
-    }
-
-    public void setLastDependencyEndTagRange(Range lastDependencyEndTagRange) {
-        this.lastDependencyEndTagRange = lastDependencyEndTagRange;
+        this.unitTestDetails.setServerDownloadLink(serverDownloadLink);
     }
 
     public void setConfig(Node config) {
