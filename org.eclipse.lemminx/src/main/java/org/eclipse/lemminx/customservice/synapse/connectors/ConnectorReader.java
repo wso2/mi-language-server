@@ -148,6 +148,31 @@ public class ConnectorReader {
 
         List<String> dependencies = getDependencies(componentElement);
         readDependencies(connector, dependencies);
+        readUISchema(connector);
+    }
+
+    private void readUISchema(Connector connector) {
+
+        String uiSchemaPath = connector.getUiSchemaPath();
+        File uiSchemaFolder = new File(uiSchemaPath);
+        if (uiSchemaFolder.exists()) {
+            File[] files = uiSchemaFolder.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    try {
+                        String schema = Utils.readFile(file);
+                        JsonObject uiJson = Utils.getJsonObject(schema);
+                        JsonElement operation = uiJson.get(Constant.OPERATION_NAME);
+                        if (operation != null) {
+                            String operationName = operation.getAsString();
+                            connector.addOperationUiSchema(operationName, file.getAbsolutePath());
+                        }
+                    } catch (IOException e) {
+                        log.log(Level.SEVERE, "Error while reading connector ui schema file", e);
+                    }
+                }
+            }
+        }
     }
 
     private void populateConnectionUiSchema(Connector connector) {

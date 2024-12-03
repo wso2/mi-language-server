@@ -30,6 +30,9 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.eclipse.lemminx.commons.TextDocument;
+import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorAction;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.legacyBuilder.utils.ProjectType;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -597,12 +600,43 @@ public class Utils {
         }
     }
 
-    public static JsonObject getMediatorList(String version) {
+    public static JsonObject getMediatorList(String version, ConnectorHolder connectorHolder) throws IOException {
+
         InputStream inputStream = JsonLoader.class
                 .getResourceAsStream("/org/eclipse/lemminx/mediators/mediators_"
                         + version.replace(".", "") + ".json");
+        if (inputStream == null) {
+            throw new IOException("Mediator list not found for the given version: " + version);
+        }
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        return JsonParser.parseReader(reader).getAsJsonObject();
+        JsonObject mediatorList = JsonParser.parseReader(reader).getAsJsonObject();
+        addConnectorsToMediatorList(mediatorList, connectorHolder);
+        return mediatorList;
+    }
+
+    private static void addConnectorsToMediatorList(JsonObject mediatorList, ConnectorHolder connectorHolder) {
+
+        List<Connector> connectors = connectorHolder.getConnectors();
+        JsonElement otherCategoryMediators = mediatorList.remove(Constant.OTHER);
+        for (Connector connector : connectors) {
+            JsonArray operationsArray = new JsonArray();
+            List<ConnectorAction> operations = connector.getActions();
+            for (ConnectorAction operation : operations) {
+                if (!operation.getHidden()) {
+                    JsonObject operationObject = new JsonObject();
+                    operationObject.addProperty(Constant.TITLE, operation.getName());
+                    operationObject.addProperty(Constant.OPERATION_NAME, operation.getName());
+                    operationObject.addProperty(Constant.TAG, operation.getTag());
+                    operationObject.addProperty(Constant.TOOLTIP, operation.getDescription());
+                    operationObject.addProperty(Constant.ICON_PATH, connector.getIconPath());
+                    operationsArray.add(operationObject);
+                }
+            }
+            mediatorList.add(connector.getName(), operationsArray);
+        }
+        if (otherCategoryMediators != null) {
+            mediatorList.add(Constant.OTHER, otherCategoryMediators);
+        }
     }
 
     public static String getServerVersion(String projectPath, String defaultVersion) {

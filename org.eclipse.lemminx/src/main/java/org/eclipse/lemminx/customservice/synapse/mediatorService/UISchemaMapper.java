@@ -21,6 +21,8 @@ package org.eclipse.lemminx.customservice.synapse.mediatorService;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Connector;
+import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 
 public class UISchemaMapper {
 
@@ -63,5 +65,12 @@ public class UISchemaMapper {
         }
     }
 
-}
+    public static JsonObject mapInputToUISchemaForConnector(Connector connector, JsonObject uiSchema) {
 
+        JsonObject data = new JsonObject();
+        connector.getParameters().forEach(parameter -> data.addProperty(parameter.getName(),
+                parameter.getIsExpression() ? parameter.getExpression() : parameter.getValue()));
+        data.addProperty(Constant.CONFIG_REF, connector.getConfigKey());
+        return mapInputToUISchema(data, uiSchema);
+    }
+}

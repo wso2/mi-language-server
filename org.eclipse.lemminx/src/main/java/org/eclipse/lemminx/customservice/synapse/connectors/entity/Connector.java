@@ -69,6 +69,16 @@ public class Connector {
         return actions;
     }
 
+    public ConnectorAction getAction(String actionName) {
+
+        for (ConnectorAction action : actions) {
+            if (action.getName().equals(actionName)) {
+                return action;
+            }
+        }
+        return null;
+    }
+
     public void setActions(List<ConnectorAction> actions) {
 
         this.actions = actions;
@@ -117,5 +127,17 @@ public class Connector {
     public void setUiSchemaPath(String uiSchemaPath) {
 
         this.uiSchemaPath = uiSchemaPath;
+    }
+
+    public void addOperationUiSchema(String operationName, String absolutePath) {
+
+        if (operationName == null) {
+            return;
+        }
+        for (ConnectorAction action : actions) {
+            if (action.getName().equals(operationName)) {
+                action.setUiSchemaPath(absolutePath);
+            }
+        }
     }
 }

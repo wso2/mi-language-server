@@ -29,6 +29,7 @@ public class ConnectorAction {
     List<String> allowedConnectionTypes;
     private String description;
     private Boolean isHidden;
+    private String uiSchemaPath;
 
     public ConnectorAction() {
 
@@ -99,5 +100,15 @@ public class ConnectorAction {
     public void setAllowedConnectionTypes(List<String> allowedConnectionTypes) {
 
         this.allowedConnectionTypes = allowedConnectionTypes;
+    }
+
+    public String getUiSchemaPath() {
+
+        return uiSchemaPath;
+    }
+
+    public void setUiSchemaPath(String uiSchemaPath) {
+
+        this.uiSchemaPath = uiSchemaPath;
     }
 }

@@ -61,7 +61,7 @@ public class SmooksFactory extends AbstractMediatorFactory {
     @Override
     public void populateAttributes(STNode node, DOMElement element) {
 
-        String configKey = element.getAttribute(Constant.CONFIG_KEY);
+        String configKey = element.getAttribute(Constant.CONFIG_HYPHEN_KEY);
         if (configKey != null) {
             ((Smooks) node).setConfigKey(configKey);
         }
