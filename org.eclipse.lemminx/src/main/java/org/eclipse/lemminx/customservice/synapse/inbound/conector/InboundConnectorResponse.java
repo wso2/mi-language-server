@@ -24,4 +24,14 @@ public class InboundConnectorResponse {
 
     public String connectorName;
     public JsonObject uiSchema;
+
+    public JsonObject getUiSchema() {
+
+        return uiSchema;
+    }
+
+    public void setUiSchema(JsonObject uiSchema) {
+
+        this.uiSchema = uiSchema;
+    }
 }

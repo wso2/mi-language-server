@@ -20,12 +20,11 @@ package org.eclipse.lemminx.customservice.synapse.inbound.conector;
 
 import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeGenerator;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.inbound.InboundEndpoint;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.UISchemaMapper;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.dom.DOMElement;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -125,7 +124,13 @@ public class InboundConnectorHolder {
                 if (ib != null) {
                     String id = getIdFromInboundEP(ib);
                     if (id != null) {
-                        return getInboundConnectorSchemaFromId(id);
+                        InboundConnectorResponse response = getInboundConnectorSchemaFromId(id);
+                        if (response.getUiSchema() != null) {
+                            JsonObject schemaWithValues =
+                                    UISchemaMapper.mapInputToUISchemaForInboundEndpoint(ib, response.getUiSchema());
+                            response.setUiSchema(schemaWithValues);
+                        }
+                        return response;
                     }
                 }
             }

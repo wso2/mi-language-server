@@ -70,6 +70,16 @@ public class Connector extends Mediator {
         this.parameters.add(parameter);
     }
 
+    public ConnectorParameter getParameter(String parameterName) {
+
+        for (ConnectorParameter parameter : parameters) {
+            if (parameter.getName().equals(parameterName)) {
+                return parameter;
+            }
+        }
+        return null;
+    }
+
     public String getConfigKey() {
 
         return configKey;
