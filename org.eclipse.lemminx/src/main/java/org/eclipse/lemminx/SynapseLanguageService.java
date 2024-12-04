@@ -48,9 +48,10 @@ import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnect
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.DependencyScanner;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.DependencyTree;
 import org.eclipse.lemminx.customservice.synapse.parser.ConfigFileEditRequest;
+import org.eclipse.lemminx.customservice.synapse.parser.DependencyDetails;
 import org.eclipse.lemminx.customservice.synapse.parser.OverviewPage;
 import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
-import org.eclipse.lemminx.customservice.synapse.parser.PomXmlEditRequest;
+import org.eclipse.lemminx.customservice.synapse.parser.UpdateDependency;
 import org.eclipse.lemminx.customservice.synapse.parser.config.ConfigParser;
 import org.eclipse.lemminx.customservice.synapse.parser.pom.PomParser;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.AbstractResourceFinder;
@@ -87,7 +88,6 @@ import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
-import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceFolder;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -399,20 +399,10 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     }
 
     @Override
-    public CompletableFuture<String> removeDependency(Range range) {
-        String response = PomParser.removeDependency(projectUri, range);
-        return CompletableFuture.supplyAsync(() -> response);
-    }
-
-    @Override
-    public CompletableFuture<String> addDependency(PomXmlEditRequest request) {
-        String response = PomParser.addDependency(projectUri, request);
-        return CompletableFuture.supplyAsync(() -> response);
-    }
-
-    @Override
-    public CompletableFuture<String> updatePomValue(PomXmlEditRequest request) {
-        String response = PomParser.updateValue(projectUri,  request);
+    public CompletableFuture<Either<UpdateDependency, List<UpdateDependency>>> updateDependency(
+            Either<DependencyDetails, List<DependencyDetails>> request) {
+        Either<UpdateDependency, List<UpdateDependency>> response = PomParser.updateDependency(
+                projectUri, request);
         return CompletableFuture.supplyAsync(() -> response);
     }
 

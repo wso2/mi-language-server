@@ -19,33 +19,13 @@ package org.eclipse.lemminx.customservice.synapse.parser;
 
 import org.eclipse.lsp4j.Range;
 
-public class DependencyDetails {
+public class UpdateDependency {
 
-    public String groupId;
-    public String artifact;
-    public String version;
-    public String type;
     public Range range;
+    public String value;
 
-    public DependencyDetails() {}
-
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
-    }
-
-    public void setArtifact(String artifact) {
-        this.artifact = artifact;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public void setRange(Range range) {
+    public UpdateDependency(String value, Range range) {
+        this.value = value;
         this.range = range;
     }
 }

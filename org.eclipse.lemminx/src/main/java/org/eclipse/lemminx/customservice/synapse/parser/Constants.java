@@ -33,7 +33,6 @@ public class Constants {
     public static final String REPOSITORY = "repository";
     public static final String PLUGIN_REPOSITORY = "pluginRepository";
     public static final String PROPERTIES = "properties";
-    public static final String IMAGES = "images";
     public static final String ARTIFACT_ID = "artifactId";
 
     public static final String VERSION = "version";
@@ -41,7 +40,6 @@ public class Constants {
     public static final String NAME = "name";
 
     public static final String TYPE = "type";
-    public static final String IMAGE = "image";
     public static final String TEST_SERVER_TYPE = "testServerType";
     public static final String TEST_SERVER_HOST = "testServerHost";
     public static final String TEST_SERVER_PORT = "testServerPort";

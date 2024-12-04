@@ -18,16 +18,29 @@
 package org.eclipse.lemminx.customservice.synapse.parser.pom;
 
 import org.eclipse.lemminx.customservice.synapse.parser.Constants;
+import org.eclipse.lemminx.customservice.synapse.parser.DependencyDetails;
 import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
-import org.eclipse.lemminx.customservice.synapse.parser.PomXmlEditRequest;
+import org.eclipse.lemminx.customservice.synapse.parser.UpdateDependency;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,89 +52,141 @@ public class PomParser {
     private static final Logger LOGGER = Logger.getLogger(PomParser.class.getName());
     private static OverviewPageDetailsResponse pomDetailsResponse;
 
+    private static boolean hasDependencies = false;
+
     public static void getPomDetails(String projectUri, OverviewPageDetailsResponse detailsResponse) {
         pomDetailsResponse = detailsResponse;
         extractPomContent(projectUri);
     }
 
-    public static String removeDependency(String projectUri, Range range) {
+    public static Either<UpdateDependency, List<UpdateDependency>> updateDependency(
+            String projectUri, Either<DependencyDetails, List<DependencyDetails>> dependencyDetails) {
         try {
-            File pomFile = new File(projectUri + File.separator + Constants.POM_FILE);
-            if (!isPomFileExist(pomFile)) {
-                return null;
-            }
-            List<String> lines = Files.readAllLines(pomFile.toPath());
-            int startLine = range.getStart().getLine();
-            int endLine = range.getEnd().getLine();
-            for (int i = endLine - 1; i >= startLine - 1; i--) {
-                if (i == (endLine - 1)) {
-                    processString(lines, lines.get(i).substring(range.getEnd().getCharacter() - 1), i);
-                } else if (i == (startLine - 1)) {
-                    processString(lines, lines.get(i).substring(0, range.getStart().getCharacter() - 1), i);
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.newDocument();
+            List<String> pomContent;
+            if (dependencyDetails.isLeft()) {
+                DependencyDetails details = dependencyDetails.getLeft();
+                if (details.range != null) {
+                    return Either.forLeft(new UpdateDependency(
+                            elementToString(createDependencyElement(document, details)), details.range));
                 } else {
-                    lines.remove(i);
+                    pomContent = readPom(projectUri);
+                    assert pomContent != null;
+                    Range range = getRange(pomContent);
+                    return Either.forLeft(getUpdateDependency(document, details, range));
                 }
+            } else {
+                List<UpdateDependency> updateDependencyResponse = new ArrayList<>();
+                List<DependencyDetails> dependencyDetail = dependencyDetails.getRight();
+                boolean checkPomFile = false;
+                Range range = null;
+                for (DependencyDetails dependency : dependencyDetail) {
+                    if (dependency.range != null) {
+                        updateDependencyResponse.add(new UpdateDependency(
+                                elementToString(createDependencyElement(document, dependency)), dependency.range));
+                    } else {
+                        if (!checkPomFile) {
+                            pomContent = readPom(projectUri);
+                            assert pomContent != null;
+                            range = getRange(pomContent);
+                            if (!hasDependencies) {
+                                Position start = range.getStart();
+                                int characterLength = start.getCharacter();
+                                updateDependencyResponse.add(
+                                        new UpdateDependency(
+                                                elementToString(document.createElement("dependencies")),
+                                                new Range(start, new Position(start.getLine() + 1,
+                                                        characterLength + "</dependencies>".length()))));
+                                range = new Range(new Position(start.getLine() + 1, characterLength + 4),
+                                        new Position());
+                            }
+                            checkPomFile = true;
+                        }
+                        Element processedDependency = createDependencyElement(document, dependency);
+                        String dependenciesString = elementToString(processedDependency);
+                        Position start = range.getStart();
+                        int length = dependenciesString.split("\n").length;
+                        int endLine = start.getLine() + length;
+                        int characterLength = start.getCharacter();
+                        range = new Range(new Position(endLine + 1, characterLength), new Position());
+                        updateDependencyResponse.add(
+                                new UpdateDependency(dependenciesString, new Range(start,
+                                        new Position(endLine, characterLength + "</dependency>".length()))));
+                    }
+                }
+                return Either.forRight(updateDependencyResponse);
             }
-            return String.join("\n", lines);
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Error removing the dependency from the POM file: " + e.getMessage());
+        } catch (ParserConfigurationException e) {
+            LOGGER.log(Level.SEVERE, "Error process : " + e.getMessage());
             return null;
         }
     }
 
-    public static String addDependency(String projectUri, PomXmlEditRequest request) {
-        int index = getIndex(request);
-        List<String> lines = getPomXmlList(projectUri);
-        assert lines != null;
-        List<String> newLines = new ArrayList<>(lines);
-        String[] newContentLines = request.value.split("\n");
-        if (index > 0) {
-            for (int i = newContentLines.length - 1; i >= 0; i--) {
-                newLines.add(index, newContentLines[i]);
-            }
-        } else {
-            adNewDependency(lines, newLines, newContentLines);
+    private static List<String> readPom(String projectUri) {
+        File pomFile = new File(projectUri + File.separator + Constants.POM_FILE);
+        if (!isPomFileExist(pomFile)) {
+            return null;
         }
-        return String.join("\n", newLines);
-    }
-
-    public static String updateValue(String projectUri, PomXmlEditRequest request) {
         try {
-            File pomFile = new File(projectUri + File.separator + Constants.POM_FILE);
-            if (!isPomFileExist(pomFile)) {
-                return null;
-            }
-            List<String> lines = Files.readAllLines(pomFile.toPath());
-            if (request.range.isRight()) {
-                for (Range range : request.range.getRight()) {
-                    updateValue(lines, request.value, range);
-                }
-                return String.join("\n", lines);
-            } else {
-                updateValue(lines, request.value, request.range.getLeft());
-                return String.join("\n", lines);
-            }
+            return Files.readAllLines(pomFile.toPath());
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Error modifying the POM file: " + e.getMessage());
             return null;
         }
     }
 
-    private static void updateValue(List<String> lines, String value, Range range) {
-        int startLine = range.getStart().getLine();
-        int endLine = range.getEnd().getLine();
-        int startColumn = range.getStart().getCharacter();
-        int endColumn = range.getEnd().getCharacter();
-        for (int i = startLine - 1; i < endLine; i++) {
-            String line = lines.get(i);
-            if (line.length() >= startColumn) {
-                String beforeReplacement = line.substring(0, startColumn - 1);
-                String afterReplacement = (line.length() > endColumn) ?
-                        line.substring(endColumn - 1) : "";
-                String modifiedLine = beforeReplacement + value + afterReplacement;
-                lines.set(i, modifiedLine);
+    private static Range getRange(List<String> pomContent) {
+        int i = 1;
+        for (String content : pomContent) {
+            if (content.trim().contains("</dependencies>")) {
+                hasDependencies = true;
+                return new Range(new Position(i, content.indexOf("</dependencies>")), new Position());
             }
+            if (content.trim().contains("</project>")) {
+                return new Range(new Position(i, content.indexOf("</project>")), new Position());
+            }
+            i++;
         }
+        return new Range();
+    }
+
+    private static UpdateDependency getUpdateDependency(Document document, DependencyDetails dependencyDetails,
+                                                        Range range) {
+        String dependenciesString;
+        if (hasDependencies) {
+            Element dependency = createDependencyElement(document, dependencyDetails);
+            dependenciesString = elementToString(dependency);
+        } else {
+            Element dependencies = document.createElement("dependencies");
+            dependencies.appendChild(createDependencyElement(document, dependencyDetails));
+            dependenciesString = elementToString(dependencies);
+        }
+        Position start = range.getStart();
+        int length = dependenciesString.split("\n").length;
+        return new UpdateDependency(dependenciesString, new Range(start,
+                new Position((start.getLine() + length - 1), start.getCharacter() +
+                        "</dependencies>".length() - 1)));
+    }
+
+    private static Element createDependencyElement(Document document, DependencyDetails dependencyDetails) {
+        Element dependency = document.createElement("dependency");
+        Element groupId = document.createElement("groupId");
+        groupId.setTextContent(dependencyDetails.groupId);
+        dependency.appendChild(groupId);
+        Element artifactId = document.createElement("artifactId");
+        artifactId.setTextContent(dependencyDetails.artifact);
+        dependency.appendChild(artifactId);
+        Element version = document.createElement("version");
+        version.setTextContent(dependencyDetails.version);
+        dependency.appendChild(version);
+        if (dependencyDetails.type != null) {
+            Element type = document.createElement("type");
+            version.setTextContent(dependencyDetails.type);
+            dependency.appendChild(type);
+        }
+        return dependency;
     }
 
     private static void extractPomContent(String projectUri) {
@@ -151,59 +216,21 @@ public class PomParser {
         return true;
     }
 
-    private static void processString(List<String> lines, String value, int lineNumber) {
-        if (value.trim().isEmpty()) {
-            lines.remove(lineNumber);
-        } else {
-            lines.set(lineNumber, value);
-        }
-    }
-
-    private static List<String> getPomXmlList(String projectUri) {
+    private static String elementToString(Element element) {
         try {
-            File pomFile = new File(projectUri + File.separator + Constants.POM_FILE);
-            if (!isPomFileExist(pomFile)) {
-                return null;
-            }
-            return Files.readAllLines(pomFile.toPath());
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Error adding the dependency to the POM file: " + e.getMessage());
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+
+            DOMSource domSource = new DOMSource(element);
+            StringWriter writer = new StringWriter();
+            StreamResult result = new StreamResult(writer);
+            transformer.transform(domSource, result);
+            return writer.toString().trim();
+        } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
-    }
-
-    private static int getIndex(PomXmlEditRequest request) {
-        if (request.range != null) {
-            return request.range.getLeft().getStart().getLine();
-        } else {
-            return 0;
-        }
-    }
-
-    private static void adNewDependency(List<String> pomContent, List<String> newPomContent,String[] dependency) {
-        int projectEndIndex = -1;
-        for (int i = pomContent.size() - 1; i >= 0; i--) {
-            if (pomContent.get(i).contains(Constants.PROJECT_END_TAG)) {
-                projectEndIndex = i;
-                break;
-            }
-        }
-        String value = pomContent.get(projectEndIndex);
-        int startColumn = value.lastIndexOf(Constants.END_TAG);
-        String afterReplacement = value.substring(startColumn);
-        String beforeReplacement = value.substring(0, startColumn);
-        if (startColumn > 0 && !beforeReplacement.trim().isEmpty()) {
-            newPomContent.set(projectEndIndex, beforeReplacement);
-        }
-        projectEndIndex++;
-        newPomContent.add(projectEndIndex, Constants.DEPENDENCIES_START_TAG);
-        for (int i = dependency.length - 1; i >= 0; i--) {
-            projectEndIndex++;
-            newPomContent.add(projectEndIndex, dependency[i]);
-        }
-        projectEndIndex++;
-        newPomContent.add(projectEndIndex, Constants.DEPENDENCIES_END_TAG);
-        projectEndIndex++;
-        newPomContent.add(projectEndIndex , afterReplacement);
     }
 }

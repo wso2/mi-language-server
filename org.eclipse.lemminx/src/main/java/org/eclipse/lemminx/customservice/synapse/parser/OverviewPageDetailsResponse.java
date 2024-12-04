@@ -26,16 +26,16 @@ public class OverviewPageDetailsResponse {
 
     private PrimaryDetails primaryDetails;
     private BuildDetails buildDetails;
-    private DependenciesDetails dependenciesDetails;
-    private UnitTestDetails unitTestDetails;
-    private List<Node> configs;
+    private DependenciesDetails dependencies;
+    private UnitTestDetails unitTest;
+    private List<Node> configurables;
 
     public OverviewPageDetailsResponse() {
         primaryDetails = new PrimaryDetails();
         buildDetails = new BuildDetails();
-        dependenciesDetails = new DependenciesDetails();
-        unitTestDetails = new UnitTestDetails();
-        configs = new ArrayList<>();
+        dependencies = new DependenciesDetails();
+        unitTest = new UnitTestDetails();
+        configurables = new ArrayList<>();
     }
 
     public void setRuntimeVersion(Node runtimeVersion) {
@@ -67,11 +67,11 @@ public class OverviewPageDetailsResponse {
     }
 
     public void setConnectorDependencies(DependencyDetails connectorDependencies) {
-        this.dependenciesDetails.addConnectorDependencies(connectorDependencies);
+        this.dependencies.addConnectorDependencies(connectorDependencies);
     }
 
     public void setOtherDependencies(DependencyDetails otherDependencies) {
-        this.dependenciesDetails.addOtherDependencies(otherDependencies);
+        this.dependencies.addOtherDependencies(otherDependencies);
     }
 
     public void setMiContainerPluginVersion(Node miContainerPluginVersion) {
@@ -111,34 +111,34 @@ public class OverviewPageDetailsResponse {
     }
 
     public void setSkipTest(Node skipTest) {
-        this.unitTestDetails.setSkipTest(skipTest);
+        this.unitTest.setSkipTest(skipTest);
     }
 
     public void setServerType(Node serverType) {
-        this.unitTestDetails.setServerType(serverType);
+        this.unitTest.setServerType(serverType);
     }
 
     public void setServerHost(Node serverHost) {
-        this.unitTestDetails.setServerHost(serverHost);
+        this.unitTest.setServerHost(serverHost);
     }
 
     public void setServerPort(Node serverPort) {
-        this.unitTestDetails.setServerPort(serverPort);
+        this.unitTest.setServerPort(serverPort);
     }
 
     public void setServerPath(Node serverPath) {
-        this.unitTestDetails.setServerPath(serverPath);
+        this.unitTest.setServerPath(serverPath);
     }
 
     public void setServerVersion(Node serverVersion) {
-        this.unitTestDetails.setServerVersion(serverVersion);
+        this.unitTest.setServerVersion(serverVersion);
     }
 
     public void setServerDownloadLink(Node serverDownloadLink) {
-        this.unitTestDetails.setServerDownloadLink(serverDownloadLink);
+        this.unitTest.setServerDownloadLink(serverDownloadLink);
     }
 
     public void setConfig(Node config) {
-        this.configs.add(config);
+        this.configurables.add(config);
     }
 }
