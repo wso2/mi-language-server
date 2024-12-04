@@ -45,6 +45,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.P
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Respond;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Send;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Store;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Variable;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.call.Call;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.callout.Callout;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.callout.CalloutEnableSec;
@@ -528,6 +529,12 @@ public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
 
     @Override
     protected void visitProperty(Property node) {
+
+        // DO NOTHING
+    }
+
+    @Override
+    protected void visitVariable(Variable node) {
 
         // DO NOTHING
     }
