@@ -122,6 +122,7 @@ public class DirectoryTreeBuilder {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(directoryMap.getDirectoryMap().getAsJsonObject().toString());
             JsonNode artifacts = root.path(Constant.SRC).path(MAIN).path(WSO2MI).path(Constant.ARTIFACTS);
+            JsonNode resources = root.path(Constant.SRC).path(MAIN).path(WSO2MI).path(Constant.RESOURCES);
             ObjectNode newArtifacts = mapper.createObjectNode();
 
             newArtifacts.set("APIs", artifacts.path(Constant.APIS));
@@ -163,6 +164,8 @@ public class DirectoryTreeBuilder {
             advancedArtifacts.set("Message Processors", artifacts.path(Constant.MESSAGE_PROCESSORS));
             advancedArtifacts.set("Local Entries", artifacts.path(Constant.LOCALENTRIES));
             advancedArtifacts.set("Templates", artifacts.path(Constant.TEMPLATES));
+
+            newArtifacts.set("Resources", resources.path(Constant.NEW_RESOURCES));
 
             ((ObjectNode) root.path(Constant.SRC).path(MAIN).path(WSO2MI)).set(Constant.ARTIFACTS, newArtifacts);
             ObjectMapper objectMapper = new ObjectMapper();
@@ -323,9 +326,9 @@ public class DirectoryTreeBuilder {
         if (folder != null && folder.exists()) {
             if (!folder.isHidden()) {
                 String folderName = folder.getName();
-                FolderNode registryFolderNode = new FolderNode(folderName, registryPath);
-                traverseFolder(registryFolderNode, directoryTree);
-                directoryTree.getResources().setFolderNode(registryFolderNode);
+                FolderNode resourceFolderNode = new FolderNode(folderName, registryPath);
+                traverseFolder(resourceFolderNode, directoryTree);
+                directoryTree.getResources().setNewResources(resourceFolderNode);
             }
         }
     }

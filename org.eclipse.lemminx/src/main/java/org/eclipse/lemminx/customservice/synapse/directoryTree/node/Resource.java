@@ -26,7 +26,7 @@ public class Resource {
     private RegistryResource registry;
     private List<Node> connectors;
     private List<Node> metadata;
-    private FolderNode folderNode;
+    private FolderNode newResources;
 
     public Resource() {
 
@@ -35,14 +35,14 @@ public class Resource {
         metadata = new ArrayList<>();
     }
 
-    public FolderNode getFolderNode() {
+    public FolderNode getNewResources() {
 
-        return folderNode;
+        return newResources;
     }
 
-    public void setFolderNode(FolderNode folderNode) {
+    public void setNewResources(FolderNode newResources) {
 
-        this.folderNode = folderNode;
+        this.newResources = newResources;
     }
 
     public void addConnector(Node connector) {

@@ -484,6 +484,7 @@ public class Constant {
     public static final String SCHEDULED_TASK = "schedule-task";
     public static final String TASKS = "tasks";
     public static final String TEMPLATES = "templates";
+    public static final String NEW_RESOURCES = "newResources";
     public static final String APIS = "apis";
     public static final String PROXYSERVICES = "proxyServices";
     public static final String INBOUNDENDPOINTS = "inboundEndpoints";
