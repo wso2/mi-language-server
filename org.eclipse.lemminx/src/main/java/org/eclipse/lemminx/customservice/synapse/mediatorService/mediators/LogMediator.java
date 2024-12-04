@@ -97,4 +97,31 @@ public class LogMediator {
         }
         return data;
     }
+
+    public static Map<String, Object> getDataFromST440(Log node) {
+
+        Map<String, Object> data = new HashMap<>();
+
+        if (node.getCategory() != null) {
+            data.put("category", node.getCategory().toString());
+        }
+        if (node.getLevel() != null) {
+            data.put("level", node.getLevel().toUpperCase());
+        }
+        data.put("message", node.getMessage());
+        data.put("description", node.getDescription());
+        data.put("separator", node.getSeparator());
+        if (node.getProperty() != null) {
+            List<List<Object>> properties = new ArrayList<>();
+            for (MediatorProperty property : node.getProperty()) {
+                Map<String, Object> valueMap = new HashMap<>();
+                valueMap.put("value", property.getValue() != null ? property.getValue() : property.getExpression());
+                valueMap.put("isExpression", property.getExpression() != null);
+                valueMap.put("namespaces", MediatorUtils.transformNamespaces(property.getNamespaces()));
+                properties.add(List.of(property.getName(), valueMap));
+            }
+            data.put("properties", properties);
+        }
+        return data;
+    }
 }
