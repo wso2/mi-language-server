@@ -51,7 +51,7 @@ public class NewProjectResourceFinder extends AbstractResourceFinder {
 
     private void findRegistryResources(String projectPath, List<RequestedResource> types, ResourceResponse response) {
 
-        Path registryPath = Path.of(projectPath, "src", "main", "wso2mi", "resources");
+        Path registryPath = Path.of(projectPath, Constant.SRC, Constant.MAIN, Constant.WSO2MI, Constant.RESOURCES);
         List<Resource> resourcesInRegistry = findResourceInRegistry(registryPath, types);
         response.setRegistryResources(resourcesInRegistry);
     }

@@ -46,7 +46,7 @@ public class ResourceFileScanner {
         for (File file : listOfFiles) {
             if (file.isFile() && !file.isHidden()) {
                 String resourceFilePath = extractResourceFilePath(file);
-                if (!(resourceFilePath.contains("registry/gov") || resourceFilePath.contains("registry/conf") || resourceFilePath.equals("registry/artifact.xml") || resourceFilePath.equals("artifact.xml"))) {
+                if (!isDedicatedArtifactXMLFile(resourceFilePath)) {
                     resourceFiles.add(Constant.RESOURCES + ":" + resourceFilePath);
                 }
             } else if (file.isDirectory()) {
@@ -55,6 +55,12 @@ public class ResourceFileScanner {
                 }
             }
         }
+    }
+
+    private static boolean isDedicatedArtifactXMLFile(String resourceFilePath) {
+
+        // resourceFilePath is considered starting from the resources directory
+        return resourceFilePath.equals("registry/artifact.xml") || resourceFilePath.equals("artifact.xml");
     }
 
     private static String extractResourceFilePath(File file) {

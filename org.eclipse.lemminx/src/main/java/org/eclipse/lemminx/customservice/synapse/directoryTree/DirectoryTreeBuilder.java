@@ -58,6 +58,7 @@ import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -202,7 +203,7 @@ public class DirectoryTreeBuilder {
             });
             return result;
         } catch (Exception ex) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
     }
 

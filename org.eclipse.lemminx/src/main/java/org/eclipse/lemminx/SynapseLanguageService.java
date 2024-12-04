@@ -328,7 +328,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
         List<String> resourceUsagesProjectIdentifiers =
                 ResourceUsageFinder.findResourceUsagesProjectIdentifiers(projectUri,
-                        resourceUsagesRequest.resourceFilePath, connectorHolder, isLegacyProject);
+                        resourceUsagesRequest.getResourceFilePath(), connectorHolder, isLegacyProject);
         return CompletableFuture.supplyAsync(() -> resourceUsagesProjectIdentifiers);
     }
 
