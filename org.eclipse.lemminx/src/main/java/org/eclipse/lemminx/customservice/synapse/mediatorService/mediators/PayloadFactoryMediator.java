@@ -21,6 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.mediatorService.mediators;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.MediatorUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.payload.PayloadFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.payload.PayloadFactoryArgsArg;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.payload.TemplateType;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
@@ -127,5 +128,53 @@ public class PayloadFactoryMediator {
         }
 
         return data;
+    }
+
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData440(Map<String, Object> data,
+                                                                                           PayloadFactory payloadFactory,
+                                                                                           List<String> dirtyFields) {
+
+        Boolean useTemplateResource = (Boolean) data.get("useTemplateResource");
+        if (!useTemplateResource) {
+            data.put("isInlined", true);
+        }
+        String templateType = (String) data.get("templateType");
+        if ("freemarker".equals(templateType)) {
+            data.put("isFreemarker", true);
+        }
+        return Either.forLeft(data);
+    }
+
+    public static Map<String, Object> getDataFromST440(PayloadFactory payloadFactory) {
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("description", payloadFactory.getDescription());
+        TemplateType templateType = payloadFactory.getTemplateType();
+        data.put("templateType", templateType.getValue());
+        data.put("mediaType", payloadFactory.getMediaType());
+        if (payloadFactory.getFormat().getKey() != null) {
+            data.put("useTemplateResource", true);
+            data.put("payloadKey", payloadFactory.getFormat().getKey());
+        } else {
+            String inlineContent = (String) payloadFactory.getFormat().getContent();
+            // If the payload is inline and the template type is freemarker, then remove the CDATA tags
+            if (templateType.equals(TemplateType.FREE_MARKER)) {
+                inlineContent = removeCDATAFromPayload(inlineContent);
+            }
+            data.put("payload", inlineContent);
+        }
+        return data;
+    }
+
+    public static String removeCDATAFromPayload(String inputPayload) {
+
+        if (inputPayload.startsWith("<![CDATA[")) {
+            inputPayload = inputPayload.substring(9);
+            int i = inputPayload.lastIndexOf("]]>");
+            if (i == -1)
+                throw new IllegalStateException("Inline content starts with <![CDATA[ but cannot find pairing ]]>");
+            inputPayload = inputPayload.substring(0, i);
+        }
+        return inputPayload;
     }
 }
