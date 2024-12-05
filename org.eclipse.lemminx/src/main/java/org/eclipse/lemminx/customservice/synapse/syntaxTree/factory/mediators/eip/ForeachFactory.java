@@ -18,6 +18,7 @@
 
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.eip;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.AbstractMediatorFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
@@ -53,6 +54,15 @@ public class ForeachFactory extends AbstractMediatorFactory {
     @Override
     public void populateAttributes(STNode node, DOMElement element) {
 
+        String description = element.getAttribute(Constant.DESCRIPTION);
+        if (description != null) {
+            ((Foreach) node).setDescription(description);
+        }
+        String collection = element.getAttribute("collection");
+        if (StringUtils.isNotBlank(collection)) {
+            populateV2Attributes(node, element);
+            return;
+        }
         String expression = element.getAttribute(Constant.EXPRESSION);
         if (expression != null) {
             ((Foreach) node).setExpression(expression);
@@ -65,9 +75,29 @@ public class ForeachFactory extends AbstractMediatorFactory {
         if (id != null) {
             ((Foreach) node).setId(id);
         }
-        String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null) {
-            ((Foreach) node).setDescription(description);
+    }
+
+    private void populateV2Attributes(STNode node, DOMElement element) {
+
+        String collection = element.getAttribute("collection");
+        if (StringUtils.isNotBlank(collection)) {
+            ((Foreach) node).setCollection(collection);
+        }
+        String counterVariableName = element.getAttribute("counter-variable");
+        if (StringUtils.isNotBlank(counterVariableName)) {
+            ((Foreach) node).setCounterVariableName(counterVariableName);
+        }
+        String contentType = element.getAttribute("result-type");
+        if (StringUtils.isNotBlank(contentType)) {
+            ((Foreach) node).setResultType(contentType);
+        }
+        String resultTarget = element.getAttribute("result-target");
+        if (StringUtils.isNotBlank(resultTarget)) {
+            ((Foreach) node).setResultTarget(resultTarget);
+        }
+        String executeParallel = element.getAttribute("parallel-execution");
+        if (StringUtils.isNotBlank(executeParallel)) {
+            ((Foreach) node).setExecuteParallel(Boolean.parseBoolean(executeParallel));
         }
     }
 

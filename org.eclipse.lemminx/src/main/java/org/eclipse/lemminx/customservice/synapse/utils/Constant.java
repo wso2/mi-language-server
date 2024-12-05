@@ -523,4 +523,6 @@ public class Constant {
     public static final String M2 = "m2";
     public static final String DOWNLOADED = "Downloaded";
     public static final String EXTRACTED = "Extracted";
+    public static final String PARALLEL_EXECUTION = "parallelExecution";
+    public static final String RESULT_TARGET = "resultTarget";
 }

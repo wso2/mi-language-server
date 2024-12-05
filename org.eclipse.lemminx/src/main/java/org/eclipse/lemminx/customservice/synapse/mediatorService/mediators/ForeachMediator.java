@@ -21,6 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.mediatorService.mediators;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.MediatorUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.TagRanges;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.Foreach;
+import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
@@ -29,6 +30,11 @@ import java.util.List;
 import java.util.Map;
 
 public class ForeachMediator {
+
+    private static final String UPDATE_ORIGINAL_CONTENT = "updateOriginalContent";
+    private static final String RESULT_TYPE = "resultType";
+    private static final String COLLECTION = "collection";
+
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Foreach foreach,
                                                                                            List<String> dirtyFields) {
@@ -80,7 +86,7 @@ public class ForeachMediator {
     public static Map<String, Object> getDataFromST430(Foreach node) {
 
         Map<String, Object> data = new HashMap<>();
-        data.put("description", node.getDescription());
+        data.put(Constant.DESCRIPTION, node.getDescription());
         data.put("forEachID", node.getId());
         data.put("forEachExpression", Map.of(
                 "isExpression", true,
@@ -93,6 +99,68 @@ public class ForeachMediator {
             data.put("sequenceType", "Anonymous");
         }
         data.put("prevSequenceType", data.get("sequenceType"));
+        data.put(Constant.VERSION, "v1");
         return data;
+    }
+
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData440(Map<String, Object> data,
+                                                                                              Foreach foreach,
+                                                                                              List<String> dirtyFields) {
+
+        // If the version is v2, then the mediator is a v2 mediator
+        // Otherwise, return the use 430 mediator to preserve the backward compatibility
+        if ("v2".equals(data.get(Constant.VERSION))) {
+            Map<String, Object> collectionExpr = (Map<String, Object>) data.get(COLLECTION);
+            if (collectionExpr != null) {
+                data.put(COLLECTION, collectionExpr.get(Constant.VALUE));
+            }
+            if (foreach == null) {
+                data.put("newMediatorV2", true);
+                return Either.forLeft(data);
+            }
+            return Either.forRight(getEdits440(data, foreach, dirtyFields));
+        }
+        return processData430(data, foreach, dirtyFields);
+    }
+
+    private static Map<Range, Map<String, Object>> getEdits440(Map<String, Object> data, Foreach foreach,
+                                                               List<String> dirtyFields) {
+
+        Map<Range, Map<String, Object>> edits = new HashMap<>();
+        List<String> foreachAttributes = List.of(COLLECTION, Constant.PARALLEL_EXECUTION, RESULT_TYPE, Constant.RESULT_TARGET,
+                "counterVariableName", UPDATE_ORIGINAL_CONTENT, Constant.DESCRIPTION);
+
+        if (MediatorUtils.anyMatch(dirtyFields, foreachAttributes)) {
+            Map<String, Object> scatterGatherData = new HashMap<>(data);
+            scatterGatherData.put("editForeachV2", true);
+
+            TagRanges range = foreach.getRange();
+            Range editRange = new Range(range.getStartTagRange().getStart(), range.getStartTagRange().getEnd());
+
+            edits.put(editRange, scatterGatherData);
+        }
+        return edits;
+    }
+
+    public static Map<String, Object> getDataFromST440(Foreach foreach) {
+
+        // If the collection is not null, then the mediator is a v2 mediator
+        // Otherwise, return the 430 mediator to preserve the backward compatibility
+        if (foreach.getCollection() != null) {
+            Map<String, Object> data = new HashMap<>();
+            data.put(Constant.DESCRIPTION, foreach.getDescription());
+            data.put(Constant.PARALLEL_EXECUTION, foreach.isExecuteParallel());
+            if (foreach.getResultTarget() == null) {
+                data.put(UPDATE_ORIGINAL_CONTENT, true);
+            } else {
+                data.put(UPDATE_ORIGINAL_CONTENT, false);
+                data.put(Constant.RESULT_TARGET, foreach.getResultTarget());
+                data.put(RESULT_TYPE, foreach.getResultType());
+            }
+            data.put(COLLECTION, MediatorUtils.getExpressionData(foreach.getCollection()));
+            data.put(Constant.VERSION, "v2");
+            return data;
+        }
+        return getDataFromST430(foreach);
     }
 }

@@ -113,14 +113,14 @@
     {
       "title": "Foreach",
       "operationName": "MEDIATORS.FOREACHMEDIATOR",
-      "tooltip": "Splits message based on XPath/JSONPath, processes sequentially, then merges back",
+      "tooltip": "Iterate over a list and then merges back the result.",
       "form": "<ForEachMediatorForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></ForEachMediatorForm>",
       "tag": "foreach",
       "mediatorClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.Foreach",
       "factoryClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.eip.ForeachFactory",
       "processingClass": "org.eclipse.lemminx.customservice.synapse.mediatorService.mediators.ForeachMediator",
-      "storeMethod": "processData430",
-      "retrieveMethod": "getDataFromST430"
+      "storeMethod": "processData440",
+      "retrieveMethod": "getDataFromST440"
     },
     {
       "title": "Validate",

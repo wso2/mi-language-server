@@ -1,6 +1,7 @@
 package org.eclipse.lemminx.customservice.synapse.mediatorService;
 
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.Namespace;
+import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 
 import java.util.*;
 
@@ -41,5 +42,10 @@ public class MediatorUtils {
             }
         }
         return filteredNamespaces;
+    }
+
+    public static Map<?, ?> getExpressionData(String expression) {
+
+        return Map.of(Constant.IS_EXPRESSION, true, Constant.VALUE, expression);
     }
 }
