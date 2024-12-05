@@ -17,15 +17,8 @@
  */
 package org.eclipse.lemminx.customservice.synapse.parser;
 
-import org.eclipse.lsp4j.Range;
+import java.util.List;
 
-public class UpdateDependency {
-
-    public Range range;
-    public String value;
-
-    public UpdateDependency(String value, Range range) {
-        this.value = value;
-        this.range = range;
-    }
+public class UpdateConfigRequest {
+    public List<ConfigDetails> configs;
 }

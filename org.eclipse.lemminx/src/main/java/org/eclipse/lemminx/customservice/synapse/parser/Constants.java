@@ -63,8 +63,12 @@ public class Constants {
     public static final String KEY_STORE_TYPE = "keystore.type";
     public static final String PROJECT_RUNTIME_VERSION = "project.runtime.version";
     public static final String DOCKER_MAVEN_PLUGIN = "docker-maven-plugin";
-    public static final String PROJECT_END_TAG= "</project>";
-    public static final String END_TAG= "</";
-    public static final String DEPENDENCIES_START_TAG= "<dependencies>";
-    public static final String DEPENDENCIES_END_TAG= "</dependencies>";
+    public static final String HASH = "#";
+    public static final String COLON = ":";
+    public static final String DEPENDENCIES = "dependencies";
+    public static final String LINE_SEPARATOR = "line.separator";
+    public static final String EMPTY = "";
+    public static final String DEPENDENCY_END_TAG = "</dependency>";
+    public static final String PROPERTIES_END_TAG = "</properties>";
+    public static final String YES = "yes";
 }

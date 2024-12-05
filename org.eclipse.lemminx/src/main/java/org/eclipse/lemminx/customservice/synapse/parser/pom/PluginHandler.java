@@ -115,7 +115,7 @@ public class PluginHandler extends DefaultHandler {
                         valueEndColumn - closingTagLength);
                 break;
             case Constants.NAME:
-                if (pluginArtifactId.equals(Constants.DOCKER_MAVEN_PLUGIN)) {
+                if (Constants.DOCKER_MAVEN_PLUGIN.equals(pluginArtifactId)) {
                     pomDetailsResponse.setDockerName(new Node(value, Either.forLeft(getRange(valueStartLine,
                             valueStartColumn, valueEndLine, valueEndColumn - closingTagLength))));
                 }
@@ -181,7 +181,7 @@ public class PluginHandler extends DefaultHandler {
                 dependency.setArtifact(artifactId);
                 dependency.setVersion(version);
                 dependency.setRange(getRange(dependencyStartLine, dependencyStartColumn, valueEndLine, valueEndColumn));
-                if (dependencyType.equals(Constants.ZIP)) {
+                if (Constants.ZIP.equals(dependencyType)) {
                     pomDetailsResponse.setConnectorDependencies(dependency);
                 } else {
                     pomDetailsResponse.setOtherDependencies(dependency);

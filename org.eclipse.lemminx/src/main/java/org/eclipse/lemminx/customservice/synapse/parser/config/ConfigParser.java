@@ -17,17 +17,19 @@
  */
 package org.eclipse.lemminx.customservice.synapse.parser.config;
 
-import org.eclipse.lemminx.customservice.synapse.parser.ConfigFileEditRequest;
+import org.eclipse.lemminx.customservice.synapse.parser.ConfigDetails;
 import org.eclipse.lemminx.customservice.synapse.parser.Constants;
 import org.eclipse.lemminx.customservice.synapse.parser.Node;
 import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
+import org.eclipse.lemminx.customservice.synapse.parser.UpdateConfigRequest;
+import org.eclipse.lemminx.customservice.synapse.parser.UpdateResponse;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -42,56 +44,58 @@ public class ConfigParser {
     private static final Logger LOGGER = Logger.getLogger(ConfigParser.class.getName());
 
     public static void getConfigDetails(String projectUri, OverviewPageDetailsResponse detailsResponse) {
-        List<String> fileLines = new ArrayList<>();
         File propertyFilePath = getFilePath(projectUri);
         if (isConfigFileExist(propertyFilePath)) {
             try (BufferedReader reader = new BufferedReader(new FileReader(propertyFilePath))) {
                 String line;
-                int lineNumber = 0;
+                int lineNumber = 1;
                 while ((line = reader.readLine()) != null) {
-                    lineNumber++;
                     line = line.trim();
-                    if (line.startsWith("#") || line.isEmpty()) {
+                    if (line.startsWith(Constants.HASH) || line.isEmpty()) {
                         continue;
                     }
                     int delimiterIndex = line.indexOf(':');
                     if (delimiterIndex != -1) {
                         String key = line.substring(0, delimiterIndex).trim();
-                        String value = line.substring(delimiterIndex + 1).trim();
-                        detailsResponse.setConfig(new Node(key, value, Either.forLeft(new Range(new Position(lineNumber,
-                                line.indexOf(key)), new Position(lineNumber, line.indexOf(value) +
-                                value.length() - 1)))));
+                        detailsResponse.setConfig(
+                                new Node(key, line.substring(delimiterIndex + 1).trim(),
+                                        Either.forLeft(new Range(
+                                                new Position(lineNumber, line.indexOf(key) + 1),
+                                                new Position(lineNumber, line.length() + 1)))));
                     }
+                    lineNumber++;
                 }
-            } catch (FileNotFoundException e) {
-                LOGGER.log(Level.SEVERE, "Config file does not exist: " + e.getMessage());
             } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, "Error accessing the config file: " + e.getMessage());
+                LOGGER.log(Level.SEVERE, "Error processing the config file: " + e.getMessage());
             }
         }
     }
 
-    public static String updateConfigFileValue(String projectUri, ConfigFileEditRequest request) {
-        List<String> fileLines = new ArrayList<>();
+    public static UpdateResponse updateConfigFile(String projectUri, UpdateConfigRequest request) {
         File propertyFilePath = getFilePath(projectUri);
         if (isConfigFileExist(propertyFilePath)) {
             try {
-                fileLines = new ArrayList<>(Files.readAllLines(propertyFilePath.toPath()));
-                int targetLine = request.range.getStart().getLine() - 1;
-                if (targetLine >= 0 && targetLine < fileLines.size()) {
-                    String trimmedLine = fileLines.get(targetLine).trim();
-
-                    if (!trimmedLine.startsWith("#") && !trimmedLine.isEmpty()) {
-                        fileLines.set(targetLine, request.key + ":" + request.value);
+                List<String> fileLines = new ArrayList<>(Files.readAllLines(propertyFilePath.toPath()));
+                UpdateResponse updateResponse = new UpdateResponse();
+                int startLine = fileLines.size();
+                for (ConfigDetails entry : request.configs) {
+                    String value = entry.key + Constants.COLON + entry.value;
+                    if (entry.range != null) {
+                        Range range = entry.range;
+                        updateResponse.add(new TextEdit(new Range(range.getStart(),
+                                new Position(range.getStart().getLine(), range.getEnd().getCharacter())), value));
+                    } else {
+                        startLine++;
+                        updateResponse.add(new TextEdit(new Range(new Position(startLine, 0),
+                                new Position(startLine, value.length() + 1)), value));
                     }
-                } else {
-                    LOGGER.log(Level.WARNING, "Specified line number is out of bounds: " + (targetLine + 1));
                 }
+                return updateResponse;
             } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, "Error updating properties file: " + e.getMessage());
+                LOGGER.log(Level.SEVERE, "Error processing the config file: " + e.getMessage());
             }
         }
-        return String.join("\n", fileLines);
+        return null;
     }
 
     private static File getFilePath(String projectUri) {

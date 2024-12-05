@@ -21,11 +21,11 @@ import org.eclipse.lsp4j.Range;
 
 public class DependencyDetails {
 
-    public String groupId;
-    public String artifact;
-    public String version;
-    public String type;
-    public Range range;
+    private String groupId;
+    private String artifact;
+    private String version;
+    private String type;
+    private Range range;
 
     public DependencyDetails() {}
 
@@ -47,5 +47,25 @@ public class DependencyDetails {
 
     public void setRange(Range range) {
         this.range = range;
+    }
+
+    public String getGroupId() {
+        return this.groupId;
+    }
+
+    public String getArtifact() {
+        return this.artifact;
+    }
+
+    public String getVersion() {
+        return this.version;
+    }
+
+    public String getType() {
+        return this.type;
+    }
+
+    public Range getRange() {
+        return this.range;
     }
 }
