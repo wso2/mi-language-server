@@ -31,6 +31,7 @@ import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTr
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Params;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Properties;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property;
+import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lsp4j.CompletionItem;
 
@@ -141,7 +142,7 @@ public class ExpressionHelperProvider {
 
         List<CompletionItem> dataList = new ArrayList<>();
         for (Property variable : variables) {
-            String expression = expressionPrefix + "." + variable.getKey();
+            String expression = expressionPrefix + Constant.DOT + variable.getKey();
             HelperPanelItem item = new HelperPanelItem(variable.getKey(), expression);
             String value = variable.getValue();
             if (value != null && Utils.isJSONObject(value)) {

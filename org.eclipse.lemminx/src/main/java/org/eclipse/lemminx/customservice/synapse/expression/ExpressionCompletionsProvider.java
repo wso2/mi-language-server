@@ -56,15 +56,15 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.eclipse.lemminx.customservice.synapse.expression.ExpressionConstants.EXPRESSION_PREFIX;
+
 public class ExpressionCompletionsProvider {
 
     private static final Logger LOGGER = Logger.getLogger(ExpressionCompletionsProvider.class.getName());
-    private static final String EXPRESSION_PREFIX = "${";
-    private static final List<String> startingTokens =
-            List.of("var", "properties", "props", "params", "headers", "payload");
     private static final String PROJECT_PATH_REGEX =
             Pattern.quote("file:" + File.separator + File.separator) + "(.+?)" +
                     Pattern.quote(Path.of("src", "main", "wso2mi").toString()) + ".*";
+    private static final String EXPRESSION_REGEX = "\\$\\{([^}]*)}?$";
 
     private ExpressionCompletionsProvider() {
 
@@ -151,8 +151,8 @@ public class ExpressionCompletionsProvider {
             return null;
         }
         ServerLessTryoutHandler serverLessTryoutHandler = new ServerLessTryoutHandler(matcher.group(1));
-        MediatorTryoutRequest
-                propertyRequest = new MediatorTryoutRequest(request.getXMLDocument().getDocumentURI().substring(7),
+        MediatorTryoutRequest propertyRequest = new MediatorTryoutRequest(
+                request.getXMLDocument().getDocumentURI().substring(7),
                 request.getPosition().getLine(), request.getPosition().getCharacter(), StringUtils.EMPTY, null);
         return serverLessTryoutHandler.handle(propertyRequest);
     }
@@ -186,7 +186,7 @@ public class ExpressionCompletionsProvider {
                 expressionString = valuePrefix.substring(0, offsetDiff);
             }
         }
-        Pattern pattern = Pattern.compile("\\$\\{([^}]*)}?$");
+        Pattern pattern = Pattern.compile(EXPRESSION_REGEX);
         Matcher matcher = pattern.matcher(expressionString);
         if (matcher.matches()) {
             return matcher.group(1);
@@ -204,7 +204,7 @@ public class ExpressionCompletionsProvider {
         } else if (ExpressionCompletionType.OBJECT_TRAVERSAL.equals(segment.getType())) {
             if (!segment.getSegment().isEmpty()) {
                 List<String> segments = segment.getSegment();
-                if (startingTokens.contains(segments.get(0))) {
+                if (ExpressionConstants.ROOT_LEVEL_TOKENS.contains(segments.get(0))) {
                     MediatorTryoutInfo info = getMediatorProperties(request);
                     if (info != null) {
                         getCompletionItems(request, response, info, segment, isNewMediator);
@@ -323,7 +323,7 @@ public class ExpressionCompletionsProvider {
             List<String> itemValues = findItemValues(expressionSegments, properties, context.isNeedNext());
             addCompletionItems(request, response, itemValues);
         } else {
-            ExpressionCompletionUtils.addAttributeSecondLevelCompletions(request, response, "");
+            ExpressionCompletionUtils.addAttributeSecondLevelCompletions(request, response, StringUtils.EMPTY);
         }
     }
 
@@ -416,8 +416,8 @@ public class ExpressionCompletionsProvider {
 
         if (itemValues != null) {
             for (String item : itemValues) {
-                ExpressionCompletionUtils.addCompletionItem(request, response, item, "Object",
-                        CompletionItemKind.Value, 0, false);
+                ExpressionCompletionUtils.addCompletionItem(request, response, item, ExpressionConstants.OBJECT,
+                        CompletionItemKind.Value, 0, Boolean.FALSE);
             }
         }
     }
@@ -464,7 +464,7 @@ public class ExpressionCompletionsProvider {
             return Collections.emptyList();
         }
         JsonObject currentObject = jsonObject;
-        String filterText = "";
+        String filterText = StringUtils.EMPTY;
 
         for (int i = 1; i < expressionSegments.size(); i++) {
             String segment = expressionSegments.get(i);

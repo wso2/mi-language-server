@@ -20,8 +20,8 @@ package org.eclipse.lemminx.customservice.synapse.expression.pojo;
 
 public class FunctionInfo {
 
-    String name;
-    int currentParameterIndex;
+    private String name;
+    private int currentParameterIndex;
 
     public FunctionInfo(String name, int currentParameterIndex) {
 

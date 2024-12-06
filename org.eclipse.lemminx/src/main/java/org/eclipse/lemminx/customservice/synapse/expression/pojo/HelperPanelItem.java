@@ -26,14 +26,13 @@ import java.util.List;
 
 public class HelperPanelItem extends CompletionItem {
 
-    List<CompletionItem> children;
+    private List<CompletionItem> children;
 
     public HelperPanelItem(String label, String insertText) {
 
         setLabel(label);
         setInsertText(insertText);
         children = new ArrayList<>();
-
     }
 
     public void addChild(CompletionItem data) {

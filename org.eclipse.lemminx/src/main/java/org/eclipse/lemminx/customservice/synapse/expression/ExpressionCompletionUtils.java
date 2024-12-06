@@ -21,7 +21,9 @@ package org.eclipse.lemminx.customservice.synapse.expression;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.FunctionCompletionItem;
+import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.extensions.contentmodel.participants.completion.AttributeValueCompletionResolver;
 import org.eclipse.lemminx.services.data.DataEntryField;
@@ -50,22 +52,26 @@ import java.util.stream.Collectors;
 public class ExpressionCompletionUtils {
 
     private static final Logger LOGGER = Logger.getLogger(ExpressionCompletionUtils.class.getName());
-    private static Map<String, List<CompletionItem>> functions;
+    private static final String FUNCTIONS_JSON_PATH = "org/eclipse/lemminx/expression/functions.json";
+    private static final Map<String, List<CompletionItem>> functions = new HashMap<>();
 
     static {
         try {
-            functions = new HashMap<>();
             loadFunctionCompletions();
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Failed to load function completions", e);
         }
     }
 
+    /**
+     * Load synapse expression functions from the resource file.
+     *
+     * @throws IOException
+     */
     private static void loadFunctionCompletions() throws IOException {
 
-        try (InputStream inputStream = ExpressionCompletionUtils.class
-                .getClassLoader()
-                .getResourceAsStream("org/eclipse/lemminx/expression/functions.json")) {
+        try (InputStream inputStream = ExpressionCompletionUtils.class.getClassLoader()
+                .getResourceAsStream(FUNCTIONS_JSON_PATH)) {
 
             if (inputStream == null) {
                 LOGGER.log(Level.SEVERE, "Failed to load synapse expression functions");
@@ -73,7 +79,7 @@ public class ExpressionCompletionUtils {
             String jsonContent;
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-                jsonContent = reader.lines().collect(Collectors.joining("\n"));
+                jsonContent = reader.lines().collect(Collectors.joining(StringUtils.LF));
             }
             JsonObject functionsObject = Utils.getJsonObject(jsonContent);
             if (functionsObject != null) {
@@ -116,8 +122,8 @@ public class ExpressionCompletionUtils {
     public static void addRootLevelCompletions(ICompletionResponse response, String filterText) {
 
         List<CompletionItem> completionItems = new ArrayList<>();
-        addRootLevelObjectCompletions(completionItems);
-        addFunctionCompletions(completionItems);
+        getRootLevelObjectCompletions(completionItems);
+        getFunctionCompletions(completionItems);
         for (CompletionItem item : completionItems) {
             if (item.getLabel().startsWith(filterText)) {
                 response.addCompletionItem(item);
@@ -125,21 +131,21 @@ public class ExpressionCompletionUtils {
         }
     }
 
-    private static void addRootLevelObjectCompletions(List<CompletionItem> items) {
+    private static void getRootLevelObjectCompletions(List<CompletionItem> items) {
 
-        items.add(createCompletionItem("var", "var", "Access defined variables",
-                CompletionItemKind.Keyword, 0, false));
-        items.add(createCompletionItem("props", "props", "Access mediation attributes",
-                CompletionItemKind.Keyword, 0, false));
-        items.add(createCompletionItem("params", "params", "Access params",
-                CompletionItemKind.Keyword, 0, false));
-        items.add(createCompletionItem("headers", "headers", "Access defined headers",
-                CompletionItemKind.Keyword, 0, false));
-        items.add(createCompletionItem("payload", "payload", "Access defined payload",
-                CompletionItemKind.Keyword, 0, false));
+        items.add(createCompletionItem(ExpressionConstants.VAR, ExpressionConstants.VAR,
+                "Access defined variables", CompletionItemKind.Keyword, 0, Boolean.FALSE));
+        items.add(createCompletionItem(ExpressionConstants.PROPS, ExpressionConstants.PROPS,
+                "Access mediation attributes", CompletionItemKind.Keyword, 0, Boolean.FALSE));
+        items.add(createCompletionItem(ExpressionConstants.PARAMS, ExpressionConstants.PARAMS,
+                "Access params", CompletionItemKind.Keyword, 0, Boolean.FALSE));
+        items.add(createCompletionItem(ExpressionConstants.HEADERS, ExpressionConstants.HEADERS,
+                "Access defined headers", CompletionItemKind.Keyword, 0, Boolean.FALSE));
+        items.add(createCompletionItem(ExpressionConstants.PAYLOAD, ExpressionConstants.PAYLOAD,
+                "Access defined payload", CompletionItemKind.Keyword, 0, Boolean.FALSE));
     }
 
-    private static void addFunctionCompletions(List<CompletionItem> items) {
+    private static void getFunctionCompletions(List<CompletionItem> items) {
 
         List<CompletionItem> functionCompletions = new ArrayList<>();
         functions.values().forEach(functionCompletions::addAll);
@@ -155,15 +161,15 @@ public class ExpressionCompletionUtils {
     public static void addOperatorCompletions(ICompletionRequest request, ICompletionResponse response) {
 
         addCompletionItem(request, response, "+", "Addition", CompletionItemKind.Operator,
-                0, false);
+                0, Boolean.FALSE);
         addCompletionItem(request, response, "-", "Subtraction", CompletionItemKind.Operator,
-                0, false);
+                0, Boolean.FALSE);
         addCompletionItem(request, response, "*", "Multiplication", CompletionItemKind.Operator,
-                0, false);
+                0, Boolean.FALSE);
         addCompletionItem(request, response, "/", "Division", CompletionItemKind.Operator,
-                0, false);
+                0, Boolean.FALSE);
         addCompletionItem(request, response, "? ${1} : ${2}", "Ternary operator",
-                CompletionItemKind.Operator, 0, true);
+                CompletionItemKind.Operator, 0, Boolean.TRUE);
     }
 
     /**
@@ -323,7 +329,7 @@ public class ExpressionCompletionUtils {
         ExpressionConstants.ATTRIBUTES_SECOND_LEVEL.forEach(value -> {
             if (value.startsWith(filterText)) {
                 addCompletionItem(request, response, value, value, "Attribute", CompletionItemKind.Keyword,
-                        0, false);
+                        0, Boolean.FALSE);
             }
         });
     }
@@ -341,7 +347,7 @@ public class ExpressionCompletionUtils {
         ExpressionConstants.PARAMS_SECOND_LEVEL.forEach(value -> {
             if (value.startsWith(filterText)) {
                 addCompletionItem(request, response, value, value, "Params", CompletionItemKind.Keyword,
-                        0, false);
+                        0, Boolean.FALSE);
             }
         });
     }

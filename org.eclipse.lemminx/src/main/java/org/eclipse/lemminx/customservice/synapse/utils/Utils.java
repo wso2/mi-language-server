@@ -868,6 +868,12 @@ public class Utils {
         }
     }
 
+    /**
+     * Check whether the given content is a JSON object
+     *
+     * @param content the content
+     * @return whether the given content is a JSON object
+     */
     public static boolean isJSONObject(String content) {
 
         try {
@@ -877,6 +883,12 @@ public class Utils {
         }
     }
 
+    /**
+     * Convert the given string to camel case
+     *
+     * @param input the input string
+     * @return the camel case string
+     */
     public static String toCamelCase(String input) {
 
         if (input == null) {
