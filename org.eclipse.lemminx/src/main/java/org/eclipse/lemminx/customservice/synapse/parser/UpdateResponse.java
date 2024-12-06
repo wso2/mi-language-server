@@ -24,13 +24,13 @@ import java.util.List;
 
 public class UpdateResponse {
 
-    private List<TextEdit> textEdit;
+    private List<TextEdit> textEdits;
 
     public UpdateResponse() {
-        textEdit = new ArrayList<>();
+        textEdits = new ArrayList<>();
     }
 
     public void add (TextEdit textEdit) {
-        this.textEdit.add(textEdit);
+        this.textEdits.add(textEdit);
     }
 }
