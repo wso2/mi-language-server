@@ -28,6 +28,8 @@ import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
 import org.xml.sax.helpers.DefaultHandler;
 
+import java.util.Objects;
+
 public class PluginHandler extends DefaultHandler {
     private Locator locator;
     private final StringBuilder contentBuffer = new StringBuilder();
@@ -195,6 +197,9 @@ public class PluginHandler extends DefaultHandler {
                 dependency.setGroupId(groupId);
                 dependency.setArtifact(artifactId);
                 dependency.setVersion(version);
+                if (!Objects.equals(dependencyType, "")) {
+                    dependency.setType(dependencyType);
+                }
                 dependency.setRange(getRange(dependencyStartLine, dependencyStartColumn, valueEndLine, valueEndColumn));
                 if (Constants.ZIP.equals(dependencyType)) {
                     pomDetailsResponse.getDependenciesDetails().addConnectorDependencies(dependency);

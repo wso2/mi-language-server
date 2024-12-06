@@ -225,10 +225,6 @@ public class PomParser {
         }
     }
 
-    private static String removeLineSeparator(Element input) {
-        return removeLineSeparator(elementToString(input));
-    }
-
     private static String removeLineSeparator(String input) {
         if (input == null) {
             return null;
