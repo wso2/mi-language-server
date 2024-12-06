@@ -21,6 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.mediator.tryout;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.customservice.synapse.debugger.DebuggerHelper;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
@@ -72,14 +73,14 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants.TEMP_FOLDER_PATH;
+
 public class TryOutHandler {
 
     private static final Logger LOGGER = Logger.getLogger(TryOutHandler.class.getName());
-    private static final Path TEMP_FOLDER_PATH =
-            Path.of(System.getProperty("user.home"), ".wso2-mi", "tryout");
     private static final Path DEFAULT_FAULT_SEQUENCE_PATH = Path.of("repository", "deployment", "server",
             "synapse-configs", "default", "sequences", "fault.xml");
-    private static final String MI_HOST = "localhost";
+    private static final String MI_HOST = TryOutConstants.LOCALHOST;
     private static final Executor executor = Executors.newSingleThreadExecutor();
     private final String projectUri;
     private MIServer server;
@@ -506,7 +507,7 @@ public class TryOutHandler {
                     "Connection: close\r\n");
 
             if (TryOutConstants.POST.equalsIgnoreCase(methodType)) {
-                if (inputPayload != null && !inputPayload.isEmpty()) {
+                if (StringUtils.isEmpty(inputPayload)) {
                     request.append("Content-Type: ").append(contentType).append("\r\n")
                             .append("Content-Length: ").append(inputPayload.getBytes(StandardCharsets.UTF_8).length)
                             .append("\r\n")

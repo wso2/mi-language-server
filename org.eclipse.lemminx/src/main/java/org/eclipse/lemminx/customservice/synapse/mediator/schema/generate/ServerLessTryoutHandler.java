@@ -19,6 +19,7 @@
 package org.eclipse.lemminx.customservice.synapse.mediator.schema.generate;
 
 import com.google.gson.JsonPrimitive;
+import org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants;
 import org.eclipse.lemminx.customservice.synapse.mediator.schema.generate.visitor.APIVisitor;
 import org.eclipse.lemminx.customservice.synapse.mediator.TryOutUtils;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutRequest;
@@ -36,8 +37,6 @@ import java.nio.file.Path;
 
 public class ServerLessTryoutHandler {
 
-    private static final Path TEMP_FOLDER_PATH =
-            Path.of(System.getProperty("user.home"), ".wso2-mi", "tryout");
     private final String projectUri;
 
     public ServerLessTryoutHandler(String projectUri) {
@@ -48,7 +47,8 @@ public class ServerLessTryoutHandler {
     public MediatorTryoutInfo handle(MediatorTryoutRequest request) {
 
         try {
-            TryOutUtils.cloneAndPreprocessProject(projectUri, request.getFile(), request.getEdits(), TEMP_FOLDER_PATH);
+            TryOutUtils.cloneAndPreprocessProject(projectUri, request.getFile(), request.getEdits(),
+                    TryOutConstants.TEMP_FOLDER_PATH);
             String filePath = request.getFile();
             MediatorTryoutInfo mediatorTryoutInfo = new MediatorTryoutInfo();
             JsonPrimitive payload = null;

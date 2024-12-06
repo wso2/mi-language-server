@@ -20,6 +20,7 @@ package org.eclipse.lemminx.customservice.synapse.mediator.tryout.server;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.DeployedArtifactType;
 
 import java.io.IOException;
@@ -50,7 +51,7 @@ public class ManagementAPIClient {
     private static final String PASSWORD = "admin";
     private ObjectMapper objectMapper;
     private HttpClient client;
-    private static final String HOST = "localhost";
+    private static final String HOST = TryOutConstants.LOCALHOST;
     private int port = 9154;
     private String accessToken;
 

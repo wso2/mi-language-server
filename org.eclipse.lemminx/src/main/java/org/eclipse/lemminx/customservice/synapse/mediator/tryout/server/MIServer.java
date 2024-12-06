@@ -428,7 +428,7 @@ public class MIServer {
 
     private boolean isServerRunning() {
 
-        try (Socket socket = new Socket("localhost", DEFAULT_INBOUND_PORT + offset)) {
+        try (Socket socket = new Socket(TryOutConstants.LOCALHOST, DEFAULT_INBOUND_PORT + offset)) {
             return socket.isConnected();
         } catch (IOException e) {
             return false;

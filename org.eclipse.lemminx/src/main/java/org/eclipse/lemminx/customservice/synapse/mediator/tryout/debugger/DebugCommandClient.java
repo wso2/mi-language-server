@@ -33,7 +33,7 @@ public class DebugCommandClient {
 
     private static final Logger LOGGER = Logger.getLogger(DebugCommandClient.class.getName());
 
-    private static final String HOST = "localhost";
+    private static final String HOST = TryOutConstants.LOCALHOST;
     private int port;
     private Socket socket;
 

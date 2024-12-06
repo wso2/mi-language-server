@@ -22,6 +22,7 @@ import java.nio.file.Path;
 
 public class TryOutConstants {
 
+    public static final Path TEMP_FOLDER_PATH = Path.of(System.getProperty("user.home"), ".wso2-mi", "tryout");
     public static final String SYNAPSE_PROPERTIES = "synapse-properties";
     public static final String AXIS2_PROPERTIES = "axis2-properties";
     public static final String AXIS2_CLIENT_PROPERTIES = "axis2Client-properties";

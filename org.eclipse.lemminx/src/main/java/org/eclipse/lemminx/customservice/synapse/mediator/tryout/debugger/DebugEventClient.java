@@ -33,7 +33,7 @@ import java.util.logging.Logger;
 public class DebugEventClient extends Thread {
 
     private static final Logger LOGGER = Logger.getLogger(DebugEventClient.class.getName());
-    private static final String HOST = "localhost";
+    private static final String HOST = TryOutConstants.LOCALHOST;
     private int port;
     private Socket socket;
     private final BreakpointEventProcessor breakpointEventProcessor;
