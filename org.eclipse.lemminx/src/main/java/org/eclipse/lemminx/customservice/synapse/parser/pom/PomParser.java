@@ -133,7 +133,6 @@ public class PomParser {
                 dependenciesStartTag = i;
                 dependenciesCharLength = content.indexOf(Constants.DEPENDENCIES_START_TAG) +
                         Constants.DEPENDENCIES_START_TAG.length() + 1;
-
             }
             if (line.contains(Constants.DEPENDENCY_END_TAG)) {
                 hasDependencies = true;
