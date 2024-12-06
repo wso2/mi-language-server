@@ -46,6 +46,7 @@ public class Constants {
     public static final String TEST_SERVER_PATH = "testServerPath";
     public static final String TEST_SERVER_VERSION = "testServerVersion";
     public static final String TEST_SERVER_DOWNLOAD_LINK = "testServerDownloadLink";
+    public static final String SKIP_TEST = "mavenTestSkip";
     public static final String VSCODE_CAR_PLUGIN = "vscode-car-plugin";
     public static final String MI_CONTAINER_CONFIG_MAPPER = "mi-container-config-mapper";
     public static final String SYNAPSE_UNIT_TEST_MAVEN_PLUGIN = "synapse-unit-test-maven-plugin";

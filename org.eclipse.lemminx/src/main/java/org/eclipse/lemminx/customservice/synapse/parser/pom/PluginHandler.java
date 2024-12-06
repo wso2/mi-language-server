@@ -116,44 +116,59 @@ public class PluginHandler extends DefaultHandler {
                 break;
             case Constants.NAME:
                 if (Constants.DOCKER_MAVEN_PLUGIN.equals(pluginArtifactId)) {
-                    pomDetailsResponse.setDockerName(new Node(value, Either.forLeft(getRange(valueStartLine,
-                            valueStartColumn, valueEndLine, valueEndColumn - closingTagLength))));
+                    pomDetailsResponse.getBuildDetails().getDockerDetails().setDockerName(
+                            new Node(value, Either.forLeft(getRange(valueStartLine,
+                                    valueStartColumn, valueEndLine, valueEndColumn - closingTagLength))));
                 }
                 break;
             case Constants.TEST_SERVER_TYPE:
-                pomDetailsResponse.setServerType(new Node(value, Either.forLeft(getRange(valueStartLine,
-                        valueStartColumn, valueEndLine, valueEndColumn - closingTagLength))));
+                pomDetailsResponse.getUnitTestDetails().setServerType(
+                        new Node(value, Either.forLeft(getRange(valueStartLine, valueStartColumn,
+                                valueEndLine, valueEndColumn - closingTagLength))));
                 break;
             case Constants.TEST_SERVER_HOST:
-                pomDetailsResponse.setServerHost(new Node(value, Either.forLeft(getRange(valueStartLine,
-                        valueStartColumn, valueEndLine, valueEndColumn - closingTagLength))));
+                pomDetailsResponse.getUnitTestDetails().setServerHost(new Node(value,
+                        Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
+                                valueEndColumn - closingTagLength))));
                 break;
             case Constants.TEST_SERVER_PORT:
-                pomDetailsResponse.setServerPort(new Node(value, Either.forLeft(getRange(valueStartLine,
-                        valueStartColumn, valueEndLine, valueEndColumn - closingTagLength))));
+                pomDetailsResponse.getUnitTestDetails().setServerPort(new Node(value,
+                        Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
+                                valueEndColumn - closingTagLength))));
                 break;
             case Constants.TEST_SERVER_PATH:
-                pomDetailsResponse.setServerPath(new Node(value, Either.forLeft(getRange(valueStartLine,
-                        valueStartColumn, valueEndLine, valueEndColumn - closingTagLength))));
+                pomDetailsResponse.getUnitTestDetails().setServerPath(new Node(value,
+                        Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
+                                valueEndColumn - closingTagLength))));
                 break;
             case Constants.TEST_SERVER_VERSION:
-                pomDetailsResponse.setServerVersion(new Node(value, Either.forLeft(getRange(valueStartLine,
-                        valueStartColumn, valueEndLine, valueEndColumn - closingTagLength))));
+                pomDetailsResponse.getUnitTestDetails().setServerVersion(new Node(value,
+                        Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
+                                valueEndColumn - closingTagLength))));
                 break;
             case Constants.TEST_SERVER_DOWNLOAD_LINK:
-                pomDetailsResponse.setServerDownloadLink(new Node(value, Either.forLeft(getRange(valueStartLine,
-                        valueStartColumn, valueEndLine, valueEndColumn - closingTagLength))));
+                pomDetailsResponse.getUnitTestDetails().setServerDownloadLink(new Node(value,
+                        Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
+                                valueEndColumn - closingTagLength))));
+                break;
+            case Constants.SKIP_TEST:
+                pomDetailsResponse.getUnitTestDetails().setSkipTest(new Node(value,
+                        Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
+                                valueEndColumn - closingTagLength))));
                 break;
             case Constants.PLUGIN:
                 switch (pluginArtifactId.trim()) {
                     case Constants.VSCODE_CAR_PLUGIN:
-                        pomDetailsResponse.setProjectBuildPluginVersion(pluginVersion, range);
+                        pomDetailsResponse.getBuildDetails().getAdvanceDetails().getPluginDetails().
+                                setProjectBuildPluginVersion(pluginVersion, range);
                         break;
                     case Constants.MI_CONTAINER_CONFIG_MAPPER:
-                        pomDetailsResponse.setMiContainerPluginVersion(new Node(pluginVersion, Either.forLeft(range)));
+                        pomDetailsResponse.getBuildDetails().getAdvanceDetails().getPluginDetails().
+                                setMiContainerPluginVersion(new Node(pluginVersion, Either.forLeft(range)));
                         break;
                     case Constants.SYNAPSE_UNIT_TEST_MAVEN_PLUGIN:
-                        pomDetailsResponse.setUnitTestPluginVersion(new Node(pluginVersion, Either.forLeft(range)));
+                        pomDetailsResponse.getBuildDetails().getAdvanceDetails().getPluginDetails().
+                                setUnitTestPluginVersion(new Node(pluginVersion, Either.forLeft(range)));
                         break;
                 }
                 isPlugin = false;
@@ -182,9 +197,9 @@ public class PluginHandler extends DefaultHandler {
                 dependency.setVersion(version);
                 dependency.setRange(getRange(dependencyStartLine, dependencyStartColumn, valueEndLine, valueEndColumn));
                 if (Constants.ZIP.equals(dependencyType)) {
-                    pomDetailsResponse.setConnectorDependencies(dependency);
+                    pomDetailsResponse.getDependenciesDetails().addConnectorDependencies(dependency);
                 } else {
-                    pomDetailsResponse.setOtherDependencies(dependency);
+                    pomDetailsResponse.getDependenciesDetails().addOtherDependencies(dependency);
                 }
                 isDependency = false;
                 break;
@@ -196,25 +211,31 @@ public class PluginHandler extends DefaultHandler {
         Range range = getRange(valueStartLine, valueStartColumn, valueEndLine, valueEndColumn);
         switch (qName) {
             case Constants.PROJECT_RUNTIME_VERSION:
-                pomDetailsResponse.setRuntimeVersion(new Node(value, Either.forLeft(range)));
+                this.pomDetailsResponse.getPrimaryDetails().setRuntimeVersion(new Node(value, Either.forLeft(range)));
                 break;
             case Constants.KEY_STORE_TYPE:
-                pomDetailsResponse.setKeyStoreType(new Node(value, Either.forLeft(range)));
+                pomDetailsResponse.getBuildDetails().getDockerDetails().
+                        setKeyStoreType(new Node(value, Either.forLeft(range)));
                 break;
             case Constants.KEY_STORE_NAME:
-                pomDetailsResponse.setKeyStoreName(new Node(value, Either.forLeft(range)));
+                pomDetailsResponse.getBuildDetails().getDockerDetails().
+                        setKeyStoreName(new Node(value, Either.forLeft(range)));
                 break;
             case Constants.KEY_STORE_PASSWORD:
-                pomDetailsResponse.setKeyStorePassword(new Node(value, Either.forLeft(range)));
+                pomDetailsResponse.getBuildDetails().getDockerDetails().
+                        setKeyStorePassword(new Node(value, Either.forLeft(range)));
                 break;
             case Constants.KEY_STORE_ALIAS:
-                pomDetailsResponse.setKeyStoreAlias(new Node(value, Either.forLeft(range)));
+                pomDetailsResponse.getBuildDetails().getDockerDetails().
+                        setKeyStoreAlias(new Node(value, Either.forLeft(range)));
                 break;
             case Constants.CIPHER_TOOL_ENABLE:
-                pomDetailsResponse.setCipherToolEnable(new Node(value, Either.forLeft(range)));
+                pomDetailsResponse.getBuildDetails().getDockerDetails().setCipherToolEnable(
+                        new Node(value, Either.forLeft(range)));
                 break;
             case Constants.DOCKER_FILE_BASE_IMAGE:
-                pomDetailsResponse.setDockerFileBaseImage(new Node(value, Either.forLeft(range)));
+                pomDetailsResponse.getBuildDetails().getDockerDetails().setDockerFileBaseImage(
+                        new Node(value, Either.forLeft(range)));
                 break;
             case Constants.PROPERTIES:
                 isProperties = false;
@@ -227,19 +248,21 @@ public class PluginHandler extends DefaultHandler {
         Range range = getRange(valueStartLine, valueStartColumn, valueEndLine, valueEndColumn);
         switch (qName) {
             case Constants.GROUP_ID:
-                pomDetailsResponse.setProjectGroupId(new Node(value, Either.forLeft(range)));
+                pomDetailsResponse.getBuildDetails().getAdvanceDetails().setProjectGroupId(
+                        new Node(value, Either.forLeft(range)));
                 break;
             case Constants.ARTIFACT_ID:
-                pomDetailsResponse.setProjectArtifactId(new Node(value, Either.forLeft(range)));
+                pomDetailsResponse.getBuildDetails().getAdvanceDetails().
+                        setProjectArtifactId(new Node(value, Either.forLeft(range)));
                 break;
             case Constants.VERSION:
-                pomDetailsResponse.setProjectVersion(new Node(value, Either.forLeft(range)));
+                pomDetailsResponse.getPrimaryDetails().setProjectVersion(new Node(value, Either.forLeft(range)));
                 break;
             case Constants.DESCRIPTION:
-                pomDetailsResponse.setProjectDescription(new Node(value, Either.forLeft(range)));
+                pomDetailsResponse.getPrimaryDetails().setProjectDescription(new Node(value, Either.forLeft(range)));
                 break;
             case Constants.NAME:
-                pomDetailsResponse.setProjectName(new Node(value, Either.forLeft(range)));
+                pomDetailsResponse.getPrimaryDetails().setProjectName(new Node(value, Either.forLeft(range)));
                 break;
         }
     }

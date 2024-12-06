@@ -17,8 +17,6 @@
  */
 package org.eclipse.lemminx.customservice.synapse.parser;
 
-import org.eclipse.lsp4j.Range;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,104 +36,20 @@ public class OverviewPageDetailsResponse {
         configurables = new ArrayList<>();
     }
 
-    public void setRuntimeVersion(Node runtimeVersion) {
-        this.primaryDetails.setRuntimeVersion(runtimeVersion);
+    public PrimaryDetails getPrimaryDetails() {
+        return this.primaryDetails;
     }
 
-    public void setProjectGroupId(Node projectGroupId) {
-        this.buildDetails.advanceDetails.setProjectGroupId(projectGroupId);
+    public BuildDetails getBuildDetails() {
+        return this.buildDetails;
     }
 
-    public void setProjectName(Node projectName) {
-        this.primaryDetails.setProjectName(projectName);
+    public DependenciesDetails getDependenciesDetails() {
+        return this.dependencies;
     }
 
-    public void setProjectArtifactId(Node projectArtifactId) {
-        this.buildDetails.advanceDetails.setProjectArtifactId(projectArtifactId);
-    }
-
-    public void setProjectVersion(Node projectVersion) {
-        this.primaryDetails.setProjectVersion(projectVersion);
-    }
-
-    public void setProjectDescription(Node projectDescription) {
-        this.primaryDetails.setProjectDescription(projectDescription);
-    }
-
-    public void setProjectBuildPluginVersion(String pluginVersion, Range range) {
-        this.buildDetails.advanceDetails.getPluginDetails().setProjectBuildPluginVersion(pluginVersion, range);
-    }
-
-    public void setConnectorDependencies(DependencyDetails connectorDependencies) {
-        this.dependencies.addConnectorDependencies(connectorDependencies);
-    }
-
-    public void setOtherDependencies(DependencyDetails otherDependencies) {
-        this.dependencies.addOtherDependencies(otherDependencies);
-    }
-
-    public void setMiContainerPluginVersion(Node miContainerPluginVersion) {
-        this.buildDetails.advanceDetails.getPluginDetails().setMiContainerPluginVersion(miContainerPluginVersion);
-    }
-
-    public void setUnitTestPluginVersion(Node unitTestPluginVersion) {
-        this.buildDetails.advanceDetails.getPluginDetails().setUnitTestPluginVersion(unitTestPluginVersion);
-    }
-
-    public void setKeyStoreType(Node keyStoreType) {
-        this.buildDetails.dockerDetails.setKeyStoreType(keyStoreType);
-    }
-
-    public void setKeyStoreName(Node keyStoreName) {
-        this.buildDetails.dockerDetails.setKeyStoreName(keyStoreName);
-    }
-
-    public void setKeyStorePassword(Node keyStorePassword) {
-        this.buildDetails.dockerDetails.setKeyStorePassword(keyStorePassword);
-    }
-
-    public void setKeyStoreAlias(Node keyStoreAlias) {
-        this.buildDetails.dockerDetails.setKeyStoreAlias(keyStoreAlias);
-    }
-
-    public void setCipherToolEnable(Node cipherToolEnable) {
-        this.buildDetails.dockerDetails.setCipherToolEnable(cipherToolEnable);
-    }
-
-    public void setDockerFileBaseImage(Node dockerFileBaseImage) {
-        this.buildDetails.dockerDetails.setDockerFileBaseImage(dockerFileBaseImage);
-    }
-
-    public void setDockerName(Node dockerName) {
-        this.buildDetails.dockerDetails.setDockerName(dockerName);
-    }
-
-    public void setSkipTest(Node skipTest) {
-        this.unitTest.setSkipTest(skipTest);
-    }
-
-    public void setServerType(Node serverType) {
-        this.unitTest.setServerType(serverType);
-    }
-
-    public void setServerHost(Node serverHost) {
-        this.unitTest.setServerHost(serverHost);
-    }
-
-    public void setServerPort(Node serverPort) {
-        this.unitTest.setServerPort(serverPort);
-    }
-
-    public void setServerPath(Node serverPath) {
-        this.unitTest.setServerPath(serverPath);
-    }
-
-    public void setServerVersion(Node serverVersion) {
-        this.unitTest.setServerVersion(serverVersion);
-    }
-
-    public void setServerDownloadLink(Node serverDownloadLink) {
-        this.unitTest.setServerDownloadLink(serverDownloadLink);
+    public UnitTestDetails getUnitTestDetails() {
+        return this.unitTest;
     }
 
     public void setConfig(Node config) {

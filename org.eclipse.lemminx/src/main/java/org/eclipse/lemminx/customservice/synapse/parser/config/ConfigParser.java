@@ -52,6 +52,7 @@ public class ConfigParser {
                 while ((line = reader.readLine()) != null) {
                     line = line.trim();
                     if (line.startsWith(Constants.HASH) || line.isEmpty()) {
+                        lineNumber++;
                         continue;
                     }
                     int delimiterIndex = line.indexOf(':');

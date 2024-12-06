@@ -26,4 +26,12 @@ public class BuildDetails {
         advanceDetails = new AdvanceDetails();
         dockerDetails = new DockerDetails();
     }
+
+    public AdvanceDetails getAdvanceDetails() {
+        return this.advanceDetails;
+    }
+
+    public DockerDetails getDockerDetails() {
+        return this.dockerDetails;
+    }
 }
