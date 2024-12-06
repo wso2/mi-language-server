@@ -99,28 +99,16 @@
       "retrieveMethod": "getDataFromST430"
     },
     {
-      "title": "Clone",
-      "operationName": "MEDIATORS.CLONE",
-      "tooltip": "Clones a message into several messages",
-      "form": "<CloneForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></CloneForm>",
-      "tag": "clone",
-      "mediatorClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.Clone.Clone",
-      "factoryClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.advanced.CloneFactory",
-      "processingClass": "org.eclipse.lemminx.customservice.synapse.mediatorService.mediators.CloneMediator",
-      "storeMethod": "processData430",
-      "retrieveMethod": "getDataFromST430"
-    },
-    {
-      "title": "Iterate",
-      "operationName": "MEDIATORS.ITERATE",
-      "tooltip": "Splits message into several for parallel processing (XPath/JSONPath)",
-      "form": "<IterateForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></IterateForm>",
-      "tag": "iterate",
-      "mediatorClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.Iterate",
-      "factoryClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.eip.IterateFactory",
-      "processingClass": "org.eclipse.lemminx.customservice.synapse.mediatorService.mediators.IterateMediator",
-      "storeMethod": "processData430",
-      "retrieveMethod": "getDataFromST430"
+      "title": "ScatterGather",
+      "operationName": "MEDIATORS.SCATTERGATHER",
+      "tooltip": "Clones a message into several messages and aggregate the responses back into a single message",
+      "form": "<ScatterGatherForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></ScatterGatherForm>",
+      "tag": "scatter-gather",
+      "mediatorClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.ScatterGather",
+      "factoryClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.eip.ScatterGatherFactory",
+      "processingClass": "org.eclipse.lemminx.customservice.synapse.mediatorService.mediators.ScatterGatherMediator",
+      "storeMethod": "processData",
+      "retrieveMethod": "getDataFromST"
     },
     {
       "title": "Foreach",
@@ -131,18 +119,6 @@
       "mediatorClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.Foreach",
       "factoryClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.eip.ForeachFactory",
       "processingClass": "org.eclipse.lemminx.customservice.synapse.mediatorService.mediators.ForeachMediator",
-      "storeMethod": "processData430",
-      "retrieveMethod": "getDataFromST430"
-    },
-    {
-      "title": "Aggregate",
-      "operationName": "MEDIATORS.AGGREGATE",
-      "tooltip": "Combines message responses that were split by Clone/Iterate mediator",
-      "form": "<AggregateForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></AggregateForm>",
-      "tag": "aggregate",
-      "mediatorClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.aggregate.Aggregate",
-      "factoryClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.eip.AggregateFactory",
-      "processingClass": "org.eclipse.lemminx.customservice.synapse.mediatorService.mediators.AggregateMediator",
       "storeMethod": "processData430",
       "retrieveMethod": "getDataFromST430"
     },
@@ -629,6 +605,42 @@
       "mediatorClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.other.bam.Bam",
       "factoryClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.other.BamFactory",
       "processingClass": "org.eclipse.lemminx.customservice.synapse.mediatorService.mediators.BamMediator",
+      "storeMethod": "processData430",
+      "retrieveMethod": "getDataFromST430"
+    },
+    {
+      "title": "Clone",
+      "operationName": "MEDIATORS.CLONE",
+      "tooltip": "Clones a message into several messages",
+      "form": "<CloneForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></CloneForm>",
+      "tag": "clone",
+      "mediatorClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.Clone.Clone",
+      "factoryClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.advanced.CloneFactory",
+      "processingClass": "org.eclipse.lemminx.customservice.synapse.mediatorService.mediators.CloneMediator",
+      "storeMethod": "processData430",
+      "retrieveMethod": "getDataFromST430"
+    },
+    {
+      "title": "Iterate",
+      "operationName": "MEDIATORS.ITERATE",
+      "tooltip": "Splits message into several for parallel processing (XPath/JSONPath)",
+      "form": "<IterateForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></IterateForm>",
+      "tag": "iterate",
+      "mediatorClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.Iterate",
+      "factoryClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.eip.IterateFactory",
+      "processingClass": "org.eclipse.lemminx.customservice.synapse.mediatorService.mediators.IterateMediator",
+      "storeMethod": "processData430",
+      "retrieveMethod": "getDataFromST430"
+    },
+    {
+      "title": "Aggregate",
+      "operationName": "MEDIATORS.AGGREGATE",
+      "tooltip": "Combines message responses that were split by Clone/Iterate mediator",
+      "form": "<AggregateForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></AggregateForm>",
+      "tag": "aggregate",
+      "mediatorClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.aggregate.Aggregate",
+      "factoryClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.eip.AggregateFactory",
+      "processingClass": "org.eclipse.lemminx.customservice.synapse.mediatorService.mediators.AggregateMediator",
       "storeMethod": "processData430",
       "retrieveMethod": "getDataFromST430"
     }

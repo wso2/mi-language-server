@@ -69,6 +69,7 @@
     <xs:include schemaLocation="advanced/clone.xsd"/>
     <xs:include schemaLocation="eip/iterate.xsd"/>
     <xs:include schemaLocation="eip/foreach.xsd"/>
+    <xs:include schemaLocation="eip/scatter-gather.xsd"/>
     <xs:include schemaLocation="other/entitlement.xsd"/>
     <xs:include schemaLocation="other/oauth.xsd"/>
     <xs:include schemaLocation="other/builder.xsd"/>
@@ -143,6 +144,7 @@
             <xs:element ref="clone"/>
             <xs:element ref="iterate"/>
             <xs:element ref="foreach"/>
+            <xs:element ref="scatter-gather"/>
             <xs:element ref="entitlementService"/>
             <xs:element ref="oauthService"/>
             <xs:element ref="builder"/>
