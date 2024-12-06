@@ -70,6 +70,8 @@ public class Constants {
     public static final String LINE_SEPARATOR = "line.separator";
     public static final String EMPTY = "";
     public static final String DEPENDENCY_END_TAG = "</dependency>";
+    public static final String DEPENDENCIES_END_TAG = "</dependencies>";
+    public static final String DEPENDENCIES_START_TAG = "<dependencies>";
     public static final String PROPERTIES_END_TAG = "</properties>";
     public static final String YES = "yes";
 }

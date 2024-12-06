@@ -53,11 +53,12 @@ public class PomParser {
     private static OverviewPageDetailsResponse pomDetailsResponse;
     private static DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     private static TransformerFactory transformerFactory = TransformerFactory.newInstance();
-    private static boolean hasDependencies = false;
+    private static boolean hasDependencies;
 
     public static void getPomDetails(String projectUri, OverviewPageDetailsResponse detailsResponse) {
         pomDetailsResponse = detailsResponse;
         extractPomContent(projectUri);
+        hasDependencies = false;
     }
 
     public static UpdateResponse updateDependency(String projectUri, UpdateDependencyRequest request) {
@@ -121,10 +122,19 @@ public class PomParser {
 
     private static Range getRange(List<String> pomContent) {
         int i = 1;
+        int dependenciesStartTag = 0;
+        int dependenciesCharLength = 0;
         int position = 0;
         int character = 0;
         for (String content : pomContent) {
             String line = content.trim();
+            if (line.contains(Constants.DEPENDENCIES_START_TAG)) {
+                hasDependencies = true;
+                dependenciesStartTag = i;
+                dependenciesCharLength = content.indexOf(Constants.DEPENDENCIES_START_TAG) +
+                        Constants.DEPENDENCIES_START_TAG.length() + 1;
+
+            }
             if (line.contains(Constants.DEPENDENCY_END_TAG)) {
                 hasDependencies = true;
                 if (i > position) {
@@ -133,11 +143,20 @@ public class PomParser {
                             Constants.DEPENDENCY_END_TAG.length() + 1;
                 }
             }
-            if (content.trim().contains(Constants.PROPERTIES_END_TAG)) {
-                if (i > position) {
-                    position = i;
-                    character = content.indexOf(Constants.PROPERTIES_END_TAG) +
-                            Constants.PROPERTIES_END_TAG.length() + 1;
+            if(line.contains(Constants.DEPENDENCIES_END_TAG)) {
+                if (position == 0 || (dependenciesStartTag > position)) {
+                    position = dependenciesStartTag;
+                    character = dependenciesCharLength;
+                }
+                break;
+            }
+            if (!hasDependencies) {
+                if (content.trim().contains(Constants.PROPERTIES_END_TAG)) {
+                    if (i > position) {
+                        position = i;
+                        character = content.indexOf(Constants.PROPERTIES_END_TAG) +
+                                Constants.PROPERTIES_END_TAG.length() + 1;
+                    }
                 }
             }
             i++;
