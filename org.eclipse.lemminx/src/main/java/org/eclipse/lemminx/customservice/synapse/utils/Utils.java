@@ -41,6 +41,7 @@ import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lsp4j.InitializeParams;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -56,10 +57,15 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Enumeration;
@@ -157,9 +163,8 @@ public class Utils {
     public static DOMDocument getDOMDocument(File file) throws IOException {
 
         Path path = file.toPath();
-        String text = "";
-        text = Files.readString(path);
-        TextDocument document = new TextDocument(text, file.getName());
+        String text = Files.readString(path);
+        TextDocument document = new TextDocument(text, path.toUri().toString());
         DOMDocument domDocument = DOMParser.getInstance().parse(document, null);
         return domDocument;
     }
@@ -763,5 +768,88 @@ public class Utils {
             }
         }
         return settings;
+    }
+
+    /**
+     * Copy the content of the source folder to the target folder
+     *
+     * @param source      the source folder
+     * @param target      the target folder
+     * @param copiedFiles the list of copied files
+     * @throws IOException if an error occurs while copying the content
+     */
+    public static void copyFolder(Path source, Path target, List<String> copiedFiles) throws IOException {
+        // Create target directory if it doesn't exist
+        if (Files.notExists(target)) {
+            Files.createDirectories(target);
+        }
+
+        // Walk the source tree and copy files to the target location
+        Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+
+                Path targetFile = target.resolve(source.relativize(file));
+                if (".DS_Store".equals(file.getFileName().toString())) {
+                    return FileVisitResult.CONTINUE;
+                }
+                Files.copy(file, targetFile, StandardCopyOption.REPLACE_EXISTING);
+                if (copiedFiles != null) {
+                    copiedFiles.add(targetFile.toString());
+                }
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+
+                Path targetDir = target.resolve(source.relativize(dir));
+                if (Files.notExists(targetDir)) {
+                    Files.createDirectories(targetDir);
+                }
+                return FileVisitResult.CONTINUE;
+            }
+        });
+    }
+
+    /**
+     * Delete the given directory
+     *
+     * @param path the directory path
+     * @throws IOException if an error occurs while deleting the directory
+     */
+    public static void deleteDirectory(Path path) throws IOException {
+
+        if (Files.exists(path)) {
+            Files.walkFileTree(path, new SimpleFileVisitor<>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        }
+    }
+
+    /**
+     * Write the given content to the file
+     *
+     * @param path    the file path
+     * @param content the content
+     * @throws IOException if an error occurs while writing the content to the file
+     */
+    public static void writeToFile(String path, String content) throws IOException {
+
+        try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(path))) {
+            bos.write(content.getBytes(StandardCharsets.UTF_8));
+        }
     }
 }

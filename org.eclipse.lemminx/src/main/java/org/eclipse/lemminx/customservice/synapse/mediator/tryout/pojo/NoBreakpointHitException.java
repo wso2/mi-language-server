@@ -16,37 +16,17 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.debugger.entity;
+package org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo;
 
-import java.util.ArrayList;
-import java.util.List;
+public class NoBreakpointHitException extends Exception {
 
-public class StepOverInfo {
+    public NoBreakpointHitException(String message, Throwable cause) {
 
-    List<Breakpoint> stepOverBreakpoints;
-
-    public StepOverInfo() {
-
-        this.stepOverBreakpoints = new ArrayList<>();
+        super(message, cause);
     }
 
-    public void add(Breakpoint breakpoint) {
+    public NoBreakpointHitException(String message) {
 
-        this.stepOverBreakpoints.add(breakpoint);
-    }
-
-    public boolean isEmpty() {
-
-        return this.stepOverBreakpoints.isEmpty();
-    }
-
-    public int size() {
-
-        return this.stepOverBreakpoints.size();
-    }
-
-    public List<Breakpoint> getStepOverBreakpoints() {
-
-        return stepOverBreakpoints;
+        super(message);
     }
 }

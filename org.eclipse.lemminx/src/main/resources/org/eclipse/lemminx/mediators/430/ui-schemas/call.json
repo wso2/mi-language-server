@@ -3,6 +3,7 @@
     "type": "mediator",
     "title": "Call Mediator",
     "help": "Invokes external services in blocking/non-blocking mode.",
+    "canTryout": true,
     "elements": [
         {
             "type": "attribute",

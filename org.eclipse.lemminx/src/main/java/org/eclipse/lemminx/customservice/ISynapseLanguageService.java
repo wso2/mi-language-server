@@ -41,6 +41,7 @@ import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.OverviewMo
 import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryMapResponse;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorResponse;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorParam;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutRequest;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.MediatorRequest;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.SynapseConfigRequest;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.SynapseConfigResponse;
@@ -51,6 +52,7 @@ import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGenFromCon
 import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGenRequest;
 import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGenResponse;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeResponse;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
 import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
@@ -157,4 +159,10 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<JsonObject> getMediatorUISchemaWithValues(MediatorRequest mediatorRequest);
+
+    @JsonRequest
+    CompletableFuture<MediatorTryoutInfo> tryOutMediator(MediatorTryoutRequest request);
+
+    @JsonRequest
+    CompletableFuture<MediatorTryoutInfo> mediatorInputOutputSchema(MediatorTryoutRequest request);
 }

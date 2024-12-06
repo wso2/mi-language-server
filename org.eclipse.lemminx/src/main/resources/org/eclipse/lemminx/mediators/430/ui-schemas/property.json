@@ -3,6 +3,7 @@
     "type": "mediator",
     "title": "Property Mediator",
     "help": "Manipulates message properties by setting and/or removing property values, supporting both constant and dynamically generated values through XPath expressions.",
+    "canTryout": true,
     "elements": [
         {
             "type": "attribute",
