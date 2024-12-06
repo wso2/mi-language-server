@@ -191,7 +191,7 @@ public class PluginHandler extends DefaultHandler {
                 dependencyType = value;
                 break;
             case Constants.DEPENDENCY:
-                DependencyDetails dependency = new DependencyDetails();;
+                DependencyDetails dependency = new DependencyDetails();
                 dependency.setGroupId(groupId);
                 dependency.setArtifact(artifactId);
                 dependency.setVersion(version);
