@@ -104,7 +104,9 @@ public class MediatorHandler {
                         Class<?> mediatorProcessor = Class.forName(processingClass);
                         Object processorInstance = mediatorProcessor.getDeclaredConstructor().newInstance();
                         Method processorMethod = mediatorProcessor.getMethod(processingMethod, Map.class, Class.forName(mediatorClass), List.class);
-
+                        if (!Class.forName(mediatorClass).isInstance(node)) {
+                            node = null;
+                        }
                         Either<Map<String, Object>, Map<Range, Map<String, Object>>>
                                 processedData =
                                 (Either<Map<String, Object>, Map<Range, Map<String, Object>>>) processorMethod.invoke(processorInstance, data, node, dirtyFields);
