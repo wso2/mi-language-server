@@ -213,6 +213,7 @@
               "name": "registryBasedURLConfigKey",
               "displayName": "Registry Based URL Config Key",
               "inputType": "registry",
+              "keyType":"registry",
               "enableCondition": [
                 "AND",
                 {
@@ -300,6 +301,7 @@
               "name": "registryBasedUserConfigKey",
               "displayName": "Registry Based User Config Key",
               "inputType": "registry",
+              "keyType":"registry",
               "enableCondition": [
                 "AND",
                 {
@@ -387,6 +389,7 @@
               "name": "registryBasedPassConfigKey",
               "displayName": "Registry Based Pass Config Key",
               "inputType": "registry",
+              "keyType":"registry",
               "enableCondition": [
                 "AND",
                 {

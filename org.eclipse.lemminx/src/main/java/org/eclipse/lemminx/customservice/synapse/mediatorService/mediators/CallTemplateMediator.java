@@ -64,6 +64,7 @@ public class CallTemplateMediator {
         Map<String, Object> data = new HashMap<>();
         data.put("targetTemplate", node.getTarget());
         data.put("description", node.getDescription());
+        data.put("OnError", node.getOnError());
         if (node.getWithParam() != null) {
             List<List<Object>> parameterNameTable = new ArrayList<>();
 

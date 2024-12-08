@@ -28,7 +28,17 @@ import java.util.*;
 
 public class SwitchMediator {
 
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data, Switch switchMediator, List<String> dirtyFields) {
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
+                                                                                              Switch switchMediator,
+                                                                                              List<String> dirtyFields) {
+        if (data.containsKey("newBranch") && Boolean.TRUE.equals(data.get("newBranch"))) {
+            String newCaseRegex = "";
+            if (data.containsKey("numberOfCases") && data.get("numberOfCases") instanceof Double) {
+                newCaseRegex = "case" + (((Double) data.get("numberOfCases")).intValue() + 1);
+            }
+            data.put("caseRegex", newCaseRegex);
+            return Either.forLeft(data);
+        }
 
         if (switchMediator == null) {
             data.put("isNewMediator", true);
@@ -124,22 +134,6 @@ public class SwitchMediator {
         }
 
         return editsData;
-    }
-
-    private static List<List<Object>> getCaseBranchData(SwitchCase[] caseBranches) {
-        if (caseBranches != null) {
-            List<List<Object>> caseBranchesData = new ArrayList<>();
-            for (int i = 0; i < caseBranches.length; i++) {
-                caseBranchesData.add(List.of(
-                        caseBranches[i].getRegex(),
-                        i,
-                        caseBranches[i].getRange(),
-                        caseBranches[i].isSelfClosed()
-                ));
-            }
-            return caseBranchesData;
-        }
-        return null;
     }
 
     private static SwitchCase getOldCaseData(SwitchCase[] caseBranchesData, int index) {

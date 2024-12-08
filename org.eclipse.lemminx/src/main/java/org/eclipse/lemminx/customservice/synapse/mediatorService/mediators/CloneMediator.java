@@ -36,6 +36,9 @@ public class CloneMediator {
         data.remove("soapAction");
         data.remove("toAddress");
 
+        if(data.containsKey("newBranch") && Boolean.TRUE.equals(data.get("newBranch"))) {
+            return Either.forLeft(data);
+        }
         if (clone == null) {
             return Either.forLeft(getNewMediator(data));
         }
