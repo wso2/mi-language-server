@@ -96,9 +96,8 @@ public class PomParser {
             if (value == null) {
                 return null;
             }
-            String stringValue = removeLineSeparator(value);
             updateResponse.add(new TextEdit(new Range(initialRange.getStart(), new Position(initialRange.getStart().
-                    getLine(), initialRange.getStart().getCharacter() + stringValue.length() + 1)), stringValue));
+                    getLine(), initialRange.getStart().getCharacter() + value.length() + 1)), value));
             return updateResponse;
         } catch (ParserConfigurationException e) {
             LOGGER.log(Level.SEVERE, "Error parsing the POM file : " + e.getMessage());
@@ -222,12 +221,5 @@ public class PomParser {
             LOGGER.log(Level.SEVERE, "Error processing the XML element: " + e.getMessage());
             return null;
         }
-    }
-
-    private static String removeLineSeparator(String input) {
-        if (input == null) {
-            return null;
-        }
-        return input.replace(System.getProperty(Constants.LINE_SEPARATOR), Constants.EMPTY);
     }
 }
