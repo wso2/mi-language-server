@@ -40,6 +40,12 @@ import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.OverviewMo
 import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryMapResponse;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorResponse;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorParam;
+import org.eclipse.lemminx.customservice.synapse.parser.ConfigDetails;
+import org.eclipse.lemminx.customservice.synapse.parser.DependencyDetails;
+import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
+import org.eclipse.lemminx.customservice.synapse.parser.UpdateConfigRequest;
+import org.eclipse.lemminx.customservice.synapse.parser.UpdateDependencyRequest;
+import org.eclipse.lemminx.customservice.synapse.parser.UpdateResponse;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceResponse;
 import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGenFromContentRequest;
@@ -140,4 +146,13 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<DirectoryMapResponse> getProjectExplorerModel(WorkspaceFolder param);
+
+    @JsonRequest
+    CompletableFuture<OverviewPageDetailsResponse> getOverviewPageDetails();
+
+    @JsonRequest
+    CompletableFuture<UpdateResponse> updateDependency(UpdateDependencyRequest request);
+
+    @JsonRequest
+    CompletableFuture<UpdateResponse> updateConfigFile(UpdateConfigRequest request);
 }

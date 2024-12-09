@@ -1,0 +1,284 @@
+/*
+ * Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.eclipse.lemminx.customservice.synapse.parser.pom;
+
+import org.eclipse.lemminx.customservice.synapse.parser.Constants;
+import org.eclipse.lemminx.customservice.synapse.parser.DependencyDetails;
+import org.eclipse.lemminx.customservice.synapse.parser.Node;
+import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
+import org.eclipse.lemminx.utils.StringUtils;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.xml.sax.Attributes;
+import org.xml.sax.Locator;
+import org.xml.sax.helpers.DefaultHandler;
+
+import java.util.Objects;
+
+public class PluginHandler extends DefaultHandler {
+    private Locator locator;
+    private final StringBuilder contentBuffer = new StringBuilder();
+    private boolean isDependency, isPlugin, isRepository, isPluginRepository, isProperties;
+    private int valueStartLine, valueStartColumn, dependencyStartLine, dependencyStartColumn;
+
+    private String pluginArtifactId, pluginVersion, dependencyType = "";
+    private Range range;
+    private String groupId;
+    private String artifactId;
+    private String version;
+
+    private final OverviewPageDetailsResponse pomDetailsResponse;
+
+    public PluginHandler(OverviewPageDetailsResponse pomDetailsResponse) {
+        this.pomDetailsResponse = pomDetailsResponse;
+    }
+
+    @Override
+    public void setDocumentLocator(Locator locator) {
+        this.locator = locator;
+    }
+
+    @Override
+    public void startElement(String uri, String localName, String qName, Attributes attributes) {
+        contentBuffer.setLength(0);
+        valueStartLine = locator.getLineNumber();
+        valueStartColumn = locator.getColumnNumber();
+        if (Constants.DEPENDENCY.equals(qName)) {
+            isDependency = true;
+            dependencyStartLine = locator.getLineNumber();
+            dependencyStartColumn = locator.getColumnNumber() - (qName.length() + 2);
+            dependencyType = "";
+        } else if (Constants.PLUGIN.equals(qName)) {
+            isPlugin = true;
+            pluginArtifactId = "";
+            pluginVersion = "";
+            range = new Range();
+        } else if (Constants.REPOSITORY.equals(qName)) {
+            isRepository = true;
+        } else if (Constants.PLUGIN_REPOSITORY.equals(qName)) {
+            isPluginRepository = true;
+        } else if (Constants.PROPERTIES.equals(qName)) {
+            isProperties = true;
+        }
+    }
+
+    @Override
+    public void endElement(String uri, String localName, String qName) {
+        String value = contentBuffer.toString().trim();
+        int closingTagLength = qName.length() + 3;
+        int valueEndLine = locator.getLineNumber();
+        int valueEndColumn = locator.getColumnNumber();
+        if (isPlugin) {
+            processPlugins(qName, value, valueStartLine, valueStartColumn, valueEndLine, valueEndColumn,
+                    closingTagLength);
+        } else if (isDependency) {
+            processDependencies(qName, value, valueEndLine, valueEndColumn);
+        } else if (isRepository) {
+            if (Constants.REPOSITORY.equals(qName)) {
+                isRepository = false;
+            }
+        } else if (isPluginRepository) {
+            if (Constants.PLUGIN_REPOSITORY.equals(qName)) {
+                isPluginRepository = false;
+            }
+        } else if (isProperties) {
+            processProperties(qName, value, valueStartLine, valueStartColumn, valueEndLine,
+                    valueEndColumn - closingTagLength);
+        } else {
+            processPrimaryDetails(qName, value, valueStartLine, valueStartColumn, valueEndLine,
+                    valueEndColumn - closingTagLength);
+        }
+    }
+
+    private void processPlugins(String qName, String value, int valueStartLine, int valueStartColumn,
+                                int valueEndLine, int valueEndColumn, int closingTagLength) {
+        switch (qName) {
+            case Constants.ARTIFACT_ID:
+                pluginArtifactId = value;
+                break;
+            case Constants.VERSION:
+                pluginVersion = value;
+                range = getRange(valueStartLine, valueStartColumn, valueEndLine,
+                        valueEndColumn - closingTagLength);
+                break;
+            case Constants.NAME:
+                if (Constants.DOCKER_MAVEN_PLUGIN.equals(pluginArtifactId)) {
+                    pomDetailsResponse.getBuildDetails().getDockerDetails().setDockerName(
+                            new Node(value, Either.forLeft(getRange(valueStartLine,
+                                    valueStartColumn, valueEndLine, valueEndColumn - closingTagLength))));
+                }
+                break;
+            case Constants.TEST_SERVER_TYPE:
+                pomDetailsResponse.getUnitTestDetails().setServerType(
+                        new Node(value, Either.forLeft(getRange(valueStartLine, valueStartColumn,
+                                valueEndLine, valueEndColumn - closingTagLength))));
+                break;
+            case Constants.TEST_SERVER_HOST:
+                pomDetailsResponse.getUnitTestDetails().setServerHost(new Node(value,
+                        Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
+                                valueEndColumn - closingTagLength))));
+                break;
+            case Constants.TEST_SERVER_PORT:
+                pomDetailsResponse.getUnitTestDetails().setServerPort(new Node(value,
+                        Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
+                                valueEndColumn - closingTagLength))));
+                break;
+            case Constants.TEST_SERVER_PATH:
+                pomDetailsResponse.getUnitTestDetails().setServerPath(new Node(value,
+                        Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
+                                valueEndColumn - closingTagLength))));
+                break;
+            case Constants.TEST_SERVER_VERSION:
+                pomDetailsResponse.getUnitTestDetails().setServerVersion(new Node(value,
+                        Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
+                                valueEndColumn - closingTagLength))));
+                break;
+            case Constants.TEST_SERVER_DOWNLOAD_LINK:
+                pomDetailsResponse.getUnitTestDetails().setServerDownloadLink(new Node(value,
+                        Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
+                                valueEndColumn - closingTagLength))));
+                break;
+            case Constants.SKIP_TEST:
+                pomDetailsResponse.getUnitTestDetails().setSkipTest(new Node(value,
+                        Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
+                                valueEndColumn - closingTagLength))));
+                break;
+            case Constants.PLUGIN:
+                switch (pluginArtifactId.trim()) {
+                    case Constants.VSCODE_CAR_PLUGIN:
+                        pomDetailsResponse.getBuildDetails().getAdvanceDetails().getPluginDetails().
+                                setProjectBuildPluginVersion(pluginVersion, range);
+                        break;
+                    case Constants.MI_CONTAINER_CONFIG_MAPPER:
+                        pomDetailsResponse.getBuildDetails().getAdvanceDetails().getPluginDetails().
+                                setMiContainerPluginVersion(new Node(pluginVersion, Either.forLeft(range)));
+                        break;
+                    case Constants.SYNAPSE_UNIT_TEST_MAVEN_PLUGIN:
+                        pomDetailsResponse.getBuildDetails().getAdvanceDetails().getPluginDetails().
+                                setUnitTestPluginVersion(new Node(pluginVersion, Either.forLeft(range)));
+                        break;
+                }
+                isPlugin = false;
+                break;
+        }
+    }
+
+    private void processDependencies(String qName, String value, int valueEndLine, int valueEndColumn) {
+        switch (qName) {
+            case Constants.GROUP_ID:
+                groupId = value;
+                break;
+            case Constants.ARTIFACT_ID:
+                artifactId = value;
+                break;
+            case Constants.VERSION:
+                version = value;
+                break;
+            case Constants.TYPE:
+                dependencyType = value;
+                break;
+            case Constants.DEPENDENCY:
+                DependencyDetails dependency = new DependencyDetails();
+                dependency.setGroupId(groupId);
+                dependency.setArtifact(artifactId);
+                dependency.setVersion(version);
+                if (!StringUtils.isEmpty(dependencyType)) {
+                    dependency.setType(dependencyType);
+                }
+                dependency.setRange(getRange(dependencyStartLine, dependencyStartColumn, valueEndLine, valueEndColumn));
+                if (Constants.ZIP.equals(dependencyType)) {
+                    pomDetailsResponse.getDependenciesDetails().addConnectorDependencies(dependency);
+                } else {
+                    pomDetailsResponse.getDependenciesDetails().addOtherDependencies(dependency);
+                }
+                isDependency = false;
+                break;
+        }
+    }
+
+    private void processProperties(String qName, String value, int valueStartLine, int valueStartColumn,
+                                   int valueEndLine, int valueEndColumn) {
+        Range range = getRange(valueStartLine, valueStartColumn, valueEndLine, valueEndColumn);
+        switch (qName) {
+            case Constants.PROJECT_RUNTIME_VERSION:
+                this.pomDetailsResponse.getPrimaryDetails().setRuntimeVersion(new Node(value, Either.forLeft(range)));
+                break;
+            case Constants.KEY_STORE_TYPE:
+                pomDetailsResponse.getBuildDetails().getDockerDetails().
+                        setKeyStoreType(new Node(value, Either.forLeft(range)));
+                break;
+            case Constants.KEY_STORE_NAME:
+                pomDetailsResponse.getBuildDetails().getDockerDetails().
+                        setKeyStoreName(new Node(value, Either.forLeft(range)));
+                break;
+            case Constants.KEY_STORE_PASSWORD:
+                pomDetailsResponse.getBuildDetails().getDockerDetails().
+                        setKeyStorePassword(new Node(value, Either.forLeft(range)));
+                break;
+            case Constants.KEY_STORE_ALIAS:
+                pomDetailsResponse.getBuildDetails().getDockerDetails().
+                        setKeyStoreAlias(new Node(value, Either.forLeft(range)));
+                break;
+            case Constants.CIPHER_TOOL_ENABLE:
+                pomDetailsResponse.getBuildDetails().getDockerDetails().setCipherToolEnable(
+                        new Node(value, Either.forLeft(range)));
+                break;
+            case Constants.DOCKER_FILE_BASE_IMAGE:
+                pomDetailsResponse.getBuildDetails().getDockerDetails().setDockerFileBaseImage(
+                        new Node(value, Either.forLeft(range)));
+                break;
+            case Constants.PROPERTIES:
+                isProperties = false;
+                break;
+        }
+    }
+
+    private void processPrimaryDetails(String qName, String value, int valueStartLine, int valueStartColumn,
+                                       int valueEndLine, int valueEndColumn) {
+        Range range = getRange(valueStartLine, valueStartColumn, valueEndLine, valueEndColumn);
+        switch (qName) {
+            case Constants.GROUP_ID:
+                pomDetailsResponse.getBuildDetails().getAdvanceDetails().setProjectGroupId(
+                        new Node(value, Either.forLeft(range)));
+                break;
+            case Constants.ARTIFACT_ID:
+                pomDetailsResponse.getBuildDetails().getAdvanceDetails().
+                        setProjectArtifactId(new Node(value, Either.forLeft(range)));
+                break;
+            case Constants.VERSION:
+                pomDetailsResponse.getPrimaryDetails().setProjectVersion(new Node(value, Either.forLeft(range)));
+                break;
+            case Constants.DESCRIPTION:
+                pomDetailsResponse.getPrimaryDetails().setProjectDescription(new Node(value, Either.forLeft(range)));
+                break;
+            case Constants.NAME:
+                pomDetailsResponse.getPrimaryDetails().setProjectName(new Node(value, Either.forLeft(range)));
+                break;
+        }
+    }
+
+    @Override
+    public void characters(char[] ch, int start, int length) {
+        contentBuffer.append(new String(ch, start, length));
+    }
+
+    private Range getRange(int startLine, int startColumn, int endLine, int endColumn) {
+        return new Range(new Position(startLine, startColumn), new Position(endLine, endColumn));
+    }
+}

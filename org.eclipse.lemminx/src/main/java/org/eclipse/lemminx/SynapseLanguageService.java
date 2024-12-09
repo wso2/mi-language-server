@@ -47,6 +47,15 @@ import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnect
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.DependencyScanner;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.DependencyTree;
+import org.eclipse.lemminx.customservice.synapse.parser.ConfigDetails;
+import org.eclipse.lemminx.customservice.synapse.parser.DependencyDetails;
+import org.eclipse.lemminx.customservice.synapse.parser.OverviewPage;
+import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
+import org.eclipse.lemminx.customservice.synapse.parser.UpdateConfigRequest;
+import org.eclipse.lemminx.customservice.synapse.parser.UpdateDependencyRequest;
+import org.eclipse.lemminx.customservice.synapse.parser.UpdateResponse;
+import org.eclipse.lemminx.customservice.synapse.parser.config.ConfigParser;
+import org.eclipse.lemminx.customservice.synapse.parser.pom.PomParser;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.AbstractResourceFinder;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ArtifactFileScanner;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.RegistryFileScanner;
@@ -385,8 +394,25 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         return CompletableFuture.supplyAsync(() -> response);
     }
 
-    public String getProjectUri() {
+    @Override
+    public CompletableFuture<OverviewPageDetailsResponse> getOverviewPageDetails() {
+        OverviewPageDetailsResponse response = OverviewPage.getDetails(projectUri);
+        return CompletableFuture.supplyAsync(() -> response);
+    }
 
+    @Override
+    public CompletableFuture<UpdateResponse> updateDependency(UpdateDependencyRequest request) {
+        UpdateResponse response = PomParser.updateDependency(projectUri, request);
+        return CompletableFuture.supplyAsync(() -> response);
+    }
+
+    @Override
+    public CompletableFuture<UpdateResponse> updateConfigFile(UpdateConfigRequest request) {
+        UpdateResponse response = ConfigParser.updateConfigFile(projectUri, request);
+        return CompletableFuture.supplyAsync(() -> response);
+    }
+
+    public String getProjectUri() {
         return projectUri;
     }
 
