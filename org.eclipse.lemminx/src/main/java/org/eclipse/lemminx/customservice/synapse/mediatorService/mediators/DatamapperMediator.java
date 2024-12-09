@@ -35,7 +35,7 @@ public class DatamapperMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                               Datamapper datamapper,
                                                                                               List<String> dirtyFields) {
-        String configurationLocalPath = path + data.get("name") + "/" + data.get("name") + "/.dmc";
+        String configurationLocalPath = path + data.get("name") + "/" + data.get("name") + ".dmc";
         String inputSchemaLocalPath = path + data.get("name") + "/" + data.get("name") + "_inputSchema.json";
         String outputSchemaLocalPath = path + data.get("name") + "/" + data.get("name") + "_outputSchema.json";
         data.put("configurationLocalPath", configurationLocalPath);
