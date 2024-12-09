@@ -22,6 +22,7 @@ import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateAPIResponse;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerParam;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerResponse;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectionUIParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connections;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
@@ -126,6 +127,9 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<InboundConnectorResponse> getInboundConnectorSchema(InboundConnectorParam param);
+
+    @JsonRequest
+    CompletableFuture<JsonObject> getConnectionUISchema(ConnectionUIParam param);
 
     @JsonRequest
     CompletableFuture<DependencyTree> dependencyTree(TextDocumentIdentifier param);

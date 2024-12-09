@@ -27,6 +27,16 @@ public class ConnectorParameter extends STNode {
     String value;
     String expression;
 
+    public ConnectorParameter() {
+
+    }
+
+    public ConnectorParameter(String name, String value) {
+
+        this.name = name;
+        this.value = value;
+    }
+
     public String getName() {
 
         return name;

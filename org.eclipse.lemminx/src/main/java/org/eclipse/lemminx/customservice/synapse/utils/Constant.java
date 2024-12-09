@@ -510,4 +510,8 @@ public class Constant {
     public static final String STORE_METHOD = "storeMethod";
     public static final String RETRIEVE_METHOD = "retrieveMethod";
     public static final String ICON_PATH = "iconPath";
+    public static final String CONNECTION_TYPE = "connectionType";
+    public static final String IS_EXPRESSION = "isExpression";
+    public static final String NAMESPACES = "namespaces";
+    public static final String CONNECTION_NAME = "connectionName";
 }

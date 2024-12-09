@@ -25,8 +25,10 @@ import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateAPIResponse;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerParam;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerResponse;
+import org.eclipse.lemminx.customservice.synapse.connectors.ConnectionHandler;
 import org.eclipse.lemminx.customservice.synapse.connectors.NewProjectConnectorLoader;
 import org.eclipse.lemminx.customservice.synapse.connectors.OldProjectConnectorLoader;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectionUIParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connections;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectionFinder;
@@ -119,6 +121,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     private final ConnectorHolder connectorHolder;
     private AbstractResourceFinder resourceFinder;
     private final InboundConnectorHolder inboundConnectorHolder;
+    private final ConnectionHandler connectionHandler;
     private Path synapseXSDPath;
     private TryOutHandler tryOutHandler;
     private ServerLessTryoutHandler serverLessTryoutHandler;
@@ -131,6 +134,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         this.connectorHolder = new ConnectorHolder();
         this.inboundConnectorHolder = new InboundConnectorHolder();
         mediatorHandler = new MediatorHandler();
+        connectionHandler = new ConnectionHandler();
     }
 
     public void init(String projectUri, Object settings, SynapseLanguageClientAPI languageClient) {
@@ -147,6 +151,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
             this.projectServerVersion = Utils.getServerVersion(projectUri, Constant.DEFAULT_MI_VERSION);
             initializeConnectorLoader();
             mediatorHandler.init(projectServerVersion, connectorHolder);
+            connectionHandler.init(connectorHolder);
             MediatorFactoryFinder.getInstance().setConnectorHolder(connectorHolder);
             try {
                 DynamicClassLoader.updateClassLoader(Path.of(projectUri, "deployment", "libs").toFile());
@@ -363,6 +368,12 @@ public class SynapseLanguageService implements ISynapseLanguageService {
                 return inboundConnectorHolder.getInboundConnectorSchema(new File(param.documentPath));
             }
         });
+    }
+
+    @Override
+    public CompletableFuture<JsonObject> getConnectionUISchema(ConnectionUIParam param) {
+
+        return CompletableFuture.supplyAsync(() -> connectionHandler.getConnectionUISchema(param));
     }
 
     @Override
