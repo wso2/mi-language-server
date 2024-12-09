@@ -19,8 +19,8 @@ package org.eclipse.lemminx.customservice.synapse.parser;
 
 public class BuildDetails {
 
-    AdvanceDetails advanceDetails;
-    DockerDetails dockerDetails;
+    private AdvanceDetails advanceDetails;
+    private DockerDetails dockerDetails;
 
     BuildDetails() {
         advanceDetails = new AdvanceDetails();

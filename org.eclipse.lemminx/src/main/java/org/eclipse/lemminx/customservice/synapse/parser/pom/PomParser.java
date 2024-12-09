@@ -53,12 +53,11 @@ public class PomParser {
     private static OverviewPageDetailsResponse pomDetailsResponse;
     private static DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     private static TransformerFactory transformerFactory = TransformerFactory.newInstance();
-    private static boolean hasDependencies;
+    private static boolean hasDependencies = false;
 
     public static void getPomDetails(String projectUri, OverviewPageDetailsResponse detailsResponse) {
         pomDetailsResponse = detailsResponse;
         extractPomContent(projectUri);
-        hasDependencies = false;
     }
 
     public static UpdateResponse updateDependency(String projectUri, UpdateDependencyRequest request) {
