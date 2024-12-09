@@ -46,6 +46,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.c
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.validate.Validate;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.Foreach;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.Iterate;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.ScatterGather;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.aggregate.Aggregate;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.extension.Bean;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.extension.Class;
@@ -325,6 +326,11 @@ public class MediatorSchemaGenerateVisitor extends AbstractMediatorVisitor {
 
     @Override
     protected void visitVariable(Variable node) {
+
+    }
+
+    @Override
+    protected void visitScatterGather(ScatterGather node) {
 
     }
 

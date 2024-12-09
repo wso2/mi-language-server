@@ -31,18 +31,31 @@ import java.util.Map;
 public class ScatterGatherMediator {
 
     private static final String JSON_CONTENT_TYPE = "JSON";
+    public static final String RESULT_TARGET = "resultTarget";
+    public static final String VARIABLE_NAME = "variableName";
+    public static final String EXPRESSION = "expression";
+    public static final String CONDITION = "condition";
+    public static final String VARIABLE = "Variable";
+    public static final String VALUE = "value";
+    public static final String X_PATH_EXPRESSION = "xPathExpression";
+    public static final String CONTENT_TYPE = "contentType";
+    public static final String ROOT_ELEMENT = "rootElement";
+    public static final String PARALLEL_EXECUTION = "parallelExecution";
+    public static final String COMPLETE_TIMEOUT = "completeTimeout";
+    public static final String MIN_MESSAGES = "minMessages";
+    public static final String MAX_MESSAGES = "maxMessages";
 
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData(Map<String, Object> data,
                                                                                            ScatterGather scatterGather,
                                                                                            List<String> dirtyFields) {
 
-        if ("Variable".equals(data.get("resultTarget"))) {
-            data.put("resultTarget", data.get("variableName"));
+        if (VARIABLE.equals(data.get(RESULT_TARGET))) {
+            data.put(RESULT_TARGET, data.get(VARIABLE_NAME));
         }
         setExpression(data);
-        Map<String, Object> condition = (Map<String, Object>) data.get("condition");
+        Map<String, Object> condition = (Map<String, Object>) data.get(CONDITION);
         if (condition != null) {
-            data.put("condition", condition.get("value"));
+            data.put(CONDITION, condition.get(VALUE));
         }
         if (scatterGather == null) {
             data.put("newMediator", true);
@@ -55,17 +68,17 @@ public class ScatterGatherMediator {
                                                             List<String> dirtyFields) {
 
         Map<Range, Map<String, Object>> edits = new HashMap<>();
-        List<String> scatterGatherAttributes = List.of("parallelExecution", "contentType", "resultTarget",
-                "variableName", "rootElement");
-        List<String> aggregationAttributes = List.of("expression", "xPathExpression", "condition", "completeTimeout",
-                "minMessages", "maxMessages");
+        List<String> scatterGatherAttributes = List.of(PARALLEL_EXECUTION, CONTENT_TYPE, RESULT_TARGET,
+                VARIABLE_NAME, ROOT_ELEMENT);
+        List<String> aggregationAttributes = List.of(EXPRESSION, X_PATH_EXPRESSION, CONDITION, COMPLETE_TIMEOUT,
+                MIN_MESSAGES, MAX_MESSAGES);
 
-        if (dirtyFields.contains("contentType")) {
-            if (JSON_CONTENT_TYPE.equals(data.get("contentType"))) {
-                dirtyFields.add("expression");
+        if (dirtyFields.contains(CONTENT_TYPE)) {
+            if (JSON_CONTENT_TYPE.equals(data.get(CONTENT_TYPE))) {
+                dirtyFields.add(EXPRESSION);
             } else {
-                dirtyFields.add("xPathExpression");
-                dirtyFields.add("rootElement");
+                dirtyFields.add(X_PATH_EXPRESSION);
+                dirtyFields.add(ROOT_ELEMENT);
             }
         }
 
@@ -94,43 +107,45 @@ public class ScatterGatherMediator {
 
         Map<String, Object> data = new HashMap<>();
         data.put("description", scatterGather.getDescription());
-        data.put("parallelExecution", scatterGather.isExecuteParallel());
+        data.put(PARALLEL_EXECUTION, scatterGather.isExecuteParallel());
 
         String contentType = scatterGather.getContentType();
-        data.put("contentType", contentType);
+        data.put(CONTENT_TYPE, contentType);
         if (JSON_CONTENT_TYPE.equals(contentType)) {
-            data.put("expression", Map.of("isExpression", true, "value",
-                    scatterGather.getScatterGatherAggregation().getExpression()));
+            data.put(EXPRESSION, getExpressionData(scatterGather.getScatterGatherAggregation().getExpression()));
         } else {
-            data.put("xPathExpression", Map.of("isExpression", true, "value",
-                    scatterGather.getScatterGatherAggregation().getExpression()));
+            data.put(X_PATH_EXPRESSION, getExpressionData(scatterGather.getScatterGatherAggregation().getExpression()));
+            data.put(ROOT_ELEMENT, scatterGather.getRootElement());
         }
-        data.put("rootElement", scatterGather.getRootElement());
         String resultTarget = scatterGather.getResultTarget();
         if ("Body".equalsIgnoreCase(resultTarget)) {
-            data.put("resultTarget", resultTarget);
+            data.put(RESULT_TARGET, resultTarget);
         } else {
-            data.put("resultTarget", "Variable");
-            data.put("variableName", resultTarget);
+            data.put(RESULT_TARGET, VARIABLE);
+            data.put(VARIABLE_NAME, resultTarget);
         }
         if (scatterGather.getScatterGatherAggregation().getCondition() != null) {
-            data.put("condition", Map.of("isExpression", true, "value",
-                    scatterGather.getScatterGatherAggregation().getCondition()));
+            data.put(CONDITION, getExpressionData(scatterGather.getScatterGatherAggregation().getCondition()));
         }
-        data.put("completeTimeout", scatterGather.getScatterGatherAggregation().getCompleteTimeout());
-        data.put("minMessages", scatterGather.getScatterGatherAggregation().getMinMessages());
-        data.put("maxMessages", scatterGather.getScatterGatherAggregation().getMaxMessages());
+        data.put(COMPLETE_TIMEOUT, scatterGather.getScatterGatherAggregation().getCompleteTimeout());
+        data.put(MIN_MESSAGES, scatterGather.getScatterGatherAggregation().getMinMessages());
+        data.put(MAX_MESSAGES, scatterGather.getScatterGatherAggregation().getMaxMessages());
         return data;
     }
 
     private static void setExpression(Map<String, Object> data) {
 
-        Map<String, Object> jsonExpression = (Map<String, Object>) data.get("expression");
-        Map<String, Object> xPathExpression = (Map<String, Object>) data.get("xPathExpression");
-        if (JSON_CONTENT_TYPE.equals(data.get("contentType"))) {
-            data.put("expression", jsonExpression.get("value"));
+        Map<String, Object> jsonExpression = (Map<String, Object>) data.get(EXPRESSION);
+        Map<String, Object> xPathExpression = (Map<String, Object>) data.get(X_PATH_EXPRESSION);
+        if (JSON_CONTENT_TYPE.equals(data.get(CONTENT_TYPE))) {
+            data.put(EXPRESSION, jsonExpression.get(VALUE));
         } else {
-            data.put("expression", xPathExpression.get("value"));
+            data.put(EXPRESSION, xPathExpression.get(VALUE));
         }
+    }
+
+    private static Map<?, ?> getExpressionData(String expression) {
+
+        return Map.of("isExpression", true, VALUE, expression);
     }
 }
