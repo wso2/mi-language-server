@@ -56,6 +56,16 @@ import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.SynapseCon
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.SynapseConfigResponse;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.UISchemaRequest;
 import org.eclipse.lemminx.customservice.synapse.mediator.schema.generate.ServerLessTryoutHandler;
+import org.eclipse.lemminx.customservice.synapse.parser.ConfigDetails;
+import org.eclipse.lemminx.customservice.synapse.parser.DependencyDetails;
+import org.eclipse.lemminx.customservice.synapse.parser.OverviewPage;
+import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
+import org.eclipse.lemminx.customservice.synapse.parser.UpdateConfigRequest;
+import org.eclipse.lemminx.customservice.synapse.parser.UpdateDependencyRequest;
+import org.eclipse.lemminx.customservice.synapse.parser.UpdateResponse;
+import org.eclipse.lemminx.customservice.synapse.parser.config.ConfigParser;
+import org.eclipse.lemminx.customservice.synapse.parser.pom.PomParser;
+import org.eclipse.lemminx.customservice.synapse.parser.ConnectorDownloadManager;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.AbstractResourceFinder;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ArtifactFileScanner;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.RegistryFileScanner;
@@ -469,8 +479,30 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         return CompletableFuture.supplyAsync(() -> serverLessTryoutHandler.handle(request));
     }
 
-    public String getProjectUri() {
+    public CompletableFuture<OverviewPageDetailsResponse> getOverviewPageDetails() {
+        OverviewPageDetailsResponse response = OverviewPage.getDetails(projectUri);
+        return CompletableFuture.supplyAsync(() -> response);
+    }
 
+    @Override
+    public CompletableFuture<UpdateResponse> updateDependency(UpdateDependencyRequest request) {
+        UpdateResponse response = PomParser.updateDependency(projectUri, request);
+        return CompletableFuture.supplyAsync(() -> response);
+    }
+
+    @Override
+    public CompletableFuture<UpdateResponse> updateConfigFile(UpdateConfigRequest request) {
+        UpdateResponse response = ConfigParser.updateConfigFile(projectUri, request);
+        return CompletableFuture.supplyAsync(() -> response);
+    }
+
+    @Override
+    public CompletableFuture<String> updateConnectorDependencies() {
+        String statusMessage = ConnectorDownloadManager.updateConnectors(projectUri, connectorLoader);
+        return CompletableFuture.supplyAsync(() -> statusMessage);
+    }
+
+    public String getProjectUri() {
         return projectUri;
     }
 

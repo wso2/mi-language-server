@@ -47,6 +47,12 @@ import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.MediatorRe
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.SynapseConfigRequest;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.SynapseConfigResponse;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.UISchemaRequest;
+import org.eclipse.lemminx.customservice.synapse.parser.ConfigDetails;
+import org.eclipse.lemminx.customservice.synapse.parser.DependencyDetails;
+import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
+import org.eclipse.lemminx.customservice.synapse.parser.UpdateConfigRequest;
+import org.eclipse.lemminx.customservice.synapse.parser.UpdateDependencyRequest;
+import org.eclipse.lemminx.customservice.synapse.parser.UpdateResponse;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceResponse;
 import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGenFromContentRequest;
@@ -169,4 +175,16 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<MediatorTryoutInfo> mediatorInputOutputSchema(MediatorTryoutRequest request);
+  
+    @JsonRequest
+    CompletableFuture<OverviewPageDetailsResponse> getOverviewPageDetails();
+
+    @JsonRequest
+    CompletableFuture<UpdateResponse> updateDependency(UpdateDependencyRequest request);
+
+    @JsonRequest
+    CompletableFuture<UpdateResponse> updateConfigFile(UpdateConfigRequest request);
+
+    @JsonRequest
+    CompletableFuture<String> updateConnectorDependencies();
 }

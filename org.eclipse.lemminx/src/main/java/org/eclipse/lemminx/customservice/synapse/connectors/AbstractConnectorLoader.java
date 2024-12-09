@@ -42,8 +42,9 @@ public abstract class AbstractConnectorLoader {
     private SynapseLanguageClientAPI languageClient;
     protected ConnectorHolder connectorHolder;
     private ConnectorReader connectorReader;
-    protected String connectorsZipFolderPath;
+    protected List<String> connectorsZipFolderPath = new ArrayList<>();
     private File connectorExtractFolder;
+    protected String projectUri;
 
     public AbstractConnectorLoader(SynapseLanguageClientAPI languageClient, ConnectorHolder connectorHolder) {
 
@@ -55,6 +56,7 @@ public abstract class AbstractConnectorLoader {
     public void init(String projectRoot) {
 
         setConnectorsZipFolderPath(projectRoot);
+        setProjectUri(projectRoot);
         connectorExtractFolder = getConnectorExtractFolder();
     }
 
@@ -64,7 +66,6 @@ public abstract class AbstractConnectorLoader {
 
         if (canContinue(connectorExtractFolder)) {
             List<File> connectorZips = getConnectorZips();
-            cleanOldConnectors(connectorExtractFolder, connectorZips);
             extractZips(connectorZips, connectorExtractFolder);
             readConnectors(connectorExtractFolder);
         }
@@ -77,12 +78,16 @@ public abstract class AbstractConnectorLoader {
     private List<File> getConnectorZips() {
 
         List<File> connectorZips = new ArrayList<>();
-        File folder = new File(connectorsZipFolderPath);
-        if (folder.exists()) {
-            File[] files = folder.listFiles();
-            for (File f : files) {
-                if (Utils.isZipFile(f)) {
-                    connectorZips.add(f);
+        for (String folderPath : connectorsZipFolderPath) {
+            File folder = new File(folderPath);
+            if (folder.exists() && folder.isDirectory()) {
+                File[] files = folder.listFiles();
+                if (files != null) {
+                    for (File f : files) {
+                        if (Utils.isZipFile(f)) {
+                            connectorZips.add(f);
+                        }
+                    }
                 }
             }
         }
@@ -145,5 +150,13 @@ public abstract class AbstractConnectorLoader {
 
         ConnectorStatusNotification status = new ConnectorStatusNotification(connector, isSuccessful, message);
         languageClient.removeConnectorStatus(status);
+    }
+
+    protected String getProjectUri() {
+        return projectUri;
+    }
+
+    protected void setProjectUri(String projectUri) {
+        this.projectUri = projectUri;
     }
 }

@@ -19,6 +19,8 @@
 package org.eclipse.lemminx.customservice.synapse.connectors;
 
 import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
+import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -37,7 +39,8 @@ public class OldProjectConnectorLoader extends AbstractConnectorLoader {
     @Override
     protected File getConnectorExtractFolder() {
 
-        File connectorsFolderPath = new File(this.connectorsZipFolderPath);
+        File connectorsFolderPath = Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI,
+                Constant.CONNECTORS, Utils.getHash(this.getProjectUri()), Constant.EXTRACTED).toFile();
         return connectorsFolderPath;
     }
 
@@ -61,6 +64,6 @@ public class OldProjectConnectorLoader extends AbstractConnectorLoader {
         File projectFile = new File(projectRoot);
         File parentFolder = projectFile.getParentFile();
         String workspacePath = parentFolder.getAbsolutePath();
-        connectorsZipFolderPath = Path.of(workspacePath, ".metadata", ".Connectors").toString();
+        connectorsZipFolderPath.add(Path.of(workspacePath, ".metadata", ".Connectors").toString());
     }
 }

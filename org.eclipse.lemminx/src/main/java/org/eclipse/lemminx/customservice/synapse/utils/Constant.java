@@ -514,4 +514,13 @@ public class Constant {
     public static final String IS_EXPRESSION = "isExpression";
     public static final String NAMESPACES = "namespaces";
     public static final String CONNECTION_NAME = "connectionName";
+    public static final String ZIP_EXTENSION = ".zip";
+    public static final String CONNECTORS = "connectors";
+    public static final String USER_HOME = "user.home";
+    public static final String MAIN = "main";
+    public static final String WSO2MI = "wso2mi";
+    public static final String WSO2_MI = ".wso2-mi";
+    public static final String M2 = "m2";
+    public static final String DOWNLOADED = "Downloaded";
+    public static final String EXTRACTED = "Extracted";
 }
