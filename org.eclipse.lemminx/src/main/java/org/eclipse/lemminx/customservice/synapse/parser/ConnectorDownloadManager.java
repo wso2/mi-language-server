@@ -60,24 +60,15 @@ public class ConnectorDownloadManager {
             downloadDirectory.mkdirs();
         }
 
+        try {
+            clearDirectory(extractDirectory);
+        } catch (IOException e) {
+            return "Error occurred while clearing existing connectors.";
+        }
+
         OverviewPageDetailsResponse pomDetailsResponse = new OverviewPageDetailsResponse();
         getPomDetails(projectPath, pomDetailsResponse);
         List<DependencyDetails> dependencies = pomDetailsResponse.getDependenciesDetails().getConnectorDependencies();
-
-        for (File file : extractDirectory.listFiles()) {
-            if (file.isDirectory()) {
-                try {
-                    Files.walk(file.toPath())
-                            .sorted(Comparator.reverseOrder())
-                            .map(Path::toFile)
-                            .forEach(File::delete);
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, "Error occurred while clearing extracted dependencies: " + e.getMessage());
-                    return "Error occurred while clearing existing connectors.";
-                }
-            }
-        }
-
         for (DependencyDetails dependency : dependencies) {
             try {
                 File connector = Path.of(downloadDirectory.getAbsolutePath(),
@@ -100,18 +91,7 @@ public class ConnectorDownloadManager {
             }
         }
 
-        try {
-            extractZipFiles(downloadDirectory, extractDirectory);
-            extractZipFiles(Path.of(projectPath, Constant.SRC, Constant.MAIN, Constant.WSO2MI,
-                    Constant.RESOURCES, Constant.CONNECTORS).toFile(), extractDirectory);
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Error occurred while extracting dependencies: " + e.getMessage());
-            return "Error occurred while extracting connectors.";
-        }
-
-        loader.init(projectPath);
         loader.loadConnector();
-
         return "Success";
     }
 
@@ -171,16 +151,16 @@ public class ConnectorDownloadManager {
         }
     }
 
-    private static void extractZipFiles(File directory, File extractDirectory) throws IOException {
-
-        File[] zipFiles = directory.listFiles((dir, name) -> name.toLowerCase().endsWith(Constant.ZIP_EXTENSION));
-        if (zipFiles != null && zipFiles.length > 0) {
-            for (File zipFile : zipFiles) {
+    private static void clearDirectory(File extractedDirectory) throws IOException {
+        for (File file : extractedDirectory.listFiles()) {
+            if (file.isDirectory()) {
                 try {
-                    Utils.extractZip(zipFile, Path.of(extractDirectory.getAbsolutePath(),
-                            zipFile.getName().replace(Constant.ZIP_EXTENSION, "")).toFile());
+                    Files.walk(file.toPath())
+                            .sorted(Comparator.reverseOrder())
+                            .map(Path::toFile)
+                            .forEach(File::delete);
                 } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, "Error occurred while extracting dependency: " + e.getMessage());
+                    LOGGER.log(Level.SEVERE, "Error occurred while clearing extracted dependencies: " + e.getMessage());
                     throw e;
                 }
             }
