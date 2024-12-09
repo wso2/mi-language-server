@@ -49,10 +49,12 @@ public class DatamapperMediator {
         data.put("inputType", node.getInputType());
         data.put("outputType", node.getOutputType());
         String configPath = node.getConfig();
-        Pattern pattern = Pattern.compile("gov:/datamapper/([^/]+)/.*\\.dmc");
-        Matcher matcher = pattern.matcher(configPath);
-        if (matcher.find()) {
-            data.put("name", matcher.group(1));
+        if (configPath != null) {
+            Pattern pattern = Pattern.compile("gov:/datamapper/([^/]+)/.*\\.dmc");
+            Matcher matcher = pattern.matcher(configPath);
+            if (matcher.find()) {
+                data.put("name", matcher.group(1));
+            }
         }
         return data;
     }
