@@ -30,6 +30,10 @@ public class DependenciesDetails {
         otherDependencies = new ArrayList<>();
     }
 
+    public List<DependencyDetails> getConnectorDependencies() {
+        return connectorDependencies;
+    }
+
     public void addConnectorDependencies(DependencyDetails dependencyDetails) {
         connectorDependencies.add(dependencyDetails);
     }

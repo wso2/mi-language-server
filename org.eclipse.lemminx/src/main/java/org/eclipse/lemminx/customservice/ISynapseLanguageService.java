@@ -155,4 +155,7 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<UpdateResponse> updateConfigFile(UpdateConfigRequest request);
+
+    @JsonRequest
+    CompletableFuture<String> updateConnectorDependencies();
 }
