@@ -56,6 +56,7 @@ import org.eclipse.lemminx.customservice.synapse.parser.UpdateDependencyRequest;
 import org.eclipse.lemminx.customservice.synapse.parser.UpdateResponse;
 import org.eclipse.lemminx.customservice.synapse.parser.config.ConfigParser;
 import org.eclipse.lemminx.customservice.synapse.parser.pom.PomParser;
+import org.eclipse.lemminx.customservice.synapse.parser.ConnectorDownloadManager;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.AbstractResourceFinder;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ArtifactFileScanner;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.RegistryFileScanner;
@@ -410,6 +411,12 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     public CompletableFuture<UpdateResponse> updateConfigFile(UpdateConfigRequest request) {
         UpdateResponse response = ConfigParser.updateConfigFile(projectUri, request);
         return CompletableFuture.supplyAsync(() -> response);
+    }
+
+    @Override
+    public CompletableFuture<String> updateConnectorDependencies() {
+        String statusMessage = ConnectorDownloadManager.updateConnectors(projectUri, connectorLoader);
+        return CompletableFuture.supplyAsync(() -> statusMessage);
     }
 
     public String getProjectUri() {
