@@ -1,0 +1,15 @@
+{{#newMediator}}
+    <scatter-gather parallel-execution="{{parallelExecution}}" {{#resultTarget}}result-target="{{resultTarget}}" {{/resultTarget}} {{#rootElement}}root-element="{{rootElement}}" {{/rootElement}} {{#contentType}}content-type="{{contentType}}" {{/contentType}} {{#description}}description="{{description}}" {{/description}}>
+        <aggregation {{#expression}}expression="{{expression}}" {{/expression}} {{#condition}}condition="{{condition}}" {{/condition}} {{#completeTimeout}}timeout="{{completeTimeout}}" {{/completeTimeout}} {{#minMessages}}min-messages="{{minMessages}}" {{/minMessages}} {{#maxMessages}}max-messages="{{maxMessages}}" {{/maxMessages}}/>
+        <sequence></sequence>
+        <sequence></sequence>
+    </scatter-gather>
+{{/newMediator}}
+{{^newMediator}}
+    {{#editScatterGather}}
+        <scatter-gather parallel-execution="{{parallelExecution}}" {{#resultTarget}}result-target="{{resultTarget}}" {{/resultTarget}} {{#rootElement}}root-element="{{rootElement}}" {{/rootElement}} {{#contentType}}content-type="{{contentType}}" {{/contentType}} {{#description}}description="{{description}}" {{/description}}>
+    {{/editScatterGather}}
+    {{#editScatterGatherAggregate}}
+            <aggregation {{#expression}}expression="{{expression}}" {{/expression}} {{#condition}}condition="{{condition}}" {{/condition}} {{#completeTimeout}}timeout="{{completeTimeout}}" {{/completeTimeout}} {{#minMessages}}min-messages="{{minMessages}}" {{/minMessages}} {{#maxMessages}}max-messages="{{maxMessages}}" {{/maxMessages}}/>
+    {{/editScatterGatherAggregate}}
+{{/newMediator}}

@@ -1,0 +1,180 @@
+{
+  "name": "scatter-gather",
+  "type": "mediator",
+  "title": "Scatter Gather Mediator",
+  "help": "Clones a message into several messages and aggregate the responses back into a single message.",
+  "elements": [
+    {
+      "type": "attribute",
+      "value": {
+        "name": "parallelExecution",
+        "displayName": "Execute Parallel",
+        "inputType": "checkbox",
+        "defaultValue": true,
+        "required": false,
+        "helpTip": "If enabled, the messages will be processed in parallel. If disabled, the messages will be processed sequentially."
+      }
+    },
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "Output configurations",
+        "elements": [
+          {
+            "type": "attribute",
+            "value": {
+              "name": "contentType",
+              "displayName": "Content Type",
+              "inputType": "combo",
+              "defaultValue": "JSON",
+              "comboValues": [
+                "JSON",
+                "XML"
+              ],
+              "required": true,
+              "helpTip": "Choose the format for the message content to be aggregated."
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "expression",
+              "displayName": "Expression",
+              "inputType": "expression",
+              "required": false,
+              "defaultValue": "payload",
+              "helpTip": "Provide the expression that specifies the data to be aggregated from each message.",
+              "enableCondition": [
+                {
+                  "contentType": "JSON"
+                }
+              ]
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "xPathExpression",
+              "displayName": "Expression",
+              "inputType": "expression",
+              "required": false,
+              "defaultValue": "xpath('$body/node()')",
+              "helpTip": "Provide the expression that specifies the data to be aggregated from each message.",
+              "enableCondition": [
+                {
+                  "contentType": "XML"
+                }
+              ]
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "rootElement",
+              "displayName": "Root Element Name",
+              "inputType": "string",
+              "defaultValue": "ScatterGatherResult",
+              "required": true,
+              "helpTip": "The aggregation result will be wrapped in this root element.",
+              "enableCondition": [
+                {
+                  "contentType": "XML"
+                }
+              ]
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "resultTarget",
+              "displayName": "Save Result to",
+              "inputType": "combo",
+              "defaultValue": "Body",
+              "comboValues": [
+                "Body",
+                "Variable"
+              ],
+              "required": false,
+              "helpTip": "Specify where to save the aggregated result. Choose between saving it in the message body or a variable."
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "variableName",
+              "displayName": "Variable Name",
+              "inputType": "string",
+              "required": true,
+              "helpTip": "The name of the variable where the result will be saved.",
+              "enableCondition": [
+                {
+                  "resultTarget": "Variable"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "Aggregation configurations",
+        "isCollapsed": true,
+        "elements": [
+          {
+            "type": "attribute",
+            "value": {
+              "name": "condition",
+              "displayName": "Condition to aggregate the message",
+              "inputType": "expression",
+              "required": false,
+              "helpTip": "Define a condition that determines when the messages should be aggregated."
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "completeTimeout",
+              "displayName": "Completion Timeout",
+              "inputType": "string",
+              "required": false,
+              "helpTip": "Specify the maximum amount of time (in milliseconds) to wait for the messages to complete aggregation."
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "minMessages",
+              "displayName": "Minimum messages to complete",
+              "inputType": "string",
+              "required": false,
+              "helpTip": "Set the minimum number of messages that must be received before aggregation can occur."
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "maxMessages",
+              "displayName": "Maximum messages to complete",
+              "inputType": "string",
+              "required": false,
+              "helpTip": "Set the maximum number of messages that should be processed for aggregation."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "attribute",
+      "value": {
+        "name": "description",
+        "displayName": "Description",
+        "inputType": "string",
+        "defaultValue": "",
+        "required": false,
+        "helpTip": "Provide a brief description of the Scatter Gather Mediator's purpose."
+      }
+    }
+  ]
+}

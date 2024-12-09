@@ -52,6 +52,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.v
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.validate.ValidateOnFail;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.Foreach;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.Iterate;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.ScatterGather;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.aggregate.Aggregate;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.aggregate.AggregateOnComplete;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.extension.Bean;
@@ -618,6 +619,38 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
     protected void visitVariable(Variable node) {
 
         visitSimpleMediator(node);
+    }
+
+    @Override
+    protected void visitScatterGather(ScatterGather node) {
+
+        if (isFound) {
+            stepOverInfo.add(getBreakpointForNode(node));
+            done = true;
+        } else {
+            if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
+                CloneTarget[] targets = node.getTargets();
+                if (targets != null && targets.length > 0) {
+                    if (VisitorUtils.checkValidBreakpoint(node, breakpoint)) {
+                        for (CloneTarget target : targets) {
+                            addToNextBreakpoints(getFirstMediatorBreakpoint(target.getSequence()));
+                        }
+                        if (!stepOverInfo.isEmpty() && stepOverInfo.size() == targets.length) {
+                            done = true;
+                        }
+                    } else {
+                        for (CloneTarget target : targets) {
+                            if (target != null && VisitorUtils.checkNodeInRange(target, breakpoint)) {
+                                VisitorUtils.visitMediators(target.getSequence().getMediatorList(), this);
+                            }
+                        }
+                    }
+                }
+                if (!done) {
+                    isFound = true;
+                }
+            }
+        }
     }
 
     @Override
