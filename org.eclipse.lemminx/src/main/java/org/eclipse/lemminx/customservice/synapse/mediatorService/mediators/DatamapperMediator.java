@@ -29,15 +29,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DatamapperMediator {
-    private static final String regex = "gov:/datamapper/([^/]+)/.*\\.dmc";
-    private static final String path = "gov:/datamapper/";
+    private static final String REGEX = "gov:/datamapper/([^/]+)/.*\\.dmc";
+    private static final String PATH = "gov:/datamapper/";
 
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                               Datamapper datamapper,
                                                                                               List<String> dirtyFields) {
-        String configurationLocalPath = path + data.get("name") + "/" + data.get("name") + ".dmc";
-        String inputSchemaLocalPath = path + data.get("name") + "/" + data.get("name") + "_inputSchema.json";
-        String outputSchemaLocalPath = path + data.get("name") + "/" + data.get("name") + "_outputSchema.json";
+        String configurationLocalPath = PATH + data.get("name") + "/" + data.get("name") + ".dmc";
+        String inputSchemaLocalPath = PATH + data.get("name") + "/" + data.get("name") + "_inputSchema.json";
+        String outputSchemaLocalPath = PATH + data.get("name") + "/" + data.get("name") + "_outputSchema.json";
         data.put("configurationLocalPath", configurationLocalPath);
         data.put("inputSchemaLocalPath", inputSchemaLocalPath);
         data.put("outputSchemaLocalPath", outputSchemaLocalPath);
@@ -53,7 +53,7 @@ public class DatamapperMediator {
         data.put("outputType", node.getOutputType());
         String configPath = node.getConfig();
         if (configPath != null) {
-            Pattern pattern = Pattern.compile(regex);
+            Pattern pattern = Pattern.compile(REGEX);
             Matcher matcher = pattern.matcher(configPath);
             if (matcher.find()) {
                 data.put("name", matcher.group(1));
