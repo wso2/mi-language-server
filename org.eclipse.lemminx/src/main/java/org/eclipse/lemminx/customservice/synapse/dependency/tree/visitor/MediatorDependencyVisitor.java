@@ -45,6 +45,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.P
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Respond;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Send;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Store;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Variable;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.call.Call;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.callout.Callout;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.callout.CalloutEnableSec;
@@ -53,6 +54,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.v
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.validate.ValidateSchema;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.Foreach;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.Iterate;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.ScatterGather;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.aggregate.Aggregate;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.aggregate.AggregateOnComplete;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.extension.Bean;
@@ -530,6 +532,25 @@ public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
     protected void visitProperty(Property node) {
 
         // DO NOTHING
+    }
+
+    @Override
+    protected void visitVariable(Variable node) {
+
+        // DO NOTHING
+    }
+
+    @Override
+    protected void visitScatterGather(ScatterGather node) {
+
+        CloneTarget[] targets = node.getTargets();
+        if (targets != null) {
+            for (CloneTarget target : targets) {
+                if (target.getSequence() != null) {
+                    addAnonymousOrAttributeSequence(target.getSequence(), target.getSequenceAttribute());
+                }
+            }
+        }
     }
 
     @Override

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+ Copyright (c) 2024, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+-->
+
+<xs:schema
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+        jaxb:version="2.0"
+        elementFormDefault="qualified"
+        targetNamespace="http://ws.apache.org/ns/synapse"
+        xmlns="http://ws.apache.org/ns/synapse">
+
+    <xs:include schemaLocation="../../endpoint.xsd" />
+    <xs:include schemaLocation="../mediators.xsd" />
+    <xs:include schemaLocation="../../misc/common.xsd" />
+
+    <xs:element name="scatter-gather">
+        <xs:annotation>
+            <xs:documentation source="description">
+                Clones a message into several messages and aggregate the responses back into a single message.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <!-- Aggregation Element -->
+                <xs:element name="aggregation">
+                    <xs:complexType>
+                        <xs:attribute name="expression" type="xs:string" use="required"/>
+                        <xs:attribute name="condition" type="xs:string" use="optional"/>
+                        <xs:attribute name="timeout" type="xs:string" use="optional"/>
+                        <xs:attribute name="min-messages" type="xs:string" use="optional"/>
+                        <xs:attribute name="max-messages" type="xs:string" use="optional"/>
+                    </xs:complexType>
+                </xs:element>
+
+                <!-- Sequence containing mediators -->
+                <xs:element name="sequence" type="sequence" minOccurs="2" maxOccurs="unbounded" />
+            </xs:sequence>
+
+            <!-- Root Element Attributes -->
+            <xs:attribute name="parallel-execution" type="xs:boolean" default="true"/>
+            <xs:attribute name="result-target" type="xs:string"/>
+            <xs:attribute name="root-element" type="xs:string" use="optional"/>
+            <xs:attribute name="content-type" use="required">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="JSON"/>
+                        <xs:enumeration value="XML"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:attribute>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

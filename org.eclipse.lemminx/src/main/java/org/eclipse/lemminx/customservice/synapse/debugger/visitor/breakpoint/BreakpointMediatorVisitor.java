@@ -44,11 +44,13 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.P
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Respond;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Send;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Store;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Variable;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.call.Call;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.callout.Callout;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.validate.Validate;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.Foreach;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.Iterate;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.ScatterGather;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.aggregate.Aggregate;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.extension.Bean;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.extension.Class;
@@ -624,6 +626,44 @@ public class BreakpointMediatorVisitor extends AbstractMediatorVisitor {
     protected void visitProperty(Property node) {
 
         visitSimpleMediator(node);
+    }
+
+    @Override
+    protected void visitVariable(Variable node) {
+
+        visitSimpleMediator(node);
+    }
+
+    @Override
+    protected void visitScatterGather(ScatterGather node) {
+
+        if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
+            mediatorPosition = Integer.toString(mediatorCount);
+            this.done = true;
+            if (VisitorUtils.checkValidBreakpoint(node, breakpoint)) {
+                debugInfo.setMediatorPosition(mediatorPosition);
+            } else {
+                BreakpointMediatorVisitor visitor = new BreakpointMediatorVisitor(breakpoint);
+                CloneTarget[] targets = node.getTargets();
+                if (targets != null) {
+                    for (int i = 0; i < targets.length; i++) {
+                        if (VisitorUtils.checkNodeInRange(targets[i], breakpoint)) {
+                            mediatorPosition += " " + i;
+                            VisitorUtils.visitMediators(targets[i].getSequence().getMediatorList(), visitor);
+                            break;
+                        }
+                    }
+                }
+                if (visitor.mediatorPosition != null) {
+                    mediatorPosition += " " + visitor.mediatorPosition;
+                    debugInfo.setMediatorPosition(mediatorPosition);
+                } else {
+                    markAsInvalid("Invalid breakpoint in Scatter Gather Mediator");
+                }
+            }
+        } else {
+            mediatorCount += 1;
+        }
     }
 
     @Override

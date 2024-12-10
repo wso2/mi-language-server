@@ -1,0 +1,92 @@
+{
+  "name": "variable",
+  "type": "mediator",
+  "title": "Variable Mediator",
+  "help": "Set or remove a variable to/from the message",
+  "elements": [
+    {
+      "type": "attribute",
+      "value": {
+        "name": "variableAction",
+        "displayName": "Action",
+        "inputType": "combo",
+        "defaultValue": "set",
+        "comboValues": [
+          "set",
+          "remove"
+        ],
+        "required": true,
+        "helpTip": "Action to be performed. Set or remove a variable"
+      }
+    },
+    {
+      "type": "attribute",
+      "value": {
+        "name": "variableName",
+        "displayName": "Name",
+        "inputType": "string",
+        "defaultValue": "",
+        "required": true,
+        "helpTip": "The name of the variable"
+      }
+    },
+    {
+      "type": "attribute",
+      "value": {
+        "name": "variableDataType",
+        "displayName": "Data Type",
+        "inputType": "combo",
+        "defaultValue": "STRING",
+        "comboValues": [
+          "STRING",
+          "INTEGER",
+          "BOOLEAN",
+          "DOUBLE",
+          "FLOAT",
+          "LONG",
+          "SHORT",
+          "OM",
+          "JSON"
+        ],
+        "required": true,
+        "helpTip": "Data type of the variable",
+        "enableCondition": [
+          "NOT",
+          {
+            "variableAction": "remove"
+          }
+        ]
+      }
+    },
+    {
+      "type": "attribute",
+      "value": {
+        "name": "variableValue",
+        "displayName": "Value",
+        "inputType": "stringOrExpression",
+        "defaultValue": "",
+        "required": true,
+        "helpTip": "Value of the variable. This can be a static value or an expression.",
+        "enableCondition": [
+          "NOT",
+          [
+            {
+              "variableAction": "remove"
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "type": "attribute",
+      "value": {
+        "name": "description",
+        "displayName": "Description",
+        "inputType": "string",
+        "defaultValue": "",
+        "required": false,
+        "helpTip": "Description"
+      }
+    }
+  ]
+}

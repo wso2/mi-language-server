@@ -127,7 +127,7 @@ public abstract class AbstractConnectorLoader {
         File[] files = connectorFolder.listFiles(File::isDirectory);
         for (File f : files) {
             String connectorName = getConnectorName(f);
-            if (!connectorHolder.isAlreadyExist(connectorName)) {
+            if (!connectorHolder.exists(connectorName)) {
                 Connector connector = connectorReader.readConnector(f.getAbsolutePath());
                 if (connector != null) {
                     connectorHolder.addConnector(connector);

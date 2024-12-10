@@ -18,37 +18,74 @@
 
 package org.eclipse.lemminx.customservice.synapse.utils;
 
+import com.github.fge.jackson.JsonLoader;
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
+import com.github.mustachejava.MustacheFactory;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.eclipse.lemminx.commons.TextDocument;
+import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorAction;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.legacyBuilder.utils.ProjectType;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.dom.DOMParser;
+import org.eclipse.lsp4j.InitializeParams;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class Utils {
+
+    private static final Logger logger = Logger.getLogger(Utils.class.getName());
+    private static FileSystem fileSystem;
 
     /**
      * Get the inline string of the given node
@@ -126,9 +163,8 @@ public class Utils {
     public static DOMDocument getDOMDocument(File file) throws IOException {
 
         Path path = file.toPath();
-        String text = "";
-        text = Files.readString(path);
-        TextDocument document = new TextDocument(text, file.getName());
+        String text = Files.readString(path);
+        TextDocument document = new TextDocument(text, path.toUri().toString());
         DOMDocument domDocument = DOMParser.getInstance().parse(document, null);
         return domDocument;
     }
@@ -539,5 +575,281 @@ public class Utils {
             return otherFile.exists();
         }
         return false;
+    }
+
+    public static Map<String, JsonObject> getUISchemaMap(String resourceFolderName) {
+        Map<String, JsonObject> jsonMap = new HashMap<>();
+        try {
+            URI resourceURI = Utils.class.getClassLoader().getResource(resourceFolderName).toURI();
+            fileSystem = FileSystems.newFileSystem(resourceURI, Map.of());
+            Path resourcePath = fileSystem.getPath(resourceFolderName);
+            Stream<Path> paths = Files.walk(resourcePath, 1);
+            paths.filter(Files::isRegularFile)
+                    .filter(path -> path.toString().endsWith(".json"))
+                    .forEach(path -> processJsonFile(path, jsonMap));
+            fileSystem.close();
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Failed to mediator UI schemas from resources.", e);;
+        }
+        return jsonMap;
+    }
+
+    private static void processJsonFile(Path path, Map<String, JsonObject> jsonMap) {
+        Gson gson = new Gson();
+        String fileName = path.getFileName().toString().replace(".json", "");
+        try (InputStreamReader reader = new InputStreamReader(Files.newInputStream(path))) {
+            JsonObject jsonObject = gson.fromJson(reader, JsonObject.class);
+            jsonMap.put(fileName, jsonObject);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Failed to load UI schema: " + fileName, e);
+        }
+    }
+
+    public static JsonObject getMediatorList(String version, ConnectorHolder connectorHolder) throws IOException {
+
+        InputStream inputStream = JsonLoader.class
+                .getResourceAsStream("/org/eclipse/lemminx/mediators/mediators_"
+                        + version.replace(".", "") + ".json");
+        if (inputStream == null) {
+            throw new IOException("Mediator list not found for the given version: " + version);
+        }
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        JsonObject mediatorList = JsonParser.parseReader(reader).getAsJsonObject();
+        addConnectorsToMediatorList(mediatorList, connectorHolder);
+        return mediatorList;
+    }
+
+    private static void addConnectorsToMediatorList(JsonObject mediatorList, ConnectorHolder connectorHolder) {
+
+        List<Connector> connectors = connectorHolder.getConnectors();
+        JsonElement otherCategoryMediators = mediatorList.remove(Constant.OTHER);
+        for (Connector connector : connectors) {
+            JsonArray operationsArray = new JsonArray();
+            List<ConnectorAction> operations = connector.getActions();
+            for (ConnectorAction operation : operations) {
+                if (!operation.getHidden()) {
+                    JsonObject operationObject = new JsonObject();
+                    operationObject.addProperty(Constant.TITLE, operation.getName());
+                    operationObject.addProperty(Constant.OPERATION_NAME, operation.getName());
+                    operationObject.addProperty(Constant.TAG, operation.getTag());
+                    operationObject.addProperty(Constant.TOOLTIP, operation.getDescription());
+                    operationObject.addProperty(Constant.ICON_PATH, connector.getIconPath());
+                    operationsArray.add(operationObject);
+                }
+            }
+            mediatorList.add(connector.getName(), operationsArray);
+        }
+        if (otherCategoryMediators != null) {
+            mediatorList.add(Constant.OTHER, otherCategoryMediators);
+        }
+    }
+
+    public static String getServerVersion(String projectPath, String defaultVersion) {
+        try {
+            Path pomPath = Path.of(projectPath, "pom.xml");
+            File pomFile = pomPath.toFile();
+            DOMDocument document = getDOMDocument(pomFile);
+
+            DOMNode propertiesList = getChildNodeByName(document.getDocumentElement(), "properties");
+            if (propertiesList != null) {
+                DOMNode runtimeVersionList = getChildNodeByName(propertiesList, "project.runtime.version");
+                if (runtimeVersionList != null) {
+                    String version = getInlineString(runtimeVersionList.getFirstChild());
+                    Pattern pattern = Pattern.compile("^\\d+\\.\\d+\\.\\d+$");
+                    Matcher matcher = pattern.matcher(version);
+                    if (matcher.matches()) {
+                        return version;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error occurred while extracting server runtime version.", e);
+        }
+        return defaultVersion;
+    }
+
+    public static Map<String, Mustache> getTemplateMap(String resourceFolderName) {
+        Map<String, Mustache> templateMap = new HashMap<>();
+        try {
+            URI resourceURI = Utils.class.getClassLoader().getResource(resourceFolderName).toURI();
+            fileSystem = FileSystems.newFileSystem(resourceURI, Map.of());
+            Path templatesPath = fileSystem.getPath(resourceFolderName);
+            Stream<Path> paths = Files.walk(templatesPath, 1);
+            paths.filter(Files::isRegularFile)
+                    .filter(path -> path.toString().endsWith(".mustache"))
+                    .forEach(path -> loadTemplate(path, resourceFolderName, templateMap));
+            fileSystem.close();
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Failed to load mustache templates from resources.", e);;
+        }
+        return templateMap;
+    }
+
+    private static void loadTemplate(Path path, String resourceFolder, Map<String, Mustache> templateMap) {
+        String templateName = path.getFileName().toString().replace(".mustache", "");
+        MustacheFactory mustacheFactory = new DefaultMustacheFactory();
+        try (InputStreamReader reader = new InputStreamReader(
+                Utils.class.getClassLoader().getResourceAsStream(resourceFolder + "/" + path.getFileName()))) {
+            Mustache template = mustacheFactory.compile(reader, templateName);
+            templateMap.put(templateName, template);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Failed to load template: " + templateName, e);
+        }
+    }
+
+    public static Path copyXSDFiles(String projectUri) throws IOException {
+
+        String version = getServerVersion(projectUri, Constant.DEFAULT_MI_VERSION);
+        String versionFolder = version.replace(".", "");
+        String schemasPath = "org/eclipse/lemminx/schemas/" + versionFolder;
+        File tempFolder = Files.createTempDirectory("synapse").toFile();
+        tempFolder.deleteOnExit();
+        extractJarFolder(schemasPath, tempFolder.toPath());
+        return tempFolder.toPath();
+    }
+
+    public static void extractJarFolder(String resourceFolder, Path targetDirectory) throws IOException {
+
+        Files.createDirectories(targetDirectory);
+        ClassLoader classLoader = Utils.class.getClassLoader();
+        URL resourceURL = classLoader.getResource(resourceFolder);
+
+        if (resourceURL == null) {
+            throw new IOException("Folder " + resourceFolder + " not found!");
+        }
+
+        if (resourceURL.getProtocol().equals(Constant.JAR)) {
+            // Resource is inside a JAR
+            String jarPath = resourceURL.getPath().substring(5, resourceURL.getPath().indexOf("!"));
+            try (JarFile jarFile = new JarFile(Paths.get(jarPath).toFile())) {
+                Enumeration<JarEntry> entries = jarFile.entries();
+                while (entries.hasMoreElements()) {
+                    JarEntry entry = entries.nextElement();
+                    String entryName = entry.getName();
+                    if (entryName.startsWith(resourceFolder) && !entry.isDirectory()) {
+                        // Extract each file
+                        try (InputStream inputStream = jarFile.getInputStream(entry)) {
+                            Path targetFile = targetDirectory.resolve(entryName.substring(resourceFolder.length() + 1));
+                            Files.createDirectories(targetFile.getParent());
+                            Files.copy(inputStream, targetFile, StandardCopyOption.REPLACE_EXISTING);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public static Path updateSynapseCatalogSettings(InitializeParams params) throws IOException, URISyntaxException {
+
+        String projectUri = params.getRootPath();
+        Object initParams = params.getInitializationOptions();
+        Gson gson = new Gson();
+        JsonElement jsonElement = gson.toJsonTree(initParams);
+        if (jsonElement != null && jsonElement.isJsonObject() && jsonElement.getAsJsonObject().has(Constant.SETTINGS)) {
+            JsonObject settings = jsonElement.getAsJsonObject().getAsJsonObject(Constant.SETTINGS);
+            Path schemaPath = copyXSDFiles(projectUri);
+            JsonElement updatedParams = updateSynapseCatalogSettings(settings, schemaPath);
+            params.setInitializationOptions(updatedParams);
+            return schemaPath;
+
+        }
+        return null;
+    }
+
+    public static JsonElement updateSynapseCatalogSettings(JsonObject settings, Path schemaPath)
+            throws IOException, URISyntaxException {
+
+        if (schemaPath != null) {
+            Path catalogPath = schemaPath.resolve("catalog.xml");
+            JsonArray catalogsArray = new JsonArray();
+            catalogsArray.add(new JsonPrimitive(catalogPath.toString()));
+            if (settings != null && settings.isJsonObject() && settings.has(Constant.XML)) {
+                settings.getAsJsonObject(Constant.XML).add(Constant.CATALOGS, catalogsArray);
+            }
+        }
+        return settings;
+    }
+
+    /**
+     * Copy the content of the source folder to the target folder
+     *
+     * @param source      the source folder
+     * @param target      the target folder
+     * @param copiedFiles the list of copied files
+     * @throws IOException if an error occurs while copying the content
+     */
+    public static void copyFolder(Path source, Path target, List<String> copiedFiles) throws IOException {
+        // Create target directory if it doesn't exist
+        if (Files.notExists(target)) {
+            Files.createDirectories(target);
+        }
+
+        // Walk the source tree and copy files to the target location
+        Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+
+                Path targetFile = target.resolve(source.relativize(file));
+                if (".DS_Store".equals(file.getFileName().toString())) {
+                    return FileVisitResult.CONTINUE;
+                }
+                Files.copy(file, targetFile, StandardCopyOption.REPLACE_EXISTING);
+                if (copiedFiles != null) {
+                    copiedFiles.add(targetFile.toString());
+                }
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+
+                Path targetDir = target.resolve(source.relativize(dir));
+                if (Files.notExists(targetDir)) {
+                    Files.createDirectories(targetDir);
+                }
+                return FileVisitResult.CONTINUE;
+            }
+        });
+    }
+
+    /**
+     * Delete the given directory
+     *
+     * @param path the directory path
+     * @throws IOException if an error occurs while deleting the directory
+     */
+    public static void deleteDirectory(Path path) throws IOException {
+
+        if (Files.exists(path)) {
+            Files.walkFileTree(path, new SimpleFileVisitor<>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        }
+    }
+
+    /**
+     * Write the given content to the file
+     *
+     * @param path    the file path
+     * @param content the content
+     * @throws IOException if an error occurs while writing the content to the file
+     */
+    public static void writeToFile(String path, String content) throws IOException {
+
+        try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(path))) {
+            bos.write(content.getBytes(StandardCharsets.UTF_8));
+        }
     }
 }
