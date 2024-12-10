@@ -34,7 +34,7 @@
       "factoryClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.core.LogFactory",
       "processingClass": "org.eclipse.lemminx.customservice.synapse.mediatorService.mediators.LogMediator",
       "storeMethod": "processData430",
-      "retrieveMethod": "getDataFromST430"
+      "retrieveMethod": "getDataFromST440"
     },
     {
       "title": "Payload",
@@ -289,7 +289,7 @@
       "factoryClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.core.LogFactory",
       "processingClass": "org.eclipse.lemminx.customservice.synapse.mediatorService.mediators.LogMediator",
       "storeMethod": "processData430",
-      "retrieveMethod": "getDataFromST430"
+      "retrieveMethod": "getDataFromST440"
     },
     {
       "title": "Respond",

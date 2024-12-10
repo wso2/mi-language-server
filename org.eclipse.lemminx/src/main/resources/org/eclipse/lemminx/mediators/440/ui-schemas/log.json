@@ -29,55 +29,89 @@
         "name": "level",
         "displayName": "Log Level",
         "inputType": "combo",
-        "defaultValue": "SIMPLE",
         "comboValues": [
           "SIMPLE",
           "HEADERS",
           "FULL",
           "CUSTOM"
         ],
-        "required": "true",
-        "helpTip": "Log Level"
+        "required": "false",
+        "helpTip": "Log Level",
+        "enableCondition": [
+          "OR",
+          {
+            "level": "SIMPLE"
+          },
+          {
+            "level": "HEADERS"
+          },
+          {
+            "level": "FULL"
+          },
+          {
+            "level": "CUSTOM"
+          }
+        ]
       }
     },
     {
       "type": "attribute",
       "value": {
-        "name": "separator",
-        "displayName": "Log Separator",
-        "inputType": "string",
+        "name": "message",
+        "displayName": "Message",
+        "inputType": "codeTextArea",
         "defaultValue": "",
         "required": "false",
-        "helpTip": ""
+        "helpTip": "You can define a string template like 'Message with ID: #[payload.id]' to generate the log message."
       }
     },
     {
-      "type": "table",
+      "type": "attributeGroup",
       "value": {
-        "name": "properties",
-        "displayName": "Properties",
-        "description": "Editing of the properties of an object LogProperty",
-        "tableKey": "propertyName",
-        "tableValue": "propertyValue",
+        "groupName": "Additional Parameters",
+        "isCollapsed": "true",
         "elements": [
           {
-            "type": "attribute",
+            "type": "table",
             "value": {
-              "name": "propertyName",
-              "displayName": "Property Name",
-              "inputType": "string",
-              "required": false,
-              "helpTip": ""
+              "name": "properties",
+              "displayName": "Parameters",
+              "description": "Key value pairs to be logged in addition to the message",
+              "tableKey": "propertyName",
+              "tableValue": "propertyValue",
+              "elements": [
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "propertyName",
+                    "displayName": "Name",
+                    "inputType": "string",
+                    "required": false,
+                    "helpTip": ""
+                  }
+                },
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "propertyValue",
+                    "displayName": "Value",
+                    "inputType": "stringOrExpression",
+                    "required": false,
+                    "helpTip": ""
+                  }
+                }
+              ]
             }
           },
           {
             "type": "attribute",
             "value": {
-              "name": "propertyValue",
-              "displayName": "Property Value",
-              "inputType": "stringOrExpression",
-              "required": false,
-              "helpTip": ""
+              "name": "separator",
+              "displayName": "Parameter Separator",
+              "inputType": "string",
+              "defaultValue": "",
+              "required": "false",
+              "helpTip": "Separator to be used between the additional parameters. By default, a comma is used and the parameters are logged as name1 = value1, name2 = value2"
             }
           }
         ]

@@ -27,6 +27,7 @@ public class Log extends Mediator {
     String separator;
     LogCategory category;
     String description;
+    String message;
 
     public MediatorProperty[] getProperty() {
 
@@ -76,5 +77,15 @@ public class Log extends Mediator {
     public void setDescription(String description) {
 
         this.description = description;
+    }
+
+    public String getMessage() {
+
+        return message;
+    }
+
+    public void setMessage(String message) {
+
+        this.message = message;
     }
 }
