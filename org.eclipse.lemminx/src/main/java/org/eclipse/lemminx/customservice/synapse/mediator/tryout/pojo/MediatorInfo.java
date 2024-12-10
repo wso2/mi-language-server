@@ -31,6 +31,7 @@ public class MediatorInfo {
     private List<Property> headers;
     private Properties properties;
     private Params params;
+    private List<Property> configs;
 
     public MediatorInfo() {
 
@@ -39,6 +40,7 @@ public class MediatorInfo {
         headers = new ArrayList<>();
         properties = new Properties();
         params = new Params();
+        configs = new ArrayList<>();
     }
 
     public void addSynapseProperties(List<Property> properties) {
@@ -120,6 +122,11 @@ public class MediatorInfo {
         params.addFunctionParam(new Property(key, value));
     }
 
+    public void addConfig(Property config) {
+
+        configs.add(config);
+    }
+
     public void setPayload(JsonPrimitive payload) {
 
         this.payload = payload;
@@ -195,6 +202,16 @@ public class MediatorInfo {
         this.properties = properties;
     }
 
+    public List<Property> getConfigs() {
+
+        return configs;
+    }
+
+    public void setConfigs(List<Property> configs) {
+
+        this.configs = configs;
+    }
+
     public MediatorInfo deepCopy() {
 
         MediatorInfo mediatorInfo = new MediatorInfo();
@@ -203,6 +220,7 @@ public class MediatorInfo {
         mediatorInfo.setProperties(properties.deepCopy());
         mediatorInfo.setHeaders(new ArrayList<>(headers));
         mediatorInfo.setParams(params.deepCopy());
+        mediatorInfo.setConfigs(new ArrayList<>(configs));
         return mediatorInfo;
     }
 

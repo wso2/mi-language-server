@@ -22,6 +22,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionParam;
+import org.eclipse.lemminx.customservice.synapse.expression.pojo.Functions;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.HelperPanelData;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.HelperPanelItem;
 import org.eclipse.lemminx.customservice.synapse.mediator.schema.generate.ServerLessTryoutHandler;
@@ -55,9 +56,11 @@ public class ExpressionHelperProvider {
             Params.Type.FUNC, "params.functionParams"
                                                                               );
     private final ServerLessTryoutHandler tryoutHandler;
+    private final String projectPath;
 
     public ExpressionHelperProvider(String projectPath) {
 
+        this.projectPath = projectPath;
         this.tryoutHandler = new ServerLessTryoutHandler(projectPath);
     }
 
@@ -65,13 +68,22 @@ public class ExpressionHelperProvider {
 
         MediatorTryoutRequest request = new MediatorTryoutRequest(param.getDocumentUri(), param.getPosition().getLine(),
                 param.getPosition().getLine(), null, null);
-        MediatorTryoutInfo tryoutInfo = tryoutHandler.handle(request);
+        MediatorTryoutInfo tryoutInfo = getMediatorTryoutInfo(request);
         MediatorInfo propsData = tryoutInfo.getOutput();
-        Map<String, List<CompletionItem>> functions = ExpressionCompletionUtils.getFunctions();
+        Map<String, Functions> functions = ExpressionCompletionUtils.getFunctions();
         return createHelperData(propsData, functions);
     }
 
-    private HelperPanelData createHelperData(MediatorInfo propsData, Map<String, List<CompletionItem>> functions) {
+    private MediatorTryoutInfo getMediatorTryoutInfo(MediatorTryoutRequest request) {
+
+        MediatorTryoutInfo info = tryoutHandler.handle(request);
+        List<Property> configurables = ExpressionCompletionUtils.getConfigs(projectPath);
+        info.setInputConfigs(configurables);
+        info.setOutputConfigs(configurables);
+        return info;
+    }
+
+    private HelperPanelData createHelperData(MediatorInfo propsData, Map<String, Functions> functions) {
 
         HelperPanelData helperData = new HelperPanelData();
         setFunctions(helperData, functions);
@@ -79,24 +91,20 @@ public class ExpressionHelperProvider {
         helperData.setPayload(createDataList(propsData.getPayload()));
         helperData.setProperties(createDataList(propsData.getProperties()));
         helperData.setParams(createDataList(propsData.getParams()));
+        helperData.setConfigs(createDataList(propsData.getConfigs(), ExpressionConstants.CONFIG));
         helperData.setHeaders(createDataList(propsData.getHeaders(), ExpressionConstants.HEADERS));
         return helperData;
     }
 
-    private void setFunctions(HelperPanelData helperData, Map<String, List<CompletionItem>> functions) {
+    private void setFunctions(HelperPanelData helperData, Map<String, Functions> functions) {
 
-        Map<String, List<CompletionItem>> processedFunctions = new HashMap<>();
-        for (Map.Entry<String, List<CompletionItem>> entry : functions.entrySet()) {
+        Map<String, Functions> clonedFunctionsMap = new HashMap<>();
+        for (Map.Entry<String, Functions> entry : functions.entrySet()) {
             String key = entry.getKey();
-            List<CompletionItem> value = entry.getValue();
-            List<CompletionItem> processedValue = new ArrayList<>();
-            for (CompletionItem item : value) {
-                CompletionItem newItem = ExpressionCompletionUtils.cloneCompletionItem(item);
-                processedValue.add(newItem);
-            }
-            processedFunctions.put(key, processedValue);
+            Functions value = entry.getValue();
+            clonedFunctionsMap.put(key, value.deepCopy());
         }
-        helperData.setFunctions(processedFunctions);
+        helperData.setFunctions(clonedFunctionsMap);
     }
 
     private List<CompletionItem> createDataList(Properties attributes) {

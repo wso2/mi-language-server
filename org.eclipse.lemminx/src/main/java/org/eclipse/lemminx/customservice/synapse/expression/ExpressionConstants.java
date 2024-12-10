@@ -46,9 +46,13 @@ public class ExpressionConstants {
     public static final String QUERY_PARAMS = "queryParams";
     public static final String URI_PARAMS = "uriParams";
     public static final String FUNCTION_PARAMS = "functionParams";
-    public static final List<String> ROOT_LEVEL_TOKENS = List.of(VAR, PROPERTIES, PROPS, PARAMS, HEADERS, PAYLOAD);
+    public static final String CONFIG = "config";
+    public static final List<String> ROOT_LEVEL_TOKENS =
+            List.of(VAR, PROPERTIES, PROPS, PARAMS, HEADERS, PAYLOAD, CONFIG);
     public static final List<String> PARAMS_SECOND_LEVEL = List.of(QUERY_PARAMS, URI_PARAMS, FUNCTION_PARAMS);
     public static final String OBJECT = "Object";
+    public static final String ITEMS = "items";
+    public static final String SORT_TEXT = "sortText";
 
     private ExpressionConstants() {
 

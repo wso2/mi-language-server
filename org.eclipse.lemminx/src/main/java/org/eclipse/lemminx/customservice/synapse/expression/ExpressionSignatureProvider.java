@@ -21,6 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.expression;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionParam;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.FunctionCompletionItem;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.FunctionInfo;
+import org.eclipse.lemminx.customservice.synapse.expression.pojo.Functions;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SignatureInformation;
@@ -48,9 +49,9 @@ public class ExpressionSignatureProvider {
 
     private static void loadFunctionSignatures() {
 
-        Map<String, List<CompletionItem>> functionCompletionItems = ExpressionCompletionUtils.getFunctions();
-        for (Map.Entry<String, List<CompletionItem>> entry : functionCompletionItems.entrySet()) {
-            for (CompletionItem completionItem : entry.getValue()) {
+        Map<String, Functions> functionCompletionItems = ExpressionCompletionUtils.getFunctions();
+        for (Map.Entry<String, Functions> entry : functionCompletionItems.entrySet()) {
+            for (CompletionItem completionItem : entry.getValue().getItems()) {
                 SignatureInformation signatureInformation = ((FunctionCompletionItem) completionItem).getSignature();
                 String label = completionItem.getLabel().substring(0, completionItem.getLabel().indexOf('('));
                 if (functionSignatures.containsKey(label)) {

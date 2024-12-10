@@ -23,7 +23,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.FunctionCompletionItem;
-import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.expression.pojo.Functions;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property;
+import org.eclipse.lemminx.customservice.synapse.parser.Node;
+import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
+import org.eclipse.lemminx.customservice.synapse.parser.config.ConfigParser;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.extensions.contentmodel.participants.completion.AttributeValueCompletionResolver;
 import org.eclipse.lemminx.services.data.DataEntryField;
@@ -53,7 +57,7 @@ public class ExpressionCompletionUtils {
 
     private static final Logger LOGGER = Logger.getLogger(ExpressionCompletionUtils.class.getName());
     private static final String FUNCTIONS_JSON_PATH = "org/eclipse/lemminx/expression/functions.json";
-    private static final Map<String, List<CompletionItem>> functions = new HashMap<>();
+    private static final Map<String, Functions> functions = new HashMap<>();
 
     static {
         try {
@@ -85,7 +89,8 @@ public class ExpressionCompletionUtils {
             if (functionsObject != null) {
                 functionsObject.keySet().forEach(key -> {
                     List<CompletionItem> functionList = new ArrayList<>();
-                    JsonArray jsonArray = functionsObject.getAsJsonArray(key);
+                    JsonObject functionCategory = functionsObject.getAsJsonObject(key);
+                    JsonArray jsonArray = functionCategory.getAsJsonArray(ExpressionConstants.ITEMS);
                     for (JsonElement element : jsonArray) {
                         JsonObject jsonObject = element.getAsJsonObject();
                         String label = jsonObject.get(ExpressionConstants.LABEL).getAsString();
@@ -97,7 +102,9 @@ public class ExpressionCompletionUtils {
                                 createFunctionCompletionItem(label, insertText, signature, detail,
                                         CompletionItemKind.Function, order));
                     }
-                    functions.put(key, functionList);
+                    String sortText = functionCategory.get(ExpressionConstants.SORT_TEXT).getAsString();
+                    Functions processedFunctions = new Functions(sortText, functionList);
+                    functions.put(key, processedFunctions);
                 });
             }
         }
@@ -108,7 +115,7 @@ public class ExpressionCompletionUtils {
      *
      * @return functions
      */
-    public static Map<String, List<CompletionItem>> getFunctions() {
+    public static Map<String, Functions> getFunctions() {
 
         return Collections.unmodifiableMap(functions);
     }
@@ -143,12 +150,14 @@ public class ExpressionCompletionUtils {
                 "Access defined headers", CompletionItemKind.Keyword, 0, Boolean.FALSE));
         items.add(createCompletionItem(ExpressionConstants.PAYLOAD, ExpressionConstants.PAYLOAD,
                 "Access defined payload", CompletionItemKind.Keyword, 0, Boolean.FALSE));
+        items.add(createCompletionItem(ExpressionConstants.CONFIG, ExpressionConstants.CONFIG,
+                "Access defined configurables", CompletionItemKind.Keyword, 0, Boolean.FALSE));
     }
 
     private static void getFunctionCompletions(List<CompletionItem> items) {
 
         List<CompletionItem> functionCompletions = new ArrayList<>();
-        functions.values().forEach(functionCompletions::addAll);
+        functions.values().forEach(functions -> functionCompletions.addAll(functions.getItems()));
         items.addAll(Collections.unmodifiableCollection(functionCompletions));
     }
 
@@ -350,6 +359,27 @@ public class ExpressionCompletionUtils {
                         0, Boolean.FALSE);
             }
         });
+    }
+
+    /**
+     * Get all the configurations defined in the project.
+     *
+     * @param projectPath
+     * @return
+     */
+    public static List<Property> getConfigs(String projectPath) {
+
+        OverviewPageDetailsResponse response = new OverviewPageDetailsResponse();
+        ConfigParser.getConfigDetails(projectPath, response);
+        List<Node> configurables = response.getConfigurables();
+        if (configurables != null) {
+            List<Property> configs = new ArrayList<>();
+            for (Node node : configurables) {
+                configs.add(new Property(node.getKey(), node.getValue()));
+            }
+            return configs;
+        }
+        return Collections.emptyList();
     }
 
     private ExpressionCompletionUtils() {

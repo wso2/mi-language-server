@@ -31,7 +31,8 @@ public class HelperPanelData {
     private List<CompletionItem> properties;
     private List<CompletionItem> params;
     private List<CompletionItem> headers;
-    private Map<String, List<CompletionItem>> functions;
+    private List<CompletionItem> configs;
+    private Map<String, Functions> functions;
 
     public List<CompletionItem> getPayload() {
 
@@ -83,12 +84,22 @@ public class HelperPanelData {
         this.headers = headers;
     }
 
-    public Map<String, List<CompletionItem>> getFunctions() {
+    public List<CompletionItem> getConfigs() {
+
+        return configs;
+    }
+
+    public void setConfigs(List<CompletionItem> configs) {
+
+        this.configs = configs;
+    }
+
+    public Map<String, Functions> getFunctions() {
 
         return Collections.unmodifiableMap(functions);
     }
 
-    public void setFunctions(Map<String, List<CompletionItem>> functions) {
+    public void setFunctions(Map<String, Functions> functions) {
 
         this.functions = functions;
     }

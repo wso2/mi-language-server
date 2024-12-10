@@ -82,7 +82,7 @@ public class ExpressionCompletionsProvider {
         return null;
     }
 
-    public static ICompletionResponse getCompletions(DOMDocument document, Position position, String valuePrefix,
+    private static ICompletionResponse getCompletions(DOMDocument document, Position position, String valuePrefix,
                                                      int cursorOffset) {
 
         try {
@@ -124,7 +124,7 @@ public class ExpressionCompletionsProvider {
         return null;
     }
 
-    public static ICompletionResponse doComplete(String valuePrefix, ICompletionRequest request,
+    private static ICompletionResponse doComplete(String valuePrefix, ICompletionRequest request,
                                                  ICompletionResponse response, int offset, boolean isNewMediator)
             throws BadLocationException {
 
@@ -150,14 +150,19 @@ public class ExpressionCompletionsProvider {
         if (!matcher.matches()) {
             return null;
         }
-        ServerLessTryoutHandler serverLessTryoutHandler = new ServerLessTryoutHandler(matcher.group(1));
+        String projectPath = matcher.group(1);
+        ServerLessTryoutHandler serverLessTryoutHandler = new ServerLessTryoutHandler(projectPath);
         MediatorTryoutRequest propertyRequest = new MediatorTryoutRequest(
-                request.getXMLDocument().getDocumentURI().substring(7),
+                request.getXMLDocument().getDocumentURI().substring(7), // Remove the "file://" prefix
                 request.getPosition().getLine(), request.getPosition().getCharacter(), StringUtils.EMPTY, null);
-        return serverLessTryoutHandler.handle(propertyRequest);
+        MediatorTryoutInfo info = serverLessTryoutHandler.handle(propertyRequest);
+        List<Property> configs = ExpressionCompletionUtils.getConfigs(projectPath);
+        info.setInputConfigs(configs);
+        info.setOutputConfigs(configs);
+        return info;
     }
 
-    public static void fillAttributeValueWithExpression(String valuePrefix, ICompletionRequest request,
+    private static void fillAttributeValueWithExpression(String valuePrefix, ICompletionRequest request,
                                                         ICompletionResponse response, int offset, boolean isNewMediator)
             throws BadLocationException {
 
@@ -287,6 +292,8 @@ public class ExpressionCompletionsProvider {
             case ExpressionConstants.PAYLOAD:
                 handlePayloadCompletions(request, response, mediatorInfo, context);
                 break;
+            case ExpressionConstants.CONFIG:
+                handleConfigCompletions(request, response, mediatorInfo, expressionSegments, context);
             default:
                 // Do nothing
         }
@@ -407,6 +414,16 @@ public class ExpressionCompletionsProvider {
             List<String> itemValues = traverseJsonObject(context.getSegment(), payloadJsonObject, context.isNeedNext());
             addCompletionItems(request, response, itemValues);
         }
+    }
+
+    private static void handleConfigCompletions(ICompletionRequest request, ICompletionResponse response,
+                                                MediatorInfo info, List<String> expressionSegments,
+                                                ExpressionCompletionContext context) {
+
+        List<Property> properties = info.getConfigs();
+        List<String> itemValues = findItemValues(expressionSegments.subList(1, expressionSegments.size()), properties,
+                context.isNeedNext());
+        addCompletionItems(request, response, itemValues);
     }
 
     private static void addCompletionItems(
