@@ -2,25 +2,26 @@
   "name": "Switch",
   "type": "mediator",
   "title": "Switch Mediator",
-  "help": "Routes messages based on XPath/JSONPath/regex matching.",
+  "help": "Routes messages based on Regex matching.",
   "elements": [
     {
       "type": "attribute",
       "value": {
         "name": "sourceXPath",
-        "displayName": "Source XPath",
+        "displayName": "Expression",
         "inputType": "expression",
         "required": true,
-        "helpTip": ""
+        "helpTip": "Expression that resolves to a string value to be compared with the case patterns."
       }
     },
     {
       "type": "table",
       "value": {
         "name": "caseBranches",
-        "displayName": "Case Branches",
+        "displayName": "Cases",
         "title": "Switch Case Branch",
-        "description": "Editing of the properties of an object Switch Case Branch",
+        "description": "Define a case for the switch mediator.",
+        "addParamText": "Add new case",
         "tableKey": "{row.number}",
         "tableValue": "caseRegex",
         "elements": [
@@ -28,11 +29,12 @@
             "type": "attribute",
             "value": {
               "name": "caseRegex",
-              "displayName": "Case Regex",
+              "displayName": "Regex Pattern",
               "inputType": "string",
               "defaultValue": "",
               "required": true,
-              "helpTip": ".*+"
+              "helpTip": "Regular expression pattern to match the evaluated expression.",
+              "placeholder": ".*+"
             }
           },
           {
