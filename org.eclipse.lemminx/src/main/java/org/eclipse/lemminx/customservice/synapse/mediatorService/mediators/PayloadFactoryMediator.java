@@ -21,6 +21,8 @@ package org.eclipse.lemminx.customservice.synapse.mediatorService.mediators;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.MediatorUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.payload.PayloadFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.payload.PayloadFactoryArgsArg;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.payload.TemplateType;
+import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
@@ -31,37 +33,22 @@ import java.util.Map;
 
 public class PayloadFactoryMediator {
 
+    private static final String TEMPLATE_TYPE = "templateType";
+    private static final String MEDIA_TYPE = "mediaType";
+    public static final String CONTAIN_ARGS = "containArgs";
+
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            PayloadFactory payloadFactory,
                                                                                            List<String> dirtyFields) {
         data.put("isInlined", "Inline".equals(data.get("payloadFormat")));
-        data.put("isFreemarker", "Freemarker".equals(data.get("templateType")));
+        data.put("isFreemarker", "Freemarker".equals(data.get(TEMPLATE_TYPE)));
 
         // Process args
-        List<Object> argsList = data.get("args") instanceof List<?> ? (List<Object>) data.get("args") : new ArrayList<>();
-        List<Map<String, Object>> args = new ArrayList<>();
-
-        for (Object propertyObj : argsList) {
-            if (propertyObj instanceof List<?>) {
-                List<Object> property = (List<Object>) propertyObj;
-                Map<String, Object> argMap = new HashMap<>();
-                if (property.get(0) instanceof Map<?, ?> && !Boolean.TRUE.equals(((Map<?, ?>) property.get(0)).get("isExpression"))) {
-                    argMap.put("value", ((Map<?, ?>) property.get(0)).get("value"));
-                    argMap.put("literal", property.size() > 2 ? property.get(2) : null);
-                } else {
-                    argMap.put("expression", property.get(0));
-                    argMap.put("evaluator", property.size() > 1 ? property.get(1) : null);
-                    argMap.put("literal", property.size() > 2 ? property.get(2) : null);
-                }
-                args.add(argMap);
-            }
-        }
-
-        data.put("args", args);
+        processArgs(data);
 
         // Convert templateType to lowercase
-        if (data.get("templateType") instanceof String) {
-            data.put("templateType", ((String) data.get("templateType")).toLowerCase());
+        if (data.get(TEMPLATE_TYPE) instanceof String) {
+            data.put(TEMPLATE_TYPE, ((String) data.get(TEMPLATE_TYPE)).toLowerCase());
         }
 
 
@@ -73,12 +60,12 @@ public class PayloadFactoryMediator {
         data.put("description", node.getDescription());
 
         if (node.getMediaType() != null) {
-            data.put("mediaType", node.getMediaType());
+            data.put(MEDIA_TYPE, node.getMediaType());
         }
 
         if (node.getTemplateType() != null) {
             String templateType = node.getTemplateType().getValue();
-            data.put("templateType", templateType.substring(0, 1).toUpperCase() + templateType.substring(1));
+            data.put(TEMPLATE_TYPE, templateType.substring(0, 1).toUpperCase() + templateType.substring(1));
         }
 
         if (node.getFormat() != null) {
@@ -90,7 +77,7 @@ public class PayloadFactoryMediator {
         }
 
         if (node.getFormat() != null && node.getFormat().getContent() != null) {
-            if ("Freemarker".equals(data.get("templateType"))) {
+            if ("Freemarker".equals(data.get(TEMPLATE_TYPE))) {
                 String content = node.getFormat().getContent() instanceof String
                         ? (String) node.getFormat().getContent()
                         : node.getFormat().getContent().toString();
@@ -127,5 +114,96 @@ public class PayloadFactoryMediator {
         }
 
         return data;
+    }
+
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData440(Map<String, Object> data,
+                                                                                           PayloadFactory payloadFactory,
+                                                                                           List<String> dirtyFields) {
+
+        Boolean useTemplateResource = (Boolean) data.get("useTemplateResource");
+        if (!useTemplateResource) {
+            data.put("isInlined", true);
+        }
+        // Process args
+        processArgs(data);
+        String templateType = (String) data.get(TEMPLATE_TYPE);
+        if (TemplateType.FREE_MARKER.getValue().equals(templateType)) {
+            data.put("isFreemarker", true);
+        }
+        return Either.forLeft(data);
+    }
+
+    public static Map<String, Object> getDataFromST440(PayloadFactory payloadFactory) {
+
+        Map<String, Object> data = new HashMap<>();
+        data.put(Constant.DESCRIPTION, payloadFactory.getDescription());
+        TemplateType templateType = payloadFactory.getTemplateType();
+        if (templateType != null) {
+            data.put(TEMPLATE_TYPE, templateType.getValue());
+        }
+        data.put(MEDIA_TYPE, payloadFactory.getMediaType());
+        if (payloadFactory.getFormat().getKey() != null) {
+            data.put("useTemplateResource", true);
+            data.put("payloadKey", payloadFactory.getFormat().getKey());
+        } else {
+            String inlineContent = (String) payloadFactory.getFormat().getContent();
+            // If the payload is inline and the template type is freemarker, then remove the CDATA tags
+            if (TemplateType.FREE_MARKER.equals(templateType)) {
+                inlineContent = removeCDATAFromPayload(inlineContent);
+            }
+            data.put(Constant.PAYLOAD, inlineContent);
+        }
+        // Process args with transformations
+        if (payloadFactory.getArgs() != null && payloadFactory.getArgs().getArg() != null) {
+            List<List<Object>> args = new ArrayList<>();
+            for (PayloadFactoryArgsArg arg : payloadFactory.getArgs().getArg()) {
+                boolean isExpression = arg.getValue() == null;
+                Map<String, Object> argMap = new HashMap<>();
+                argMap.put(Constant.IS_EXPRESSION, isExpression);
+                argMap.put(Constant.VALUE, isExpression ? arg.getExpression() : arg.getValue());
+                argMap.put(Constant.NAMESPACES, MediatorUtils.transformNamespaces(arg.getNamespaces()));
+                args.add(List.of(argMap,
+                        arg.getEvaluator() != null ? arg.getEvaluator().toString() : "",
+                        arg.isLiteral()));
+            }
+            data.put(Constant.ARGS, args);
+            data.put(CONTAIN_ARGS, true);
+        }
+        return data;
+    }
+
+    private static String removeCDATAFromPayload(String inputPayload) {
+
+        if (inputPayload.startsWith("<![CDATA[")) {
+            inputPayload = inputPayload.substring(9);
+            int i = inputPayload.lastIndexOf("]]>");
+            if (i == -1)
+                throw new IllegalStateException("Inline content starts with <![CDATA[ but cannot find pairing ]]>");
+            inputPayload = inputPayload.substring(0, i);
+        }
+        return inputPayload;
+    }
+
+    private static void processArgs(Map<String, Object> data) {
+
+        List<Object> argsList = data.get(Constant.ARGS) instanceof List<?> ? (List<Object>) data.get(Constant.ARGS) : new ArrayList<>();
+        data.put(CONTAIN_ARGS, !argsList.isEmpty());
+        List<Map<String, Object>> args = new ArrayList<>();
+        for (Object propertyObj : argsList) {
+            if (propertyObj instanceof List<?>) {
+                List<Object> property = (List<Object>) propertyObj;
+                Map<String, Object> argMap = new HashMap<>();
+                if (property.get(0) instanceof Map<?, ?> && !Boolean.TRUE.equals(((Map<?, ?>) property.get(0)).get(Constant.IS_EXPRESSION))) {
+                    argMap.put(Constant.VALUE, ((Map<?, ?>) property.get(0)).get(Constant.VALUE));
+                    argMap.put(Constant.LITERAL, property.size() > 2 ? property.get(2) : null);
+                } else {
+                    argMap.put(Constant.EXPRESSION, property.get(0));
+                    argMap.put(Constant.EVALUATOR, property.size() > 1 ? property.get(1) : null);
+                    argMap.put(Constant.LITERAL, property.size() > 2 ? property.get(2) : null);
+                }
+                args.add(argMap);
+            }
+        }
+        data.put(Constant.ARGS, args);
     }
 }

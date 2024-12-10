@@ -45,8 +45,8 @@
       "mediatorClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.payload.PayloadFactory",
       "factoryClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.transformation.PayloadFactoryFactory",
       "processingClass": "org.eclipse.lemminx.customservice.synapse.mediatorService.mediators.PayloadFactoryMediator",
-      "storeMethod": "processData430",
-      "retrieveMethod": "getDataFromST430"
+      "storeMethod": "processData440",
+      "retrieveMethod": "getDataFromST440"
     },
     {
       "title": "Respond",
@@ -205,8 +205,8 @@
       "mediatorClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.payload.PayloadFactory",
       "factoryClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.transformation.PayloadFactoryFactory",
       "processingClass": "org.eclipse.lemminx.customservice.synapse.mediatorService.mediators.PayloadFactoryMediator",
-      "storeMethod": "processData430",
-      "retrieveMethod": "getDataFromST430"
+      "storeMethod": "processData440",
+      "retrieveMethod": "getDataFromST440"
     },
     {
       "title": "Data Mapper",
