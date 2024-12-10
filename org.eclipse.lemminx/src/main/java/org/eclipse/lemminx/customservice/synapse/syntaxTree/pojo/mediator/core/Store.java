@@ -26,6 +26,10 @@ public class Store extends Mediator {
     String sequence;
     String description;
 
+    public Store() {
+        setDisplayName("Store");
+    }
+
     public String getMessageStore() {
 
         return messageStore;

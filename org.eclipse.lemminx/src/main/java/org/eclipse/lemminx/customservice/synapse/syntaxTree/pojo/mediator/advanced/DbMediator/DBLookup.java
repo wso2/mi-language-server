@@ -20,4 +20,8 @@ package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advan
 
 public class DBLookup extends DbMediator {
 
+    public DBLookup() {
+        setDisplayName("DB Lookup");
+    }
+
 }

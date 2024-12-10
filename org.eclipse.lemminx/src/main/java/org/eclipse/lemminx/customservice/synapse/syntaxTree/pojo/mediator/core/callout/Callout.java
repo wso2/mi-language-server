@@ -29,6 +29,10 @@ public class Callout extends Mediator {
     String endpointKey;
     String description;
 
+    public Callout() {
+        setDisplayName("Callout");
+    }
+
     public SourceOrTargetOrConfiguration getSourceOrTargetOrConfiguration() {
 
         return sourceOrTargetOrConfiguration;

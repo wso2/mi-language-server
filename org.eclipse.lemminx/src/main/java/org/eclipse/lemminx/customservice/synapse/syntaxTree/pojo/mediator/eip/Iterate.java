@@ -32,6 +32,10 @@ public class Iterate extends Mediator {
     String id;
     String description;
 
+    public Iterate() {
+        setDisplayName("Iterate");
+    }
+
     public Target getTarget() {
 
         return target;

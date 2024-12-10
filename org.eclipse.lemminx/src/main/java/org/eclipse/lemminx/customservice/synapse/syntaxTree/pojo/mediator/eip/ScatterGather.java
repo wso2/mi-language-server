@@ -32,6 +32,10 @@ public class ScatterGather extends Mediator {
     String description;
     ScatterGatherAggregation scatterGatherAggregation;
 
+    public ScatterGather() {
+        setDisplayName("Scatter-Gather");
+    }
+
     public ScatterGatherAggregation getScatterGatherAggregation() {
 
         return scatterGatherAggregation;

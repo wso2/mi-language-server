@@ -32,6 +32,10 @@ public class Makefault extends Mediator {
     Boolean response;
     String description;
 
+    public Makefault() {
+        setDisplayName("Fault");
+    }
+
     public MakefaultCode getCode() {
 
         return code;

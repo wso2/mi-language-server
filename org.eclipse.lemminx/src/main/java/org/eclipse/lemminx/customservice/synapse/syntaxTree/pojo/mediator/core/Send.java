@@ -29,6 +29,10 @@ public class Send extends Mediator {
     String description;
     String inlineEndpointXml;
 
+    public Send() {
+        setDisplayName("Send");
+    }
+
 
     public NamedEndpoint getEndpoint() {
 

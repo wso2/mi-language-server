@@ -25,6 +25,10 @@ public class Transaction extends Mediator {
     TransactionAction action;
     String description;
 
+    public Transaction() {
+        setDisplayName("Transaction");
+    }
+
     public TransactionAction getAction() {
 
         return action;

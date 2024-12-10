@@ -32,6 +32,10 @@ public class Validate extends Mediator {
     String source;
     String description;
 
+    public Validate() {
+        setDisplayName("Validate");
+    }
+
     public ValidateProperty[] getProperty() {
 
         return property;

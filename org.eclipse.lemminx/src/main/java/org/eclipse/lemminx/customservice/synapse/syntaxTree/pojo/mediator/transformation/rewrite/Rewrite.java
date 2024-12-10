@@ -27,6 +27,10 @@ public class Rewrite extends Mediator {
     String outProperty;
     String description;
 
+    public Rewrite(){
+        setDisplayName("Rewrite");
+    }
+
     public RewriteRewriterule[] getRewriterule() {
 
         return rewriterule;

@@ -28,6 +28,10 @@ public class Clone extends Mediator {
     boolean sequential;
     String description;
 
+    public Clone() {
+        setDisplayName("Clone");
+    }
+
     public CloneTarget[] getTarget() {
 
         return target;

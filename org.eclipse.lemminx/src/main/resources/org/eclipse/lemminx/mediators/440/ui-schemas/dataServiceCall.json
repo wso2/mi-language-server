@@ -1,7 +1,7 @@
 {
   "name": "DataServiceCall",
   "type": "mediator",
-  "title": "Data Service Mediator",
+  "title": "Call Dataservice Mediator",
   "help": "Invokes data service operations.",
   "elements": [
     {

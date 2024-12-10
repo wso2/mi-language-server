@@ -35,6 +35,10 @@ public class Foreach extends Mediator {
     String collection;
     String counterVariableName;
 
+    public Foreach() {
+        setDisplayName("Foreach");
+    }
+
     public Sequence getSequence() {
 
         return sequence;

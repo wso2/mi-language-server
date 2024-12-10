@@ -25,6 +25,10 @@ public class PropertyGroup extends Mediator {
     Property[] property;
     String description;
 
+    public PropertyGroup() {
+        setDisplayName("Property Group");
+    }
+
     public Property[] getProperty() {
 
         return property;

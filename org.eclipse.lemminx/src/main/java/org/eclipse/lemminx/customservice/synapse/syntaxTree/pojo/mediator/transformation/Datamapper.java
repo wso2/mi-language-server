@@ -30,6 +30,10 @@ public class Datamapper extends Mediator {
     String xsltStyleSheet;
     String description;
 
+    public Datamapper() {
+        setDisplayName("Data Mapper");
+    }
+
     public String getConfig() {
 
         return config;

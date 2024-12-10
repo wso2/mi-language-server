@@ -29,6 +29,10 @@ public class Log extends Mediator {
     String description;
     String message;
 
+    public Log() {
+        setDisplayName("Log");
+    }
+
     public MediatorProperty[] getProperty() {
 
         return property;

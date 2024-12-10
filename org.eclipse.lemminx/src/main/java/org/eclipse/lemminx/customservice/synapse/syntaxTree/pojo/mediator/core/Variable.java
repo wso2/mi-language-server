@@ -29,6 +29,10 @@ public class Variable extends Mediator {
     String value;
     String expression;
 
+    public Variable() {
+        setDisplayName("Variable");
+    }
+
     public PropertyMediatorType getType() {
 
         return type;
