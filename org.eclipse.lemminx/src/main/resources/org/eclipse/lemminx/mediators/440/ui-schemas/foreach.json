@@ -2,8 +2,139 @@
   "name": "ForEachMediator",
   "type": "mediator",
   "title": "ForEach Mediator",
-  "help": "Splits message based on XPath/JSONPath, processes sequentially, then merges back.",
+  "help": "Iterate over a list and then merges back the result.",
   "elements": [
+    {
+      "type": "attribute",
+      "value": {
+        "name": "version",
+        "displayName": "version",
+        "inputType": "string",
+        "required": false,
+        "defaultValue": "v2",
+        "helpTip": "",
+        "hidden": true
+      }
+    },
+    {
+      "type": "attribute",
+      "value": {
+        "name": "collection",
+        "displayName": "Collection to iterate",
+        "inputType": "expression",
+        "required": true,
+        "helpTip": "The collection to iterate over. This can be a JSON array or XML list",
+        "enableCondition": [
+          {
+            "version": "v2"
+          }
+        ]
+      }
+    },
+    {
+      "type": "attribute",
+      "value": {
+        "name": "parallelExecution",
+        "displayName": "Execute Parallel",
+        "inputType": "checkbox",
+        "defaultValue": true,
+        "required": false,
+        "helpTip": "If enabled, the messages will be processed in parallel. If disabled, the messages will be processed sequentially.",
+        "enableCondition": [
+          {
+            "version": "v2"
+          }
+        ]
+      }
+    },
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "Output Configurations",
+        "enableCondition": [
+          {
+            "version": "v2"
+          }
+        ],
+        "elements": [
+          {
+            "type": "attribute",
+            "value": {
+              "name": "updateOriginalContent",
+              "displayName": "Update original collection",
+              "inputType": "checkbox",
+              "defaultValue": true,
+              "required": false,
+              "helpTip": "If enabled, the original list will be updated with the content. The content type should be the same as the original collection content type."
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "resultTarget",
+              "displayName": "Variable Name",
+              "inputType": "string",
+              "required": true,
+              "helpTip": "The name of the variable where the new content will be saved.",
+              "enableCondition": [
+                {
+                  "updateOriginalContent": false
+                }
+              ]
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "resultType",
+              "displayName": "Variable Type",
+              "inputType": "combo",
+              "defaultValue": "JSON",
+              "comboValues": [
+                "JSON",
+                "XML"
+              ],
+              "required": true,
+              "helpTip": "The type of the variable where the new content will be saved.",
+              "enableCondition": [
+                {
+                  "updateOriginalContent": false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "Advanced",
+        "isCollapsed": "true",
+        "enableCondition": [
+          "AND",
+          {
+            "version": "v2"
+          },
+          {
+            "parallelExecution": false
+          }
+        ],
+        "elements": [
+          {
+            "type": "attribute",
+            "value": {
+              "name": "counterVariableName",
+              "displayName": "Counter Variable Name",
+              "inputType": "string",
+              "defaultValue": "",
+              "required": "false",
+              "helpTip": "You can access the current iteration number using this variable within the ForEach mediator."
+            }
+          }
+        ]
+      }
+    },
     {
       "type": "attribute",
       "value": {
@@ -11,7 +142,12 @@
         "displayName": "ForEach ID",
         "inputType": "string",
         "required": false,
-        "helpTip": ""
+        "helpTip": "",
+        "enableCondition": [
+          {
+            "version": "v1"
+          }
+        ]
       }
     },
     {
@@ -21,13 +157,23 @@
         "displayName": "ForEach Expression",
         "inputType": "expression",
         "required": true,
-        "helpTip": ""
+        "helpTip": "",
+        "enableCondition": [
+          {
+            "version": "v1"
+          }
+        ]
       }
     },
     {
       "type": "attributeGroup",
       "value": {
         "groupName": "Sequence",
+        "enableCondition": [
+          {
+            "version": "v1"
+          }
+        ],
         "elements": [
           {
             "type": "attribute",

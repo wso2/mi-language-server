@@ -28,6 +28,12 @@ public class Foreach extends Mediator {
     String sequenceAttribute;
     String id;
     String description;
+    // V2 attributes
+    boolean executeParallel;
+    String resultTarget;
+    String resultType;
+    String collection;
+    String counterVariableName;
 
     public Sequence getSequence() {
 
@@ -77,5 +83,55 @@ public class Foreach extends Mediator {
     public void setDescription(String description) {
 
         this.description = description;
+    }
+
+    public boolean isExecuteParallel() {
+
+        return executeParallel;
+    }
+
+    public void setExecuteParallel(boolean executeParallel) {
+
+        this.executeParallel = executeParallel;
+    }
+
+    public String getResultTarget() {
+
+        return resultTarget;
+    }
+
+    public void setResultTarget(String resultTarget) {
+
+        this.resultTarget = resultTarget;
+    }
+
+    public String getResultType() {
+
+        return resultType;
+    }
+
+    public void setResultType(String resultType) {
+
+        this.resultType = resultType;
+    }
+
+    public String getCollection() {
+
+        return collection;
+    }
+
+    public void setCollection(String collection) {
+
+        this.collection = collection;
+    }
+
+    public String getCounterVariableName() {
+
+        return counterVariableName;
+    }
+
+    public void setCounterVariableName(String counterVariableName) {
+
+        this.counterVariableName = counterVariableName;
     }
 }
