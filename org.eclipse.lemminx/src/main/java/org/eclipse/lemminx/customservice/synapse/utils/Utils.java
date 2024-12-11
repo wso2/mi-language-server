@@ -503,6 +503,21 @@ public class Utils {
         return null;
     }
 
+    /**
+     * Get the JSON array from the given content
+     *
+     * @param content the content
+     * @return the JSON object from the given content
+     */
+    public static JsonArray getJsonArray(String content) {
+
+        JsonElement jsonElement = JsonParser.parseString(content);
+        if (jsonElement.isJsonArray()) {
+            return jsonElement.getAsJsonArray();
+        }
+        return null;
+    }
+
     public static <T extends Enum<T>> T getEnumFromValue(String value, Class<T> enumClass) {
 
         if (value != null) {
@@ -851,5 +866,41 @@ public class Utils {
         try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(path))) {
             bos.write(content.getBytes(StandardCharsets.UTF_8));
         }
+    }
+
+    /**
+     * Check whether the given content is a JSON object
+     *
+     * @param content the content
+     * @return whether the given content is a JSON object
+     */
+    public static boolean isJSONObject(String content) {
+
+        try {
+            return JsonParser.parseString(content).isJsonObject();
+        } catch (Exception e) {
+            return Boolean.FALSE;
+        }
+    }
+
+    /**
+     * Convert the given string to camel case
+     *
+     * @param input the input string
+     * @return the camel case string
+     */
+    public static String toCamelCase(String input) {
+
+        if (input == null) {
+            return null;
+        }
+        Pattern pattern = Pattern.compile("_(.)");
+        Matcher matcher = pattern.matcher(input);
+        StringBuffer result = new StringBuffer();
+        while (matcher.find()) {
+            matcher.appendReplacement(result, matcher.group(1).toUpperCase());
+        }
+        matcher.appendTail(result);
+        return result.toString();
     }
 }

@@ -29,16 +29,29 @@ public class Node {
     private String key;
 
     public Node() {
+
     }
 
     public Node(String value, Either<Range, List<Range>> range) {
+
         this.range = range;
         this.value = value;
     }
 
     public Node(String key, String value, Either<Range, List<Range>> range) {
+
         this.range = range;
         this.key = key;
         this.value = value;
+    }
+
+    public String getValue() {
+
+        return value;
+    }
+
+    public String getKey() {
+
+        return key;
     }
 }

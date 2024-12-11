@@ -44,6 +44,11 @@ import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTester;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.OverviewModelGenerator;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.OverviewModel;
+import org.eclipse.lemminx.customservice.synapse.expression.ExpressionHelperProvider;
+import org.eclipse.lemminx.customservice.synapse.expression.ExpressionSignatureProvider;
+import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionParam;
+import org.eclipse.lemminx.customservice.synapse.expression.ExpressionCompletionsProvider;
+import org.eclipse.lemminx.customservice.synapse.expression.pojo.HelperPanelData;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorResponse;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorParam;
@@ -98,11 +103,14 @@ import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTr
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.TryOutHandler;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
+import org.eclipse.lsp4j.SignatureHelp;
+import org.eclipse.lsp4j.SignatureHelpParams;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceFolder;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -136,6 +144,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     private TryOutHandler tryOutHandler;
     private ServerLessTryoutHandler serverLessTryoutHandler;
     private String miServerPath;
+    private ExpressionHelperProvider expressionHelperProvider;
 
     public SynapseLanguageService(XMLTextDocumentService xmlTextDocumentService, XMLLanguageServer xmlLanguageServer) {
 
@@ -171,6 +180,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
             } catch (Exception e) {
                 log.log(Level.SEVERE, "Error while updating class loader for DB drivers.", e);
             }
+            this.expressionHelperProvider = new ExpressionHelperProvider(projectUri);
         } else {
             log.log(Level.SEVERE, "Project path is null. Language server initialization failed.");
         }
@@ -485,9 +495,27 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     }
 
     @Override
+    public CompletableFuture<ICompletionResponse> expressionCompletion(ExpressionParam param) {
+
+        return CompletableFuture.supplyAsync(() -> ExpressionCompletionsProvider.getCompletions(param));
+    }
+
+    @Override
+    public CompletableFuture<SignatureHelp> signatureHelp(ExpressionParam params) {
+
+        return CompletableFuture.supplyAsync(() -> ExpressionSignatureProvider.getFunctionSignatures(params));
+    }
+
+    @Override
     public CompletableFuture<UpdateResponse> updateDependency(UpdateDependencyRequest request) {
         UpdateResponse response = PomParser.updateDependency(projectUri, request);
         return CompletableFuture.supplyAsync(() -> response);
+    }
+
+    @Override
+    public CompletableFuture<HelperPanelData> expressionHelperData(ExpressionParam param) {
+
+        return CompletableFuture.supplyAsync(() -> expressionHelperProvider.getExpressionHelperData(param));
     }
 
     @Override

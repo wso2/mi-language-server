@@ -19,7 +19,7 @@
 package org.eclipse.lemminx.customservice.synapse.mediator.schema.generate.visitor;
 
 import com.google.gson.JsonPrimitive;
-import org.eclipse.lemminx.customservice.synapse.debugger.visitor.AbstractMediatorVisitor;
+import org.eclipse.lemminx.customservice.synapse.AbstractMediatorVisitor;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Connector;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.SequenceMediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.Clone.Clone;
@@ -78,12 +78,12 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transf
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
 import org.eclipse.lsp4j.Position;
 
-public class MediatorSchemaGenerateVisitor extends AbstractMediatorVisitor {
+public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
 
     MediatorTryoutInfo info;
     Position position;
 
-    public MediatorSchemaGenerateVisitor(MediatorTryoutInfo info, Position position) {
+    public MediatorSchemaVisitor(MediatorTryoutInfo info, Position position) {
 
         this.info = info;
         this.position = position;
@@ -152,7 +152,7 @@ public class MediatorSchemaGenerateVisitor extends AbstractMediatorVisitor {
     protected void visitPayloadFactory(PayloadFactory node) {
 
         String content = (String) node.getFormat().getContent();
-        info.setInputPayload(new JsonPrimitive(content));
+        info.setOutputPayload(new JsonPrimitive(content));
     }
 
     @Override

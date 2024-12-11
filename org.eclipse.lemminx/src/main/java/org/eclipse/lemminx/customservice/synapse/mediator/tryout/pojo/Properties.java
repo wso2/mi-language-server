@@ -19,6 +19,7 @@
 package org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Properties {
@@ -90,27 +91,59 @@ public class Properties {
 
     public List<Property> getSynapse() {
 
-        return synapse;
+        return Collections.unmodifiableList(synapse);
     }
 
     public List<Property> getAxis2() {
 
-        return axis2;
+        return Collections.unmodifiableList(axis2);
     }
 
     public List<Property> getAxis2Client() {
 
-        return axis2Client;
+        return Collections.unmodifiableList(axis2Client);
     }
 
     public List<Property> getAxis2Transport() {
 
-        return axis2Transport;
+        return Collections.unmodifiableList(axis2Transport);
     }
 
     public List<Property> getAxis2Operation() {
 
-        return axis2Operation;
+        return Collections.unmodifiableList(axis2Operation);
+    }
+
+    public List<Property> getPropertiesByType(Type type) {
+
+        if (type == null) {
+            return null;
+        }
+        switch (type) {
+            case SYNAPSE:
+                return synapse;
+            case AXIS2:
+                return axis2;
+            case AXIS2_CLIENT:
+                return axis2Client;
+            case AXIS2_TRANSPORT:
+                return axis2Transport;
+            case AXIS2_OPERATION:
+                return axis2Operation;
+            default:
+                return null;
+        }
+    }
+
+    public Properties deepCopy() {
+
+        Properties properties = new Properties();
+        properties.addSynapseProperties(new ArrayList<>(synapse));
+        properties.addAxis2Properties(new ArrayList<>(axis2));
+        properties.addAxis2ClientProperties(new ArrayList<>(axis2Client));
+        properties.addAxis2TransportProperties(new ArrayList<>(axis2Transport));
+        properties.addAxis2OperationProperties(new ArrayList<>(axis2Operation));
+        return properties;
     }
 
     @Override
@@ -123,5 +156,13 @@ public class Properties {
                 ", axis2Transport=" + axis2Transport +
                 ", axis2Operation=" + axis2Operation +
                 '}';
+    }
+
+    public enum Type {
+        SYNAPSE,
+        AXIS2,
+        AXIS2_CLIENT,
+        AXIS2_TRANSPORT,
+        AXIS2_OPERATION
     }
 }

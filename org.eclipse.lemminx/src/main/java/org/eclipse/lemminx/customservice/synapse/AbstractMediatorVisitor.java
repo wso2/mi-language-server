@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.debugger.visitor;
+package org.eclipse.lemminx.customservice.synapse;
 
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Connector;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.SequenceMediator;

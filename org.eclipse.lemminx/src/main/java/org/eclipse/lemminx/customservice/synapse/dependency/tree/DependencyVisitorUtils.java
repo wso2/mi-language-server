@@ -18,7 +18,7 @@
 
 package org.eclipse.lemminx.customservice.synapse.dependency.tree;
 
-import org.eclipse.lemminx.customservice.synapse.debugger.visitor.AbstractMediatorVisitor;
+import org.eclipse.lemminx.customservice.synapse.AbstractMediatorVisitor;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.Dependency;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.visitor.EndpointVisitor;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.visitor.MediatorDependencyVisitor;

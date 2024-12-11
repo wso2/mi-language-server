@@ -20,6 +20,8 @@ package org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo;
 
 import com.google.gson.JsonPrimitive;
 
+import java.util.List;
+
 public class MediatorTryoutInfo {
 
     private MediatorInfo input;
@@ -51,12 +53,12 @@ public class MediatorTryoutInfo {
 
     public MediatorInfo getInput() {
 
-        return input.clone();
+        return input.deepCopy();
     }
 
     public MediatorInfo getOutput() {
 
-        return output.clone();
+        return output.deepCopy();
     }
 
     public String getError() {
@@ -124,9 +126,19 @@ public class MediatorTryoutInfo {
         output.addAxis2OperationProperty(property);
     }
 
+    public void setInputConfigs(List<Property> configs) {
+
+        input.setConfigs(configs);
+    }
+
+    public void setOutputConfigs(List<Property> configs) {
+
+        output.setConfigs(configs);
+    }
+
     public void replaceInputWithOutput() {
 
-        input = output.clone();
+        input = output.deepCopy();
     }
 
     @Override
