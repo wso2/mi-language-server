@@ -139,9 +139,11 @@ public class Utils {
 
     private static String getAttributeXmlString(DOMNode node) {
 
-        String xmlString = " ";
+        String xmlString = "";
         List<DOMAttr> children = node.getAttributeNodes();
         if (children != null && !children.isEmpty()) {
+            // Add a space before the attribute
+            xmlString = " ";
             for (DOMAttr child : children) {
                 xmlString += child.getName() + "=\"" + unescapeXml(child.getValue()) + "\" ";
             }
