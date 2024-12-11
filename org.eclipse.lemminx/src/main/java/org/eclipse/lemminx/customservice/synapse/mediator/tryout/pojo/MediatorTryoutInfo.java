@@ -24,6 +24,7 @@ import java.util.List;
 
 public class MediatorTryoutInfo {
 
+    private String id;
     private MediatorInfo input;
     private MediatorInfo output;
     private String error;
@@ -34,16 +35,24 @@ public class MediatorTryoutInfo {
         output = new MediatorInfo();
     }
 
+    public MediatorTryoutInfo(String id, MediatorInfo input, MediatorInfo output) {
+
+        this.input = input;
+        this.output = output;
+        this.id = id;
+    }
+
+    public MediatorTryoutInfo(String id, MediatorInfo input, String error) {
+
+        this.id = id;
+        this.input = input;
+        this.error = error;
+    }
+
     public MediatorTryoutInfo(MediatorInfo input, MediatorInfo output) {
 
         this.input = input;
         this.output = output;
-    }
-
-    public MediatorTryoutInfo(MediatorInfo input, String error) {
-
-        this.input = input;
-        this.error = error;
     }
 
     public MediatorTryoutInfo(String error) {
@@ -51,14 +60,30 @@ public class MediatorTryoutInfo {
         this.error = error;
     }
 
+    public String getId() {
+
+        return id;
+    }
+
+    public void setId(String id) {
+
+        this.id = id;
+    }
+
     public MediatorInfo getInput() {
 
-        return input.deepCopy();
+        if (input != null) {
+            return input.deepCopy();
+        }
+        return null;
     }
 
     public MediatorInfo getOutput() {
 
-        return output.deepCopy();
+        if (output != null) {
+            return output.deepCopy();
+        }
+        return null;
     }
 
     public String getError() {
@@ -145,7 +170,8 @@ public class MediatorTryoutInfo {
     public String toString() {
 
         return "MediatorTryoutInfo{" +
-                "input=" + input +
+                "id='" + id + '\'' +
+                ", input=" + input +
                 ", output=" + output +
                 ", error='" + error + '\'' +
                 '}';

@@ -1,0 +1,119 @@
+/*
+ *   Copyright (c) 2024, WSO2 LLC. (http://www.wso2.com).
+ *
+ *   WSO2 LLC. licenses this file to you under the Apache License,
+ *   Version 2.0 (the "License"); you may not use this file except
+ *   in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing,
+ *   software distributed under the License is distributed on an
+ *   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *   KIND, either express or implied.  See the License for the
+ *   specific language governing permissions and limitations
+ *   under the License.
+ */
+
+package org.eclipse.lemminx.customservice.synapse.mediator.tryout;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorInfo;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Params;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Properties;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property;
+
+import java.util.List;
+import java.util.function.Consumer;
+
+public class PropertyInjector {
+
+    public static void injectProperties(MediatorInfo mediatorInfo, Consumer<JsonObject> sendCommand) {
+
+        if (mediatorInfo == null) {
+            return;
+        }
+        injectPayload(mediatorInfo.getPayload(), sendCommand);
+        injectVariables(mediatorInfo.getVariables(), sendCommand);
+        injectProperties(mediatorInfo.getProperties(), sendCommand);
+        injectHeaders(mediatorInfo.getHeaders(), sendCommand);
+        injectParams(mediatorInfo.getParams(), sendCommand);
+    }
+
+    private static void injectPayload(JsonPrimitive payload, Consumer<JsonObject> sendCommand) {
+
+        if (payload == null || StringUtils.isEmpty(payload.getAsString())) {
+            return;
+        }
+        injectProperty(sendCommand, TryOutConstants.ENVELOPE, payload.getAsString(), TryOutConstants.AXIS2, false);
+    }
+
+    private static void injectVariables(List<Property> variables, Consumer<JsonObject> sendCommand) {
+
+        if (variables == null) {
+            return;
+        }
+        for (Property variable : variables) {
+            injectProperty(sendCommand, variable.getKey(), variable.getValue(), TryOutConstants.VARIABLE, true);
+        }
+    }
+
+    private static void injectProperties(Properties properties, Consumer<JsonObject> sendCommand) {
+
+        if (properties == null) {
+            return;
+        }
+        for (Property property : properties.getSynapse()) {
+            injectProperty(sendCommand, property.getKey(), property.getValue(), TryOutConstants.DEFAULT, false);
+        }
+        for (Property property : properties.getAxis2()) {
+            injectProperty(sendCommand, property.getKey(), property.getValue(), TryOutConstants.AXIS2, false);
+        }
+        for (Property property : properties.getAxis2Client()) {
+            injectProperty(sendCommand, property.getKey(), property.getValue(), TryOutConstants.AXIS2_CLIENT, false);
+        }
+        for (Property property : properties.getAxis2Transport()) {
+            injectProperty(sendCommand, property.getKey(), property.getValue(), TryOutConstants.AXIS2_TRANSPORT, false);
+        }
+        for (Property property : properties.getAxis2Operation()) {
+            injectProperty(sendCommand, property.getKey(), property.getValue(), TryOutConstants.AXIS2_OPERATION, false);
+        }
+    }
+
+    private static void injectHeaders(List<Property> headers, Consumer<JsonObject> sendCommand) {
+
+        if (headers == null) {
+            return;
+        }
+        for (Property header : headers) {
+            injectProperty(sendCommand, header.getKey(), header.getValue(), TryOutConstants.TRANSPORT, false);
+        }
+    }
+
+    private static void injectParams(Params params, Consumer<JsonObject> sendCommand) {
+
+        if (params == null) {
+            return;
+        }
+        // TODO: Implement the params injection if needed
+    }
+
+    private static void injectProperty(Consumer<JsonObject> sendCommand, String key, String value, String context,
+                                       boolean isVariable) {
+
+        JsonObject property = new JsonObject();
+        property.addProperty(TryOutConstants.COMMAND, TryOutConstants.SET);
+        property.addProperty(TryOutConstants.COMMAND_ARGUMENT,
+                isVariable ? TryOutConstants.VARIABLE : TryOutConstants.PROPERTY);
+        property.addProperty(TryOutConstants.CONTEXT, context);
+        JsonObject propertyJson = new JsonObject();
+        propertyJson.addProperty(isVariable ? TryOutConstants.VARIABLE_NAME : TryOutConstants.PROPERTY_NAME, key);
+        propertyJson.addProperty(isVariable ? TryOutConstants.VARIABLE_VALUE : TryOutConstants.PROPERTY_VALUE, value);
+        property.add(isVariable ? TryOutConstants.VARIABLE : TryOutConstants.PROPERTY, propertyJson);
+        sendCommand.accept(property);
+    }
+}

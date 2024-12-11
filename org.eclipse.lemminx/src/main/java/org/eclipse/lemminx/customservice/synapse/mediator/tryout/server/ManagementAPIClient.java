@@ -46,7 +46,7 @@ import javax.net.ssl.X509TrustManager;
 public class ManagementAPIClient {
 
     private static final Logger LOGGER = Logger.getLogger(ManagementAPIClient.class.getName());
-    private static final int DEFAULT_PORT = 9154;
+    private static final int DEFAULT_PORT = 9164;
     private static final String USERNAME = "admin";
     private static final String PASSWORD = "admin";
     private ObjectMapper objectMapper;
@@ -54,6 +54,7 @@ public class ManagementAPIClient {
     private static final String HOST = TryOutConstants.LOCALHOST;
     private int port = 9154;
     private String accessToken;
+    private boolean isRetried = false;
 
     public ManagementAPIClient(int portOffset) {
 
@@ -138,8 +139,14 @@ public class ManagementAPIClient {
 
         // Check the status code and handle the response
         if (response.statusCode() == 200) {
+            isRetried = false;
             return extractDeployedArtifacts(response.body());
+        } else if (response.statusCode() == 401 && !isRetried) {
+            isRetried = true;
+            connect();
+            return getArtifacts(type);
         }
+        LOGGER.severe("Failed to get artifacts: " + response.body());
         return Collections.emptyList();
     }
 

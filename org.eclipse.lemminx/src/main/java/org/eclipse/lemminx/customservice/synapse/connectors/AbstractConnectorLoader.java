@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -66,6 +67,7 @@ public abstract class AbstractConnectorLoader {
 
         if (canContinue(connectorExtractFolder)) {
             List<File> connectorZips = getConnectorZips();
+            connectorHolder.setConnectorZips(Collections.unmodifiableList(connectorZips));
             cleanOldConnectors(connectorExtractFolder, connectorZips);
             extractZips(connectorZips, connectorExtractFolder);
             readConnectors(connectorExtractFolder);

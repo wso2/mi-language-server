@@ -183,8 +183,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
             MediatorFactoryFinder.getInstance().setConnectorHolder(connectorHolder);
             try {
                 DynamicClassLoader.updateClassLoader(Path.of(projectUri, "deployment", "libs").toFile());
-                this.tryOutHandler = new TryOutHandler(projectUri);
-                tryOutHandler.initAsync(miServerPath);
+                this.tryOutHandler = new TryOutHandler(projectUri, miServerPath);
                 this.serverLessTryoutHandler = new ServerLessTryoutHandler(projectUri);
             } catch (Exception e) {
                 log.log(Level.SEVERE, "Error while updating class loader for DB drivers.", e);
@@ -510,14 +509,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     @Override
     public CompletableFuture<MediatorTryoutInfo> tryOutMediator(MediatorTryoutRequest request) {
 
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                return tryOutHandler.handle(request);
-            } catch (InterruptedException e) {
-                log.log(Level.SEVERE, "Error while trying out the mediator.", e);
-                return null;
-            }
-        });
+        return CompletableFuture.supplyAsync(() -> tryOutHandler.handle(request));
     }
 
     @Override

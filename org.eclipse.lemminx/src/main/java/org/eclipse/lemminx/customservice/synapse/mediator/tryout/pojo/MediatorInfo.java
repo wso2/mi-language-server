@@ -45,7 +45,6 @@ public class MediatorInfo {
 
     public void addSynapseProperties(List<Property> properties) {
 
-        variables.addAll(properties); // TODO: need to remove this once variables added to debugger
         this.properties.addSynapseProperties(properties);
     }
 
@@ -70,9 +69,13 @@ public class MediatorInfo {
         this.properties.addAxis2OperationProperties(properties);
     }
 
+    public void addVariables(List<Property> properties) {
+
+        variables.addAll(properties);
+    }
+
     public void addSynapseProperty(Property property) {
 
-        variables.add(property);
         properties.addSynapseProperty(property);
     }
 
@@ -97,9 +100,9 @@ public class MediatorInfo {
         properties.addAxis2OperationProperty(property);
     }
 
-    public void addVariable(String key, String value) {
+    public void addVariable(Property property) {
 
-        variables.add(new Property(key, value));
+        variables.add(property);
     }
 
     public void addHeader(String key, String value) {

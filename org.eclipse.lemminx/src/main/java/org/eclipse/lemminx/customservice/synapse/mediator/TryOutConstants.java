@@ -19,10 +19,14 @@
 package org.eclipse.lemminx.customservice.synapse.mediator;
 
 import java.nio.file.Path;
+import java.util.List;
+import java.util.UUID;
 
 public class TryOutConstants {
 
-    public static final Path TEMP_FOLDER_PATH = Path.of(System.getProperty("user.home"), ".wso2-mi", "tryout");
+    public static final Path TEMP_FOLDER_PATH =
+            Path.of(System.getProperty("user.home"), ".wso2-mi", "tryout", UUID.randomUUID().toString());
+    public static final Path API_RELATIVE_PATH = Path.of("src", "main", "wso2mi", "artifacts", "apis");
     public static final String SYNAPSE_PROPERTIES = "synapse-properties";
     public static final String AXIS2_PROPERTIES = "axis2-properties";
     public static final String AXIS2_CLIENT_PROPERTIES = "axis2Client-properties";
@@ -52,6 +56,35 @@ public class TryOutConstants {
     public static final String CONF = "conf";
     public static final Path MI_GOV_PATH = Path.of("registry", "governance");
     public static final Path MI_CONF_PATH = Path.of("registry", "config");
+    public static final String CORRELATION_ID = "correlation_id";
+    public static final String MESSAGE_VARIABLES = "message-variables";
+    public static final String SERVER_ALREADY_IN_USE_ERROR =
+            "The server is already in use or running. Please stop it and try again.";
+    public static final String TRYOUT_NOT_ACTIVATED_ERROR = "Try-Out feature not activated.";
+    public static final String TRYOUT_FAILURE_MESSAGE = "Error while handling the tryout";
+    public static final String AXIS2 = "axis2";
+    public static final String VARIABLE = "variable";
+    public static final String DEFAULT = "default";
+    public static final String AXIS2_CLIENT = "axis2-client";
+    public static final String AXIS2_TRANSPORT = "axis2-transport";
+    public static final String AXIS2_OPERATION = "axis2-operation";
+    public static final String TRANSPORT = "transport";
+    public static final String COMMAND = "command";
+    public static final String SET = "set";
+    public static final String COMMAND_ARGUMENT = "command-argument";
+    public static final String PROPERTY = "property";
+    public static final String CONTEXT = "context";
+    public static final String VARIABLE_NAME = "variable-name";
+    public static final String PROPERTY_NAME = "property-name";
+    public static final String VARIABLE_VALUE = "variable-value";
+    public static final String PROPERTY_VALUE = "property-value";
+    public static final List<String> LAST_MEDIATOR_LIST = List.of("send", "respond", "drop", "loopback");
+    public static final String SUCCESSFUL = "successful";
+    public static final String ERROR_MESSAGE = "ERROR_MESSAGE";
+    public static final String CLEAR = "clear";
+    public static final String GET = "get";
+    public static final String VARIABLES = "variables";
+    public static final String PROPERTIES = "properties";
 
     private TryOutConstants() {
 
