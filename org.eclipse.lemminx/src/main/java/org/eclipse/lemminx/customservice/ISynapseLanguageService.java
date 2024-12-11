@@ -22,6 +22,7 @@ import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateAPIResponse;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerParam;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerResponse;
+
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectionUIParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connections;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorParam;
@@ -55,6 +56,8 @@ import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsRespo
 import org.eclipse.lemminx.customservice.synapse.parser.UpdateConfigRequest;
 import org.eclipse.lemminx.customservice.synapse.parser.UpdateDependencyRequest;
 import org.eclipse.lemminx.customservice.synapse.parser.UpdateResponse;
+import org.eclipse.lemminx.customservice.synapse.parser.config.ConfigurableEntry;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceUsagesRequest;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceResponse;
 import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGenFromContentRequest;
@@ -103,6 +106,12 @@ public interface ISynapseLanguageService {
     CompletableFuture<List<String>> getRegistryFiles(TextDocumentIdentifier param);
 
     @JsonRequest
+    CompletableFuture<List<String>> getResourceFiles();
+
+    @JsonRequest
+    CompletableFuture<List<ConfigurableEntry>> getConfigurableEntries();
+
+    @JsonRequest
     CompletableFuture<List<String>> getArtifactFiles(TextDocumentIdentifier param);
 
     @JsonRequest
@@ -116,6 +125,9 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<Either<Connections, Map<String, Connections>>> connectorConnections(ConnectorParam param);
+
+    @JsonRequest
+    public CompletableFuture<List<String>> getResourceUsages(ResourceUsagesRequest resourceUsagesRequest);
 
     @JsonRequest
     CompletableFuture<SchemaGenResponse> generateSchema(SchemaGenRequest schemaGenRequest);
@@ -179,7 +191,7 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<MediatorTryoutInfo> mediatorInputOutputSchema(MediatorTryoutRequest request);
-  
+
     @JsonRequest
     CompletableFuture<OverviewPageDetailsResponse> getOverviewPageDetails();
 

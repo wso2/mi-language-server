@@ -34,4 +34,9 @@ public class Connections {
 
         connections.add(connection);
     }
+
+    public List<Connection> getConnections() {
+
+        return connections;
+    }
 }

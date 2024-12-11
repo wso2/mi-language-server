@@ -38,4 +38,14 @@ public class Connection {
         this.path = path;
         this.parameters = parameters;
     }
+
+    public List<ConnectionParameter> getParameters() {
+
+        return parameters;
+    }
+
+    public String getPath() {
+
+        return path;
+    }
 }

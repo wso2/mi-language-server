@@ -28,6 +28,8 @@ import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwag
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectionHandler;
 import org.eclipse.lemminx.customservice.synapse.connectors.NewProjectConnectorLoader;
 import org.eclipse.lemminx.customservice.synapse.connectors.OldProjectConnectorLoader;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connection;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectionParameter;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectionUIParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connections;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorParam;
@@ -43,6 +45,7 @@ import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTestResponse;
 import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTester;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.OverviewModelGenerator;
+import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.Dependency;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.OverviewModel;
 import org.eclipse.lemminx.customservice.synapse.expression.ExpressionHelperProvider;
 import org.eclipse.lemminx.customservice.synapse.expression.ExpressionSignatureProvider;
@@ -69,6 +72,7 @@ import org.eclipse.lemminx.customservice.synapse.parser.UpdateConfigRequest;
 import org.eclipse.lemminx.customservice.synapse.parser.UpdateDependencyRequest;
 import org.eclipse.lemminx.customservice.synapse.parser.UpdateResponse;
 import org.eclipse.lemminx.customservice.synapse.parser.config.ConfigParser;
+import org.eclipse.lemminx.customservice.synapse.parser.config.ConfigurableEntry;
 import org.eclipse.lemminx.customservice.synapse.parser.pom.PomParser;
 import org.eclipse.lemminx.customservice.synapse.parser.ConnectorDownloadManager;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.AbstractResourceFinder;
@@ -81,7 +85,10 @@ import org.eclipse.lemminx.customservice.synapse.debugger.DebuggerHelper;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.ValidationResponse;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateAPIParam;
 import org.eclipse.lemminx.customservice.synapse.api.generator.RestApiAdmin;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceFileScanner;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceFinderFactory;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceUsageFinder;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceUsagesRequest;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceResponse;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
@@ -117,7 +124,9 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.messages.Either3;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -292,6 +301,34 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
         List<String> registryFiles = RegistryFileScanner.scanRegistryFiles(projectUri);
         return CompletableFuture.supplyAsync(() -> registryFiles);
+    }
+
+    @Override
+    public CompletableFuture<List<String>> getResourceFiles() {
+
+        List<String> resourceFiles = ResourceFileScanner.scanResourceFiles(projectUri);
+        return CompletableFuture.supplyAsync(() -> resourceFiles);
+    }
+
+    @Override
+    public CompletableFuture<List<ConfigurableEntry>> getConfigurableEntries() {
+
+        try {
+            List<ConfigurableEntry> configurableEntries = ConfigParser.scanConfigurableEntries(projectUri);
+            return CompletableFuture.supplyAsync(() -> configurableEntries);
+        } catch (IOException e) {
+            log.log(Level.SEVERE, "Error while scanning configurable entries.", e);
+            return CompletableFuture.supplyAsync(() -> new ArrayList<>());
+        }
+    }
+
+    @Override
+    public CompletableFuture<List<String>> getResourceUsages(ResourceUsagesRequest resourceUsagesRequest) {
+
+        List<String> resourceUsagesProjectIdentifiers =
+                ResourceUsageFinder.findResourceUsagesProjectIdentifiers(projectUri,
+                        resourceUsagesRequest.getResourceFilePath(), connectorHolder, isLegacyProject);
+        return CompletableFuture.supplyAsync(() -> resourceUsagesProjectIdentifiers);
     }
 
     @Override

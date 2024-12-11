@@ -369,9 +369,7 @@ public class ExpressionCompletionUtils {
      */
     public static List<Property> getConfigs(String projectPath) {
 
-        OverviewPageDetailsResponse response = new OverviewPageDetailsResponse();
-        ConfigParser.getConfigDetails(projectPath, response);
-        List<Node> configurables = response.getConfigurables();
+        List<Node> configurables = ConfigParser.getConfigDetails(projectPath);
         if (configurables != null) {
             List<Property> configs = new ArrayList<>();
             for (Node node : configurables) {

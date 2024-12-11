@@ -263,6 +263,11 @@ public class Utils {
         return file.exists();
     }
 
+    public static boolean isFileInRegistry(File file) {
+
+        return file.getAbsolutePath().contains(Constant.REGISTRY + File.separator + Constant.GOV) || file.getAbsolutePath().contains(Constant.REGISTRY + File.separator + Constant.CONF);
+    }
+
     public static boolean isZipFile(File file) {
 
         String fileName = file.getName();
@@ -796,6 +801,27 @@ public class Utils {
             }
         }
         return settings;
+    }
+
+    public static String deriveResourceKeyFromFilePath(String filePath) {
+
+        String govIdentifier = "registry" + File.separator + "gov" + File.separator;
+        String confIdentifier = "registry" + File.separator + "conf" + File.separator;
+        String resourcesIdentifier = "resources" + File.separator;
+        if (filePath.contains(govIdentifier)) {
+            String derivedResourceKey = "gov:" + filePath.substring(filePath.indexOf(govIdentifier) + govIdentifier.length());
+            return derivedResourceKey.replace(File.separator, "/");
+        } else if (filePath.contains(confIdentifier)) {
+            String derivedResourceKey =
+                    "conf:" + filePath.substring(filePath.indexOf(confIdentifier) + confIdentifier.length());
+            return derivedResourceKey.replace(File.separator, "/");
+        } else if (filePath.contains(resourcesIdentifier)) {
+            String derivedResourceKey = "resources:" +
+                    filePath.substring(filePath.indexOf(resourcesIdentifier) + resourcesIdentifier.length());
+            return derivedResourceKey.replace(File.separator, "/");
+        } else {
+            return filePath;
+        }
     }
 
     /**

@@ -15,18 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.eclipse.lemminx.customservice.synapse.parser;
 
-import org.eclipse.lemminx.customservice.synapse.parser.config.ConfigParser;
+package org.eclipse.lemminx.customservice.synapse.resourceFinder;
 
-import static org.eclipse.lemminx.customservice.synapse.parser.pom.PomParser.getPomDetails;
+public class ResourceUsagesRequest {
 
-public class OverviewPage {
+    private String resourceFilePath;
 
-    public static OverviewPageDetailsResponse getDetails(String projectUri) {
-        OverviewPageDetailsResponse pomDetailsResponse = new OverviewPageDetailsResponse();
-        getPomDetails(projectUri, pomDetailsResponse);
-        pomDetailsResponse.setConfigurables(ConfigParser.getConfigDetails(projectUri));
-        return pomDetailsResponse;
+    public ResourceUsagesRequest(String resourceFilePath) {
+
+        this.resourceFilePath = resourceFilePath;
+    }
+
+    public String getResourceFilePath() {
+
+        return resourceFilePath;
     }
 }
