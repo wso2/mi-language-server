@@ -66,6 +66,7 @@ public class Constants {
     public static final String DOCKER_MAVEN_PLUGIN = "docker-maven-plugin";
     public static final String HASH = "#";
     public static final String COLON = ":";
+    public static final String NEW_LINE = "\n";
     public static final String DEPENDENCIES = "dependencies";
     public static final String LINE_SEPARATOR = "line.separator";
     public static final String EMPTY = "";

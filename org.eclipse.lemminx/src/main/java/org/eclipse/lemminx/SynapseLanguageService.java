@@ -25,8 +25,6 @@ import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateAPIResponse;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerParam;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerResponse;
-import org.eclipse.lemminx.customservice.synapse.configurable.ConfigurableEntry;
-import org.eclipse.lemminx.customservice.synapse.configurable.ConfigurableEntryScanner;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectionHandler;
 import org.eclipse.lemminx.customservice.synapse.connectors.NewProjectConnectorLoader;
 import org.eclipse.lemminx.customservice.synapse.connectors.OldProjectConnectorLoader;
@@ -74,6 +72,7 @@ import org.eclipse.lemminx.customservice.synapse.parser.UpdateConfigRequest;
 import org.eclipse.lemminx.customservice.synapse.parser.UpdateDependencyRequest;
 import org.eclipse.lemminx.customservice.synapse.parser.UpdateResponse;
 import org.eclipse.lemminx.customservice.synapse.parser.config.ConfigParser;
+import org.eclipse.lemminx.customservice.synapse.parser.config.ConfigurableEntry;
 import org.eclipse.lemminx.customservice.synapse.parser.pom.PomParser;
 import org.eclipse.lemminx.customservice.synapse.parser.ConnectorDownloadManager;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.AbstractResourceFinder;
@@ -315,7 +314,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     public CompletableFuture<List<ConfigurableEntry>> getConfigurableEntries() {
 
         try {
-            List<ConfigurableEntry> configurableEntries = ConfigurableEntryScanner.scanConfigurableEntries(projectUri);
+            List<ConfigurableEntry> configurableEntries = ConfigParser.scanConfigurableEntries(projectUri);
             return CompletableFuture.supplyAsync(() -> configurableEntries);
         } catch (IOException e) {
             log.log(Level.SEVERE, "Error while scanning configurable entries.", e);

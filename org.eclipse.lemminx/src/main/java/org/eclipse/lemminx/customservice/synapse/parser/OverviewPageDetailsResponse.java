@@ -60,4 +60,9 @@ public class OverviewPageDetailsResponse {
     public void setConfig(Node config) {
         this.configurables.add(config);
     }
+
+    public void setConfigurables(List<Node> configurables) {
+
+        this.configurables = configurables;
+    }
 }

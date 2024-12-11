@@ -22,7 +22,7 @@ import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateAPIResponse;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerParam;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerResponse;
-import org.eclipse.lemminx.customservice.synapse.configurable.ConfigurableEntry;
+
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectionUIParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connections;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorParam;
@@ -56,6 +56,7 @@ import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsRespo
 import org.eclipse.lemminx.customservice.synapse.parser.UpdateConfigRequest;
 import org.eclipse.lemminx.customservice.synapse.parser.UpdateDependencyRequest;
 import org.eclipse.lemminx.customservice.synapse.parser.UpdateResponse;
+import org.eclipse.lemminx.customservice.synapse.parser.config.ConfigurableEntry;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceUsagesRequest;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceResponse;

@@ -26,7 +26,7 @@ public class OverviewPage {
     public static OverviewPageDetailsResponse getDetails(String projectUri) {
         OverviewPageDetailsResponse pomDetailsResponse = new OverviewPageDetailsResponse();
         getPomDetails(projectUri, pomDetailsResponse);
-        ConfigParser.getConfigDetails(projectUri, pomDetailsResponse);
+        pomDetailsResponse.setConfigurables(ConfigParser.getConfigDetails(projectUri));
         return pomDetailsResponse;
     }
 }
