@@ -49,7 +49,7 @@ public class ThrottleMediator {
     private static final List<String> onRejectTagAttributes = Arrays.asList(
             "onRejectBranchsequenceType", "onRejectBranchsequenceKey");
 
-    private static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                            Throttle throttle,
                                                                                            List<String> dirtyFields) {
 

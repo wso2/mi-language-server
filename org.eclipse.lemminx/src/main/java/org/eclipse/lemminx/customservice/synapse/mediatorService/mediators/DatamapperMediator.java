@@ -25,11 +25,22 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DatamapperMediator {
+    private static final String REGEX = "gov:/datamapper/([^/]+)/.*\\.dmc";
+    private static final String PATH = "gov:/datamapper/";
+
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Datamapper datamapper,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Datamapper datamapper,
+                                                                                              List<String> dirtyFields) {
+        String configurationLocalPath = PATH + data.get("name") + "/" + data.get("name") + ".dmc";
+        String inputSchemaLocalPath = PATH + data.get("name") + "/" + data.get("name") + "_inputSchema.json";
+        String outputSchemaLocalPath = PATH + data.get("name") + "/" + data.get("name") + "_outputSchema.json";
+        data.put("configurationLocalPath", configurationLocalPath);
+        data.put("inputSchemaLocalPath", inputSchemaLocalPath);
+        data.put("outputSchemaLocalPath", outputSchemaLocalPath);
         return Either.forLeft(data);
 
     }
@@ -38,11 +49,16 @@ public class DatamapperMediator {
 
         Map<String, Object> data = new HashMap<>();
         data.put("description", node.getDescription());
-        data.put("configurationLocalPath", node.getConfig());
-        data.put("inputSchemaLocalPath", node.getInputSchema());
         data.put("inputType", node.getInputType());
-        data.put("outputSchemaLocalPath", node.getOutputSchema());
         data.put("outputType", node.getOutputType());
+        String configPath = node.getConfig();
+        if (configPath != null) {
+            Pattern pattern = Pattern.compile(REGEX);
+            Matcher matcher = pattern.matcher(configPath);
+            if (matcher.find()) {
+                data.put("name", matcher.group(1));
+            }
+        }
         return data;
     }
 }
