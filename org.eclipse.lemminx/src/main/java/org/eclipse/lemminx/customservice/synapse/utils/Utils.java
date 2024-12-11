@@ -19,7 +19,6 @@
 package org.eclipse.lemminx.customservice.synapse.utils;
 
 import com.github.fge.jackson.JsonLoader;
-import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import com.google.gson.Gson;
@@ -86,6 +85,7 @@ public class Utils {
 
     private static final Logger logger = Logger.getLogger(Utils.class.getName());
     private static FileSystem fileSystem;
+    private static final MustacheFactory mustacheFactory = new SynapseMustacheFactory();
 
     /**
      * Get the inline string of the given node
@@ -575,6 +575,18 @@ public class Utils {
                 .replace("&quot;", "\"");
     }
 
+    public static String escapeXML(String text) {
+
+        if (text == null) {
+            return null;
+        }
+        return text
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;");
+    }
+
     public static String removeFilePrefix(String artifactPath) {
 
         if (artifactPath.contains(Constant.FILE_PREFIX)) {
@@ -704,7 +716,6 @@ public class Utils {
 
     private static void loadTemplate(Path path, String resourceFolder, Map<String, Mustache> templateMap) {
         String templateName = path.getFileName().toString().replace(".mustache", "");
-        MustacheFactory mustacheFactory = new DefaultMustacheFactory();
         try (InputStreamReader reader = new InputStreamReader(
                 Utils.class.getClassLoader().getResourceAsStream(resourceFolder + "/" + path.getFileName()))) {
             Mustache template = mustacheFactory.compile(reader, templateName);
