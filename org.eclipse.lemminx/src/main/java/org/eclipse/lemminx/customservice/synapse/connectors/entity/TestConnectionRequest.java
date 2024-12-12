@@ -16,7 +16,7 @@
  *   under the License.
  */
 
-package org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo;
+package org.eclipse.lemminx.customservice.synapse.connectors.entity;
 
 import java.util.Map;
 
@@ -54,5 +54,10 @@ public class TestConnectionRequest {
     public void setConnectionType(String connectionType) {
 
         this.connectionType = connectionType;
+    }
+
+    public void addParameter(String key, String value) {
+
+        this.parameters.put(key, value);
     }
 }

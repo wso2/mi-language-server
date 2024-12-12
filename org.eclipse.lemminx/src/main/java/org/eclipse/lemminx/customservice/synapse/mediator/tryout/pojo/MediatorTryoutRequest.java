@@ -21,12 +21,13 @@ package org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo;
 public class MediatorTryoutRequest {
 
     private final String file;
+    private String tryoutId;
     private final int line;
     private final int column;
     private final String inputPayload;
     private final Edit[] edits;
     private MediatorInfo mediatorInfo;
-    private String tryoutId;
+    private boolean isIsolatedTryout;
 
     public MediatorTryoutRequest(String file, int line, int column, String inputPayload, Edit[] edits) {
 
@@ -83,5 +84,10 @@ public class MediatorTryoutRequest {
     public void setTryoutId(String tryoutId) {
 
         this.tryoutId = tryoutId;
+    }
+
+    public boolean isIsolatedTryout() {
+
+        return isIsolatedTryout;
     }
 }

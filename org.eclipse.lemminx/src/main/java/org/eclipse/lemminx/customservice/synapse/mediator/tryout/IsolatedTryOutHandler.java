@@ -19,42 +19,31 @@
 package org.eclipse.lemminx.customservice.synapse.mediator.tryout;
 
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
-import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
-import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorAction;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.DependencyLookUp;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.Dependency;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.visitor.MediatorDependencyVisitor;
-import org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants;
+import org.eclipse.lemminx.customservice.synapse.mediator.TryOutUtils;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.InvalidConfigurationException;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutRequest;
-import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.TestConnectionRequest;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeGenerator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.MediatorFactoryFinder;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.LocalEntry;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.API;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.APIResource;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ConnectorParameter;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Respond;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.LocalEntrySerializer;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.api.APISerializer;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.mediator.ConnectorSerializer;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lsp4j.Position;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants.TEMP_FOLDER_PATH;
 
 public class IsolatedTryOutHandler {
 
+    private static final Logger LOGGER = Logger.getLogger(IsolatedTryOutHandler.class.getName());
     private String projectRoot;
     private final TryOutHandler tryOutHandler;
     private ConnectorHolder connectorHolder;
@@ -81,32 +70,21 @@ public class IsolatedTryOutHandler {
         String tempProjectPath = TEMP_FOLDER_PATH.resolve(mediator.getTag() + "_" + UUID.randomUUID()).toString();
         String tryoutApi;
         try {
-            tryoutApi = createAPI(mediator, tempProjectPath);
+            tryoutApi = TryOutUtils.createAPI(mediator, tempProjectPath);
             copyDependencies(mediator, tempProjectPath);
-            Position position = getMediatorPosition(tryoutApi);
+            Position position = TryOutUtils.getMediatorPosition(tryoutApi, 0, 0);
             MediatorTryoutRequest mediatorTryoutRequest =
                     new MediatorTryoutRequest(tryoutApi, position.getLine(), position.getCharacter(),
                             request.getInputPayload(), null);
             mediatorTryoutRequest.setMediatorInfo(request.getMediatorInfo());
             return tryOutHandler.handleIsolatedTryOut(tempProjectPath, mediatorTryoutRequest);
         } catch (InvalidConfigurationException e) {
+            LOGGER.log(Level.SEVERE, "Error while creating the API for the mediator tryout", e);
             return new MediatorTryoutInfo("Error while creating the API for the mediator");
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            LOGGER.log(Level.SEVERE, "Error while copying the dependencies for tryout", e);
+            return new MediatorTryoutInfo("Error while copying the dependencies");
         }
-    }
-
-    private Position getMediatorPosition(String tryoutApi) throws IOException {
-
-        DOMDocument dom = Utils.getDOMDocument(new File(tryoutApi));
-        if (dom != null) {
-            API api = (API) SyntaxTreeGenerator.buildTree(dom.getDocumentElement());
-            if (api != null) {
-                return api.getResource()[0].getInSequence().getMediatorList().get(0).getRange().getStartTagRange()
-                        .getStart();
-            }
-        }
-        throw new IOException("Error while getting the mediator position");
     }
 
     private void copyDependencies(Mediator mediator, String tempProjectPath) {
@@ -169,107 +147,6 @@ public class IsolatedTryOutHandler {
                     }
                 }
             }
-        }
-    }
-
-    private String createAPI(Mediator mediator, String tempPath) throws
-            InvalidConfigurationException {
-
-        try {
-            if (mediator != null) {
-                String apiName = mediator.getTag() + "_tryout_" + UUID.randomUUID();
-                API api = new API();
-                api.setName(apiName);
-                api.setContext(TryOutConstants.SLASH + apiName);
-                APIResource resource = new APIResource();
-                resource.setMethods(new String[]{"POST"});
-                resource.setUrlMapping(TryOutConstants.SLASH);
-                api.setResource(new APIResource[]{resource});
-                Sequence sequence = new Sequence();
-                resource.setInSequence(sequence);
-                sequence.addToMediatorList(mediator);
-                sequence.addToMediatorList(new Respond());
-                String apiContent = APISerializer.serializeAPI(api);
-                Path apiPath = Path.of(tempPath, "src", "main", "wso2mi", "artifacts", "apis",
-                        apiName + ".xml");
-                if (!apiPath.toFile().exists()) {
-                    apiPath.toFile().getParentFile().mkdirs();
-                }
-                Utils.writeToFile(apiPath.toString(), apiContent);
-                return apiPath.toString();
-            }
-        } catch (IOException e) {
-            throw new InvalidConfigurationException("Error while creating the API for the mediator", e);
-        }
-        return null;
-    }
-
-    public boolean testConnection(TestConnectionRequest request) {
-
-        String connectorName = request.getConnectorName();
-        if (!connectorHolder.exists(connectorName)) {
-            return false;
-        }
-        LocalEntry localEntry = new LocalEntry();
-        String key = request.getParameters().get("name");
-        localEntry.setKey(key);
-
-        Connector connector = connectorHolder.getConnector(connectorName);
-        ConnectorAction initOperation = connector.getAction("init");
-        if (initOperation == null) {
-            return false;
-        }
-
-        org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Connector connection =
-                new org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Connector();
-        connection.setConnectorName(connectorName);
-        connection.setTag(initOperation.getTag());
-        connection.setMethod("init");
-        for (String parameter : initOperation.getParameters()) {
-            if (request.getParameters().containsKey(parameter)) {
-                ConnectorParameter connectorParameter = new ConnectorParameter();
-                connectorParameter.setName(parameter);
-                connectorParameter.setValue(request.getParameters().get(parameter));
-                connection.addParameter(connectorParameter);
-            }
-        }
-        ConnectorSerializer connectorSerializer = new ConnectorSerializer();
-        String connectionXml = connectorSerializer.serializeMediator(null, connection).toString();
-        localEntry.setContent(connectionXml);
-        String localEntryXml = LocalEntrySerializer.serializeLocalEntry(localEntry);
-
-        String tempProjectPath = TEMP_FOLDER_PATH.resolve(connectorName + "_" + UUID.randomUUID()).toString();
-        try {
-            Path localEntryPath = Path.of(tempProjectPath, "src", "main", "wso2mi", "artifacts", "local-entries",
-                    localEntry.getKey() + ".xml");
-            if (!localEntryPath.toFile().exists()) {
-                localEntryPath.toFile().getParentFile().mkdirs();
-            }
-            Utils.writeToFile(localEntryPath.toString(), localEntryXml);
-
-            ConnectorAction testConnectionOperation = connector.getAction("testconnection");
-            if (testConnectionOperation == null) {
-                return false;
-                //TODO: make it as a object and send the error
-            }
-
-            org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Connector testConnection =
-                    new org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Connector();
-            testConnection.setConnectorName(connectorName);
-            testConnection.setTag(testConnectionOperation.getTag());
-            testConnection.setMethod("testconnection");
-            testConnection.setConfigKey(localEntry.getKey());
-            String apiPath = createAPI(testConnection, tempProjectPath);
-            Position position = getMediatorPosition(apiPath);
-            MediatorTryoutRequest mediatorTryoutRequest =
-                    new MediatorTryoutRequest(apiPath, position.getLine(), position.getCharacter(),
-                            "{}", null);
-            MediatorTryoutInfo info = tryOutHandler.handleIsolatedTryOut(tempProjectPath, mediatorTryoutRequest);
-            return info.getError() == null;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InvalidConfigurationException e) {
-            throw new RuntimeException(e);
         }
     }
 }

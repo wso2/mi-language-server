@@ -911,6 +911,10 @@ public class Utils {
      */
     public static void writeToFile(String path, String content) throws IOException {
 
+        Path path1 = Paths.get(path);
+        if (Files.notExists(path1.getParent())) {
+            Files.createDirectories(path1.getParent());
+        }
         try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(path))) {
             bos.write(content.getBytes(StandardCharsets.UTF_8));
         }

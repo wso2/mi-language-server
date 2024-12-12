@@ -35,6 +35,8 @@ import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connections;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectionFinder;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.TestConnectionRequest;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.TestConnectionResponse;
 import org.eclipse.lemminx.customservice.synapse.dataService.DynamicClassLoader;
 import org.eclipse.lemminx.customservice.synapse.dataService.QueryGenerator;
 import org.eclipse.lemminx.customservice.synapse.dataService.CheckDBDriverRequestParams;
@@ -57,6 +59,7 @@ import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnect
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.DependencyScanner;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.DependencyTree;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.TryoutManager;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutRequest;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.MediatorHandler;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.MediatorRequest;
@@ -107,7 +110,6 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeResponse;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.MediatorFactoryFinder;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
-import org.eclipse.lemminx.customservice.synapse.mediator.tryout.TryOutHandler;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
@@ -117,7 +119,6 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.SignatureHelp;
-import org.eclipse.lsp4j.SignatureHelpParams;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceFolder;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -150,8 +151,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     private final InboundConnectorHolder inboundConnectorHolder;
     private final ConnectionHandler connectionHandler;
     private Path synapseXSDPath;
-    private TryOutHandler tryOutHandler;
-    private ServerLessTryoutHandler serverLessTryoutHandler;
+    private TryoutManager tryoutManager;
     private String miServerPath;
     private ExpressionHelperProvider expressionHelperProvider;
 
@@ -183,8 +183,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
             MediatorFactoryFinder.getInstance().setConnectorHolder(connectorHolder);
             try {
                 DynamicClassLoader.updateClassLoader(Path.of(projectUri, "deployment", "libs").toFile());
-                this.tryOutHandler = new TryOutHandler(projectUri, miServerPath);
-                this.serverLessTryoutHandler = new ServerLessTryoutHandler(projectUri);
+                this.tryoutManager = new TryoutManager(projectUri, miServerPath, connectorHolder);
             } catch (Exception e) {
                 log.log(Level.SEVERE, "Error while updating class loader for DB drivers.", e);
             }
@@ -509,13 +508,19 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     @Override
     public CompletableFuture<MediatorTryoutInfo> tryOutMediator(MediatorTryoutRequest request) {
 
-        return CompletableFuture.supplyAsync(() -> tryOutHandler.handle(request));
+        return CompletableFuture.supplyAsync(() -> tryoutManager.tryout(request));
     }
 
     @Override
     public CompletableFuture<MediatorTryoutInfo> mediatorInputOutputSchema(MediatorTryoutRequest request) {
 
-        return CompletableFuture.supplyAsync(() -> serverLessTryoutHandler.handle(request));
+        return CompletableFuture.supplyAsync(() -> tryoutManager.getInputOutputSchema(request));
+    }
+
+    @Override
+    public CompletableFuture<TestConnectionResponse> testConnectorConnection(TestConnectionRequest request) {
+
+        return CompletableFuture.supplyAsync(() -> tryoutManager.testConnectorConnection(request));
     }
 
     @Override
@@ -583,5 +588,10 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     public void setSynapseXSDPath(Path synapseXSDPath) {
 
         this.synapseXSDPath = synapseXSDPath;
+    }
+
+    public void dispose() {
+
+        tryoutManager.shutdown();
     }
 }

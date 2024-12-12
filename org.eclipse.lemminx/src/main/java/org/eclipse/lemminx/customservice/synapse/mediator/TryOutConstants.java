@@ -20,12 +20,10 @@ package org.eclipse.lemminx.customservice.synapse.mediator;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.UUID;
 
 public class TryOutConstants {
 
-    public static final Path TEMP_FOLDER_PATH =
-            Path.of(System.getProperty("user.home"), ".wso2-mi", "tryout", UUID.randomUUID().toString());
+    public static final Path TEMP_FOLDER_PATH = Path.of(System.getProperty("user.home"), ".wso2-mi", "tryout");
     public static final Path API_RELATIVE_PATH = Path.of("src", "main", "wso2mi", "artifacts", "apis");
     public static final String SYNAPSE_PROPERTIES = "synapse-properties";
     public static final String AXIS2_PROPERTIES = "axis2-properties";
@@ -85,6 +83,9 @@ public class TryOutConstants {
     public static final String GET = "get";
     public static final String VARIABLES = "variables";
     public static final String PROPERTIES = "properties";
+    public static final String IMPORTS = "imports";
+    public static final Path MI_DEPLOYMENT_PATH = Path.of("repository", "deployment",
+            "server", "carbonapps");
 
     private TryOutConstants() {
 

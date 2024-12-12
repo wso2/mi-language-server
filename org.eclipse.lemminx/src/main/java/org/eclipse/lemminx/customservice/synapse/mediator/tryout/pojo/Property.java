@@ -64,6 +64,17 @@ public class Property {
     }
 
     @Override
+    public boolean equals(Object obj) {
+
+        Property property = (Property) obj;
+        if (property == null) {
+            return false;
+        }
+        return key.equals(property.getKey()) && (value != null && value.equals(property.getValue()));
+
+    }
+
+    @Override
     public String toString() {
 
         return "Property{" +

@@ -21,6 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.mediator.tryout;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.commons.BadLocationException;
+import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.debugger.DebuggerHelper;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
@@ -86,12 +87,13 @@ public class TryOutHandler {
     private final List<JsonObject> activeBreakpoints;
     private String currentTryoutID;
     private boolean isFault = false;
+    private MediatorInfo currentInputInfo;
 
-    public TryOutHandler(String projectUri, String miServerPath) {
+    public TryOutHandler(String projectUri, String miServerPath, ConnectorHolder connectorHolder) {
 
         this.projectUri = projectUri;
         this.lock = new Object();
-        server = new MIServer(Path.of(miServerPath));
+        server = new MIServer(Path.of(miServerPath), connectorHolder);
         activeBreakpoints = new ArrayList<>();
     }
 
@@ -129,8 +131,15 @@ public class TryOutHandler {
         }
         if (isNewTryOut(request)) {
             return startTryOut(request);
+        } else if (isCompleteTryOut(request)) {
+            return handleIsolatedTryOut(projectUri, request);
         }
         return resumeTryOut(request);
+    }
+
+    private boolean isCompleteTryOut(MediatorTryoutRequest request) {
+
+        return request.getMediatorInfo() != null && request.getTryoutId() == null;
     }
 
     private boolean isNewTryOut(MediatorTryoutRequest request) {
@@ -150,6 +159,7 @@ public class TryOutHandler {
      */
     private MediatorTryoutInfo startTryOut(MediatorTryoutRequest request) {
 
+        LOGGER.info("Fetching the input info of the mediator");
         try {
             reset();    // Fail-safe mechanism to reset the server and the breakpoints
             Path editFilePath = TryOutUtils.cloneAndPreprocessProject(projectUri, request.getFile(), request.getEdits(),
@@ -181,13 +191,16 @@ public class TryOutHandler {
             }
             MediatorTryoutInfo response = getMediatorTryoutInfo(needStepOver, breakpointEventProcessor.isDone());
             currentTryoutID = response.getId();
+            currentInputInfo = response.getInput();
             return response;
         } catch (IOException | InvalidConfigurationException | ArtifactDeploymentException e) {
             LOGGER.log(Level.SEVERE, "Error while handling the tryout", e);
+            reset();
             return new MediatorTryoutInfo(e.getMessage());
         } catch (NoBreakpointHitException e) {
             LOGGER.log(Level.INFO,
                     "Breakpoint not hit by the mediator. Consider adjusting the payload or retrying.");
+            reset();
             return new MediatorTryoutInfo(e.getMessage());
         }
     }
@@ -201,8 +214,9 @@ public class TryOutHandler {
      */
     private MediatorTryoutInfo resumeTryOut(MediatorTryoutRequest request) {
 
+        LOGGER.info("Fetching the output info of the mediator");
         try {
-            PropertyInjector.injectProperties(request.getMediatorInfo(), this::sendCommand);
+            PropertyInjector.injectProperties(currentInputInfo, request.getMediatorInfo(), this::sendCommand);
             commandClient.sendResumeCommand();
             waitForMediatorInfo(true, true);
             if (breakpointEventProcessor.isFault()) {
@@ -227,7 +241,15 @@ public class TryOutHandler {
      */
     public MediatorTryoutInfo handleIsolatedTryOut(String projectPath, MediatorTryoutRequest request) {
 
+        if (!server.isStarted()) {
+            if (server.isServerRunning()) {
+                return new MediatorTryoutInfo(TryOutConstants.SERVER_ALREADY_IN_USE_ERROR);
+            }
+            LOGGER.info("Initializing the try-out feature");
+            init();
+        }
         try {
+            reset();
             server.deployProject(projectPath, request.getFile());
 
             // Get the mediator info
@@ -241,7 +263,7 @@ public class TryOutHandler {
                 return createFaultTryOutInfo();
             }
             MediatorInfo input = getMediatorTryoutInfo(true, breakpointEventProcessor.isDone()).getInput();
-            PropertyInjector.injectProperties(request.getMediatorInfo(), this::sendCommand);
+            PropertyInjector.injectProperties(input, request.getMediatorInfo(), this::sendCommand);
 
             commandClient.sendResumeCommand();
             waitForMediatorInfo(true, true);
@@ -466,6 +488,7 @@ public class TryOutHandler {
 
     private MediatorTryoutInfo getMediatorTryoutInfo(boolean needStepOver, boolean done) {
 
+        //TODO: fix this
         MediatorInfo inputInfo = TryOutUtils.createMediatorInfo(breakpointEventProcessor.getInputResponse());
         if (!needStepOver || !done) {
             return new MediatorTryoutInfo(extractTryoutId(inputInfo), inputInfo, inputInfo);
@@ -532,8 +555,9 @@ public class TryOutHandler {
         }
     }
 
-    private void reset() {
+    protected void reset() {
 
+        currentInputInfo = null;
         clearBreakpoints();
         breakpointEventProcessor.reset();
         cleanUp();

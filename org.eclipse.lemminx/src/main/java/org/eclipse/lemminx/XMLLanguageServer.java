@@ -261,6 +261,7 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 	@Override
 	public CompletableFuture<Object> shutdown() {
 		xmlLanguageService.dispose();
+		synapseLanguageService.dispose();
 		if (capabilityManager.getClientCapabilities().shouldLanguageServerExitOnShutdown()) {
 			delayer.schedule(() -> exit(0), 1, TimeUnit.SECONDS);
 		}

@@ -110,6 +110,11 @@ public class MediatorInfo {
         headers.add(new Property(key, value));
     }
 
+    public void addHeader(Property property) {
+
+        headers.add(property);
+    }
+
     public void addQueryParam(String key, String value) {
 
         params.addQueryParam(new Property(key, value));

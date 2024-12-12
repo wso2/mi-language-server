@@ -57,6 +57,10 @@ public class ConnectorReader {
                     connector = new Connector();
                     connector.setName(name);
                     connector.setDisplayName(displayName);
+                    String packageName = componentElement.getAttribute(Constant.PACKAGE);
+                    connector = new Connector();
+                    connector.setName(name);
+                    connector.setPackageName(packageName);
                     connector.setPath(connectorPath);
                     connector.setVersion(getConnectorVersion(connectorPath));
                     connector.setIconPath(connectorPath + File.separator + "icon");

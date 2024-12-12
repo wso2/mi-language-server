@@ -20,8 +20,11 @@ package org.eclipse.lemminx.customservice.synapse.mediator.tryout.server;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.DeployedArtifactType;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 
 import java.io.IOException;
 import java.net.URI;
@@ -121,6 +124,43 @@ public class ManagementAPIClient {
         } catch (IOException e) {
             LOGGER.severe("Failed to connect to the server: " + e.getMessage());
         }
+    }
+
+    public List<String> getDeployedCapps() throws IOException, InterruptedException {
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(String.format("https://%s:%d/management/%s", HOST, port, "applications")))
+                .header("Accept", "application/json")
+                .header("Authorization", "Bearer " + accessToken)
+                .GET()
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() == 200) {
+            isRetried = false;
+            return extractDeployedCapps(response.body());
+        } else if (response.statusCode() == 401 && !isRetried) {
+            isRetried = true;
+            connect();
+            return getDeployedCapps();
+        }
+        return Collections.emptyList();
+    }
+
+    private List<String> extractDeployedCapps(String body) {
+
+        JsonObject jsonObject = Utils.getJsonObject(body);
+        if (jsonObject != null) {
+            JsonArray jsonArray = jsonObject.getAsJsonArray("activeList");
+            if (jsonArray != null) {
+                List<String> capps = new ArrayList<>();
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    capps.add(jsonArray.get(i).getAsJsonObject().get("name").getAsString());
+                }
+                return capps;
+            }
+        }
+        return Collections.emptyList();
     }
 
     public List<DeployedArtifact> getArtifacts(DeployedArtifactType type) throws IOException, InterruptedException {

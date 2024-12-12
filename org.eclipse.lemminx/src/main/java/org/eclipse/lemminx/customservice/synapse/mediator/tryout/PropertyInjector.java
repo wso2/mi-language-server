@@ -27,10 +27,63 @@ import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Params;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Properties;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.logging.Logger;
 
 public class PropertyInjector {
+
+    private static final Logger LOGGER = Logger.getLogger(PropertyInjector.class.getName());
+
+    public static void injectProperties(MediatorInfo oldInfo, MediatorInfo newInfo, Consumer<JsonObject> sendCommand) {
+
+        if (oldInfo == null || newInfo == null) {
+            return;
+        }
+        MediatorInfo injectInfo = new MediatorInfo();
+
+        // Update payload
+        filterPayload(newInfo::getPayload, oldInfo::getPayload, injectInfo::setPayload);
+
+        // Update different property collections
+        filterPropertyCollection(newInfo::getVariables, oldInfo::getVariables, injectInfo::addVariable);
+        filterPropertyCollection(newInfo.getProperties()::getSynapse, oldInfo.getProperties()::getSynapse,
+                injectInfo::addSynapseProperty);
+        filterPropertyCollection(newInfo.getProperties()::getAxis2, oldInfo.getProperties()::getAxis2,
+                injectInfo::addAxis2Property);
+        filterPropertyCollection(newInfo.getProperties()::getAxis2Client, oldInfo.getProperties()::getAxis2Client,
+                injectInfo::addAxis2ClientProperty);
+        filterPropertyCollection(newInfo.getProperties()::getAxis2Transport, oldInfo.getProperties()::getAxis2Transport,
+                injectInfo::addAxis2TransportProperty);
+        filterPropertyCollection(newInfo.getProperties()::getAxis2Operation, oldInfo.getProperties()::getAxis2Operation,
+                injectInfo::addAxis2OperationProperty);
+        filterPropertyCollection(newInfo::getHeaders, oldInfo::getHeaders, injectInfo::addHeader);
+        injectProperties(injectInfo, sendCommand);
+    }
+
+    private static <T> void filterPayload(Supplier<T> newValueSupplier, Supplier<T> oldValueSupplier,
+                                          Consumer<T> setter) {
+
+        T newValue = newValueSupplier.get();
+        T oldValue = oldValueSupplier.get();
+
+        if (newValue != null && !newValue.equals(oldValue)) {
+            setter.accept(newValue);
+        }
+    }
+
+    private static <T> void filterPropertyCollection(Supplier<Collection<T>> newCollectionSupplier,
+                                                     Supplier<Collection<T>> oldCollectionSupplier, Consumer<T> adder) {
+
+        Collection<T> newCollection = newCollectionSupplier.get();
+        Collection<T> oldCollection = oldCollectionSupplier.get();
+
+        newCollection.stream()
+                .filter(property -> !oldCollection.contains(property))
+                .forEach(adder);
+    }
 
     public static void injectProperties(MediatorInfo mediatorInfo, Consumer<JsonObject> sendCommand) {
 
@@ -49,7 +102,8 @@ public class PropertyInjector {
         if (payload == null || StringUtils.isEmpty(payload.getAsString())) {
             return;
         }
-        injectProperty(sendCommand, TryOutConstants.ENVELOPE, payload.getAsString(), TryOutConstants.AXIS2, false);
+        injectProperty(sendCommand, TryOutConstants.ENVELOPE, payload.getAsString(), TryOutConstants.AXIS2,
+                false);
     }
 
     private static void injectVariables(List<Property> variables, Consumer<JsonObject> sendCommand) {
@@ -58,7 +112,8 @@ public class PropertyInjector {
             return;
         }
         for (Property variable : variables) {
-            injectProperty(sendCommand, variable.getKey(), variable.getValue(), TryOutConstants.VARIABLE, true);
+            injectProperty(sendCommand, variable.getKey(), variable.getValue(), TryOutConstants.VARIABLE,
+                    true);
         }
     }
 
@@ -68,19 +123,24 @@ public class PropertyInjector {
             return;
         }
         for (Property property : properties.getSynapse()) {
-            injectProperty(sendCommand, property.getKey(), property.getValue(), TryOutConstants.DEFAULT, false);
+            injectProperty(sendCommand, property.getKey(), property.getValue(), TryOutConstants.DEFAULT,
+                    false);
         }
         for (Property property : properties.getAxis2()) {
-            injectProperty(sendCommand, property.getKey(), property.getValue(), TryOutConstants.AXIS2, false);
+            injectProperty(sendCommand, property.getKey(), property.getValue(), TryOutConstants.AXIS2,
+                    false);
         }
         for (Property property : properties.getAxis2Client()) {
-            injectProperty(sendCommand, property.getKey(), property.getValue(), TryOutConstants.AXIS2_CLIENT, false);
+            injectProperty(sendCommand, property.getKey(), property.getValue(), TryOutConstants.AXIS2_CLIENT,
+                    false);
         }
         for (Property property : properties.getAxis2Transport()) {
-            injectProperty(sendCommand, property.getKey(), property.getValue(), TryOutConstants.AXIS2_TRANSPORT, false);
+            injectProperty(sendCommand, property.getKey(), property.getValue(), TryOutConstants.AXIS2_TRANSPORT,
+                    false);
         }
         for (Property property : properties.getAxis2Operation()) {
-            injectProperty(sendCommand, property.getKey(), property.getValue(), TryOutConstants.AXIS2_OPERATION, false);
+            injectProperty(sendCommand, property.getKey(), property.getValue(), TryOutConstants.AXIS2_OPERATION,
+                    false);
         }
     }
 

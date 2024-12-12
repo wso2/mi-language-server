@@ -34,7 +34,9 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.API;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.APIResource;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.inbound.InboundEndpoint;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.SequenceMediator;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Respond;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.api.APISerializer;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
@@ -51,8 +53,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-
-import static org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants.TEMP_FOLDER_PATH;
 
 public class TryOutUtils {
 
@@ -299,8 +299,10 @@ public class TryOutUtils {
                 property = new Property(key, propertiesJson.get(key).getAsString());
             } else if (propertiesJson.get(key).isJsonArray()) {
                 property = new Property(key, propertiesJson.getAsJsonArray(key).toString());
-            } else {
+            } else if (propertiesJson.get(key).isJsonObject()) {
                 property = new Property(key, parseProperties(propertiesJson.getAsJsonObject(key)));
+            } else {
+                property = new Property(key, propertiesJson.get(key).toString());
             }
             properties.add(property);
         }
@@ -318,4 +320,74 @@ public class TryOutUtils {
         return parsedProperties;
     }
 
+    /**
+     * Creates an API for executing the given mediator.
+     *
+     * @param mediator
+     * @param tempPath
+     * @return the path of the created API
+     * @throws InvalidConfigurationException
+     */
+    public static String createAPI(Mediator mediator, String tempPath) throws InvalidConfigurationException {
+
+        try {
+            if (mediator != null) {
+                String apiName = mediator.getTag() + "_tryout_" + UUID.randomUUID();
+                API api = new API();
+                api.setName(apiName);
+                api.setContext(TryOutConstants.SLASH + apiName);
+                APIResource resource = new APIResource();
+                resource.setMethods(new String[]{"POST"});
+                resource.setUrlMapping(TryOutConstants.SLASH);
+                api.setResource(new APIResource[]{resource});
+                Sequence sequence = new Sequence();
+                resource.setInSequence(sequence);
+                sequence.addToMediatorList(mediator);
+                sequence.addToMediatorList(new Respond());
+                String apiContent = APISerializer.serializeAPI(api);
+                Path apiPath = Path.of(tempPath, "src", "main", "wso2mi", "artifacts", "apis",
+                        apiName + ".xml");
+                if (!apiPath.toFile().exists()) {
+                    apiPath.toFile().getParentFile().mkdirs();
+                }
+                Utils.writeToFile(apiPath.toString(), apiContent);
+                return apiPath.toString();
+            }
+        } catch (IOException e) {
+            throw new InvalidConfigurationException("Error while creating the API for the mediator", e);
+        }
+        return null;
+    }
+
+    /**
+     * Returns the position of the mediator in the given resourceIndex and mediatorIndex.
+     *
+     * @param apiPath
+     * @param resourceIndex
+     * @param mediatorIndex
+     * @return the position of the mediator
+     * @throws IOException if an error occurs while getting the mediator position or if the api is not found
+     */
+    public static Position getMediatorPosition(String apiPath, int resourceIndex, int mediatorIndex)
+            throws IOException {
+
+        DOMDocument dom = Utils.getDOMDocument(new File(apiPath));
+        if (dom != null) {
+            API api = (API) SyntaxTreeGenerator.buildTree(dom.getDocumentElement());
+            if (api != null) {
+                APIResource resource = api.getResource()[resourceIndex];
+                if (resource != null) {
+                    Sequence sequence = resource.getInSequence();
+                    if (sequence != null) {
+                        List<Mediator> mediators = sequence.getMediatorList();
+                        if (mediators != null && mediators.size() > mediatorIndex) {
+                            return mediators.get(mediatorIndex).getRange().getStartTagRange().getStart();
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+        throw new IOException("Error while getting the mediator position");
+    }
 }
