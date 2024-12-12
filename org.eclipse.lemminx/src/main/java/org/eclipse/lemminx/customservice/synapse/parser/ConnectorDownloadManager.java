@@ -40,7 +40,7 @@ public class ConnectorDownloadManager {
 
     private static final Logger LOGGER = Logger.getLogger(ConnectorDownloadManager.class.getName());
 
-    public static String updateConnectors(String projectPath) {
+    public static String downloadConnectors(String projectPath) {
 
         File directory = Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI, Constant.CONNECTORS,
                 Utils.getHash(projectPath)).toFile();
