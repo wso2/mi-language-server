@@ -27,6 +27,10 @@ public class Class extends Mediator {
     String name;
     String description;
 
+    public Class() {
+        setDisplayName("Class");
+    }
+
     public MediatorProperty[] getProperty() {
 
         return property;

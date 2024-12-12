@@ -27,6 +27,10 @@ public class Switch extends Mediator {
     String source;
     String description;
 
+    public Switch() {
+        setDisplayName("Switch");
+    }
+
     public SwitchCase[] get_case() {
 
         return _case;

@@ -28,6 +28,10 @@ public class SequenceMediator extends Mediator {
     String name;
     String description;
 
+    public SequenceMediator() {
+        setDisplayName("Sequence");
+    }
+
     public List<Mediator> getMediatorList() {
 
         return mediatorList;

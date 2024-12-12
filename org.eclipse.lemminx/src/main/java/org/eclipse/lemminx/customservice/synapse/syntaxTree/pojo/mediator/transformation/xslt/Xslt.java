@@ -30,6 +30,10 @@ public class Xslt extends Mediator {
     String source;
     String description;
 
+    public Xslt() {
+        setDisplayName("XSLT");
+    }
+
     public MediatorProperty[] getProperty() {
 
         return property;

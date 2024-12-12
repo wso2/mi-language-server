@@ -28,6 +28,10 @@ public class DataServiceCall extends Mediator {
     String serviceName;
     String description;
 
+    public DataServiceCall() {
+        setDisplayName("Call Dataservice");
+    }
+
     public DataServiceCallSource getSource() {
 
         return source;

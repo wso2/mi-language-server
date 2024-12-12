@@ -31,6 +31,9 @@ public class Call extends Mediator {
     boolean initAxis2ClientOptions;
     String inlineEndpointXml;
 
+    public Call() {
+        setDisplayName("Call Endpoint");
+    }
     public CallSource getSource() {
 
         return source;

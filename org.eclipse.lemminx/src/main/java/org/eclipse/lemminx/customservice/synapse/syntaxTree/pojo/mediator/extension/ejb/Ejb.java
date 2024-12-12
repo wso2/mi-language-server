@@ -34,6 +34,10 @@ public class Ejb extends Mediator {
     boolean stateful;
     String description;
 
+    public Ejb() {
+        setDisplayName("EJB");
+    }
+
     public EjbArgs getArgs() {
 
         return args;

@@ -28,6 +28,11 @@ public class PayloadFactory extends Mediator {
     TemplateType templateType;
     String description;
 
+    public PayloadFactory() {
+
+        setDisplayName("Payload");
+    }
+
     public PayloadFactoryFormat getFormat() {
 
         return format;

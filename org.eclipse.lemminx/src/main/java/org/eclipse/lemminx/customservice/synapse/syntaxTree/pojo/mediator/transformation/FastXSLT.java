@@ -25,6 +25,10 @@ public class FastXSLT extends Mediator {
     String key;
     String description;
 
+    public FastXSLT() {
+        setDisplayName("Fast XSLT");
+    }
+
     public String getKey() {
 
         return key;
