@@ -72,6 +72,9 @@ public class ExpressionCompletionContext {
 
     public ExpressionCompletionContext getParent() {
 
+        if (parent == null) {
+            return null;
+        }
         return parent.deepCopy();
     }
 

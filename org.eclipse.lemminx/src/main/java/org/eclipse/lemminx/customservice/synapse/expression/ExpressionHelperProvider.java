@@ -135,7 +135,7 @@ public class ExpressionHelperProvider {
     private List<CompletionItem> createDataList(JsonPrimitive payload) {
 
         List<CompletionItem> dataList = new ArrayList<>();
-        if (payload != null && Utils.isJSONObject(payload.toString())) {
+        if (payload != null && Utils.isJSONObject(payload.getAsString())) {
             JsonObject jsonObject = Utils.getJsonObject(payload.getAsString());
             if (jsonObject != null) {
                 CompletionItem item = new HelperPanelItem(ExpressionConstants.PAYLOAD, ExpressionConstants.PAYLOAD);
