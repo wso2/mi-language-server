@@ -223,6 +223,10 @@ public abstract class AbstractResourceFinder {
                     if (Utils.isRegistryPropertiesFile(file)) {
                         continue;
                     }
+                    if (file.getAbsolutePath().endsWith(Path.of(Constant.RESOURCES, Constant.ARTIFACT_XML).toString()) ||
+                            file.getAbsolutePath().endsWith(Path.of(Constant.RESOURCES, Constant.REGISTRY, Constant.ARTIFACT_XML).toString())) {
+                        continue;
+                    }
                     if (handler == null && requestedTypeToXmlTagMap == null) {
                         Resource resource = createNonXmlResource(file, Constant.REGISTRY, REGISTRY);
                         if (resource != null) {
@@ -269,6 +273,8 @@ public abstract class AbstractResourceFinder {
                             resource = createRegistryResource(file, rootElement, type);
                         }
                         return resource;
+                    } else {
+                        return createXmlResource(file);
                     }
                 }
             }
@@ -327,6 +333,22 @@ public abstract class AbstractResourceFinder {
         resource.setFrom(registry);
         ((RegistryResource) resource).setRegistryPath(file.getAbsolutePath());
         ((RegistryResource) resource).setRegistryKey(getRegistryKey(file));
+        return resource;
+    }
+
+    private Resource createXmlResource(File file) {
+
+        RegistryResource resource = new RegistryResource();
+        resource.setName(file.getName());
+        resource.setType(Constant.XML);
+        resource.setRegistryPath(file.getAbsolutePath());
+        if (Utils.isFileInRegistry(file)) {
+            resource.setFrom(Constant.REGISTRY);
+            resource.setRegistryKey(getRegistryKey(file));
+        } else {
+            resource.setFrom(Constant.RESOURCES);
+            resource.setRegistryKey(getResourceKey(file));
+        }
         return resource;
     }
 
@@ -440,6 +462,21 @@ public abstract class AbstractResourceFinder {
             String path = m.group(4).replaceAll("\\\\", "/");
             path = path.replaceAll("^/+", "");
             return type + ":" + path;
+        } else {
+            return null;
+        }
+    }
+
+    private String getResourceKey(File file) {
+
+        String pattern = "(.*)(\\b(resources)\\b)(.*)";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(file.getAbsolutePath());
+
+        if (m.find()) {
+            String path = m.group(4).replaceAll("\\\\", "/");
+            path = path.replaceAll("^/+", "");
+            return Constant.RESOURCES + ":" + path;
         } else {
             return null;
         }
