@@ -44,6 +44,10 @@ public class ScatterGatherMediator {
                                                                                            ScatterGather scatterGather,
                                                                                            List<String> dirtyFields) {
 
+        if(data.containsKey("newBranch") && Boolean.TRUE.equals(data.get("newBranch"))) {
+            return Either.forLeft(data);
+        }
+
         if (VARIABLE.equals(data.get(Constant.RESULT_TARGET))) {
             data.put(Constant.RESULT_TARGET, data.get(VARIABLE_NAME));
         }

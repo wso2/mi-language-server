@@ -1,3 +1,7 @@
+{{#newBranch}}
+    <sequence></sequence>
+{{/newBranch}}
+{{^newBranch}}
 {{#newMediator}}
     <scatter-gather parallel-execution="{{parallelExecution}}" {{#resultTarget}}result-target="{{resultTarget}}" {{/resultTarget}} {{#rootElement}}root-element="{{rootElement}}" {{/rootElement}} {{#contentType}}content-type="{{contentType}}" {{/contentType}} {{#description}}description="{{description}}" {{/description}}>
         <aggregation {{#expression}}expression="{{expression}}" {{/expression}} {{#condition}}condition="{{condition}}" {{/condition}} {{#completeTimeout}}timeout="{{completeTimeout}}" {{/completeTimeout}} {{#minMessages}}min-messages="{{minMessages}}" {{/minMessages}} {{#maxMessages}}max-messages="{{maxMessages}}" {{/maxMessages}}/>
@@ -13,3 +17,4 @@
             <aggregation {{#expression}}expression="{{expression}}" {{/expression}} {{#condition}}condition="{{condition}}" {{/condition}} {{#completeTimeout}}timeout="{{completeTimeout}}" {{/completeTimeout}} {{#minMessages}}min-messages="{{minMessages}}" {{/minMessages}} {{#maxMessages}}max-messages="{{maxMessages}}" {{/maxMessages}}/>
     {{/editScatterGatherAggregate}}
 {{/newMediator}}
+{{/newBranch}}
