@@ -31,7 +31,7 @@
         "defaultValue": "INLINE",
         "comboValues": [
           "INLINE",
-          "REGISTRY_REFERENCE"
+          "RESOURCE_REFERENCE"
         ],
         "required": false,
         "helpTip": ""
@@ -57,15 +57,35 @@
       "value": {
         "name": "scriptKey",
         "displayName": "Script Key",
-        "inputType": "keyOrExpression",
-        "keyType": "registry",
+        "inputType": "resourceOrExpression",
+        "keyType": {
+          "conditionField": "scriptLanguage",
+          "values": [
+            {
+              "js": "js"
+            },
+            {
+              "rb": "rb"
+            },
+            {
+              "groovy": "groovy"
+            },
+            {
+              "nashornJs": "js"
+            },
+            {
+              "rhinoJs": "js"
+            }
+          ]
+        },
         "required": false,
         "helpTip": "",
         "enableCondition": [
           {
-            "scriptType": "REGISTRY_REFERENCE"
+            "scriptType": "RESOURCE_REFERENCE"
           }
-        ]
+        ],
+        "canAddNew": true
       }
     },
     {
@@ -78,7 +98,7 @@
         "helpTip": "",
         "enableCondition": [
           {
-            "scriptType": "REGISTRY_REFERENCE"
+            "scriptType": "RESOURCE_REFERENCE"
           }
         ]
       }
@@ -116,7 +136,7 @@
         ],
         "enableCondition": [
           {
-            "scriptType": "REGISTRY_REFERENCE"
+            "scriptType": "RESOURCE_REFERENCE"
           }
         ]
       }
