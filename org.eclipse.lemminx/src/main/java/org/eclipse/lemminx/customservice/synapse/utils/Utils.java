@@ -28,6 +28,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.commons.TextDocument;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
@@ -671,7 +672,9 @@ public class Utils {
                     operationsArray.add(operationObject);
                 }
             }
-            mediatorList.add(connector.getName(), operationsArray);
+            mediatorList.add(
+                    StringUtils.isEmpty(connector.getDisplayName()) ? connector.getName() : connector.getDisplayName(),
+                    operationsArray);
         }
         if (otherCategoryMediators != null) {
             mediatorList.add(Constant.OTHER, otherCategoryMediators);

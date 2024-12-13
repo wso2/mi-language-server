@@ -26,6 +26,7 @@ import java.util.Map;
 public class Connector {
 
     private String name;
+    private String displayName;
     private String path;
     private String version;
     private List<ConnectorAction> actions;
@@ -47,6 +48,16 @@ public class Connector {
     public void setName(String name) {
 
         this.name = name;
+    }
+
+    public String getDisplayName() {
+
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+
+        this.displayName = displayName;
     }
 
     public String getPath() {
