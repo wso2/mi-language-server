@@ -66,6 +66,7 @@ public abstract class AbstractConnectorLoader {
 
         if (canContinue(connectorExtractFolder)) {
             List<File> connectorZips = getConnectorZips();
+            cleanOldConnectors(connectorExtractFolder, connectorZips);
             extractZips(connectorZips, connectorExtractFolder);
             readConnectors(connectorExtractFolder);
         }

@@ -18,7 +18,6 @@
 
 package org.eclipse.lemminx.customservice.synapse.parser;
 
-import org.eclipse.lemminx.customservice.synapse.connectors.AbstractConnectorLoader;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 
@@ -30,9 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,7 +40,7 @@ public class ConnectorDownloadManager {
 
     private static final Logger LOGGER = Logger.getLogger(ConnectorDownloadManager.class.getName());
 
-    public static String updateConnectors(String projectPath, AbstractConnectorLoader loader) {
+    public static String downloadConnectors(String projectPath) {
 
         File directory = Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI, Constant.CONNECTORS,
                 Utils.getHash(projectPath)).toFile();
@@ -58,12 +55,6 @@ public class ConnectorDownloadManager {
         }
         if (!downloadDirectory.exists()) {
             downloadDirectory.mkdirs();
-        }
-
-        try {
-            clearDirectory(extractDirectory);
-        } catch (IOException e) {
-            return "Error occurred while clearing existing connectors.";
         }
 
         OverviewPageDetailsResponse pomDetailsResponse = new OverviewPageDetailsResponse();
@@ -90,8 +81,6 @@ public class ConnectorDownloadManager {
                 return "Error occurred while downloading connectors.";
             }
         }
-
-        loader.loadConnector();
         return "Success";
     }
 
@@ -148,22 +137,6 @@ public class ConnectorDownloadManager {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error occurred while copying dependency from local repository: " + e.getMessage());
             throw e;
-        }
-    }
-
-    private static void clearDirectory(File extractedDirectory) throws IOException {
-        for (File file : extractedDirectory.listFiles()) {
-            if (file.isDirectory()) {
-                try {
-                    Files.walk(file.toPath())
-                            .sorted(Comparator.reverseOrder())
-                            .map(Path::toFile)
-                            .forEach(File::delete);
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, "Error occurred while clearing extracted dependencies: " + e.getMessage());
-                    throw e;
-                }
-            }
         }
     }
 }
