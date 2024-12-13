@@ -242,6 +242,8 @@ public abstract class AbstractResourceFinder {
                             Resource resource = createResource(file, requestedTypeToXmlTagMap, REGISTRY);
                             if (resource != null) {
                                 resources.add(resource);
+                            } else {
+                                handler.handleFile(file);
                             }
                         } else {
                             handler.handleFile(file);
@@ -273,8 +275,6 @@ public abstract class AbstractResourceFinder {
                             resource = createRegistryResource(file, rootElement, type);
                         }
                         return resource;
-                    } else {
-                        return createXmlResource(file);
                     }
                 }
             }
@@ -333,22 +333,6 @@ public abstract class AbstractResourceFinder {
         resource.setFrom(registry);
         ((RegistryResource) resource).setRegistryPath(file.getAbsolutePath());
         ((RegistryResource) resource).setRegistryKey(getRegistryKey(file));
-        return resource;
-    }
-
-    private Resource createXmlResource(File file) {
-
-        RegistryResource resource = new RegistryResource();
-        resource.setName(file.getName());
-        resource.setType(Constant.XML);
-        resource.setRegistryPath(file.getAbsolutePath());
-        if (Utils.isFileInRegistry(file)) {
-            resource.setFrom(Constant.REGISTRY);
-            resource.setRegistryKey(getRegistryKey(file));
-        } else {
-            resource.setFrom(Constant.RESOURCES);
-            resource.setRegistryKey(getResourceKey(file));
-        }
         return resource;
     }
 
@@ -462,21 +446,6 @@ public abstract class AbstractResourceFinder {
             String path = m.group(4).replaceAll("\\\\", "/");
             path = path.replaceAll("^/+", "");
             return type + ":" + path;
-        } else {
-            return null;
-        }
-    }
-
-    private String getResourceKey(File file) {
-
-        String pattern = "(.*)(\\b(resources)\\b)(.*)";
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(file.getAbsolutePath());
-
-        if (m.find()) {
-            String path = m.group(4).replaceAll("\\\\", "/");
-            path = path.replaceAll("^/+", "");
-            return Constant.RESOURCES + ":" + path;
         } else {
             return null;
         }
