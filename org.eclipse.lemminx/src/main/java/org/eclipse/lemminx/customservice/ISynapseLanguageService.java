@@ -31,6 +31,8 @@ import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateAPIP
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.TestConnectionRequest;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.TestConnectionResponse;
+import org.eclipse.lemminx.customservice.synapse.connectors.generate.ConnectorGenerateRequest;
+import org.eclipse.lemminx.customservice.synapse.connectors.generate.ConnectorGeneratorResponse;
 import org.eclipse.lemminx.customservice.synapse.dataService.AddDriverRequestParams;
 import org.eclipse.lemminx.customservice.synapse.dataService.CheckDBDriverRequestParams;
 import org.eclipse.lemminx.customservice.synapse.dataService.QueryGenRequestParams;
@@ -217,4 +219,7 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<HelperPanelData> expressionHelperData(ExpressionParam param);
+
+    @JsonRequest
+    CompletableFuture<ConnectorGeneratorResponse> generateConnector(ConnectorGenerateRequest schemaGenRequest);
 }

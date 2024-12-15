@@ -35,6 +35,8 @@ import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connections;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectionFinder;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
+import org.eclipse.lemminx.customservice.synapse.connectors.generate.ConnectorGenerateRequest;
+import org.eclipse.lemminx.customservice.synapse.connectors.generate.ConnectorGeneratorResponse;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.TestConnectionRequest;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.TestConnectionResponse;
 import org.eclipse.lemminx.customservice.synapse.dataService.DynamicClassLoader;
@@ -123,6 +125,7 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceFolder;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.messages.Either3;
+import org.wso2.mi.tool.connector.tools.generator.openapi.ConnectorGenerator;
 
 import java.io.File;
 import java.io.IOException;
@@ -564,6 +567,14 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         String statusMessage = ConnectorDownloadManager.downloadConnectors(projectUri);
         updateConnectors();
         return CompletableFuture.supplyAsync(() -> statusMessage);
+    }
+
+    @Override
+    public CompletableFuture<ConnectorGeneratorResponse> generateConnector(ConnectorGenerateRequest connectorGenReq) {
+        String filePath =
+                ConnectorGenerator.generateConnector(connectorGenReq.openAPIPath, connectorGenReq.connectorProjectPath);
+        ConnectorGeneratorResponse response = new ConnectorGeneratorResponse(filePath != null, filePath);
+        return CompletableFuture.supplyAsync(() -> response);
     }
 
     public String getProjectUri() {
