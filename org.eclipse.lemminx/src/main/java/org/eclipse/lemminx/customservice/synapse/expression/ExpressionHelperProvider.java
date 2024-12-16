@@ -44,17 +44,12 @@ import java.util.Map;
 public class ExpressionHelperProvider {
 
     private static final Map<Properties.Type, String> PROPERTIES_SECOND_LEVEL = Map.of(
-            Properties.Type.SYNAPSE, "attributes.synapse",
-            Properties.Type.AXIS2, "attributes.axis2",
-            Properties.Type.AXIS2_CLIENT, "attributes.axis2Client",
-            Properties.Type.AXIS2_TRANSPORT, "attributes.axis2Transport",
-            Properties.Type.AXIS2_OPERATION, "attributes.axis2Operation"
-                                                                                      );
+            Properties.Type.SYNAPSE, "properties.synapse",
+            Properties.Type.AXIS2, "properties.axis2");
     private static final Map<Params.Type, String> PARAMS_SECOND_LEVEL = Map.of(
             Params.Type.QUERY, "params.queryParams",
             Params.Type.URI, "params.uriParams",
-            Params.Type.FUNC, "params.functionParams"
-                                                                              );
+            Params.Type.FUNC, "params.functionParams");
     private final ServerLessTryoutHandler tryoutHandler;
     private final String projectPath;
 

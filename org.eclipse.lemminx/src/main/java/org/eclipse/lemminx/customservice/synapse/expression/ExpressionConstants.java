@@ -41,8 +41,7 @@ public class ExpressionConstants {
     public static final String SYNAPSE = "synapse";
     public static final String HEADERS = "headers";
     public static final String PAYLOAD = "payload";
-    public static final List<String> ATTRIBUTES_SECOND_LEVEL =
-            List.of(SYNAPSE, AXIS2, AXIS2_CLIENT, AXIS2_TRANSPORT, AXIS2_OPERATION);
+    public static final List<String> ATTRIBUTES_SECOND_LEVEL = List.of(SYNAPSE, AXIS2);
     public static final String QUERY_PARAMS = "queryParams";
     public static final String URI_PARAMS = "uriParams";
     public static final String FUNCTION_PARAMS = "functionParams";
