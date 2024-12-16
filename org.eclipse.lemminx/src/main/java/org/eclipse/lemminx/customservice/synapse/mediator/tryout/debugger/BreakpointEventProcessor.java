@@ -31,7 +31,7 @@ import java.util.logging.Logger;
 public class BreakpointEventProcessor {
 
     private static final Logger LOGGER = Logger.getLogger(BreakpointEventProcessor.class.getName());
-    private static List<String>
+    private static final List<String>
             PROPERTY_CONTEXTS = List.of("synapse", "axis2", "axis2-client", "transport", "operation", "variable");
     private final DebugCommandClient commandClient;
     private final Object lock;
