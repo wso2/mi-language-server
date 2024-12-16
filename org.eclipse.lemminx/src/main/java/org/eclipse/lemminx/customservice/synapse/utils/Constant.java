@@ -21,6 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.utils;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMNamespace;
 
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
@@ -531,4 +532,5 @@ public class Constant {
     public static final String TEST_CONNECTION_OPERATION = "testconnection";
     public static final String IS_VALID_CONNECTION = "isValidConnection";
     public static final String PACKAGE = "package";
+    public static final Path RESOURCE_RELATIVE_PATH = Path.of("src", "main", "wso2mi", "resources");
 }

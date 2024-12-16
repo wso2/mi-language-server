@@ -23,6 +23,7 @@ import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.RegistryRes
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.RequestedResource;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.Resource;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceResponse;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.registryHander.DatamapperHandler;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.registryHander.NonXMLRegistryHandler;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.registryHander.SchemaResourceHandler;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.registryHander.SimpleResourceHandler;
@@ -183,7 +184,11 @@ public abstract class AbstractResourceFinder {
             if (handler == null) {
                 handler = new SimpleResourceHandler(requestedResources, resources);
             } else {
-                handler.setNextHandler(new SimpleResourceHandler(requestedResources, resources));
+                if (requestedResource.type.equals("dataMapper")) {
+                    handler.setNextHandler(new DatamapperHandler(resources));
+                } else {
+                    handler.setNextHandler(new SimpleResourceHandler(requestedResources, resources));
+                }
             }
             break;
         }

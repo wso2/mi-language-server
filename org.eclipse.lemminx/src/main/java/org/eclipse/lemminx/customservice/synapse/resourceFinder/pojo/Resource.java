@@ -53,4 +53,14 @@ public abstract class Resource {
 
         this.from = from;
     }
+
+    @Override
+    public String toString() {
+
+        return "Resource{" +
+                "name='" + name + '\'' +
+                ", type='" + type + '\'' +
+                ", from='" + from + '\'' +
+                '}';
+    }
 }
