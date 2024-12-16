@@ -53,14 +53,14 @@ public class ConnectorReader {
                     DOMNode componentElement = Utils.getChildNodeByName(connectorElement, "component");
                     DOMNode displayNameElement = Utils.getChildNodeByName(componentElement, "displayName");
                     String name = componentElement.getAttribute(Constant.NAME);
-                    String displayName = Utils.getInlineString(displayNameElement.getFirstChild());
                     connector = new Connector();
                     connector.setName(name);
-                    connector.setDisplayName(displayName);
                     String packageName = componentElement.getAttribute(Constant.PACKAGE);
-                    connector = new Connector();
-                    connector.setName(name);
                     connector.setPackageName(packageName);
+                    if (displayNameElement != null && displayNameElement.isElement()) {
+                        String displayName = Utils.getInlineString(displayNameElement.getFirstChild());
+                        connector.setDisplayName(displayName);
+                    }
                     connector.setPath(connectorPath);
                     connector.setVersion(getConnectorVersion(connectorPath));
                     connector.setIconPath(connectorPath + File.separator + "icon");
