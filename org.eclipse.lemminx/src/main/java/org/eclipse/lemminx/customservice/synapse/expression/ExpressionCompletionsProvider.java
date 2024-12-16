@@ -339,12 +339,6 @@ public class ExpressionCompletionsProvider {
         switch (segment) {
             case ExpressionConstants.AXIS2:
                 return attributes.getAxis2();
-            case ExpressionConstants.AXIS2_CLIENT:
-                return attributes.getAxis2Client();
-            case ExpressionConstants.AXIS2_TRANSPORT:
-                return attributes.getAxis2Transport();
-            case ExpressionConstants.AXIS2_OPERATION:
-                return attributes.getAxis2Operation();
             case ExpressionConstants.SYNAPSE:
                 return attributes.getSynapse();
             default:
