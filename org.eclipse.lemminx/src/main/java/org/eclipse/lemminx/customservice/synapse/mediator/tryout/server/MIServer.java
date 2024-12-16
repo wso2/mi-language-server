@@ -18,6 +18,11 @@
 
 package org.eclipse.lemminx.customservice.synapse.mediator.tryout.server;
 
+import org.apache.maven.shared.invoker.DefaultInvocationRequest;
+import org.apache.maven.shared.invoker.DefaultInvoker;
+import org.apache.maven.shared.invoker.InvocationRequest;
+import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.ArtifactDeploymentException;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.DeployedArtifactType;
@@ -25,8 +30,11 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeGenerator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.NamedSequence;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.API;
+import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.apache.maven.shared.invoker.Invoker;
+
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -40,10 +48,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -53,10 +63,10 @@ import java.util.logging.Logger;
 public class MIServer {
 
     private static final Logger LOGGER = Logger.getLogger(MIServer.class.getName());
-    private static final int DEFAULT_SERVER_PORT = 8280;
-    private static final int DEFAULT_INBOUND_PORT = 9191;
-    private static final int DEFAULT_DEBUGGER_COMMAND_PORT = 9007;
-    private static final int DEFAULT_DEBUGGER_EVENT_PORT = 9008;
+    private static final int DEFAULT_SERVER_PORT = 8290;
+    private static final int DEFAULT_INBOUND_PORT = 9201;
+    private static final int DEFAULT_DEBUGGER_COMMAND_PORT = 9005;
+    private static final int DEFAULT_DEBUGGER_EVENT_PORT = 9006;
     private static final int SERVER_START_TIMEOUT = 30000;
     private static final String SERVER_CONFIG_REGEX = "(?s)(?<=\\[server\\]\\n)(.*?)(?=\\n\\[|$)";
     private static final String MEDIATION_CONFIG_REGEX = "(?s)(?<=\\[mediation\\]\\n)(.*?)(?=\\n\\[|$)";
@@ -66,17 +76,21 @@ public class MIServer {
     private static final String HOT_DEPLOYMENT_INTERVAL = "1";
     private static final String ENTER_PASSWORD_REGEX = ".*Enter KeyStore and Private Key Password.*";
     private static final String SERVER_START_REGEX = ".*Listen on ports : Command \\d+ - Event \\d+.*";
-    private int debuggerCommandPort;
-    private int debuggerEventPort;
-    private int offset; // Port offset for starting the server.
-    private final Path serverPath;
+    private static final long SERVER_SHUTDOWN_TIMEOUT = 30;
+    private int debuggerCommandPort = DEFAULT_DEBUGGER_COMMAND_PORT;
+    private int debuggerEventPort = DEFAULT_DEBUGGER_EVENT_PORT;
+    private int offset = 0; // Port offset for starting the server.
+    private Path serverPath;
     private Process serverProcess;
 
     // Maps the artifact folder names to the corresponding folder names in the MI server.
     private static final HashMap<String, String> ARTIFACT_FOLDERS_MAP = new HashMap<>();
     private final Executor executor;
     private final List<String> deployedFiles;
-    private boolean isStarted = true;
+    private boolean isStarted = false;
+    private boolean isStarting = false;
+    private ManagementAPIClient managementAPIClient;
+    private ConnectorHolder connectorHolder;
 
     static {
         ARTIFACT_FOLDERS_MAP.put("apis", "api");
@@ -91,18 +105,22 @@ public class MIServer {
         ARTIFACT_FOLDERS_MAP.put("templates", "templates");
     }
 
-    public MIServer(Path serverPath) {
+    public MIServer(Path serverPath, ConnectorHolder connectorHolder) {
 
         this.serverPath = serverPath;
         this.executor = Executors.newSingleThreadExecutor();
+        this.connectorHolder = connectorHolder;
         deployedFiles = new ArrayList<>();
     }
 
-    public void startServer() {
+    public synchronized void startServer() {
 
-        assignServerPort();
-        assignDebuggerPorts();
-        updateDeploymentConfiguration();
+        if (isStarted || isStarting || isServerRunning()) {
+            return;
+        }
+//        assignServerPort();
+//        assignDebuggerPorts();
+//        updateDeploymentConfiguration();
         updateHotDeploymentInterval();
         if (!serverPath.toFile().exists()) {
             return;
@@ -114,6 +132,7 @@ public class MIServer {
             // Graceful shutdown hook
             addShutDownHook();
         } catch (IOException e) {
+            isStarting = false;
             LOGGER.log(Level.SEVERE, String.format("Error starting or running server: %s", e.getMessage()));
         }
     }
@@ -160,7 +179,7 @@ public class MIServer {
         }
     }
 
-    private void updateDeploymentConfiguration() {
+    private synchronized void updateDeploymentConfiguration() {
 
         Path deploymentConfigPath = serverPath.resolve(TryOutConstants.DEPLOYMENT_TOML_PATH);
         try {
@@ -183,7 +202,7 @@ public class MIServer {
         }
     }
 
-    private void updateHotDeploymentInterval() {
+    private synchronized void updateHotDeploymentInterval() {
 
         try {
             // Update carbon.xml
@@ -202,7 +221,7 @@ public class MIServer {
         }
     }
 
-    private Process startServerProcess() throws IOException {
+    private synchronized Process startServerProcess() throws IOException {
 
         ProcessBuilder processBuilder = new ProcessBuilder(
                 "./micro-integrator.sh",
@@ -212,10 +231,11 @@ public class MIServer {
         processBuilder.directory(serverBinPath.toFile());
 
         processBuilder.redirectErrorStream(true);
+        isStarting = true;
         return processBuilder.start();
     }
 
-    private void handleKeystorePassword() {
+    private synchronized void handleKeystorePassword() {
 
         // Handle password input
         try (BufferedReader reader = new BufferedReader(
@@ -231,13 +251,13 @@ public class MIServer {
                     writer.flush();
                 } else if (line.matches(SERVER_START_REGEX)) {
                     isStarted = true;
+                    isStarting = false;
+                    this.notifyAll();
                     break;
                 }
             }
         } catch (IOException e) {
-            if (!Thread.currentThread().isInterrupted()) {
-                LOGGER.log(Level.SEVERE, String.format("Error handling server I/O: %s", e.getMessage()));
-            }
+            LOGGER.log(Level.SEVERE, String.format("Error handling server I/O: %s", e.getMessage()));
         }
     }
 
@@ -245,6 +265,7 @@ public class MIServer {
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             LOGGER.info("Initiating graceful shutdown...");
+            deleteDeployedFiles();
             shutDown();
         }));
     }
@@ -256,11 +277,11 @@ public class MIServer {
             new ProcessBuilder("kill", "-SIGINT", String.valueOf(serverProcess.pid())).start();
 
             // Wait for up to 10 seconds for the process to terminate
-            if (serverProcess.waitFor(10, TimeUnit.SECONDS)) {
+            if (serverProcess.waitFor(SERVER_SHUTDOWN_TIMEOUT, TimeUnit.SECONDS)) {
                 LOGGER.info("Server terminated gracefully");
             } else {
                 LOGGER.warning("Server didn't terminate in time, forcing shutdown...");
-                serverProcess.destroyForcibly();
+//                serverProcess.destroyForcibly();
             }
             isStarted = false;
         } catch (InterruptedException e) {
@@ -273,35 +294,78 @@ public class MIServer {
 
     public void deployProject(String tempProjectUri, String file) throws ArtifactDeploymentException {
 
-        copyToMI(tempProjectUri);
-        // TODO: Change it to check all the artifacts
+        // TODO: find a better solution to deploy connector, class, and data mapper artifacts in the old method.
+        buildProject(tempProjectUri);
+//        copyToMI(tempProjectUri);
         waitForDeployment(Path.of(file));
+        LOGGER.log(Level.INFO, "Project deployed successfully");
+    }
+
+    private void buildProject(String tempProjectUri) {
+
+        Invoker invoker = new DefaultInvoker();
+        invoker.setMavenHome(new File(tempProjectUri));
+        File mvnwFile = Path.of(tempProjectUri).resolve("mvnw").toFile();
+        invoker.setMavenExecutable(mvnwFile);
+        InvocationRequest request = new DefaultInvocationRequest();
+        request.setQuiet(true);
+        request.setPomFile(Path.of(tempProjectUri, Constant.POM).toFile());
+        request.setGoals(List.of("clean", "install"));
+        Properties properties = new Properties();
+        properties.setProperty("maven.test.skip", "true");
+        request.setProperties(properties);
+        try {
+            invoker.execute(request);
+            copyCarToMI(tempProjectUri);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error building the project", e);
+        }
+    }
+
+    private void copyCarToMI(String tempProjectUri) {
+
+        File[] files = Arrays.stream(Path.of(tempProjectUri).resolve("target").toFile().listFiles()).filter(
+                file -> file.getName().endsWith(".car")).toArray(File[]::new);
+        if (files != null && files.length > 0) {
+            Path targetPath = serverPath.resolve(TryOutConstants.MI_DEPLOYMENT_PATH);
+            try {
+                Utils.copyFile(files[0].getAbsolutePath(), targetPath.toString());
+                deployedFiles.add(targetPath.resolve(files[0].getName()).toString());
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, "Error copying the car file to MI", e);
+            }
+        }
     }
 
     private void waitForDeployment(Path filePath) throws ArtifactDeploymentException {
 
         try {
-            DOMDocument document = Utils.getDOMDocument(filePath.toFile());
-            if (document != null) {
-                String resourceName;
-                DeployedArtifactType type;
-                STNode node = SyntaxTreeGenerator.buildTree(document.getDocumentElement());
-                if (node instanceof API) {
-                    resourceName = ((API) node).getName();
-                    type = DeployedArtifactType.APIS;
-                } else if (node instanceof NamedSequence) {
-                    resourceName = ((NamedSequence) node).getName();
-                    type = DeployedArtifactType.SEQUENCES;
-                } else {
-                    return;
-                }
-                ManagementAPIClient managementAPIClient = new ManagementAPIClient(offset);
-                boolean isDeployed = isDeployed(managementAPIClient, resourceName, type);
-                if (isDeployed) {
-                    return;
+//            DOMDocument document = Utils.getDOMDocument(filePath.toFile());
+//            if (document != null) {
+//                String resourceName;
+//                DeployedArtifactType type;
+//                STNode node = SyntaxTreeGenerator.buildTree(document.getDocumentElement());
+//                if (node instanceof API) {
+//                    resourceName = ((API) node).getName();
+//                    type = DeployedArtifactType.APIS;
+//                } else if (node instanceof NamedSequence) {
+//                    resourceName = ((NamedSequence) node).getName();
+//                    type = DeployedArtifactType.SEQUENCES;
+//                } else {
+//                    return;
+//                }
+                int count = 0;
+                while (count < 5) {
+                    boolean isDeployed = isDeployed();
+//                        isDeployed(managementAPIClient, resourceName, DeployedArtifactType.APPLICATIONS);
+                    if (isDeployed) {
+                        return;
+                    }
+                    count++;
+                    Thread.sleep(1000);
                 }
                 throw new ArtifactDeploymentException("Artifact deployment failed");
-            }
+//            }
         } catch (IOException e) {
             throw new ArtifactDeploymentException("Artifact deployment failed", e);
         } catch (InterruptedException e) {
@@ -309,6 +373,12 @@ public class MIServer {
             throw new ArtifactDeploymentException("Artifact deployment interrupted", e);
         }
 
+    }
+
+    private boolean isDeployed() throws IOException, InterruptedException {
+
+        List<String> deployedArtifacts = managementAPIClient.getDeployedCapps();
+        return deployedArtifacts != null && deployedArtifacts.size() > 0;
     }
 
     private boolean isDeployed(ManagementAPIClient managementAPIClient, String resourceName, DeployedArtifactType type)
@@ -334,11 +404,11 @@ public class MIServer {
     private void copyToMI(String tempFolderPath) throws ArtifactDeploymentException {
 
         try {
-            copyArtifactsToMI(tempFolderPath);
             copyConnectorsToMI(tempFolderPath);
+            copyRegistryResourcesToMI(tempFolderPath);
             copyClassMediatorsToMI(tempFolderPath);
             copyDataMapperConfigsToMI(tempFolderPath);
-            copyRegistryResourcesToMI(tempFolderPath);
+            copyArtifactsToMI(tempFolderPath);
         } catch (IOException e) {
             throw new ArtifactDeploymentException("Error copying artifacts to MI", e);
         }
@@ -360,6 +430,28 @@ public class MIServer {
         Path connectorPath = Path.of(tempFolderPath).resolve(TryOutConstants.PROJECT_CONNECTOR_PATH);
         Path targetPath = serverPath.resolve(TryOutConstants.MI_CONNECTOR_PATH);
         Utils.copyFolder(connectorPath, targetPath, deployedFiles);
+//        addConnectorImportsToMI();
+    }
+
+    private void addConnectorImportsToMI() {
+
+        Path connectorImportPath =
+                serverPath.resolve(TryOutConstants.MI_REPOSITORY_PATH).resolve(TryOutConstants.IMPORTS);
+        for (Connector connector : connectorHolder.getConnectors()) {
+            Path targetPath = connectorImportPath.resolve("{" + connector.getPackageName() + "}" +
+                    connector.getName() + ".xml");
+            try {
+                StringBuilder xml = new StringBuilder();
+                xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+                xml.append("<import xmlns=\"http://ws.apache.org/ns/synapse\" name=\"").append(connector.getName())
+                        .append("\" package=\"")
+                        .append(connector.getPackageName()).append("\" status=\"enabled\"/>");
+                Files.write(targetPath, xml.toString().getBytes(StandardCharsets.UTF_8));
+                deployedFiles.add(targetPath.toString());
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, String.format("Error writing connector import file: %s", targetPath), e);
+            }
+        }
     }
 
     private void copyClassMediatorsToMI(String tempFolderPath) {
@@ -406,17 +498,18 @@ public class MIServer {
         }
     }
 
-    public void waitForServerStartup() {
+    public synchronized void waitForServerStartup() {
 
         long startTime = System.currentTimeMillis();
 
         while (System.currentTimeMillis() - startTime < SERVER_START_TIMEOUT) {
             try {
                 if (isServerRunning()) {
+                    managementAPIClient = new ManagementAPIClient(offset);
                     LOGGER.log(Level.INFO, "Server started successfully.");
                     return;
                 }
-                Thread.sleep(1000);
+                wait(2000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 LOGGER.log(Level.WARNING, "Server startup interrupted", e);
@@ -426,7 +519,7 @@ public class MIServer {
         LOGGER.log(Level.WARNING, "Server did not start within the timeout period");
     }
 
-    private boolean isServerRunning() {
+    public boolean isServerRunning() {
 
         try (Socket socket = new Socket(TryOutConstants.LOCALHOST, DEFAULT_INBOUND_PORT + offset)) {
             return socket.isConnected();
@@ -458,8 +551,18 @@ public class MIServer {
         return debuggerEventPort;
     }
 
+    public void setServerPath(Path serverPath) {
+
+        this.serverPath = serverPath;
+    }
+
     public Path getServerPath() {
 
         return serverPath;
+    }
+
+    public boolean isStarting() {
+
+        return isStarting;
     }
 }

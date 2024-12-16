@@ -785,7 +785,9 @@ public class Utils {
             JsonObject settings = jsonElement.getAsJsonObject().getAsJsonObject(Constant.SETTINGS);
             Path schemaPath = copyXSDFiles(projectUri);
             JsonElement updatedParams = updateSynapseCatalogSettings(settings, schemaPath);
-            params.setInitializationOptions(updatedParams);
+            JsonObject updatedSettings = new JsonObject();
+            updatedSettings.add(Constant.SETTINGS, updatedParams);
+            params.setInitializationOptions(updatedSettings);
             return schemaPath;
 
         }
@@ -836,6 +838,10 @@ public class Utils {
      * @throws IOException if an error occurs while copying the content
      */
     public static void copyFolder(Path source, Path target, List<String> copiedFiles) throws IOException {
+
+        if (Files.notExists(source)) {
+            return;
+        }
         // Create target directory if it doesn't exist
         if (Files.notExists(target)) {
             Files.createDirectories(target);
@@ -905,6 +911,10 @@ public class Utils {
      */
     public static void writeToFile(String path, String content) throws IOException {
 
+        Path path1 = Paths.get(path);
+        if (Files.notExists(path1.getParent())) {
+            Files.createDirectories(path1.getParent());
+        }
         try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(path))) {
             bos.write(content.getBytes(StandardCharsets.UTF_8));
         }
@@ -944,5 +954,15 @@ public class Utils {
         }
         matcher.appendTail(result);
         return result.toString();
+    }
+
+    public static void copyFile(String sourcePath, String targetPath) throws IOException {
+
+        Path source = Paths.get(sourcePath);
+        Path target = Paths.get(targetPath).resolve(source.getFileName());
+        if (Files.notExists(target)) {
+            Files.createDirectories(target.getParent());
+        }
+        Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
     }
 }

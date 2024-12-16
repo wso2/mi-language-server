@@ -20,7 +20,7 @@ package org.eclipse.lemminx.customservice.synapse.mediator.tryout.debugger;
 
 import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.debuginfo.IDebugInfo;
-import org.eclipse.lemminx.customservice.synapse.mediator.tryout.TryOutHandler;
+import org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants;
 import org.eclipse.lemminx.customservice.synapse.mediator.TryOutUtils;
 
 import java.util.ArrayList;
@@ -31,21 +31,23 @@ import java.util.logging.Logger;
 public class BreakpointEventProcessor {
 
     private static final Logger LOGGER = Logger.getLogger(BreakpointEventProcessor.class.getName());
+    private static final List<String>
+            PROPERTY_CONTEXTS = List.of("synapse", "axis2", "axis2-client", "transport", "operation", "variable");
     private final DebugCommandClient commandClient;
-    private final TryOutHandler tryOutHandler;
+    private final Object lock;
     private boolean isListeningForStepOver = false;
+    private boolean isInputFetched = false;
     private boolean isDone = false;
     private boolean isFault = false;
     private List<String> inputResponse;
     private List<String> outputResponse;
-    private IDebugInfo tryoutMediatorBreakpoint;
     private IDebugInfo faultSequenceBreakpoint;
 
-    public BreakpointEventProcessor(DebugCommandClient commandClient, TryOutHandler tryOutHandler) {
+    public BreakpointEventProcessor(DebugCommandClient commandClient, Object lock) {
 
         this.commandClient = commandClient;
 
-        this.tryOutHandler = tryOutHandler;
+        this.lock = lock;
     }
 
     public void process(JsonObject eventData) {
@@ -60,25 +62,26 @@ public class BreakpointEventProcessor {
         }
         if (!isListeningForStepOver) {
             inputResponse = Collections.unmodifiableList(properties);
-            commandClient.sendResumeCommand();
             isListeningForStepOver = true;
+            isInputFetched = true;
+            synchronized (lock) {
+                lock.notifyAll();
+            }
         } else {
             outputResponse = Collections.unmodifiableList(properties);
-            synchronized (tryOutHandler) {
-                tryOutHandler.notifyAll();
-            }
-            commandClient.sendResumeCommand();
-            tryOutHandler.clearBreakpoints();
             isDone = true;
             isListeningForStepOver = false;
+            synchronized (lock) {
+                lock.notifyAll();
+            }
+            commandClient.sendResumeCommand();
         }
     }
 
     private List<String> getProperties() {
 
-        List<String> contexts = List.of("synapse", "axis2", "axis2-client", "transport", "operation");
         List<String> properties = new ArrayList<>();
-        for (String context : contexts) {
+        for (String context : PROPERTY_CONTEXTS) {
             String property = getProperty(context);
             properties.add(property);
         }
@@ -88,9 +91,10 @@ public class BreakpointEventProcessor {
     private String getProperty(String context) {
 
         JsonObject property = new JsonObject();
-        property.addProperty("command", "get");
-        property.addProperty("command-argument", "properties");
-        property.addProperty("context", context);
+        property.addProperty(TryOutConstants.COMMAND, TryOutConstants.GET);
+        property.addProperty(TryOutConstants.COMMAND_ARGUMENT,
+                TryOutConstants.VARIABLE.equals(context) ? TryOutConstants.VARIABLES : TryOutConstants.PROPERTIES);
+        property.addProperty(TryOutConstants.CONTEXT, context);
 
         return commandClient.sendCommand(property.toString());
     }
@@ -102,17 +106,18 @@ public class BreakpointEventProcessor {
 
     public List<String> getInputResponse() {
 
+        if (inputResponse == null) {
+            return Collections.emptyList();
+        }
         return Collections.unmodifiableList(inputResponse);
     }
 
     public List<String> getOutputResponse() {
 
+        if (outputResponse == null) {
+            return Collections.emptyList();
+        }
         return Collections.unmodifiableList(outputResponse);
-    }
-
-    public void setTryoutMediatorBreakpoint(IDebugInfo tryoutMediatorBreakpoint) {
-
-        this.tryoutMediatorBreakpoint = tryoutMediatorBreakpoint;
     }
 
     public void setFaultSequenceBreakpoint(IDebugInfo faultSequenceBreakpoint) {
@@ -125,9 +130,15 @@ public class BreakpointEventProcessor {
         return isFault;
     }
 
+    public boolean isInputFetched() {
+
+        return isInputFetched;
+    }
+
     public void reset() {
 
         isDone = false;
+        isInputFetched = false;
         isListeningForStepOver = false;
         inputResponse = null;
         outputResponse = null;

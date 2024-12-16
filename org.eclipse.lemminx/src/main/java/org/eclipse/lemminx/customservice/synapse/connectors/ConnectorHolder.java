@@ -21,12 +21,14 @@ package org.eclipse.lemminx.customservice.synapse.connectors;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorAction;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ConnectorHolder {
 
     private List<Connector> connectors;
+    private List<File> connectorZips;
 
     public ConnectorHolder() {
 
@@ -99,6 +101,16 @@ public class ConnectorHolder {
                 }
             }
         }
+    }
+
+    public List<File> getConnectorZips() {
+
+        return connectorZips;
+    }
+
+    public void setConnectorZips(List<File> connectorZips) {
+
+        this.connectorZips = connectorZips;
     }
 
     public void clearConnectors() {

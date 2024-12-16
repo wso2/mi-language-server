@@ -55,6 +55,8 @@ public class ConnectorReader {
                     String name = componentElement.getAttribute(Constant.NAME);
                     connector = new Connector();
                     connector.setName(name);
+                    String packageName = componentElement.getAttribute(Constant.PACKAGE);
+                    connector.setPackageName(packageName);
                     if (displayNameElement != null && displayNameElement.isElement()) {
                         String displayName = Utils.getInlineString(displayNameElement.getFirstChild());
                         connector.setDisplayName(displayName);

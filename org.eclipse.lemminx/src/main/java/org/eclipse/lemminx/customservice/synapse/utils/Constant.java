@@ -527,4 +527,8 @@ public class Constant {
     public static final String EXTRACTED = "Extracted";
     public static final String PARALLEL_EXECUTION = "parallelExecution";
     public static final String RESULT_TARGET = "resultTarget";
+    public static final String INIT = "init";
+    public static final String TEST_CONNECTION_OPERATION = "testconnection";
+    public static final String IS_VALID_CONNECTION = "isValidConnection";
+    public static final String PACKAGE = "package";
 }

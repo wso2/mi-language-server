@@ -28,6 +28,7 @@ public class Connector {
     private String name;
     private String displayName;
     private String path;
+    private String packageName;
     private String version;
     private List<ConnectorAction> actions;
     private Map<String, String> connectionUiSchema;
@@ -58,6 +59,16 @@ public class Connector {
     public void setDisplayName(String displayName) {
 
         this.displayName = displayName;
+    }
+
+    public String getPackageName() {
+
+        return packageName;
+    }
+
+    public void setPackageName(String packageName) {
+
+        this.packageName = packageName;
     }
 
     public String getPath() {

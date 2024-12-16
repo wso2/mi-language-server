@@ -351,5 +351,9 @@
 			<artifactId>compiler</artifactId>
 			<version>0.9.14</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.shared</groupId>
+			<artifactId>maven-invoker</artifactId>
+		</dependency>
 	</dependencies>
 </project>

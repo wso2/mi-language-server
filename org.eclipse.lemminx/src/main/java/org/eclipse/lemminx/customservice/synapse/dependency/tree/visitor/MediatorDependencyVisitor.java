@@ -90,11 +90,16 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transf
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.xslt.XsltResource;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
 
+    private static final Logger LOGGER = Logger.getLogger(MediatorDependencyVisitor.class.getName());
     private final String projectPath;
     private final List<Dependency> dependencies;
     private final DependencyLookUp dependencyLookUp;
@@ -104,6 +109,22 @@ public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
         this.projectPath = projectPath;
         this.dependencyLookUp = dependencyLookUp;
         this.dependencies = new ArrayList<>();
+    }
+
+    public void visit(Mediator mediator) {
+
+        if (mediator == null) {
+            return;
+        }
+        String tag = mediator.getTag();
+        String visitFn = "visit" + tag.substring(0, 1).toUpperCase() + tag.substring(1);
+        try {
+            Method method = AbstractMediatorVisitor.class.getDeclaredMethod(visitFn, mediator.getClass());
+            method.setAccessible(true);
+            method.invoke(this, mediator);
+        } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
+            LOGGER.log(Level.SEVERE, String.format("Error while visiting mediator: %s", tag), e);
+        }
     }
 
     private void addSimpleDependency(String name, String from, ArtifactType type) {
