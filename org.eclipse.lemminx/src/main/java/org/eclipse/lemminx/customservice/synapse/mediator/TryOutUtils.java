@@ -247,8 +247,7 @@ public class TryOutUtils {
 
         Path filePath = Path.of(file);
         Path relativePath = Path.of(projectUri).relativize(filePath);
-        Path apiRelativePath = Path.of("src", "main", "wso2mi", "artifacts", "apis");
-        return relativePath.startsWith(apiRelativePath);
+        return relativePath.startsWith(TryOutConstants.API_RELATIVE_PATH);
     }
 
     /**
@@ -345,8 +344,8 @@ public class TryOutUtils {
                 sequence.addToMediatorList(mediator);
                 sequence.addToMediatorList(new Respond());
                 String apiContent = APISerializer.serializeAPI(api);
-                Path apiPath = Path.of(tempPath, "src", "main", "wso2mi", "artifacts", "apis",
-                        apiName + ".xml");
+                Path apiPath = Path.of(tempPath).resolve(TryOutConstants.API_RELATIVE_PATH)
+                        .resolve(apiName + ".xml");
                 if (!apiPath.toFile().exists()) {
                     apiPath.toFile().getParentFile().mkdirs();
                 }
