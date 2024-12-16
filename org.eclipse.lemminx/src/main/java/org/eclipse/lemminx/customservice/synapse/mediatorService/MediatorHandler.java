@@ -95,14 +95,12 @@ public class MediatorHandler {
             List<String> lastMediators = Arrays.asList("send", "drop", "loopback", "respond");
             List<String> iterateMediators = Arrays.asList("iterate", "foreach");
             int offset = document.offsetAt(position);
-            DOMNode currentNode = document.findNodeAt(offset);
+            DOMNode currentNode = document.findNodeBefore(offset);
             DOMNode nextMediator = currentNode.getNextSibling();
             if (lastMediators.contains(currentNode.getNodeName())) {
                 return new JsonObject();
             } else {
-                if ((!(nextMediator instanceof DOMElement &&
-                        Constant.FAULT_SEQUENCE.equalsIgnoreCase(((DOMElement) nextMediator).getTagName()))
-                        || isIterateMediator(currentNode, iterateMediators))) {
+                if (isAddedAbove(currentNode, nextMediator) || isIterateMediator(currentNode, iterateMediators)) {
                     return removeMediators(mediatorList, lastMediators);
                 }
                 return mediatorList;
@@ -338,8 +336,28 @@ public class MediatorHandler {
                     return true;
                 } else {
                     DOMNode grandParentNode = parentNode != null ? parentNode.getParentNode() : null;
-                    return grandParentNode != null && iterateMediators.contains(grandParentNode.getNodeName());
+                    if (grandParentNode != null && iterateMediators.contains(grandParentNode.getNodeName())) {
+                        return true;
+                    } else {
+                        DOMNode greatGrandParentNode = grandParentNode != null ? grandParentNode.getParentNode() : null;
+                        return greatGrandParentNode != null && iterateMediators.contains(greatGrandParentNode.getNodeName());
+                    }
+
                 }
+            }
+        }
+        return false;
+    }
+
+    private boolean isAddedAbove(DOMNode currentNode, DOMNode nextNode) {
+        if (currentNode instanceof DOMElement) {
+            String tagName = ((DOMElement) currentNode).getTagName();
+            if (Constant.FAULT_SEQUENCE.equalsIgnoreCase(tagName) ||
+                    Constant.IN_SEQUENCE.equalsIgnoreCase(tagName) ||
+                    Constant.OUT_SEQUENCE.equalsIgnoreCase(tagName)) {
+                return currentNode.hasChildNodes();
+            }else{
+                return nextNode != null;
             }
         }
         return false;
