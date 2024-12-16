@@ -157,15 +157,16 @@
             "value": {
               "name": "payloadKey",
               "displayName": "Resource Key",
-              "inputType": "key",
-              "keyType": "registry",
+              "inputType": "resource",
+              "keyType": ["xml", "json", "txt", "ftl"],
               "required": true,
               "helpTip": "",
               "enableCondition": [
                 {
                   "useTemplateResource": true
                 }
-              ]
+              ],
+              "canAddNew": true
             }
           }
         ]
