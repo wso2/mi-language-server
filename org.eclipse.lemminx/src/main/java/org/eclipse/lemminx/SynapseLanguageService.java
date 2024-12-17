@@ -35,6 +35,7 @@ import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connections;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectionFinder;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorResponse;
 import org.eclipse.lemminx.customservice.synapse.connectors.generate.ConnectorGenerateRequest;
 import org.eclipse.lemminx.customservice.synapse.connectors.generate.ConnectorGeneratorResponse;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.TestConnectionRequest;
@@ -272,7 +273,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     }
 
     @Override
-    public CompletableFuture<Either3<ConnectorHolder, Connector, Boolean>> availableConnectors(ConnectorParam param) {
+    public CompletableFuture<Either3<ConnectorResponse, Connector, Boolean>> availableConnectors(ConnectorParam param) {
 
         return CompletableFuture.supplyAsync(() -> {
             if (param.connectorName != null && !param.connectorName.isEmpty()) {
@@ -282,7 +283,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
                 }
                 return Either3.forSecond(connector);
             }
-            return Either3.forFirst(connectorHolder);
+            return Either3.forFirst(new ConnectorResponse(connectorHolder.getConnectors()));
         });
     }
 

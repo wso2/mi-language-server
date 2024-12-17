@@ -23,6 +23,7 @@ import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorActi
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ConnectorHolder {
@@ -62,7 +63,7 @@ public class ConnectorHolder {
 
     public List<Connector> getConnectors() {
 
-        return connectors;
+        return Collections.unmodifiableList(connectors);
     }
 
     public Connector getConnector(String name) {
