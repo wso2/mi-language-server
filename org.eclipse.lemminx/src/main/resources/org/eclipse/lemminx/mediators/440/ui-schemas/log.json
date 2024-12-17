@@ -62,7 +62,7 @@
         "inputType": "codeTextArea",
         "defaultValue": "",
         "required": "false",
-        "helpTip": "You can define a string template like 'Message with ID: #[payload.id]' to generate the log message."
+        "helpTip": "You can define a string template like 'Message with ID: ${payload.id}' to generate the log message."
       }
     },
     {
