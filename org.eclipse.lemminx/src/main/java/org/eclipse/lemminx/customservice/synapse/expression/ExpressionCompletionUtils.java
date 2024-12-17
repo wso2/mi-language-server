@@ -22,6 +22,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionParam;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.FunctionCompletionItem;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.Functions;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property;
@@ -378,6 +379,17 @@ public class ExpressionCompletionUtils {
             return configs;
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * Checks whether the expression completion/ helper panel data request is valid.
+     *
+     * @param param
+     * @return
+     */
+    public static boolean isValidRequest(ExpressionParam param) {
+
+        return param != null && param.getPosition() != null;
     }
 
     private ExpressionCompletionUtils() {

@@ -61,12 +61,23 @@ public class ExpressionHelperProvider {
 
     public HelperPanelData getExpressionHelperData(ExpressionParam param) {
 
+        if (!ExpressionCompletionUtils.isValidRequest(param)) {
+            return getBasicHelperData();
+        }
         MediatorTryoutRequest request = new MediatorTryoutRequest(param.getDocumentUri(), param.getPosition().getLine(),
                 param.getPosition().getLine(), null, null);
         MediatorTryoutInfo tryoutInfo = getMediatorTryoutInfo(request);
         MediatorInfo propsData = tryoutInfo.getOutput();
-        Map<String, Functions> functions = ExpressionCompletionUtils.getFunctions();
-        return createHelperData(propsData, functions);
+        return createHelperData(propsData, ExpressionCompletionUtils.getFunctions());
+    }
+
+    private HelperPanelData getBasicHelperData() {
+
+        HelperPanelData helperData = new HelperPanelData();
+        List<Property> configurables = ExpressionCompletionUtils.getConfigs(projectPath);
+        helperData.setConfigs(createDataList(configurables, ExpressionConstants.CONFIG));
+        setFunctions(helperData, ExpressionCompletionUtils.getFunctions());
+        return helperData;
     }
 
     private MediatorTryoutInfo getMediatorTryoutInfo(MediatorTryoutRequest request) {
