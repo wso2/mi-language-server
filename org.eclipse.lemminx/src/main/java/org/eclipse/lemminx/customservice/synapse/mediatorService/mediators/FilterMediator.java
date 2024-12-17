@@ -84,6 +84,47 @@ public class FilterMediator {
         return data;
     }
 
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData440(Map<String, Object> data,
+                                                                                              Filter filter,
+                                                                                              List<String> dirtyFields) {
+
+        Boolean useRegex = (Boolean) data.get("useRegex");
+        if (useRegex) {
+            if (data.get("source") instanceof Map<?, ?>) {
+                data.put("source", ((Map<?, ?>) data.get("source")).get("value"));
+            }
+            data.remove("xpath");
+        } else {
+            if (data.get("xPath") instanceof Map<?, ?>) {
+                data.put("xPath", ((Map<?, ?>) data.get("xPath")).get("value"));
+            }
+            data.remove("regularExpression");
+            data.remove("source");
+        }
+        if (filter != null) {
+            Map<Range, Map<String, Object>> filterData = new HashMap<>();
+            filterData.put(filter.getRange().getStartTagRange(), data);
+            return Either.forRight(filterData);
+        }
+        data.put("isNewMediator", true);
+        return Either.forLeft(data);
+    }
+
+    public static Map<String, Object> getDataFromST440(Filter node) {
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("description", node.getDescription());
+        if (node.getXpath() != null) {
+            data.put("useRegex", false);
+            data.put("xPath", Map.of("isExpression", true, "value", node.getXpath()));
+        } else {
+            data.put("useRegex", true);
+            data.put("source", Map.of("isExpression", true, "value", node.getSource()));
+            data.put("regularExpression", node.getRegex());
+        }
+        return data;
+    }
+
     private static String getFilterDescription(Filter node) {
         if (node.getRegex() != null && node.getSource() != null) {
             return node.getSource() + " matches " + node.getRegex();

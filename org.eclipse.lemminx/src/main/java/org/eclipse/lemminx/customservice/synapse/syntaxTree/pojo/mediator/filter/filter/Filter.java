@@ -30,7 +30,7 @@ public class Filter extends Mediator {
     String description;
 
     public Filter() {
-        setDisplayName("Filter");
+        setDisplayName("If Else");
     }
 
     public FilterThen getThen() {
