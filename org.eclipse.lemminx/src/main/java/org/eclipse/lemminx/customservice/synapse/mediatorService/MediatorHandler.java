@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorAction;
@@ -50,6 +51,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -119,6 +121,7 @@ public class MediatorHandler {
             boolean isUpdate = !range.getEnd().equals(range.getStart());
             STNode node =
                     getMediatorNodeAtPosition(Utils.getDOMDocument(new File(documentUri)), range.getStart(), isUpdate);
+            preprocessData(data);
             if (isConnector(node, mediator)) {
                 return generateConnectorSynapseConfig(node, mediator, data, range);
             } else {
@@ -129,6 +132,72 @@ public class MediatorHandler {
             logger.log(Level.SEVERE, "Error occurred while generating Synapse configuration.", e);
         }
         return null;
+    }
+
+    private void preprocessData(Map<String, Object> data) {
+
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            if (entry.getValue() instanceof Map<?, ?>) {
+                Map<String, Object> value = (Map<String, Object>) entry.getValue();
+                if (value.containsKey(Constant.IS_EXPRESSION) &&
+                        Boolean.TRUE.equals(value.get(Constant.IS_EXPRESSION))) {
+                    data.put(entry.getKey(), preProcessExpression(value));
+                } else {
+                    data.put(entry.getKey(), value);
+                }
+            } else if (entry.getValue() instanceof List<?>) {
+                List<?> updateList = getUpdatedDataList((List<?>) entry.getValue());
+                data.put(entry.getKey(), updateList);
+            }
+        }
+    }
+
+    private List<?> getUpdatedDataList(List<?> value) {
+
+        List<Object> updatedList = new ArrayList<>();
+        for (Object element : value) {
+            if (element instanceof List<?>) {
+                List<Object> innerUpdatedList = new ArrayList<>();
+                for (Object innerElement : (List<?>) element) {
+                    if (innerElement instanceof Map<?, ?>) {
+                        Map<String, Object> innerValue = (Map<String, Object>) innerElement;
+                        if (innerValue.containsKey(Constant.IS_EXPRESSION) &&
+                                Boolean.TRUE.equals(innerValue.get(Constant.IS_EXPRESSION))) {
+                            innerUpdatedList.add(preProcessExpression(innerValue));
+                        } else {
+                            innerUpdatedList.add(innerValue);
+                        }
+                    } else if (innerElement instanceof List<?>) {
+                        innerUpdatedList.add(getUpdatedDataList((List<?>) innerElement));
+                    } else {
+                        innerUpdatedList.add(innerElement);
+                    }
+                }
+                updatedList.add(innerUpdatedList);
+            } else if (element instanceof Map<?, ?>) {
+                Map<String, Object> innerValue = (Map<String, Object>) element;
+                if (innerValue.containsKey(Constant.IS_EXPRESSION) &&
+                        Boolean.TRUE.equals(innerValue.get(Constant.IS_EXPRESSION))) {
+                    updatedList.add(preProcessExpression(innerValue));
+                } else {
+                    updatedList.add(innerValue);
+                }
+            } else {
+                updatedList.add(element);
+            }
+        }
+        return updatedList;
+    }
+
+    private Map<?, ?> preProcessExpression(Map<String, Object> value) {
+
+        String expression =
+                value.get(Constant.VALUE) != null ? value.get(Constant.VALUE).toString() : StringUtils.EMPTY;
+        String processedExpression = "${" + expression + "}";
+        List<?> namespaces = value.get(Constant.NAMESPACES) != null ? (List<?>) value.get(Constant.NAMESPACES) :
+                Collections.EMPTY_LIST;
+        return Map.of(Constant.IS_EXPRESSION, true, Constant.VALUE, processedExpression, Constant.NAMESPACES,
+                namespaces);
     }
 
     private boolean isConnector(STNode node, String mediator) {
@@ -273,13 +342,41 @@ public class MediatorHandler {
                     Method processorMethod =
                             mediatorProcessor.getMethod(processingMethod, Class.forName(mediatorClass));
                     Object data = processorMethod.invoke(processorInstance, node);
-
-                    return UISchemaMapper.mapInputToUISchema(new Gson().toJsonTree(data).getAsJsonObject(),
-                            uiSchema);
+                    JsonObject jsonData = new Gson().toJsonTree(data).getAsJsonObject();
+                    if (jsonData != null) {
+                        postProcessData(jsonData);
+                    }
+                    return UISchemaMapper.mapInputToUISchema(jsonData, uiSchema);
                 }
             }
         }
         return uiSchema;
+    }
+
+    private void postProcessData(JsonObject jsonData) {
+
+        for (Map.Entry<String, JsonElement> entry : jsonData.entrySet()) {
+            postProcessExpressions(entry.getValue());
+        }
+    }
+
+    private void postProcessExpressions(JsonElement value) {
+
+        if (value instanceof JsonObject) {
+            JsonObject valueObj = value.getAsJsonObject();
+            if (valueObj.has(Constant.IS_EXPRESSION) && valueObj.get(Constant.IS_EXPRESSION).getAsBoolean()) {
+                String expression = valueObj.get(Constant.VALUE).getAsString();
+                if (expression != null && expression.startsWith("${") && expression.endsWith("}")) {
+                    expression = expression.substring(2, expression.length() - 1);
+                }
+                valueObj.addProperty(Constant.VALUE, expression);
+            }
+        } else if (value instanceof JsonArray) {
+            JsonArray list = value.getAsJsonArray();
+            for (JsonElement element : list) {
+                postProcessExpressions(element);
+            }
+        }
     }
 
     private String sanitizeMediator(String tag) {

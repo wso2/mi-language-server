@@ -29,6 +29,8 @@ import org.eclipse.lemminx.dom.DOMNode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ConnectorFactory extends AbstractMediatorFactory {
 
@@ -90,7 +92,7 @@ public class ConnectorFactory extends AbstractMediatorFactory {
         if (inline == null) {
             return false;
         }
-        return inline.startsWith("{") && inline.endsWith("}");
+        return (inline.startsWith("${") || inline.startsWith("{")) && inline.endsWith("}");
     }
 
     public static void addConnector(String connector) {

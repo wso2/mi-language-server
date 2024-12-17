@@ -31,6 +31,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.inbound.Inbound
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Parameter;
 
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class UISchemaMapper {
@@ -96,9 +97,12 @@ public class UISchemaMapper {
         JsonArray namespacesJson = new Gson().toJsonTree(namespaces).getAsJsonArray();
         JsonObject expression = new JsonObject();
         String expressionValue = parameter.getValue();
-        Pattern pattern = Pattern.compile("\\{.*}");
-        if (expressionValue != null && pattern.matcher(expressionValue).matches()) {
-            expressionValue = expressionValue.substring(1, expressionValue.length() - 1);
+        Pattern pattern = Pattern.compile("\\$?\\{(.*)}");
+        if (expressionValue != null) {
+            Matcher matcher = pattern.matcher(expressionValue);
+            if (matcher.find()) {
+                expressionValue = matcher.group(1);
+            }
         }
         expression.addProperty(Constant.VALUE, expressionValue);
         expression.add(Constant.NAMESPACES, namespacesJson);
