@@ -72,14 +72,20 @@ public class ExpressionCompletionsProvider {
 
     public static ICompletionResponse getCompletions(ExpressionParam param) {
 
-        try {
-            DOMDocument document = Utils.getDOMDocument(new File(param.getDocumentUri()));
-            String expression = EXPRESSION_PREFIX + param.getExpression();
-            return getCompletions(document, param.getPosition(), expression, param.getOffset() + 2);
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Error while getting the DOM document", e);
+        if (ExpressionCompletionUtils.isValidRequest(param)) {
+            try {
+                DOMDocument document = null;
+                if (param.getDocumentUri() != null) {
+                    document = Utils.getDOMDocument(new File(param.getDocumentUri()));
+                }
+                String expressionInput = param.getExpression() != null ? param.getExpression() : StringUtils.EMPTY;
+                String expression = EXPRESSION_PREFIX + expressionInput;
+                return getCompletions(document, param.getPosition(), expression, param.getOffset() + 2);
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, "Error while getting the DOM document", e);
+            }
         }
-        return null;
+        return new ExpressionCompletionResponse();
     }
 
     private static ICompletionResponse getCompletions(DOMDocument document, Position position, String valuePrefix,
@@ -102,6 +108,9 @@ public class ExpressionCompletionsProvider {
 
     private static Position getMediatorPosition(DOMDocument document, Position position) throws BadLocationException {
 
+        if (document == null) {
+            return null;
+        }
         int offset = document.offsetAt(position);
         DOMNode node = document.findNodeAt(offset);
         Mediator mediator = MediatorFactoryFinder.getInstance().getMediator(node);
@@ -145,6 +154,9 @@ public class ExpressionCompletionsProvider {
 
     private static MediatorTryoutInfo getMediatorProperties(ICompletionRequest request) {
 
+        if (request.getXMLDocument() == null) {
+            return null;
+        }
         Pattern pattern = Pattern.compile(PROJECT_PATH_REGEX);
         Matcher matcher = pattern.matcher(request.getXMLDocument().getDocumentURI());
         if (!matcher.matches()) {
