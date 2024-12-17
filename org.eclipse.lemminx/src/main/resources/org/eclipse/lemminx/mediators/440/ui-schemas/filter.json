@@ -1,68 +1,73 @@
 {
   "name": "Filter",
   "type": "mediator",
-  "title": "Filter Mediator",
-  "help": "Filters messages based on XPath/JSONPath/regex.",
+  "title": "If Else Mediator",
+  "help": "Filters messages based on a condition.",
   "elements": [
     {
       "type": "attribute",
       "value": {
-        "name": "conditionType",
-        "displayName": "Condition Type",
-        "inputType": "combo",
-        "defaultValue": "Source and Regular Expression",
-        "comboValues": [
-          "Source and Regular Expression",
-          "XPath"
-        ],
-        "required": false,
-        "helpTip": ""
-      }
-    },
-    {
-      "type": "attribute",
-      "value": {
-        "name": "source",
-        "displayName": "Source",
+        "name": "xPath",
+        "displayName": "Condition",
         "inputType": "expression",
         "defaultValue": "",
         "required": true,
         "helpTip": "",
         "enableCondition": [
           {
-            "conditionType": "Source and Regular Expression"
+            "useRegex": false
           }
         ]
       }
     },
     {
-      "type": "attribute",
+      "type": "attributeGroup",
       "value": {
-        "name": "regularExpression",
-        "displayName": "Regular Expression",
-        "inputType": "string",
-        "defaultValue": "",
-        "required": false,
-        "helpTip": "",
-        "enableCondition": [
+        "groupName": "Advanced configurations",
+        "isCollapsed": true,
+        "elements": [
           {
-            "conditionType": "Source and Regular Expression"
-          }
-        ]
-      }
-    },
-    {
-      "type": "attribute",
-      "value": {
-        "name": "xPath",
-        "displayName": "XPath",
-        "inputType": "expression",
-        "defaultValue": "",
-        "required": false,
-        "helpTip": "",
-        "enableCondition": [
+            "type": "attribute",
+            "value": {
+              "name": "useRegex",
+              "displayName": "Use a regex pattern",
+              "inputType": "checkbox",
+              "defaultValue": false,
+              "required": false,
+              "helpTip": ""
+            }
+          },
           {
-            "conditionType": "XPath"
+            "type": "attribute",
+            "value": {
+              "name": "source",
+              "displayName": "Expression",
+              "inputType": "expression",
+              "defaultValue": "",
+              "required": false,
+              "helpTip": "",
+              "enableCondition": [
+                {
+                  "useRegex": true
+                }
+              ]
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "regularExpression",
+              "displayName": "Matches",
+              "inputType": "string",
+              "defaultValue": "",
+              "required": false,
+              "helpTip": "",
+              "enableCondition": [
+                {
+                  "useRegex": true
+                }
+              ]
+            }
           }
         ]
       }

@@ -75,16 +75,16 @@
   ],
   "flow control": [
     {
-      "title": "Filter",
+      "title": "If Else",
       "operationName": "MEDIATORS.FILTER",
-      "tooltip": "Filters messages based on XPath/JSONPath/regex",
+      "tooltip": "Filters messages based on a condition.",
       "form": "<FilterForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></FilterForm>",
       "tag": "filter",
       "mediatorClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.filter.Filter",
       "factoryClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.filter.FilterFactory",
       "processingClass": "org.eclipse.lemminx.customservice.synapse.mediatorService.mediators.FilterMediator",
-      "storeMethod": "processData430",
-      "retrieveMethod": "getDataFromST430"
+      "storeMethod": "processData440",
+      "retrieveMethod": "getDataFromST440"
     },
     {
       "title": "Switch",
