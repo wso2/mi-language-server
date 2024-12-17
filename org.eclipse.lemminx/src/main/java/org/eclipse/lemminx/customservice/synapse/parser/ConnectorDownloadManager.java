@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -60,6 +61,7 @@ public class ConnectorDownloadManager {
         OverviewPageDetailsResponse pomDetailsResponse = new OverviewPageDetailsResponse();
         getPomDetails(projectPath, pomDetailsResponse);
         List<DependencyDetails> dependencies = pomDetailsResponse.getDependenciesDetails().getConnectorDependencies();
+        List<String> failedDependencies = new ArrayList<>();
         for (DependencyDetails dependency : dependencies) {
             try {
                 File connector = Path.of(downloadDirectory.getAbsolutePath(),
@@ -77,9 +79,14 @@ public class ConnectorDownloadManager {
                             dependency.getVersion(), downloadDirectory);
                 }
             } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, "Error occurred while downloading dependencies: " + e.getMessage());
-                return "Error occurred while downloading connectors.";
+                String failedDependency = dependency.getGroupId() + "-" + dependency.getArtifact() + "-" + dependency.getVersion();
+                LOGGER.log(Level.WARNING, "Error occurred while downloading dependency " + failedDependency + ": " + e.getMessage());
+                failedDependencies.add(failedDependency);
             }
+        }
+        if (!failedDependencies.isEmpty()) {
+            LOGGER.log(Level.SEVERE, "Some connectors were not downloaded: " + String.join(", ", failedDependencies));
+            return "Some connectors were not downloaded: " + String.join(", ", failedDependencies);
         }
         return "Success";
     }
