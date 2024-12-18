@@ -12,7 +12,7 @@
         "inputType": "expression",
         "defaultValue": "",
         "required": true,
-        "helpTip": "",
+        "helpTip": "Condition that resolves to a boolean value. The message will be branched based on the result of this condition.",
         "enableCondition": [
           {
             "useRegex": false
@@ -45,7 +45,7 @@
               "inputType": "expression",
               "defaultValue": "",
               "required": false,
-              "helpTip": "",
+              "helpTip": "Expression that resolves to a string value which will be compared with the regex pattern.",
               "enableCondition": [
                 {
                   "useRegex": true
@@ -61,7 +61,7 @@
               "inputType": "string",
               "defaultValue": "",
               "required": false,
-              "helpTip": "",
+              "helpTip": "The regex pattern to compare with the evaluated expression.",
               "enableCondition": [
                 {
                   "useRegex": true
