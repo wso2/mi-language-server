@@ -125,6 +125,7 @@
                           "name": "propertyExpression",
                           "displayName": "Property Expression",
                           "inputType": "expression",
+                          "expressionType":"xpath/jsonPath",
                           "required": false,
                           "helpTip": "",
                           "enableCondition": [

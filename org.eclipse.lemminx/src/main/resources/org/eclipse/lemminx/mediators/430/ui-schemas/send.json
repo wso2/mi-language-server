@@ -93,6 +93,7 @@
                                         "name": "dynamicReceivingSequence",
                                         "displayName": "Dynamic Receiving Sequence",
                                         "inputType": "expression",
+                                        "expressionType":"xpath/jsonPath",
                                         "defaultValue": "",
                                         "required": false,
                                         "helpTip": "",

@@ -134,6 +134,7 @@
                     "name": "attributeExpression",
                     "displayName": "Attribute Expression",
                     "inputType": "expression",
+                    "expressionType":"xpath/jsonPath",
                     "required": false,
                     "helpTip": "",
                     "enableCondition": [
@@ -239,6 +240,7 @@
                     "name": "attributeExpression",
                     "displayName": "Attribute Expression",
                     "inputType": "expression",
+                    "expressionType":"xpath/jsonPath",
                     "required": false,
                     "helpTip": "",
                     "enableCondition": [
@@ -344,6 +346,7 @@
                     "name": "attributeExpression",
                     "displayName": "Attribute Expression",
                     "inputType": "expression",
+                    "expressionType":"xpath/jsonPath",
                     "required": false,
                     "helpTip": "",
                     "enableCondition": [
@@ -449,6 +452,7 @@
                     "name": "attributeExpression",
                     "displayName": "Attribute Expression",
                     "inputType": "expression",
+                    "expressionType":"xpath/jsonPath",
                     "required": false,
                     "helpTip": "",
                     "enableCondition": [

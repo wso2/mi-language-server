@@ -156,6 +156,7 @@
         "name": "forEachExpression",
         "displayName": "ForEach Expression",
         "inputType": "expression",
+        "expressionType":"xpath/jsonPath",
         "required": true,
         "helpTip": "",
         "enableCondition": [

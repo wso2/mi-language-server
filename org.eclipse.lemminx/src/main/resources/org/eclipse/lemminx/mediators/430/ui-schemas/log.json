@@ -76,6 +76,7 @@
               "name": "propertyValue",
               "displayName": "Property Value",
               "inputType": "stringOrExpression",
+              "expressionType":"xpath/jsonPath",
               "required": false,
               "helpTip": ""
             }

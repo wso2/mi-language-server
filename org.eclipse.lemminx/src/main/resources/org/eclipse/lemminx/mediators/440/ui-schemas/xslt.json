@@ -10,6 +10,7 @@
         "name": "sourceXPath",
         "displayName": "Source XPath",
         "inputType": "expression",
+        "expressionType":"xpath/jsonPath",
         "defaultValue": "",
         "required": false,
         "helpTip": ""
@@ -60,6 +61,7 @@
                     "name": "propertyValue",
                     "displayName": "Property Value",
                     "inputType": "stringOrExpression",
+                    "expressionType":"xpath/jsonPath",
                     "required": false,
                     "helpTip": ""
                   }

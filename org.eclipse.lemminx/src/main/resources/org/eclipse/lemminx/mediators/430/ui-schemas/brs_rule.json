@@ -26,6 +26,7 @@
               "name": "sourceXPath",
               "displayName": "Source XPath",
               "inputType": "expression",
+              "expressionType":"xpath/jsonPath",
               "defaultValue": "",
               "required": true,
               "helpTip": ""
@@ -107,6 +108,7 @@
               "name": "targetXPath",
               "displayName": "Target XPath",
               "inputType": "expression",
+              "expressionType":"xpath/jsonPath",
               "defaultValue": "",
               "required": false,
               "helpTip": ""
@@ -118,6 +120,7 @@
               "name": "targetResultXPath",
               "displayName": "Target Result XPath",
               "inputType": "expression",
+              "expressionType":"xpath/jsonPath",
               "defaultValue": "",
               "required": false,
               "helpTip": ""
@@ -303,6 +306,7 @@
                     "name": "propertyExpression",
                     "displayName": "Property Expression",
                     "inputType": "expression",
+                    "expressionType":"xpath/jsonPath",
                     "defaultValue": "",
                     "required": false,
                     "helpTip": ""
