@@ -268,6 +268,18 @@
       "retrieveMethod": "getDataFromST"
     },
     {
+      "title": "Throw Error",
+      "operationName": "MEDIATORS.THROWERROR",
+      "tooltip": "Trigger an error from the mediation",
+      "form": "<ThrowErrorForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></ThrowErrorForm>",
+      "tag": "throwError",
+      "mediatorClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.ThrowError",
+      "factoryClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.core.ThrowErrorFactory",
+      "processingClass": "org.eclipse.lemminx.customservice.synapse.mediatorService.mediators.ThrowErrorMediator",
+      "storeMethod": "processData",
+      "retrieveMethod": "getDataFromST"
+    },
+    {
       "title": "Property",
       "operationName": "MEDIATORS.PROPERTY",
       "tooltip": "Manipulates message properties by setting and/or removing property values, supporting both constant and dynamically generated values through XPath expressions",

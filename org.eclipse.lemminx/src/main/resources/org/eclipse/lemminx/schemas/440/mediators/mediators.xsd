@@ -36,6 +36,7 @@
     <xs:include schemaLocation="core/send.xsd"/>
     <xs:include schemaLocation="core/store.xsd"/>
     <xs:include schemaLocation="core/variable.xsd"/>
+    <xs:include schemaLocation="core/throwError.xsd"/>
     <xs:include schemaLocation="filter/cond_router.xsd"/>
     <xs:include schemaLocation="filter/filter.xsd"/>
     <xs:include schemaLocation="filter/switch.xsd"/>
@@ -152,6 +153,7 @@
             <xs:element ref="bam"/>
             <xs:element ref="publishEvent"/>
             <xs:element ref="NTLM"/>
+            <xs:element ref="throwError"/>
             <xs:group ref="connectors"/>
         </xs:choice>
     </xs:group>
