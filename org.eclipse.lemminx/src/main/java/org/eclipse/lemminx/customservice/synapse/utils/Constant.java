@@ -532,5 +532,6 @@ public class Constant {
     public static final String TEST_CONNECTION_OPERATION = "testconnection";
     public static final String IS_VALID_CONNECTION = "isValidConnection";
     public static final String PACKAGE = "package";
+    public static final String ERROR_MESSAGE = "errorMessage";
     public static final Path RESOURCE_RELATIVE_PATH = Path.of("src", "main", "wso2mi", "resources");
 }

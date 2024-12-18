@@ -37,6 +37,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.P
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Respond;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Send;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Store;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.ThrowError;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Variable;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.call.Call;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.callout.Callout;
@@ -182,4 +183,6 @@ public abstract class AbstractMediatorVisitor {
     protected abstract void visitCallout(Callout node);
 
     protected abstract void visitSequence(SequenceMediator node);
+
+    protected abstract void visitThrowError(ThrowError node);
 }

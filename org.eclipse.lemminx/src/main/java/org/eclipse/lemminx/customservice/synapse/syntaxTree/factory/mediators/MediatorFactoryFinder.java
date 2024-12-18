@@ -39,6 +39,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.co
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.core.RespondFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.core.SendFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.core.StoreFactory;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.core.ThrowErrorFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.core.ValidateFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.core.VariableFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.eip.AggregateFactory;
@@ -142,6 +143,7 @@ public class MediatorFactoryFinder {
             ConnectorFactory.class,
             VariableFactory.class,
             ScatterGatherFactory.class,
+            ThrowErrorFactory.class
     };
 
     private final static MediatorFactoryFinder instance = new MediatorFactoryFinder();
