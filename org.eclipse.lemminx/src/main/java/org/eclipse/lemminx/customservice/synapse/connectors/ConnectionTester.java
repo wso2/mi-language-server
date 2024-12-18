@@ -160,7 +160,7 @@ public class ConnectionTester {
 
     private String getLocalEntryKey(TestConnectionRequest request) {
 
-        String key = request.getParameters().get(Constant.NAME);
+        String key = request.getParameters().get(Constant.NAME).toString();
         if (key == null) {
             String uuid = UUID.randomUUID().toString();
             key = request.getConnectorName() + "_" + uuid;
@@ -170,7 +170,7 @@ public class ConnectionTester {
     }
 
     private String getConnectionXml(Connector connector, ConnectorAction initOperation,
-                                    Map<String, String> parameters) {
+                                    Map<String, Object> parameters) {
 
         org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Connector connection =
                 new org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Connector();
@@ -182,7 +182,16 @@ public class ConnectionTester {
                 if (parameters.containsKey(parameter)) {
                     ConnectorParameter connectorParameter = new ConnectorParameter();
                     connectorParameter.setName(parameter);
-                    connectorParameter.setValue(parameters.get(parameter));
+                    if (parameters.get(parameter) instanceof Map) {
+                        Map parameterMap = (Map) parameters.get(parameter);
+                        if (Boolean.parseBoolean(parameterMap.get(Constant.IS_EXPRESSION).toString())) {
+                            connectorParameter.setExpression(parameterMap.get(Constant.VALUE).toString());
+                        } else {
+                            connectorParameter.setValue(parameterMap.get(Constant.VALUE).toString());
+                        }
+                    } else {
+                        connectorParameter.setValue(parameters.get(parameter).toString());
+                    }
                     connection.addParameter(connectorParameter);
                 }
             }

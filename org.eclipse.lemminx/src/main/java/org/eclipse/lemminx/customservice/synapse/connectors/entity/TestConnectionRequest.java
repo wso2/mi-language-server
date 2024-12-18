@@ -24,7 +24,7 @@ public class TestConnectionRequest {
 
     private String connectorName;
     private String connectionType;
-    private Map<String, String> parameters;
+    private Map<String, Object> parameters;
 
     public String getConnectorName() {
 
@@ -36,12 +36,12 @@ public class TestConnectionRequest {
         this.connectorName = connectorName;
     }
 
-    public Map<String, String> getParameters() {
+    public Map<String, Object> getParameters() {
 
         return parameters;
     }
 
-    public void setParameters(Map<String, String> parameters) {
+    public void setParameters(Map<String, Object> parameters) {
 
         this.parameters = parameters;
     }
