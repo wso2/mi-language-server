@@ -21,6 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.mediatorService.mediators;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.MediatorUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Property;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.PropertyMediatorType;
+import org.eclipse.lemminx.utils.StringUtils;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
@@ -59,7 +60,7 @@ public class PropertyMediator {
         }
 
         if ("STRING".equals(data.get("propertyDataType"))) {
-            if (StringUtils.isEmpty(data.get("valueStringPattern"))) {
+            if (StringUtils.isEmpty((String) data.get("valueStringPattern"))) {
                 data.remove("valueStringCapturingGroup");
             }
         } else {
