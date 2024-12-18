@@ -59,7 +59,7 @@ public class PropertyMediator {
         }
 
         if ("STRING".equals(data.get("propertyDataType"))) {
-            if (data.get("valueStringPattern") == null) {
+            if (data.get("valueStringPattern") == null || "".equals(data.get("valueStringPattern"))) {
                 data.remove("valueStringCapturingGroup");
             }
         } else {

@@ -100,7 +100,7 @@ public class MediatorHandler {
             if (lastMediators.contains(currentNode.getNodeName())) {
                 return new JsonObject();
             } else {
-                if (isAddedAbove(currentNode, nextMediator) || isIterateMediator(currentNode, iterateMediators)) {
+                if (isAddedAbove(currentNode, nextMediator, offset) || isIterateMediator(currentNode, iterateMediators)) {
                     return removeMediators(mediatorList, lastMediators);
                 }
                 return mediatorList;
@@ -115,7 +115,6 @@ public class MediatorHandler {
                                                        Map<String, Object> data, List<String> dirtyFields) {
 
         try {
-            mediator = sanitizeMediator(mediator);
             boolean isUpdate = !range.getEnd().equals(range.getStart());
             STNode node =
                     getMediatorNodeAtPosition(Utils.getDOMDocument(new File(documentUri)), range.getStart(), isUpdate);
@@ -258,7 +257,7 @@ public class MediatorHandler {
             throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, ClassNotFoundException,
             InstantiationException {
 
-        String mediatorName = sanitizeMediator(node.getTag());
+        String mediatorName = node.getTag();
         JsonObject uiSchema = uiSchemaMap.get(mediatorName).deepCopy();
         for (Map.Entry<String, JsonElement> entry : mediatorList.entrySet()) {
             JsonArray mediatorsArray = entry.getValue().getAsJsonArray();
@@ -280,14 +279,6 @@ public class MediatorHandler {
             }
         }
         return uiSchema;
-    }
-
-    private String sanitizeMediator(String tag) {
-
-        if (tag != null && tag.contains(":")) {
-            return tag.split(":")[1];
-        }
-        return tag;
     }
 
     private STNode getMediatorNodeAtPosition(DOMDocument document, Position position, Boolean isUpdate)
@@ -349,14 +340,12 @@ public class MediatorHandler {
         return false;
     }
 
-    private boolean isAddedAbove(DOMNode currentNode, DOMNode nextNode) {
+    private boolean isAddedAbove(DOMNode currentNode, DOMNode nextNode, int offset) {
         if (currentNode instanceof DOMElement) {
-            String tagName = ((DOMElement) currentNode).getTagName();
-            if (Constant.FAULT_SEQUENCE.equalsIgnoreCase(tagName) ||
-                    Constant.IN_SEQUENCE.equalsIgnoreCase(tagName) ||
-                    Constant.OUT_SEQUENCE.equalsIgnoreCase(tagName)) {
+            DOMElement tagElement = (DOMElement) currentNode;
+            if ((!tagElement.isSelfClosed()) && tagElement.isInInsideStartEndTag(offset)) {
                 return currentNode.hasChildNodes();
-            }else{
+            } else {
                 return nextNode != null;
             }
         }
