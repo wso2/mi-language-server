@@ -631,7 +631,7 @@ public class Utils {
 
     private static void processJsonFile(Path path, Map<String, JsonObject> jsonMap) {
         Gson gson = new Gson();
-        String fileName = path.getFileName().toString().replace(".json", "");
+        String fileName = path.getFileName().toString().replace(".json", "").replace("_", ":");
         try (InputStreamReader reader = new InputStreamReader(Files.newInputStream(path))) {
             JsonObject jsonObject = gson.fromJson(reader, JsonObject.class);
             jsonMap.put(fileName, jsonObject);
@@ -723,7 +723,7 @@ public class Utils {
     }
 
     private static void loadTemplate(Path path, String resourceFolder, Map<String, Mustache> templateMap) {
-        String templateName = path.getFileName().toString().replace(".mustache", "");
+        String templateName = path.getFileName().toString().replace(".mustache", "").replace("_", ":");
         try (InputStreamReader reader = new InputStreamReader(
                 Utils.class.getClassLoader().getResourceAsStream(resourceFolder + "/" + path.getFileName()))) {
             Mustache template = mustacheFactory.compile(reader, templateName);
