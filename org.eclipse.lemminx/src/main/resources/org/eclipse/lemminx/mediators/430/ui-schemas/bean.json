@@ -111,6 +111,7 @@
                     "name": "valueExpression",
                     "displayName": "Value Expression",
                     "inputType": "expression",
+                    "expressionType":"xpath/jsonPath",
                     "enableCondition": [
                       {
                         "valueType": "EXPRESSION"
@@ -169,6 +170,7 @@
                     "name": "targetExpression",
                     "displayName": "Target Expression",
                     "inputType": "expression",
+                    "expressionType":"xpath/jsonPath",
                     "enableCondition": [
                       {
                         "targetType": "EXPRESSION"

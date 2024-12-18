@@ -20,6 +20,7 @@
         "name": "iterateExpression",
         "displayName": "Iterate Expression",
         "inputType": "expression",
+        "expressionType":"xpath/jsonPath",
         "required": true,
         "helpTip": ""
       }
@@ -60,6 +61,7 @@
         "name": "attachPath",
         "displayName": "Attach Path",
         "inputType": "expression",
+        "expressionType":"xpath/jsonPath",
         "required": false,
         "helpTip": "",
         "enableCondition": [{

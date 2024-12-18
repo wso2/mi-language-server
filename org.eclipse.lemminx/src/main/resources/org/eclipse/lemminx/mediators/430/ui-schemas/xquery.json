@@ -47,6 +47,7 @@
               "name": "dynamicScriptKey",
               "displayName": "Dynamic Script Key",
               "inputType": "expression",
+              "expressionType":"xpath/jsonPath",
               "defaultValue": "",
               "required": false,
               "helpTip": "",
@@ -63,6 +64,7 @@
               "name": "targetXPath",
               "displayName": "Target XPath",
               "inputType": "expression",
+              "expressionType":"xpath/jsonPath",
               "defaultValue": "",
               "required": false,
               "helpTip": ""
@@ -156,6 +158,7 @@
                           "name": "variableExpression",
                           "displayName": "Variable Expression",
                           "inputType": "expression",
+                          "expressionType":"xpath/jsonPath",
                           "defaultValue": "",
                           "required": false,
                           "helpTip": "",

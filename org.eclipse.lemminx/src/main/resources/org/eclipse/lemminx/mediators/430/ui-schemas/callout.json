@@ -123,6 +123,7 @@
               "name": "payloadMessageXPath",
               "displayName": "Payload Message XPath",
               "inputType": "expression",
+              "expressionType":"xpath/jsonPath",
               "enableCondition": [
                 {
                   "payloadType": "XPATH"
@@ -176,6 +177,7 @@
               "name": "resultMessageXPath",
               "displayName": "Result Message XPath",
               "inputType": "expression",
+              "expressionType":"xpath/jsonPath",
               "enableCondition": [
                 {
                   "resultType": "XPATH"

@@ -97,6 +97,7 @@
                     "name": "valueMessageElementXpath",
                     "displayName": "Value Message Element Xpath",
                     "inputType": "expression",
+                    "expressionType":"xpath/jsonPath",
                     "required": false,
                     "helpTip": "",
                     "enableCondition": [

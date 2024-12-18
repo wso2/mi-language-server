@@ -11,6 +11,7 @@
                 "name": "headerName",
                 "displayName": "Header Name",
                 "inputType": "expression",
+                "expressionType":"xpath/jsonPath",
                 "defaultValue": "To",
                 "required": false,
                 "helpTip": ""
@@ -89,6 +90,7 @@
                             "name": "valueExpression",
                             "displayName": "Value Expression",
                             "inputType": "expression",
+                            "expressionType":"xpath/jsonPath",
                             "defaultValue": "",
                             "required": false,
                             "helpTip": "",

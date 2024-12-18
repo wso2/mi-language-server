@@ -21,6 +21,7 @@
               "name": "propertyName",
               "displayName": "Property Name",
               "inputType": "stringOrExpression",
+              "expressionType":"xpath/jsonPath",
               "defaultValue": "",
               "required": true,
               "helpTip": "New Property Name"
@@ -75,6 +76,7 @@
               "name": "value",
               "displayName": "Property Value",
               "inputType": "stringOrExpression",
+              "expressionType":"xpath/jsonPath",
               "defaultValue": "",
               "required": false,
               "helpTip": "Value",
@@ -98,6 +100,7 @@
               "name": "OMValue",
               "displayName": "OM",
               "inputType": "stringOrExpression",
+              "expressionType":"xpath/jsonPath",
               "defaultValue": "",
               "required": false,
               "helpTip": "Value",

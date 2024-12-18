@@ -30,6 +30,7 @@
               "name": "inputExpression",
               "displayName": "Input Expression",
               "inputType": "expression",
+              "expressionType":"xpath/jsonPath",
               "defaultValue": "",
               "required": false,
               "helpTip": ""

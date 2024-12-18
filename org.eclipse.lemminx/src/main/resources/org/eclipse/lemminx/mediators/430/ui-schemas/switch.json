@@ -10,6 +10,7 @@
         "name": "sourceXPath",
         "displayName": "Source XPath",
         "inputType": "expression",
+        "expressionType":"xpath/jsonPath",
         "required": true,
         "helpTip": ""
       }

@@ -144,6 +144,7 @@
         "name": "detail",
         "displayName": "Detail",
         "inputType": "stringOrExpression",
+        "expressionType":"xpath/jsonPath",
         "defaultValue": "",
         "required": false,
         "helpTip": ""
@@ -155,6 +156,7 @@
         "name": "reason",
         "displayName": "Reason",
         "inputType": "stringOrExpression",
+        "expressionType":"xpath/jsonPath",
         "defaultValue": "",
         "required": true,
         "helpTip": ""

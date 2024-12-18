@@ -149,6 +149,7 @@
                             "name": "sourceXPath",
                             "displayName": "Source XPath",
                             "inputType": "expression",
+                            "expressionType":"xpath/jsonPath",
                             "defaultValue": "",
                             "required": false,
                             "helpTip": "Source XPath",

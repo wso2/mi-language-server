@@ -26,6 +26,7 @@
               "name": "completionMinMessages",
               "displayName": "Completion Min Messages",
               "inputType": "stringOrExpression",
+              "expressionType":"xpath/jsonPath",
               "defaultValue": "-1",
               "required": false,
               "helpTip": ""
@@ -37,6 +38,7 @@
               "name": "completionMaxMessages",
               "displayName": "Completion Max Messages",
               "inputType": "stringOrExpression",
+              "expressionType":"xpath/jsonPath",
               "defaultValue": "-1",
               "required": false,
               "helpTip": ""
@@ -68,6 +70,7 @@
               "name": "correlationExpression",
               "displayName": "Correlation Expression",
               "inputType": "expression",
+              "expressionType":"xpath/jsonPath",
               "required": false,
               "helpTip": ""
             }
@@ -101,6 +104,7 @@
               "name": "aggregationExpression",
               "displayName": "Aggregation Expression",
               "inputType": "expression",
+              "expressionType":"xpath/jsonPath",
               "required": true,
               "helpTip": ""
             }

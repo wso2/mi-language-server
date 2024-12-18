@@ -519,6 +519,7 @@
                           "name": "valueExpression",
                           "displayName": "Value Expression",
                           "inputType": "expression",
+                          "expressionType":"xpath/jsonPath",
                           "required": true,
                           "enableCondition": [
                             {
