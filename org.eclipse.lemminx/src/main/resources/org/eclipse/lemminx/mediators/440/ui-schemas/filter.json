@@ -44,7 +44,7 @@
               "displayName": "Expression",
               "inputType": "expression",
               "defaultValue": "",
-              "required": false,
+              "required": true,
               "helpTip": "Expression that resolves to a string value which will be compared with the regex pattern.",
               "enableCondition": [
                 {
@@ -60,7 +60,7 @@
               "displayName": "Matches",
               "inputType": "string",
               "defaultValue": "",
-              "required": false,
+              "required": true,
               "helpTip": "The regex pattern to compare with the evaluated expression.",
               "enableCondition": [
                 {
