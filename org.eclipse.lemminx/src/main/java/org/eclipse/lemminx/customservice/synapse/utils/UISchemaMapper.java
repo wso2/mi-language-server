@@ -31,8 +31,6 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.inbound.Inbound
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Parameter;
 
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class UISchemaMapper {
 
@@ -96,18 +94,23 @@ public class UISchemaMapper {
         List<Namespace> namespaces = MediatorUtils.transformNamespaces(parameter.getNamespaces());
         JsonArray namespacesJson = new Gson().toJsonTree(namespaces).getAsJsonArray();
         JsonObject expression = new JsonObject();
-        String expressionValue = parameter.getValue();
-        Pattern pattern = Pattern.compile("\\$?\\{(.*)}");
-        if (expressionValue != null) {
-            Matcher matcher = pattern.matcher(expressionValue);
-            if (matcher.find()) {
-                expressionValue = matcher.group(1);
-            }
-        }
-        expression.addProperty(Constant.VALUE, expressionValue);
+        expression.addProperty(Constant.VALUE, extractConnectorExpressionValue(parameter.getValue()));
         expression.add(Constant.NAMESPACES, namespacesJson);
         expression.addProperty(Constant.IS_EXPRESSION, true);
         return expression;
+    }
+
+    private static String extractConnectorExpressionValue(String value) {
+
+        if (value == null) {
+            return null;
+        }
+        if (value.startsWith("${") && value.endsWith("}")) {
+            return value.substring(2, value.length() - 1);
+        } else if (value.startsWith("{") && value.endsWith("}")) {
+            return value.substring(1, value.length() - 1);
+        }
+        return value;
     }
 
     public static JsonObject mapInputToUISchemaForInboundEndpoint(InboundEndpoint ib, JsonObject uiSchema) {
