@@ -30,25 +30,24 @@ public class ConnectorHolder {
 
     private List<Connector> connectors;
     private List<File> connectorZips;
+    private static ConnectorHolder instance;
 
-    public ConnectorHolder() {
+    private ConnectorHolder() {
 
         this.connectors = new ArrayList<>();
+    }
+
+    public static synchronized ConnectorHolder getInstance() {
+
+        if (instance == null) {
+            instance = new ConnectorHolder();
+        }
+        return instance;
     }
 
     public void addConnector(Connector connector) {
 
         connectors.add(connector);
-    }
-
-    private Boolean exists(Connector connector) {
-
-        for (Connector con : connectors) {
-            if (con.getName().equals(connector.getName())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public boolean exists(String connectorName) {

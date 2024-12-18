@@ -466,7 +466,12 @@ public class ExpressionCompletionsProvider {
         }
         if (property != null) {
             String value = property.getValue();
-            return traverseJsonObject(expressionSegments, value, needNext);
+            if (!StringUtils.isEmpty(value)) {
+                return traverseJsonObject(expressionSegments, value, needNext);
+            } else if (property.getProperties() != null) {
+                return findItemValues(expressionSegments.subList(1, expressionSegments.size()),
+                        property.getProperties(), needNext);
+            }
         }
         return Collections.emptyList();
     }

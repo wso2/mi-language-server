@@ -163,7 +163,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
         this.xmlTextDocumentService = xmlTextDocumentService;
         this.xmlLanguageServer = xmlLanguageServer;
-        this.connectorHolder = new ConnectorHolder();
+        this.connectorHolder = ConnectorHolder.getInstance();
         this.inboundConnectorHolder = new InboundConnectorHolder();
         mediatorHandler = new MediatorHandler();
         connectionHandler = new ConnectionHandler();
@@ -174,7 +174,6 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         this.languageClient = languageClient;
         if (settings != null) {
             extensionPath = ((JsonObject) settings).get("extensionPath").getAsString();
-            // TODO: remove this after fixing the issue with the miServerPath
             miServerPath = ((JsonObject) settings).get("miServerPath").getAsString();
         }
         if (projectUri != null) {

@@ -34,6 +34,7 @@ public class Connector {
     private Map<String, String> connectionUiSchema;
     private String iconPath;
     private String uiSchemaPath;
+    private String outputSchemaPath;
 
     public Connector() {
 
@@ -151,6 +152,16 @@ public class Connector {
         this.uiSchemaPath = uiSchemaPath;
     }
 
+    public String getOutputSchemaPath() {
+
+        return outputSchemaPath;
+    }
+
+    public void setOutputSchemaPath(String outputSchemaPath) {
+
+        this.outputSchemaPath = outputSchemaPath;
+    }
+
     public void addOperationUiSchema(String operationName, String absolutePath) {
 
         if (operationName == null) {
@@ -159,6 +170,18 @@ public class Connector {
         for (ConnectorAction action : actions) {
             if (action.getName().equals(operationName)) {
                 action.setUiSchemaPath(absolutePath);
+            }
+        }
+    }
+
+    public void addOperationOutputSchema(String operationName, String absolutePath) {
+
+        if (operationName == null) {
+            return;
+        }
+        for (ConnectorAction action : actions) {
+            if (action.getName().equals(operationName)) {
+                action.setOutputSchemaPath(absolutePath);
             }
         }
     }

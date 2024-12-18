@@ -151,6 +151,16 @@ public class MediatorTryoutInfo {
         output.addAxis2OperationProperty(property);
     }
 
+    public void addOutputVariable(Property property) {
+
+        output.addVariable(property);
+    }
+
+    public void addOutputVariable(String name, String value) {
+
+        output.addVariable(new Property(name, value));
+    }
+
     public void setInputConfigs(List<Property> configs) {
 
         input.setConfigs(configs);
@@ -159,6 +169,11 @@ public class MediatorTryoutInfo {
     public void setOutputConfigs(List<Property> configs) {
 
         output.setConfigs(configs);
+    }
+
+    public void removeOutputVariable(String name) {
+
+        output.removeVariable(name);
     }
 
     public void replaceInputWithOutput() {

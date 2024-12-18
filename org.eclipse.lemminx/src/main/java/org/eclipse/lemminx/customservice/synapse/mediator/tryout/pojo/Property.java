@@ -18,18 +18,30 @@
 
 package org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Property {
 
     private String key;
     private String value;
+    private String description;
     private List<Property> properties;
 
     public Property(String key, String value) {
 
         this.key = key;
         this.value = value;
+        this.properties = new ArrayList<>();
+    }
+
+    public Property(String key, String value, String description) {
+
+        this.key = key;
+        this.value = value;
+        this.description = description;
+        this.properties = new ArrayList<>();
     }
 
     public Property(String key, List<Property> properties) {
@@ -63,15 +75,49 @@ public class Property {
         this.properties = properties;
     }
 
+    public void addProperty(Property property) {
+
+        properties.add(property);
+    }
+
+    public List<Property> getProperties() {
+
+        return Collections.unmodifiableList(properties);
+    }
+
+    public String getDescription() {
+
+        return description;
+    }
+
+    public void setDescription(String description) {
+
+        this.description = description;
+    }
+
+    public Property deepCopy() {
+
+        Property property = new Property(key, value, description);
+        property.setProperties(new ArrayList<>(properties));
+        return property;
+    }
+
     @Override
     public boolean equals(Object obj) {
 
-        Property property = (Property) obj;
-        if (property == null) {
+        if (!(obj instanceof Property)) {
             return false;
         }
+        Property property = (Property) obj;
         return key.equals(property.getKey()) && (value != null && value.equals(property.getValue()));
+    }
 
+    @Override
+    public int hashCode() {
+
+        int result = key != null ? key.hashCode() : 0;
+        result = 31 * result + (value != null ? value.hashCode() : 0);
+        return result;
     }
 
     @Override
@@ -80,6 +126,7 @@ public class Property {
         return "Property{" +
                 "key='" + key + '\'' +
                 ", value='" + value + '\'' +
+                ", description='" + description + '\'' +
                 ", properties=" + properties +
                 '}';
     }
