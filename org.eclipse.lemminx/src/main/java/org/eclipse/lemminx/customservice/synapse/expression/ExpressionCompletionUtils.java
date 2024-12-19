@@ -22,6 +22,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionParam;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.FunctionCompletionItem;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.Functions;
@@ -29,7 +30,12 @@ import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property;
 import org.eclipse.lemminx.customservice.synapse.parser.Node;
 import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
 import org.eclipse.lemminx.customservice.synapse.parser.config.ConfigParser;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.MediatorFactoryFinder;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.InvalidMediator;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
+import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.completion.AttributeValueCompletionResolver;
 import org.eclipse.lemminx.services.data.DataEntryField;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
@@ -38,13 +44,16 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.ParameterInformation;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SignatureInformation;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -390,6 +399,77 @@ public class ExpressionCompletionUtils {
     public static boolean isValidRequest(ExpressionParam param) {
 
         return param != null && param.getPosition() != null;
+    }
+
+    /**
+     * Get the mediator position that need to be used to get the serverless tryout info for the completions.
+     *
+     * @param documentUri document for which completion is requested
+     * @param position    position of the mediator that needs the completion
+     * @return position of the mediator
+     * @throws BadLocationException
+     * @throws IOException
+     */
+    public static Position getMediatorPosition(String documentUri, Position position)
+            throws BadLocationException, IOException {
+
+        return getMediatorPosition(Utils.getDOMDocument(new File(documentUri)), position);
+    }
+
+    /**
+     * Get the mediator position that need to be used to get the serverless tryout info for the completions.
+     *
+     * @param document document for which completion is requested
+     * @param position position of the mediator that needs the completion
+     * @return position of the mediator
+     * @throws BadLocationException
+     */
+    public static Position getMediatorPosition(DOMDocument document, Position position) throws BadLocationException {
+
+        if (document == null) {
+            return null;
+        }
+        int offset = document.offsetAt(position);
+        DOMNode node = document.findNodeAt(offset);
+        Mediator mediator = MediatorFactoryFinder.getInstance().getMediator(node);
+        if (mediator != null && !(mediator instanceof InvalidMediator)) {
+            return position;
+        }
+        if (offset > node.getStart() && offset < node.getEnd()) {
+            List<DOMNode> children = node.getChildren();
+            DOMNode currentNode = null;
+            for (DOMNode child : children) {
+                if (offset <= child.getEnd()) {
+                    break;
+                }
+                currentNode = child;
+            }
+            if (currentNode != null) {
+                return document.positionAt(currentNode.getStart());
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get the input payload for the tryout.
+     *
+     * @param projectPath project path
+     * @return input payload
+     */
+    public static String getInputPayload(String projectPath) {
+
+        // TODO: Improve it to use separate input file for each API Resource
+        Path inputFilePath = Path.of(projectPath, ".tryout", "input.json");
+        String payload = StringUtils.EMPTY;
+        if (inputFilePath.toFile().exists()) {
+            try {
+                payload = Utils.readFile(inputFilePath.toFile());
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, "Error while reading the input file", e);
+            }
+        }
+        return payload;
     }
 
     private ExpressionCompletionUtils() {
