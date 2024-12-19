@@ -535,7 +535,7 @@ public class TryOutHandler {
                     "Connection: close\r\n");
 
             if (TryOutConstants.POST.equalsIgnoreCase(methodType)) {
-                if (StringUtils.isEmpty(inputPayload)) {
+                if (!StringUtils.isEmpty(inputPayload)) {
                     request.append("Content-Type: ").append(contentType).append("\r\n")
                             .append("Content-Length: ").append(inputPayload.getBytes(StandardCharsets.UTF_8).length)
                             .append("\r\n")

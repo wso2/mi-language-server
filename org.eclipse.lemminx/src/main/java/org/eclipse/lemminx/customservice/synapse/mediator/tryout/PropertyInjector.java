@@ -165,6 +165,9 @@ public class PropertyInjector {
     private static void injectProperty(Consumer<JsonObject> sendCommand, String key, String value, String context,
                                        boolean isVariable) {
 
+        if (StringUtils.isEmpty(key) || value == null) {
+            return;
+        }
         JsonObject property = new JsonObject();
         property.addProperty(TryOutConstants.COMMAND, TryOutConstants.SET);
         property.addProperty(TryOutConstants.COMMAND_ARGUMENT,
