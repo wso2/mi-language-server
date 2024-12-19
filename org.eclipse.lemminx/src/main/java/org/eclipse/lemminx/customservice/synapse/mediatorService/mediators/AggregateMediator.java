@@ -186,7 +186,7 @@ public class AggregateMediator {
             correlateOn = node.getCorrelateOnOrCompleteConditionOrOnComplete().getCorrelateOn().get();
             data.put("correlationExpression", Map.of(
                     "isExpression", true,
-                    "value", correlateOn.getExpression(),
+                    "value", correlateOn.getExpression() != null ? correlateOn.getExpression() : "",
                     "namespaces", MediatorUtils.transformNamespaces(correlateOn.getNamespaces())
             ));
         }
@@ -238,7 +238,7 @@ public class AggregateMediator {
 
             data.put("aggregationExpression", Map.of(
                     "isExpression", true,
-                    "value", onComplete.getExpression(),
+                    "value", onComplete.getExpression() != null ? onComplete.getExpression() : "",
                     "namespaces", MediatorUtils.transformNamespaces(onComplete.getNamespaces())
             ));
 

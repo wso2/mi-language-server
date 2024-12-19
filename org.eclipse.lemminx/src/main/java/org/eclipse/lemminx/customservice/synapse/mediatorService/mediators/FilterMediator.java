@@ -116,10 +116,14 @@ public class FilterMediator {
         data.put("description", node.getDescription());
         if (node.getXpath() != null) {
             data.put("useRegex", false);
-            data.put("xPath", Map.of("isExpression", true, "value", node.getXpath()));
+            data.put("xPath", Map.of("isExpression", true,
+                    "value", node.getXpath() != null ? node.getXpath() : ""
+            ));
         } else {
             data.put("useRegex", true);
-            data.put("source", Map.of("isExpression", true, "value", node.getSource()));
+            data.put("source", Map.of("isExpression", true,
+                    "value", node.getSource() != null ? node.getSource() : ""
+            ));
             data.put("regularExpression", node.getRegex());
         }
         return data;

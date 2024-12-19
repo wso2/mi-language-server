@@ -54,7 +54,7 @@ public class SmooksMediator {
         if (node.getInput() != null) {
             data.put("inputExpression", Map.of(
                     "isExpression", true,
-                    "value", node.getInput().getExpression(),
+                    "value", node.getInput().getExpression() != null ? node.getInput().getExpression() : "",
                     "namespaces", MediatorUtils.transformNamespaces(node.getInput().getNamespaces())
             ));
             data.put("inputType", node.getInput().getType());

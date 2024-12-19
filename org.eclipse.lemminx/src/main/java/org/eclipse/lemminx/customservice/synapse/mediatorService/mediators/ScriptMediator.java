@@ -45,8 +45,8 @@ public class ScriptMediator {
                         if (keyObj instanceof List<?>) {
                             List<String> key = (List<String>) keyObj;
                             processedKeys.add(Map.of(
-                                    "keyName", key.get(0),
-                                    "keyValue", key.get(1)
+                                    "keyName", key.get(0) != null ? key.get(0) : "",
+                                    "keyValue", key.get(1) != null ? key.get(1) : ""
                             ));
                         }
                     }

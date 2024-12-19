@@ -55,7 +55,7 @@ public class StoreMediator {
         } else {
             data.put("messageStore", Map.of(
                     "isExpression", false,
-                    "value", node.getMessageStore()
+                    "value", node.getMessageStore() != null ? node.getMessageStore() : ""
             ));
         }
         return data;

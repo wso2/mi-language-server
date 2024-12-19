@@ -177,7 +177,8 @@ public class RuleMediator {
                         "customType", customType != null ? customType : "",
                         "elementName", fact.getElementName(),
                         "expression", Map.of("isExpression", true,
-                                "value", fact.getXpath())));
+                                "value", fact.getXpath() != null ? fact.getXpath() : ""
+                        )));
             }
         }
         data.put("factsConfiguration", factsConfiguration);

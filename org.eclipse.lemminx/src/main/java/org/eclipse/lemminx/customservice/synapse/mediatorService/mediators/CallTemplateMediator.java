@@ -69,14 +69,14 @@ public class CallTemplateMediator {
             List<List<Object>> parameterNameTable = new ArrayList<>();
 
             for (WithParam property : node.getWithParam()) {
-                String propertyValue = property.getValue();
+                String propertyValue = property.getValue() != null ? property.getValue() : "";
                 boolean isExpression = propertyValue.startsWith("{");
                 String value = isExpression
                         ? propertyValue.replaceAll("\\{([^}]*)\\}", "$1")
                         : propertyValue;
 
                 parameterNameTable.add(List.of(
-                        property.getName(),
+                        property.getName() != null ? property.getName() : "",
                         Map.of(
                                 "value", value,
                                 "isExpression", isExpression,

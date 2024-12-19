@@ -91,7 +91,8 @@ public class LogMediator {
                 valueMap.put("value", property.getValue() != null ? property.getValue() : property.getExpression());
                 valueMap.put("isExpression", property.getExpression() != null);
                 valueMap.put("namespaces", MediatorUtils.transformNamespaces(property.getNamespaces()));
-                properties.add(List.of(property.getName(), valueMap));
+                properties.add(List.of(property.getName() != null ? property.getName() : "", valueMap,
+                        valueMap));
             }
             data.put("properties", properties);
         }
@@ -118,7 +119,8 @@ public class LogMediator {
                 valueMap.put("value", property.getValue() != null ? property.getValue() : property.getExpression());
                 valueMap.put("isExpression", property.getExpression() != null);
                 valueMap.put("namespaces", MediatorUtils.transformNamespaces(property.getNamespaces()));
-                properties.add(List.of(property.getName(), valueMap));
+                properties.add(List.of(property.getName() != null ? property.getName() : "",
+                        valueMap));
             }
             data.put("properties", properties);
         }

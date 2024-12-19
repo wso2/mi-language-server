@@ -95,7 +95,7 @@ public class SendMediator {
             }
             data.put("dynamicReceivingSequence", Map.of(
                     "isExpression", true,
-                    "value", value,
+                    "value", value != null ? value : "",
                     "namespaces", MediatorUtils.transformNamespaces(node.getNamespaces())
             ));
         }

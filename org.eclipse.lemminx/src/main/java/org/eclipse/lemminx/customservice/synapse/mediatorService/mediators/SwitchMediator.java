@@ -171,7 +171,7 @@ public class SwitchMediator {
         Map<String, Object> data = new HashMap<>();
 
         data.put("sourceXPath", Map.of("isExpression", true,
-                "value", node.getSource(),
+                "value", node.getSource() != null ? node.getSource() : "",
                 "namespaces", MediatorUtils.transformNamespaces(node.getNamespaces())));
 
         data.put("description", node.getDescription());
@@ -184,7 +184,7 @@ public class SwitchMediator {
                 SwitchCase caseBranch = node.get_case()[i];
                 caseBranches.add(List.of(caseBranch.getRegex(), i));
                 caseBranchesData.add(List.of(
-                        caseBranch.getRegex(),
+                        caseBranch.getRegex() != null ? caseBranch.getRegex() : "",
                         i,
                         caseBranch.getRange(),
                         caseBranch.isSelfClosed()

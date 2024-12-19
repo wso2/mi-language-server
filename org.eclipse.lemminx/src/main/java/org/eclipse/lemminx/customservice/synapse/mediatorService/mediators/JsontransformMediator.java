@@ -67,7 +67,9 @@ public class JsontransformMediator {
         if (node.getProperty() != null) {
             List<List<String>> jsonTransformProperties = new ArrayList<>();
             for (MediatorProperty property : node.getProperty()) {
-                jsonTransformProperties.add(List.of(property.getName(), property.getValue()));
+                jsonTransformProperties.add(List.of(property.getName() != null ? property.getName() : "",
+                        property.getValue() != null ? property.getValue() : ""
+                ));
             }
             data.put("jsonTransformProperties", jsonTransformProperties);
         } else {

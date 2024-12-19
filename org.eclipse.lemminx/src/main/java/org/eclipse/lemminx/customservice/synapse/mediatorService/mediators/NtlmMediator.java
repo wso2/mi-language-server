@@ -81,7 +81,9 @@ public class NtlmMediator {
             String username = node.getUsername().substring(1, node.getUsername().length() - 1);
             data.put("username", Map.of("isExpression", true, "value", username));
         } else {
-            data.put("username", Map.of("isExpression", false, "value", node.getUsername()));
+            data.put("username", Map.of("isExpression", false,
+                    "value", node.getUsername() != null ? node.getUsername() : ""
+            ));
         }
 
         // Process password
@@ -89,7 +91,9 @@ public class NtlmMediator {
             String password = node.getPassword().substring(1, node.getPassword().length() - 1);
             data.put("password", Map.of("isExpression", true, "value", password));
         } else {
-            data.put("password", Map.of("isExpression", false, "value", node.getPassword()));
+            data.put("password", Map.of("isExpression", false,
+                    "value", node.getPassword() != null ? node.getPassword() : ""
+            ));
         }
 
         // Process host
@@ -97,7 +101,9 @@ public class NtlmMediator {
             String host = node.getHost().substring(1, node.getHost().length() - 1);
             data.put("host", Map.of("isExpression", true, "value", host));
         } else {
-            data.put("host", Map.of("isExpression", false, "value", node.getHost()));
+            data.put("host", Map.of("isExpression", false,
+                    "value", node.getHost() != null ? node.getHost() : ""
+            ));
         }
 
         // Process domain
@@ -105,7 +111,9 @@ public class NtlmMediator {
             String domain = node.getDomain().substring(1, node.getDomain().length() - 1);
             data.put("domain", Map.of("isExpression", true, "value", domain));
         } else {
-            data.put("domain", Map.of("isExpression", false, "value", node.getDomain()));
+            data.put("domain", Map.of("isExpression", false,
+                    "value", node.getDomain() != null ? node.getDomain() : ""
+            ));
         }
 
         // Process NTLM version
@@ -113,7 +121,9 @@ public class NtlmMediator {
             String ntlmVersion = node.getNtlmVersion().substring(1, node.getNtlmVersion().length() - 1);
             data.put("ntlmVersion", Map.of("isExpression", true, "value", ntlmVersion));
         } else {
-            data.put("ntlmVersion", Map.of("isExpression", false, "value", node.getNtlmVersion()));
+            data.put("ntlmVersion", Map.of("isExpression", false,
+                    "value", node.getNtlmVersion() != null ? node.getNtlmVersion() : ""
+            ));
         }
         return data;
     }
