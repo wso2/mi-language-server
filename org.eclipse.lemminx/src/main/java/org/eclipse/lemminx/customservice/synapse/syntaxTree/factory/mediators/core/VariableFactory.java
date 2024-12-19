@@ -27,6 +27,8 @@ import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
 
+import java.util.Objects;
+
 public class VariableFactory extends AbstractMediatorFactory {
 
     private static final String VARIABLE = "variable";
@@ -62,9 +64,7 @@ public class VariableFactory extends AbstractMediatorFactory {
             variable.setType(typeEnum);
         }
         String action = element.getAttribute(Constant.ACTION);
-        if (action != null) {
-            variable.setAction(action);
-        }
+        variable.setAction(Objects.requireNonNullElse(action, Constant.SET));
         String description = element.getAttribute(Constant.DESCRIPTION);
         if (description != null) {
             variable.setDescription(description);
