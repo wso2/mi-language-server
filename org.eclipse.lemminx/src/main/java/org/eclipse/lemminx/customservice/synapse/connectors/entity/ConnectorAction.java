@@ -183,6 +183,6 @@ public class ConnectorAction {
                 //Do nothing
             }
         }
-        return outputSchema.deepCopy();
+        return outputSchema != null ? outputSchema.deepCopy() : null;
     }
 }

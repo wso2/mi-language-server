@@ -26,14 +26,14 @@ import org.eclipse.lemminx.customservice.synapse.mediator.schema.generate.Server
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutRequest;
 
-public class TryoutManager {
+public class TryOutManager {
 
     private TryOutHandler tryOutHandler;
     private IsolatedTryOutHandler isolatedTryOutHandler;
     private ServerLessTryoutHandler serverLessTryoutHandler;
     private ConnectionTester connectionTester;
 
-    public TryoutManager(String projectRoot, String miServerPath, ConnectorHolder connectorHolder) {
+    public TryOutManager(String projectRoot, String miServerPath, ConnectorHolder connectorHolder) {
 
         tryOutHandler = new TryOutHandler(projectRoot, miServerPath, connectorHolder);
         isolatedTryOutHandler = new IsolatedTryOutHandler(tryOutHandler, projectRoot, connectorHolder);
@@ -63,6 +63,6 @@ public class TryoutManager {
     public void shutdown() {
 
         tryOutHandler.reset();
-
+        tryOutHandler.shutDown();
     }
 }

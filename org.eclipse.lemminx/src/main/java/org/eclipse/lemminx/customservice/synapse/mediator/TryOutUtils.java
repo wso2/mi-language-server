@@ -21,8 +21,11 @@ package org.eclipse.lemminx.customservice.synapse.mediator;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.commons.BadLocationException;
+import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.debuginfo.IDebugInfo;
+import org.eclipse.lemminx.customservice.synapse.debugger.visitor.VisitorUtils;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Edit;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.InvalidConfigurationException;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorInfo;
@@ -33,9 +36,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.NamedSequence;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.API;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.APIResource;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.inbound.InboundEndpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.SequenceMediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Respond;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.api.APISerializer;
@@ -121,23 +122,105 @@ public class TryOutUtils {
      * This method is used to clone and preprocess the project.
      *
      * @param projectUri the project URI
-     * @param tryoutFile the file in which the mediator is getting tried out
-     * @param edits      the edits to be applied
+     * @param request   the tryout request
      * @param tempFolder the temporary folder to clone the project
      * @return the path of the file in which the edits are applied
      * @throws IOException
      */
-    public static Path cloneAndPreprocessProject(String projectUri, String tryoutFile, Edit[] edits, Path tempFolder)
+    public static Path cloneAndPreprocessProject(String projectUri, MediatorTryoutRequest request, Path tempFolder)
             throws IOException {
 
         Path projectPath = Path.of(projectUri);
         Utils.copyFolder(projectPath, tempFolder, null);
 
-        // Apply the edits from user
-        Path editFilePath = TryOutUtils.relativizeAndResolvePath(projectPath, Path.of(tryoutFile),
-                tempFolder);
-        doEdits(edits, editFilePath);
+        Path editFilePath = TryOutUtils.relativizeAndResolvePath(projectPath, Path.of(request.getFile()), tempFolder);
+        removeBelowMediators(editFilePath, new Position(request.getLine(), request.getColumn()));
+        doEdits(request.getEdits(), editFilePath);         // Apply the edits from user
         return editFilePath;
+    }
+
+    private static void removeBelowMediators(Path editFilePath, Position position) throws IOException {
+
+        DOMDocument document = Utils.getDOMDocument(editFilePath.toFile());
+        if (document == null) {
+            return;
+        }
+        STNode root = SyntaxTreeGenerator.buildTree(document.getDocumentElement());
+        if (root instanceof NamedSequence) {
+            removeBelowMediators((NamedSequence) root, position, editFilePath);
+        } else if (root instanceof API) {
+            removeBelowMediators((API) root, position, editFilePath);
+        }
+    }
+
+    private static void removeBelowMediators(NamedSequence root, Position position, Path editFilePath)
+            throws IOException {
+
+        Mediator currentMediator = findCurrentMediator(root.getMediatorList(), position);
+        if (currentMediator != null) {
+            Position sequenceEndTagStart = root.getRange().getEndTagRange().getStart();
+            removeContentAfterMediator(currentMediator, sequenceEndTagStart, editFilePath);
+        }
+    }
+
+    private static void removeBelowMediators(API root, Position position, Path editFilePath) throws IOException {
+
+        if (root == null) {
+            return;
+        }
+        APIResource[] resources = root.getResource();
+        if (resources == null) {
+            return;
+        }
+        Mediator mediator = null;
+        Position end = null;
+        for (APIResource resource : resources) {
+            if (isNodeInRange(resource, position)) {
+                if (isNodeInRange(resource.getInSequence(), position)) {
+                    mediator = findCurrentMediator(resource.getInSequence().getMediatorList(), position);
+                    end = resource.getInSequence().getRange().getEndTagRange().getStart();
+                } else if (isNodeInRange(resource.getOutSequence(), position)) {
+                    mediator = findCurrentMediator(resource.getOutSequence().getMediatorList(), position);
+                    end = resource.getOutSequence().getRange().getEndTagRange().getStart();
+                } else if (isNodeInRange(resource.getFaultSequence(), position)) {
+                    mediator = findCurrentMediator(resource.getFaultSequence().getMediatorList(), position);
+                    end = resource.getFaultSequence().getRange().getEndTagRange().getStart();
+                }
+            }
+        }
+        removeContentAfterMediator(mediator, end, editFilePath);
+    }
+
+    private static void removeContentAfterMediator(Mediator mediator, Position end, Path editFilePath)
+            throws IOException {
+
+        if (mediator == null || end == null) {
+            return;
+        }
+        Position mediatorEnd =
+                mediator.getRange().getEndTagRange() != null ? mediator.getRange().getEndTagRange().getEnd() :
+                        mediator.getRange().getStartTagRange().getEnd();
+        mediatorEnd.setCharacter(mediatorEnd.getCharacter() + 1);
+        end.setCharacter(end.getCharacter() - 1);
+        doEdit(new Edit(StringUtils.EMPTY, new Range(mediatorEnd, end)), editFilePath);
+    }
+
+    private static boolean isNodeInRange(STNode node, Position position) {
+
+        return VisitorUtils.checkNodeInRange(node, new Breakpoint(position.getLine(), position.getCharacter()));
+    }
+
+    private static Mediator findCurrentMediator(List<Mediator> mediatorList, Position position) {
+
+        if (mediatorList == null) {
+            return null;
+        }
+        for (Mediator mediator : mediatorList) {
+            if (isNodeInRange(mediator, position)) {
+                return mediator;
+            }
+        }
+        return null;
     }
 
     /**
@@ -203,17 +286,22 @@ public class TryOutUtils {
      * @param port              the port
      * @return the service url
      */
-    public static String getServiceUrl(List<JsonObject> activeBreakpoints, String host, int port) {
+    public static String getServiceUrl(Path apiPath, List<JsonObject> activeBreakpoints, String host, int port)
+            throws IOException {
 
+        DOMDocument document = Utils.getDOMDocument(apiPath.toFile());
+        if (document == null) {
+            return null;
+        }
+        API api = (API) SyntaxTreeGenerator.buildTree(document.getDocumentElement());
+        String apiKey = api.getContext();
         JsonObject apiObj =
                 activeBreakpoints.get(0).get(Constant.SEQUENCE).getAsJsonObject().get(Constant.API).getAsJsonObject();
-        String apiKey = apiObj.get(TryOutConstants.API_KEY).getAsString();
         JsonObject resourceObj = apiObj.get(Constant.RESOURCE).getAsJsonObject();
         JsonElement urlMapping = resourceObj.get(Constant.URL_MAPPING);
         JsonElement uriMapping = resourceObj.get(TryOutConstants.URI_MAPPING);
         StringBuilder url = new StringBuilder();
-        url.append(TryOutConstants.HTTP_PREFIX).append(host).append(":").append(port)
-                .append(TryOutConstants.SLASH).append(apiKey);
+        url.append(TryOutConstants.HTTP_PREFIX).append(host).append(":").append(port).append(apiKey);
         if (urlMapping != null && !urlMapping.isJsonNull()) {
             url.append(urlMapping.getAsString());
         } else if (uriMapping != null && !uriMapping.isJsonNull()) {
