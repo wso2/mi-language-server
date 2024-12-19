@@ -19,8 +19,12 @@
 package org.eclipse.lemminx.customservice.synapse.mediator.schema.generate.visitor;
 
 import com.google.gson.JsonPrimitive;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.synapse.AbstractMediatorVisitor;
+import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorAction;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Connector;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ConnectorParameter;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.SequenceMediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.Clone.Clone;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.DataServiceCall.DataServiceCall;
@@ -77,12 +81,13 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transf
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.xquery.Xquery;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.xslt.Xslt;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
+import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lsp4j.Position;
 
 public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
 
-    MediatorTryoutInfo info;
-    Position position;
+    private MediatorTryoutInfo info;
+    private Position position;
 
     public MediatorSchemaVisitor(MediatorTryoutInfo info, Position position) {
 
@@ -94,7 +99,25 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitConnector(Connector node) {
 
-        // TODO: get the i/o schema from the connector and set it to the info
+        if (node.getConnectorName() == null) {
+            return;
+        }
+        ConnectorParameter responseVariableParameter = node.getParameter(Constant.RESPONSE_VARIABLE);
+        if (responseVariableParameter == null || StringUtils.isEmpty(responseVariableParameter.getValue())) {
+            return;
+        }
+        String responseVariable = responseVariableParameter.getValue();
+        org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector connector =
+                ConnectorHolder.getInstance().getConnector(node.getConnectorName());
+        if (connector != null) {
+            ConnectorAction action = connector.getAction(node.getMethod());
+            if (action != null && action.getOutputSchema() != null) {
+                org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property property =
+                        action.getOutputSchema();
+                property.setKey(responseVariable);
+                info.addOutputVariable(property);
+            }
+        }
     }
 
     @Override
@@ -328,6 +351,14 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitVariable(Variable node) {
 
+        String action = node.getAction();
+        String name = node.getName();
+        if (Constant.SET.equalsIgnoreCase(action)) {
+            String value = node.getValue() != null ? node.getValue() : node.getExpression();
+            info.addOutputVariable(name, value);
+        } else if (Constant.REMOVE.equalsIgnoreCase(action)) {
+            info.removeOutputVariable(name);
+        }
     }
 
     @Override

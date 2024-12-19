@@ -159,7 +159,9 @@ public class ExpressionHelperProvider {
             String expression = expressionPrefix + Constant.DOT + variable.getKey();
             HelperPanelItem item = new HelperPanelItem(variable.getKey(), expression);
             String value = variable.getValue();
-            if (value != null && Utils.isJSONObject(value)) {
+            if (variable.getProperties() != null && !variable.getProperties().isEmpty()) {
+                item.addChildren(createDataList(variable.getProperties(), expression));
+            } else if (value != null && Utils.isJSONObject(value)) {
                 item.addChildren(addJsonChildren(Utils.getJsonObject(value), expression));
             }
             dataList.add(item);

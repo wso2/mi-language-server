@@ -534,4 +534,6 @@ public class Constant {
     public static final String PACKAGE = "package";
     public static final String ERROR_MESSAGE = "errorMessage";
     public static final Path RESOURCE_RELATIVE_PATH = Path.of("src", "main", "wso2mi", "resources");
+    public static final String SET = "set";
+    public static final String RESPONSE_VARIABLE = "responseVariable";
 }

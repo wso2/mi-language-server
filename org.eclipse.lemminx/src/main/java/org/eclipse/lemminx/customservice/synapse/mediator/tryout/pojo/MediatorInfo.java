@@ -237,6 +237,19 @@ public class MediatorInfo {
         this.headers.addAll(headers);
     }
 
+    public void removeVariable(String name) {
+
+        if (variables == null) {
+            return;
+        }
+        for (Property variable : variables) {
+            if (variable.getKey().equals(name)) {
+                variables.remove(variable);
+                break;
+            }
+        }
+    }
+
     @Override
     public String toString() {
 

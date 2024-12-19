@@ -65,6 +65,7 @@ public class ConnectorReader {
                     connector.setVersion(getConnectorVersion(connectorPath));
                     connector.setIconPath(connectorPath + File.separator + "icon");
                     connector.setUiSchemaPath(connectorPath + File.separator + "uischema");
+                    connector.setOutputSchemaPath(connectorPath + File.separator + "outputschema");
                     populateAllowedConnectionTypesMap(connector);
                     populateConnectorActions(connector, componentElement);
                     populateConnectionUiSchema(connector);
@@ -156,6 +157,7 @@ public class ConnectorReader {
         List<String> dependencies = getDependencies(componentElement);
         readDependencies(connector, dependencies);
         readUISchema(connector);
+        readOutputSchema(connector);
     }
 
     private void readUISchema(Connector connector) {
@@ -177,6 +179,22 @@ public class ConnectorReader {
                     } catch (IOException e) {
                         log.log(Level.SEVERE, "Error while reading connector ui schema file", e);
                     }
+                }
+            }
+        }
+    }
+
+    private void readOutputSchema(Connector connector) {
+
+        String outputSchemaPath = connector.getOutputSchemaPath();
+        File outputSchemaFolder = new File(outputSchemaPath);
+        if (outputSchemaFolder.exists()) {
+            File[] files = outputSchemaFolder.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    String fileName = file.getName();
+                    String operationName = fileName.substring(0, fileName.indexOf("."));
+                    connector.addOperationOutputSchema(operationName, file.getAbsolutePath());
                 }
             }
         }
