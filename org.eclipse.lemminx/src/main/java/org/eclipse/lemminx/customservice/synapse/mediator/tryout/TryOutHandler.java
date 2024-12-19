@@ -162,8 +162,7 @@ public class TryOutHandler {
         LOGGER.info("Fetching the input info of the mediator");
         try {
             reset();    // Fail-safe mechanism to reset the server and the breakpoints
-            Path editFilePath = TryOutUtils.cloneAndPreprocessProject(projectUri, request.getFile(), request.getEdits(),
-                    TEMP_FOLDER_PATH);
+            Path editFilePath = TryOutUtils.cloneAndPreprocessProject(projectUri, request, TEMP_FOLDER_PATH);
             boolean needStepOver = checkNeedStepOver(request, editFilePath);
 
             String serviceUrl = null;
@@ -181,7 +180,8 @@ public class TryOutHandler {
 
             // If it is an API, get the service URL and method
             if (serviceUrl == null) {
-                serviceUrl = TryOutUtils.getServiceUrl(activeBreakpoints, MI_HOST, server.getServerPort());
+                serviceUrl =
+                        TryOutUtils.getServiceUrl(editFilePath, activeBreakpoints, MI_HOST, server.getServerPort());
                 serviceMethod = TryOutUtils.getServiceMethod(activeBreakpoints);
             }
             sendRequest(serviceUrl, serviceMethod, request.getInputPayload());
@@ -255,7 +255,8 @@ public class TryOutHandler {
             // Get the mediator info
             registerBreakpoints(request, Path.of(request.getFile()));
             registerFaultSequenceBreakpoint(server.getServerPath().resolve(DEFAULT_FAULT_SEQUENCE_PATH));
-            String serviceUrl = TryOutUtils.getServiceUrl(activeBreakpoints, MI_HOST, server.getServerPort());
+            String serviceUrl = TryOutUtils.getServiceUrl(Path.of(request.getFile()), activeBreakpoints, MI_HOST,
+                    server.getServerPort());
             String serviceMethod = TryOutUtils.getServiceMethod(activeBreakpoints);
             sendRequest(serviceUrl, serviceMethod, request.getInputPayload());
             waitForMediatorInfo(true, false);
@@ -431,7 +432,7 @@ public class TryOutHandler {
                     lock.wait(1000);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    throw new NoBreakpointHitException("The given payload did not hit the breakpoint", e);
+                    throw new NoBreakpointHitException(TryOutConstants.TRYOUT_FAILURE_MESSAGE, e);
                 }
                 isDone = forOutput ? breakpointEventProcessor.isDone() : breakpointEventProcessor.isInputFetched();
             }
@@ -534,7 +535,7 @@ public class TryOutHandler {
                     "Connection: close\r\n");
 
             if (TryOutConstants.POST.equalsIgnoreCase(methodType)) {
-                if (StringUtils.isEmpty(inputPayload)) {
+                if (!StringUtils.isEmpty(inputPayload)) {
                     request.append("Content-Type: ").append(contentType).append("\r\n")
                             .append("Content-Length: ").append(inputPayload.getBytes(StandardCharsets.UTF_8).length)
                             .append("\r\n")
@@ -569,11 +570,12 @@ public class TryOutHandler {
         }
     }
 
-    public void close() {
+    public void shutDown() {
 
         try {
             commandClient.close();
             eventClient.close();
+            server.shutDown();
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Error while closing the clients", e);
         }

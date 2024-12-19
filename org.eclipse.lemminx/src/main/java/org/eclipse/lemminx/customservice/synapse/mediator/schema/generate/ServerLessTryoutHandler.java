@@ -47,8 +47,7 @@ public class ServerLessTryoutHandler {
     public MediatorTryoutInfo handle(MediatorTryoutRequest request) {
 
         try {
-            TryOutUtils.cloneAndPreprocessProject(projectUri, request.getFile(), request.getEdits(),
-                    TryOutConstants.TEMP_FOLDER_PATH);
+            TryOutUtils.cloneAndPreprocessProject(projectUri, request, TryOutConstants.TEMP_FOLDER_PATH);
             String filePath = request.getFile();
             MediatorTryoutInfo mediatorTryoutInfo = new MediatorTryoutInfo();
             JsonPrimitive payload = null;

@@ -364,13 +364,13 @@ public class MIServer {
                     count++;
                     Thread.sleep(1000);
                 }
-                throw new ArtifactDeploymentException("Artifact deployment failed");
+            throw new ArtifactDeploymentException(TryOutConstants.INVALID_ARTIFACT_ERROR);
 //            }
         } catch (IOException e) {
-            throw new ArtifactDeploymentException("Artifact deployment failed", e);
+            throw new ArtifactDeploymentException(TryOutConstants.TRYOUT_FAILURE_MESSAGE, e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new ArtifactDeploymentException("Artifact deployment interrupted", e);
+            throw new ArtifactDeploymentException(TryOutConstants.TRYOUT_FAILURE_MESSAGE, e);
         }
 
     }

@@ -78,6 +78,7 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceFolder;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.messages.Either3;
+import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
@@ -192,6 +193,9 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<MediatorTryoutInfo> tryOutMediator(MediatorTryoutRequest request);
+
+    @JsonNotification
+    void shutDownTryoutServer();
 
     @JsonRequest
     CompletableFuture<MediatorTryoutInfo> mediatorInputOutputSchema(MediatorTryoutRequest request);

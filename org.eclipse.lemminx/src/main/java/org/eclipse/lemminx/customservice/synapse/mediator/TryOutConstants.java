@@ -59,7 +59,8 @@ public class TryOutConstants {
     public static final String SERVER_ALREADY_IN_USE_ERROR =
             "The server is already in use or running. Please stop it and try again.";
     public static final String TRYOUT_NOT_ACTIVATED_ERROR = "Try-Out feature not activated.";
-    public static final String TRYOUT_FAILURE_MESSAGE = "Error while handling the tryout";
+    public static final String TRYOUT_FAILURE_MESSAGE =
+            "An error occurred while handling the tryout. Please try again.";
     public static final String AXIS2 = "axis2";
     public static final String VARIABLE = "variable";
     public static final String DEFAULT = "default";
@@ -86,6 +87,8 @@ public class TryOutConstants {
     public static final String IMPORTS = "imports";
     public static final Path MI_DEPLOYMENT_PATH = Path.of("repository", "deployment",
             "server", "carbonapps");
+    public static final String INVALID_ARTIFACT_ERROR = "Unable to try out the mediator due to an invalid " +
+            "configuration in the API. Please review the API and try again.";
 
     private TryOutConstants() {
 
