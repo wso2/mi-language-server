@@ -226,12 +226,12 @@ public class ThrottleMediator {
                             Map<String, Object> extractedPolicy = extractPolicyData(policyObj);
 
                             List<Object> entry = List.of(
-                                    extractedPolicy.get("throttleType"),
-                                    extractedPolicy.get("throttleRange"),
-                                    extractedPolicy.get("accessType"),
-                                    extractedPolicy.get("maxRequestCount"),
-                                    extractedPolicy.get("unitTime"),
-                                    extractedPolicy.get("prohibitPeriod")
+                                    extractedPolicy.get("throttleType") != null ? extractedPolicy.get("throttleType") : "",
+                                    extractedPolicy.get("throttleRange") != null ? extractedPolicy.get("throttleRange") : "",
+                                    extractedPolicy.get("accessType") != null ? extractedPolicy.get("accessType") : "",
+                                    extractedPolicy.get("maxRequestCount") != null ? extractedPolicy.get("maxRequestCount") : "",
+                                    extractedPolicy.get("unitTime") != null ? extractedPolicy.get("unitTime") : "",
+                                    extractedPolicy.get("prohibitPeriod") != null ? extractedPolicy.get("prohibitPeriod") : ""
                             );
                             policyEntries.add(entry);
                         }

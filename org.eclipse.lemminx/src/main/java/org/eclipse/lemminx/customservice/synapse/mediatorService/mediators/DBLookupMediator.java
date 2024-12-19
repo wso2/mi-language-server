@@ -160,7 +160,7 @@ public class DBLookupMediator {
                 List<Object> paramData = List.of(
                         parameter.getType() != null ? parameter.getType().toString() : "",
                         parameter.getValue() != null ? "LITERAL" : "EXPRESSION",
-                        parameter.getValue(),
+                        parameter.getValue() != null ? parameter.getValue() : "",
                         Map.of("isExpression", true, "value", parameter.getExpression() != null ? parameter.getExpression() : "")
                 );
                 parameters.add(paramData);

@@ -38,20 +38,22 @@ public class ClassMediator {
         for (Object propertyObj : propertiesData) {
             if (propertyObj instanceof List<?>) {
                 List<Object> property = (List<Object>) propertyObj;
-                Map<String, Object> propertyData = property.get(1) instanceof Map ? (Map<String, Object>) property.get(1) : null;
-                if (propertyData != null) {
-                    String propertyName = property.get(0).toString();
-                    List<String> namespaces = propertyData.get("namespaces") instanceof List ? (List<String>) propertyData.get("namespaces") : null;
-                    Map<String, Object> propertyValue = new HashMap<>(Map.of(
-                            "propertyName", property.get(0),
-                            "value", propertyData.get("value"),
-                            "isExpression", propertyData.get("isExpression")
-                    ));
-                    if (namespaces != null) {
-                        propertyValue.put("namespaces", namespaces);
+                if (property.size() >= 2) {
+                    Map<String, Object> propertyData = property.get(1) instanceof Map ? (Map<String, Object>) property.get(1) : null;
+                    if (propertyData != null) {
+                        String propertyName = property.get(0) instanceof String ? (String) property.get(0) : "";
+                        List<String> namespaces = propertyData.get("namespaces") instanceof List ? (List<String>) propertyData.get("namespaces") : null;
+                        Map<String, Object> propertyValue = new HashMap<>(Map.of(
+                                "propertyName",propertyName,
+                                "value", propertyData.get("value") != null ? propertyData.get("value") : "",
+                                "isExpression", propertyData.get("isExpression") != null ? propertyData.get("isExpression") : false
+                        ));
+                        if (namespaces != null) {
+                            propertyValue.put("namespaces", namespaces);
+                        }
+                        propertyValue.put("propertyName", propertyName);
+                        properties.add(propertyValue);
                     }
-                    propertyValue.put("propertyName", propertyName);
-                    properties.add(propertyValue);
                 }
             }
         }
@@ -78,7 +80,8 @@ public class ClassMediator {
                     propertyDetails.put("namespaces", MediatorUtils.transformNamespaces(property.getNamespaces()));
                 }
 
-                properties.add(List.of(property.getName(), propertyDetails));
+                properties.add(List.of(property.getName() != null ? property.getName() : "",
+                        propertyDetails));
             }
 
             data.put("properties", properties);

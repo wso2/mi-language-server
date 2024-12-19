@@ -161,7 +161,7 @@ public class DBReportMediator {
                 List<Object> paramData = List.of(
                         parameter.getType() != null ? parameter.getType().toString() : "",
                         parameter.getValue() != null ? "LITERAL" : "EXPRESSION",
-                        parameter.getValue(),
+                        parameter.getValue() != null ? parameter.getValue() : "",
                         Map.of("isExpression", true, "value", parameter.getExpression() != null ? parameter.getExpression() : "")
                 );
                 parameters.add(paramData);
@@ -185,73 +185,73 @@ public class DBReportMediator {
         if (!"DEFAULT".equals(data.get("propertyAutocommit"))) {
             properties.add(Map.of(
                     "propertyName", "autocommit",
-                    "propertyValue", data.get("propertyAutocommit")
+                    "propertyValue", data.get("propertyAutocommit") != null ? data.get("propertyAutocommit") : ""
             ));
         }
         if (!"DEFAULT".equals(data.get("propertyIsolation"))) {
             properties.add(Map.of(
                     "propertyName", "isolation",
-                    "propertyValue", data.get("propertyIsolation")
+                    "propertyValue", data.get("propertyIsolation") != null ? data.get("propertyIsolation") : ""
             ));
         }
         if (!"-1".equals(data.get("propertyMaxActive"))) {
             properties.add(Map.of(
                     "propertyName", "maxactive",
-                    "propertyValue", data.get("propertyMaxActive")
+                    "propertyValue", data.get("propertyMaxActive") != null ? data.get("propertyMaxActive") : ""
             ));
         }
         if (!"-1".equals(data.get("propertyMaxIdle"))) {
             properties.add(Map.of(
                     "propertyName", "maxidle",
-                    "propertyValue", data.get("propertyMaxIdle")
+                    "propertyValue", data.get("propertyMaxIdle") != null ? data.get("propertyMaxIdle") : ""
             ));
         }
         if (!"-1".equals(data.get("propertyMaxOpenStatements"))) {
             properties.add(Map.of(
                     "propertyName", "maxopenstatements",
-                    "propertyValue", data.get("propertyMaxOpenStatements")
+                    "propertyValue", data.get("propertyMaxOpenStatements") != null ? data.get("propertyMaxOpenStatements") : ""
             ));
         }
         if (!"-1".equals(data.get("propertyMaxWait"))) {
             properties.add(Map.of(
                     "propertyName", "maxwait",
-                    "propertyValue", data.get("propertyMaxWait")
+                    "propertyValue", data.get("propertyMaxWait") != null ? data.get("propertyMaxWait") : ""
             ));
         }
         if (!"-1".equals(data.get("propertyMinIdle"))) {
             properties.add(Map.of(
                     "propertyName", "minidle",
-                    "propertyValue", data.get("propertyMinIdle")
+                    "propertyValue", data.get("propertyMinIdle") != null ? data.get("propertyMinIdle") : ""
             ));
         }
         if (!"DEFAULT".equals(data.get("propertyPoolStatements"))) {
             properties.add(Map.of(
                     "propertyName", "poolstatements",
-                    "propertyValue", data.get("propertyPoolStatements")
+                    "propertyValue", data.get("propertyPoolStatements") != null ? data.get("propertyPoolStatements") : ""
             ));
         }
         if (!"DEFAULT".equals(data.get("propertyTestOnBorrow"))) {
             properties.add(Map.of(
                     "propertyName", "testonborrow",
-                    "propertyValue", data.get("propertyTestOnBorrow")
+                    "propertyValue", data.get("propertyTestOnBorrow") != null ? data.get("propertyTestOnBorrow") : ""
             ));
         }
         if (!"DEFAULT".equals(data.get("propertyTestWhileIdle"))) {
             properties.add(Map.of(
                     "propertyName", "testwhileidle",
-                    "propertyValue", data.get("propertyTestWhileIdle")
+                    "propertyValue", data.get("propertyTestWhileIdle") != null ? data.get("propertyTestWhileIdle") : ""
             ));
         }
         if (data.get("propertyValidationQuery") != null) {
             properties.add(Map.of(
                     "propertyName", "validationquery",
-                    "propertyValue", data.get("propertyValidationQuery")
+                    "propertyValue", data.get("propertyValidationQuery") != null ? data.get("propertyValidationQuery") : ""
             ));
         }
         if (!"-1".equals(data.get("propertyInitialSize"))) {
             properties.add(Map.of(
                     "propertyName", "initialsize",
-                    "propertyValue", data.get("propertyInitialSize")
+                    "propertyValue", data.get("propertyInitialSize") != null ? data.get("propertyInitialSize") : ""
             ));
         }
 
