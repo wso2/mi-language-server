@@ -92,7 +92,7 @@ public class ExpressionCompletionsProvider {
                                                      int cursorOffset) {
 
         try {
-            Position mediatorPosition = getMediatorPosition(document, position);
+            Position mediatorPosition = ExpressionCompletionUtils.getMediatorPosition(document, position);
             if (mediatorPosition == null) {
                 return null;
             }
@@ -102,33 +102,6 @@ public class ExpressionCompletionsProvider {
             return response;
         } catch (BadLocationException e) {
             LOGGER.log(Level.SEVERE, "Error while getting the mediator position", e);
-        }
-        return null;
-    }
-
-    private static Position getMediatorPosition(DOMDocument document, Position position) throws BadLocationException {
-
-        if (document == null) {
-            return null;
-        }
-        int offset = document.offsetAt(position);
-        DOMNode node = document.findNodeAt(offset);
-        Mediator mediator = MediatorFactoryFinder.getInstance().getMediator(node);
-        if (mediator != null && !(mediator instanceof InvalidMediator)) {
-            return position;
-        }
-        if (offset > node.getStart() && offset < node.getEnd()) {
-            List<DOMNode> children = node.getChildren();
-            DOMNode currentNode = null;
-            for (DOMNode child : children) {
-                if (offset <= child.getEnd()) {
-                    break;
-                }
-                currentNode = child;
-            }
-            if (currentNode != null) {
-                return document.positionAt(currentNode.getStart());
-            }
         }
         return null;
     }
@@ -164,9 +137,10 @@ public class ExpressionCompletionsProvider {
         }
         String projectPath = matcher.group(1);
         ServerLessTryoutHandler serverLessTryoutHandler = new ServerLessTryoutHandler(projectPath);
+        String payload = ExpressionCompletionUtils.getInputPayload(projectPath);
         MediatorTryoutRequest propertyRequest = new MediatorTryoutRequest(
                 request.getXMLDocument().getDocumentURI().substring(7), // Remove the "file://" prefix
-                request.getPosition().getLine(), request.getPosition().getCharacter(), StringUtils.EMPTY, null);
+                request.getPosition().getLine(), request.getPosition().getCharacter(), payload, null);
         MediatorTryoutInfo info = serverLessTryoutHandler.handle(propertyRequest);
         List<Property> configs = ExpressionCompletionUtils.getConfigs(projectPath);
         info.setInputConfigs(configs);

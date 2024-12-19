@@ -21,6 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.expression;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionParam;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.Functions;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.HelperPanelData;
@@ -35,7 +36,9 @@ import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.Position;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -64,11 +67,31 @@ public class ExpressionHelperProvider {
         if (!ExpressionCompletionUtils.isValidRequest(param)) {
             return getBasicHelperData();
         }
-        MediatorTryoutRequest request = new MediatorTryoutRequest(param.getDocumentUri(), param.getPosition().getLine(),
-                param.getPosition().getLine(), null, null);
-        MediatorTryoutInfo tryoutInfo = getMediatorTryoutInfo(request);
-        MediatorInfo propsData = tryoutInfo.getOutput();
-        return createHelperData(propsData, ExpressionCompletionUtils.getFunctions());
+        try {
+            Position mediatorPosition =
+                    ExpressionCompletionUtils.getMediatorPosition(param.getDocumentUri(), param.getPosition());
+            String payload = ExpressionCompletionUtils.getInputPayload(projectPath);
+            if (mediatorPosition == null && param.getPosition() == null) {
+                return getBasicHelperData();
+            } else if (mediatorPosition == null) {
+                return getBasicHelperData(payload);
+            }
+            MediatorTryoutRequest request =
+                    new MediatorTryoutRequest(param.getDocumentUri(), mediatorPosition.getLine(),
+                            mediatorPosition.getCharacter(), payload, null);
+            MediatorTryoutInfo tryoutInfo = getMediatorTryoutInfo(request);
+            MediatorInfo propsData = tryoutInfo.getOutput();
+            return createHelperData(propsData, ExpressionCompletionUtils.getFunctions());
+        } catch (BadLocationException | IOException e) {
+            return getBasicHelperData();
+        }
+    }
+
+    private HelperPanelData getBasicHelperData(String payload) {
+
+        HelperPanelData helperData = getBasicHelperData();
+        helperData.setPayload(createDataList(new JsonPrimitive(payload)));
+        return helperData;
     }
 
     private HelperPanelData getBasicHelperData() {

@@ -22,6 +22,7 @@ import com.google.gson.JsonPrimitive;
 import org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants;
 import org.eclipse.lemminx.customservice.synapse.mediator.schema.generate.visitor.APIVisitor;
 import org.eclipse.lemminx.customservice.synapse.mediator.TryOutUtils;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorInfo;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutRequest;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeGenerator;
@@ -47,16 +48,10 @@ public class ServerLessTryoutHandler {
     public MediatorTryoutInfo handle(MediatorTryoutRequest request) {
 
         try {
-            TryOutUtils.cloneAndPreprocessProject(projectUri, request, TryOutConstants.TEMP_FOLDER_PATH);
             String filePath = request.getFile();
-            MediatorTryoutInfo mediatorTryoutInfo = new MediatorTryoutInfo();
-            JsonPrimitive payload = null;
-            if (request.getInputPayload() != null) {
-                payload = new JsonPrimitive(request.getInputPayload());
-            }
-            mediatorTryoutInfo.setInputPayload(payload);
             DOMDocument domDocument = Utils.getDOMDocument(new File(filePath));
             STNode node = SyntaxTreeGenerator.buildTree(domDocument.getDocumentElement());
+            MediatorTryoutInfo mediatorTryoutInfo = createInitialMediatorTryoutInfo(request);
             if (node != null) {
                 visitNode(node, request, mediatorTryoutInfo);
             }
@@ -64,6 +59,18 @@ public class ServerLessTryoutHandler {
         } catch (IOException e) {
             return new MediatorTryoutInfo(e.getMessage());
         }
+    }
+
+    private MediatorTryoutInfo createInitialMediatorTryoutInfo(MediatorTryoutRequest request) {
+
+        MediatorInfo mediatorInfo = new MediatorInfo();
+        JsonPrimitive payload = null;
+        if (request.getInputPayload() != null) {
+            payload = new JsonPrimitive(request.getInputPayload());
+        }
+        mediatorInfo.setPayload(payload);
+        //TODO: Add params to the mediatorInfo
+        return new MediatorTryoutInfo(mediatorInfo, mediatorInfo);
     }
 
     private void visitNode(STNode node, MediatorTryoutRequest request, MediatorTryoutInfo mediatorTryoutInfo) {
