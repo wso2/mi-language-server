@@ -143,11 +143,12 @@ public class MediatorHandler {
             List<String> parameters = operation.getParameters();
             Map<String, Object> connectorData = new HashMap<>();
             connectorData.put(Constant.TAG, operation.getTag());
-            connectorData.put(Constant.CONFIG_KEY, data.get(Constant.CONFIG_REF));
+            connectorData.put(Constant.CONFIG_KEY, data.get(Constant.CONFIG_KEY));
             List<Object> parameterData = new ArrayList<>();
             for (String parameter : parameters) {
                 if (data.containsKey(parameter)) {
-                    parameterData.add(Map.of(Constant.NAME, parameter, Constant.VALUE, data.get(parameter)));
+                    Map<String, Object> dataValue = processConnectorParameter(data.get(parameter));
+                    parameterData.add(Map.of(Constant.NAME, parameter, Constant.VALUE, dataValue));
                 }
             }
             connectorData.put(Constant.PARAMETERS, parameterData);
@@ -157,6 +158,31 @@ public class MediatorHandler {
             return new SynapseConfigResponse(textEdit);
         }
         return null;
+    }
+
+    private Map<String, Object> processConnectorParameter(Object data) {
+
+        Map<String, Object> dataValue = new HashMap<>();
+        if (data instanceof String) {
+            dataValue.put(Constant.VALUE, String.format("%s", data));
+        } else if (data instanceof Boolean) {
+            dataValue.put(Constant.VALUE, data);
+        } else if (data instanceof Map) {
+            dataValue = (Map) data;
+            boolean isExpression = (boolean) dataValue.get(Constant.IS_EXPRESSION);
+            if (isExpression) {
+                dataValue.put(Constant.VALUE, String.format("{%s}", dataValue.get(Constant.VALUE)));
+            }
+        }
+        if (dataValue.get(Constant.VALUE) != null && dataValue.get(Constant.VALUE).toString().startsWith("<![CDATA[")) {
+            dataValue.put("isCDATA", true);
+            String value = dataValue.get(Constant.VALUE).toString().substring(9); // Remove <![CDATA[
+            if (value.endsWith("]]>")) {
+                value = value.substring(0, value.length() - 3); // Remove ]]>
+            }
+            dataValue.put(Constant.VALUE, value);
+        }
+        return dataValue;
     }
 
     private ConnectorAction getConnectorOperation(STNode node, String mediator) {
