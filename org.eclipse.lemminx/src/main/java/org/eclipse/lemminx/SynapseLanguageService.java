@@ -509,9 +509,9 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     }
 
     @Override
-    public void shutDownTryoutServer() {
+    public CompletableFuture<Boolean> shutDownTryoutServer() {
 
-        tryOutManager.shutdown();
+        return CompletableFuture.supplyAsync(() -> Boolean.valueOf(tryOutManager.shutdown()));
     }
 
     @Override

@@ -26,13 +26,8 @@ import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.ArtifactDeploymentException;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.DeployedArtifactType;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeGenerator;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.NamedSequence;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.API;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
-import org.eclipse.lemminx.dom.DOMDocument;
 import org.apache.maven.shared.invoker.Invoker;
 
 
@@ -56,9 +51,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 public class MIServer {
 
@@ -270,25 +265,22 @@ public class MIServer {
         }));
     }
 
-    public void shutDown() {
+    public boolean shutDown() {
 
+        long parentPid = serverProcess.pid();
         try {
-            // Send SIGINT (Ctrl+C) signal
-            new ProcessBuilder("kill", "-SIGINT", String.valueOf(serverProcess.pid())).start();
-
-            // Wait for up to 10 seconds for the process to terminate
-            if (serverProcess.waitFor(SERVER_SHUTDOWN_TIMEOUT, TimeUnit.SECONDS)) {
-                LOGGER.info("Server terminated gracefully");
-            } else {
-                LOGGER.warning("Server didn't terminate in time, forcing shutdown...");
-//                serverProcess.destroyForcibly();
+            ProcessHandle parentProcess = ProcessHandle.of(parentPid).orElseThrow();
+            Stream<ProcessHandle> descendants = parentProcess.descendants();
+            descendants.forEach(process -> process.destroy());
+            parentProcess.destroy();
+            boolean isAlive = parentProcess.onExit().toCompletableFuture().join().isAlive();
+            if (!isAlive) {
+                isStarted = false;
             }
-            isStarted = false;
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            LOGGER.log(Level.WARNING, String.format("Shutdown interrupted: %s", e.getMessage()));
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, String.format("Error shutting down server: %s", e.getMessage()));
+            return !isAlive;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, String.format("Error terminating process tree: %s", e.getMessage()));
+            return Boolean.FALSE;
         }
     }
 
