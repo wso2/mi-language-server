@@ -36,6 +36,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.NamedSequence;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.API;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.APIResource;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.ApiVersionType;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Respond;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
@@ -294,14 +295,14 @@ public class TryOutUtils {
             return null;
         }
         API api = (API) SyntaxTreeGenerator.buildTree(document.getDocumentElement());
-        String apiKey = api.getContext();
+        String apiContext = getApiContext(api);
         JsonObject apiObj =
                 activeBreakpoints.get(0).get(Constant.SEQUENCE).getAsJsonObject().get(Constant.API).getAsJsonObject();
         JsonObject resourceObj = apiObj.get(Constant.RESOURCE).getAsJsonObject();
         JsonElement urlMapping = resourceObj.get(Constant.URL_MAPPING);
-        JsonElement uriMapping = resourceObj.get(TryOutConstants.URI_MAPPING);
+        JsonElement uriMapping = resourceObj.get(TryOutConstants.URI_TEMPLATE);
         StringBuilder url = new StringBuilder();
-        url.append(TryOutConstants.HTTP_PREFIX).append(host).append(":").append(port).append(apiKey);
+        url.append(TryOutConstants.HTTP_PREFIX).append(host).append(":").append(port).append(apiContext);
         if (urlMapping != null && !urlMapping.isJsonNull()) {
             url.append(urlMapping.getAsString());
         } else if (uriMapping != null && !uriMapping.isJsonNull()) {
@@ -310,6 +311,23 @@ public class TryOutUtils {
             url.append(TryOutConstants.SLASH);
         }
         return url.toString();
+    }
+
+    private static String getApiContext(API api) {
+
+        String apiContext = api.getContext();
+        ApiVersionType versionType = api.getVersionType();
+        if (versionType != null) {
+            switch (versionType) {
+                case url:
+                    apiContext = apiContext + TryOutConstants.SLASH + api.getVersion();
+                    break;
+                case context:
+                    apiContext = apiContext.replaceAll("\\{version}", api.getVersion());
+                    break;
+            }
+        }
+        return apiContext;
     }
 
     /**
