@@ -267,6 +267,9 @@ public class MIServer {
 
     public boolean shutDown() {
 
+        if (!isStarted) {
+            return Boolean.TRUE;
+        }
         long parentPid = serverProcess.pid();
         try {
             ProcessHandle parentProcess = ProcessHandle.of(parentPid).orElseThrow();
