@@ -558,6 +558,9 @@ public class TryOutHandler {
 
     protected void reset() {
 
+        if (breakpointEventProcessor == null) {
+            return;
+        }
         currentInputInfo = null;
         clearBreakpoints();
         breakpointEventProcessor.reset();
