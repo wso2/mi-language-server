@@ -47,7 +47,7 @@
               ],
               "required": true,
               "helpTip": "",
-              "canAddNew": true,
+              "canAddNew": true
             }
           }
         ]
