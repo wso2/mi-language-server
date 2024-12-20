@@ -101,6 +101,8 @@ public class DebugEventClient extends Thread {
     public void close() throws IOException {
 
         isDebuggerActive = false;
-        socket.close();
+        if (socket != null) {
+            socket.close();
+        }
     }
 }

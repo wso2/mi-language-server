@@ -576,8 +576,10 @@ public class TryOutHandler {
     public boolean shutDown() {
 
         try {
-            commandClient.close();
-            eventClient.close();
+            if (commandClient != null && eventClient != null) {
+                commandClient.close();
+                eventClient.close();
+            }
             return server.shutDown();
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Error while closing the clients", e);

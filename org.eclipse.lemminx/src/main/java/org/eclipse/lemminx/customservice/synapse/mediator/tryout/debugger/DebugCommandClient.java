@@ -86,6 +86,8 @@ public class DebugCommandClient {
 
     public void close() throws IOException {
 
-        socket.close();
+        if (socket != null) {
+            socket.close();
+        }
     }
 }
