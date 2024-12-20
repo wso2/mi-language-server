@@ -60,9 +60,9 @@ public class TryOutManager {
         return connectionTester.testConnection(request);
     }
 
-    public void shutdown() {
+    public boolean shutdown() {
 
         tryOutHandler.reset();
-        tryOutHandler.shutDown();
+        return tryOutHandler.shutDown();
     }
 }

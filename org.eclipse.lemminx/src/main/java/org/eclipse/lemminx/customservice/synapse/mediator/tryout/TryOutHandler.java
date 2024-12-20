@@ -570,14 +570,15 @@ public class TryOutHandler {
         }
     }
 
-    public void shutDown() {
+    public boolean shutDown() {
 
         try {
             commandClient.close();
             eventClient.close();
-            server.shutDown();
+            return server.shutDown();
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Error while closing the clients", e);
         }
+        return Boolean.FALSE;
     }
 }

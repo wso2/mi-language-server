@@ -72,11 +72,6 @@ public class DebugEventClient extends Thread {
                 breakpointEventProcessor.process(eventJson);
             }
         }
-        try {
-            socket.close();
-        } catch (IOException e) {
-            LOGGER.info("Failed to close the socket: " + e.getMessage());
-        }
     }
 
     public String listen() {
@@ -103,8 +98,9 @@ public class DebugEventClient extends Thread {
         return socket.isConnected();
     }
 
-    public void close() {
+    public void close() throws IOException {
 
         isDebuggerActive = false;
+        socket.close();
     }
 }

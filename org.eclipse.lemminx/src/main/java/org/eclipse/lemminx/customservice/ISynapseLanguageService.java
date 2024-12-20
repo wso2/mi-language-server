@@ -194,8 +194,8 @@ public interface ISynapseLanguageService {
     @JsonRequest
     CompletableFuture<MediatorTryoutInfo> tryOutMediator(MediatorTryoutRequest request);
 
-    @JsonNotification
-    void shutDownTryoutServer();
+    @JsonRequest
+    CompletableFuture<Boolean> shutDownTryoutServer();
 
     @JsonRequest
     CompletableFuture<MediatorTryoutInfo> mediatorInputOutputSchema(MediatorTryoutRequest request);

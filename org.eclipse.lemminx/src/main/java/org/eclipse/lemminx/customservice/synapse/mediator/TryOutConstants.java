@@ -32,7 +32,6 @@ public class TryOutConstants {
     public static final String AXIS2_OPERATION_PROPERTIES = "axis2Operation-properties";
     public static final String ENVELOPE = "Envelope";
     public static final String API_KEY = "api-key";
-    public static final String URI_MAPPING = "uri-mapping";
     public static final String HTTP_PREFIX = "http://";
     public static final String SLASH = "/";
     public static final String POST = "POST";
@@ -89,6 +88,7 @@ public class TryOutConstants {
             "server", "carbonapps");
     public static final String INVALID_ARTIFACT_ERROR = "Unable to try out the mediator due to an invalid " +
             "configuration in the API. Please review the API and try again.";
+    public static final String URI_TEMPLATE = "uri-template";
 
     private TryOutConstants() {
 
