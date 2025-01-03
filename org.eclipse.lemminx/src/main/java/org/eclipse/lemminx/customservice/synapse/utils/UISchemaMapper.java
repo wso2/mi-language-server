@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.MediatorUtils;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.Namespace;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Connector;
@@ -29,9 +30,12 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Conne
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.inbound.InboundEndpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.inbound.InboundEndpointParameters;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Parameter;
+import org.json.JSONArray;
 
 import java.util.List;
 import java.util.regex.Pattern;
+
+import static org.eclipse.lemminx.customservice.synapse.utils.Utils.isExpression;
 
 public class UISchemaMapper {
 
@@ -60,7 +64,12 @@ public class UISchemaMapper {
         if (elementObj.get("type").getAsString().equals("table")) {
             String tableName = value.get("name").getAsString();
             if (elementData.has(tableName)) {
-                JsonArray tableData = elementData.getAsJsonArray(tableName);
+                JsonArray tableData;
+                if (elementData.isJsonArray()) {
+                    tableData = elementData.getAsJsonArray(tableName);
+                } else {
+                    tableData = generateTableDataForConnector(elementData.get(tableName).getAsString());
+                }
                 value.add("currentValue", tableData);
             }
         } else {
@@ -68,10 +77,40 @@ public class UISchemaMapper {
                 String attributeName = value.get("name").getAsString();
                 if (elementData.has(attributeName)) {
                     JsonElement currentValue = elementData.get(attributeName);
+                    if (currentValue.isJsonPrimitive() && currentValue.getAsString().startsWith("'{") && currentValue.getAsString().endsWith("}'")) {
+                        currentValue = new JsonPrimitive(
+                                currentValue.getAsString().substring(1, currentValue.getAsString().length() - 1));
+                    }
                     value.add("currentValue", currentValue);
                 }
             }
         }
+    }
+
+    private static JsonArray generateTableDataForConnector(String tableFieldValue) {
+
+        JsonArray result = new JsonArray();
+        JSONArray tableValues = new JSONArray(tableFieldValue);
+        for (int i = 0; i < tableValues.length(); i++) {
+            JSONArray tableValue = tableValues.getJSONArray(i);
+            if (tableValue.length() == 2) {
+                String fieldName = tableValue.getString(0).trim();
+                String fieldValue = tableValue.getString(1).trim();
+
+                JsonArray tableDataRow = new JsonArray();
+                JsonObject rowInfo = new JsonObject();
+
+                rowInfo.add("isExpression", new JsonPrimitive(isExpression(fieldValue)));
+                rowInfo.add("value", new JsonPrimitive(fieldValue));
+                rowInfo.add("namespaces", new JsonArray());
+
+                tableDataRow.add(fieldName);
+                tableDataRow.add(rowInfo);
+                tableDataRow.add(rowInfo);
+                result.add(tableDataRow);
+            }
+        }
+        return result;
     }
 
     public static JsonObject mapInputToUISchemaForConnector(Connector connector, JsonObject uiSchema) {

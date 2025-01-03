@@ -965,4 +965,12 @@ public class Utils {
         }
         Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
     }
+
+    public static boolean isExpression(String value) {
+
+        if (value == null) {
+            return false;
+        }
+        return value.startsWith("${") && value.endsWith("}");
+    }
 }

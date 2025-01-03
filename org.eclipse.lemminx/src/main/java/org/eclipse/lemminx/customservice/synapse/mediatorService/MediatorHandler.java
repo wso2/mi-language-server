@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.internal.LinkedTreeMap;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorAction;
@@ -172,7 +173,30 @@ public class MediatorHandler {
             boolean isExpression = (boolean) dataValue.get(Constant.IS_EXPRESSION);
             if (isExpression) {
                 dataValue.put(Constant.VALUE, String.format("{%s}", dataValue.get(Constant.VALUE)));
+            } else {
+                if (dataValue.get(Constant.VALUE).toString().startsWith("{") &&
+                        dataValue.get(Constant.VALUE).toString().endsWith("}")) {
+                    dataValue.put(Constant.VALUE, String.format("'%s'", dataValue.get(Constant.VALUE)));
+                }
             }
+        } else if (data instanceof List) {
+            List<LinkedTreeMap> dataValueList = (List) data;
+            StringBuilder dataValueStr = new StringBuilder("[");
+            for (LinkedTreeMap dataValueItem : dataValueList) {
+                if (dataValueItem.get(Constant.PROPERTY_NAME) != null && dataValueItem.get(Constant.PROPERTY_VALUE) != null) {
+                    Object propertyValue;
+                    if (dataValueItem.get(Constant.PROPERTY_VALUE) instanceof LinkedTreeMap) {
+                        LinkedTreeMap dataValueLinkedTree =  (LinkedTreeMap) dataValueItem.get(Constant.PROPERTY_VALUE);
+                        propertyValue = dataValueLinkedTree.get(Constant.VALUE);
+                    } else {
+                        propertyValue = dataValueItem.get(Constant.PROPERTY_VALUE);
+                    }
+                    dataValueStr.append(String.format("[\"%s\",\"%s\"],",
+                            dataValueItem.get(Constant.PROPERTY_NAME), propertyValue));
+                }
+            }
+            dataValueStr.append(']');
+            dataValue.put(Constant.VALUE, String.format("%s", dataValueStr));
         }
         if (dataValue.get(Constant.VALUE) != null && dataValue.get(Constant.VALUE).toString().startsWith("<![CDATA[")) {
             dataValue.put("isCDATA", true);
