@@ -733,7 +733,7 @@ public class Utils {
         }
     }
 
-    public static Path copyXSDFiles(String projectUri) throws IOException {
+    public static Path copyXSDFiles(String projectUri) throws IOException, URISyntaxException {
 
         String version = getServerVersion(projectUri, Constant.DEFAULT_MI_VERSION);
         String versionFolder = version.replace(".", "");
@@ -744,7 +744,8 @@ public class Utils {
         return tempFolder.toPath();
     }
 
-    public static void extractJarFolder(String resourceFolder, Path targetDirectory) throws IOException {
+    public static void extractJarFolder(String resourceFolder, Path targetDirectory)
+            throws IOException, URISyntaxException {
 
         Files.createDirectories(targetDirectory);
         ClassLoader classLoader = Utils.class.getClassLoader();
@@ -756,7 +757,7 @@ public class Utils {
 
         if (resourceURL.getProtocol().equals(Constant.JAR)) {
             // Resource is inside a JAR
-            String jarPath = resourceURL.getPath().substring(5, resourceURL.getPath().indexOf("!"));
+            String jarPath = extractJarPath(resourceURL);
             try (JarFile jarFile = new JarFile(Paths.get(jarPath).toFile())) {
                 Enumeration<JarEntry> entries = jarFile.entries();
                 while (entries.hasMoreElements()) {
@@ -773,6 +774,12 @@ public class Utils {
                 }
             }
         }
+    }
+
+    private static String extractJarPath(URL resourceURL) throws URISyntaxException {
+
+        URI uri = new URI(resourceURL.getPath().substring(0, resourceURL.getPath().indexOf("!")));
+        return new File(uri).getAbsolutePath();
     }
 
     public static Path updateSynapseCatalogSettings(InitializeParams params) throws IOException, URISyntaxException {

@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -90,8 +91,7 @@ public class MediatorHandler {
     public JsonObject getSupportedMediators(TextDocumentIdentifier documentIdentifier, Position position) {
 
         try {
-            DOMDocument document = Utils.getDOMDocument(new File(documentIdentifier.getUri()
-                    .replaceFirst("file://", "")));
+            DOMDocument document = Utils.getDOMDocument(new File(new URI(documentIdentifier.getUri())));
             List<String> lastMediators = Arrays.asList("send", "drop", "loopback", "respond");
             List<String> iterateMediators = Arrays.asList("iterate", "foreach");
             int offset = document.offsetAt(position);
@@ -258,8 +258,7 @@ public class MediatorHandler {
     public JsonObject getSchemaWithValues(TextDocumentIdentifier documentIdentifier, Position position) {
 
         try {
-            DOMDocument document = Utils.getDOMDocument(new File(documentIdentifier.getUri()
-                    .replaceFirst("file://", "")));
+            DOMDocument document = Utils.getDOMDocument(new File(new URI(documentIdentifier.getUri())));
             STNode node = getMediatorNodeAtPosition(document, position, Boolean.TRUE);
             if (node != null) {
                 if (node instanceof Connector) {
