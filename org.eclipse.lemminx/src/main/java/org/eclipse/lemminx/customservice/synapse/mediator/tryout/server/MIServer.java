@@ -218,11 +218,21 @@ public class MIServer {
 
     private synchronized Process startServerProcess() throws IOException {
 
-        ProcessBuilder processBuilder = new ProcessBuilder(
-                "./micro-integrator.sh",
-                "-Desb.debug=true"
-        );
+        String os = System.getProperty("os.name").toLowerCase();
         Path serverBinPath = Path.of(serverPath.toString(), "bin");
+        ProcessBuilder processBuilder;
+
+        if (os.contains("win")) {
+            String batchFile = new File(serverBinPath.toFile(), "micro-integrator.bat")
+                    .getAbsolutePath();
+            processBuilder = new ProcessBuilder();
+            processBuilder.command("cmd", "/c", batchFile, "-Desb.debug=true");
+        } else {
+            // Unix-like systems
+            processBuilder = new ProcessBuilder("./micro-integrator.sh", "-Desb.debug=true");
+        }
+        Map<String, String> env = processBuilder.environment();
+        env.put("JAVA_HOME", System.getProperty("java.home"));
         processBuilder.directory(serverBinPath.toFile());
 
         processBuilder.redirectErrorStream(true);
@@ -309,6 +319,7 @@ public class MIServer {
         Properties properties = new Properties();
         properties.setProperty("maven.test.skip", "true");
         request.setProperties(properties);
+        request.setJavaHome(new File(System.getProperty("java.home")));
         try {
             invoker.execute(request);
             copyCarToMI(tempProjectUri);

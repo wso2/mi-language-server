@@ -139,7 +139,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     private XMLLanguageServer xmlLanguageServer;
     private SynapseLanguageClientAPI languageClient;
     private AbstractConnectorLoader connectorLoader;
-    private static String extensionPath;
+    private String extensionPath;
     private String projectUri;
     private boolean isLegacyProject;
     private String projectServerVersion;
@@ -586,7 +586,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         return connectorHolder;
     }
 
-    public static String getExtensionPath() {
+    public String getExtensionPath() {
 
         return extensionPath;
     }
