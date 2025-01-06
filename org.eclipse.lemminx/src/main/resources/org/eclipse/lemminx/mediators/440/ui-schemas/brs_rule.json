@@ -2,6 +2,7 @@
   "name": "Rule",
   "type": "mediator",
   "title": "Rule Mediator",
+  "canTryOut": true,
   "help": "Processes XML message by applying a set of rules.",
   "elements": [
     {

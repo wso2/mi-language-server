@@ -2,6 +2,7 @@
     "name": "Throttle",
     "type": "mediator",
     "title": "Throttle Mediator",
+    "canTryOut": true,
     "help": "Restricts access to services.",
     "elements": [
         {

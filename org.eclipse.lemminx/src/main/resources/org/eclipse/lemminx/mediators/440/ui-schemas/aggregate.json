@@ -2,6 +2,7 @@
   "name": "Aggregate",
   "type": "mediator",
   "title": "Aggregate Mediator",
+  "canTryOut": true,
   "help": "Combines message responses that were split by Clone/Iterate mediator.",
   "elements": [
     {

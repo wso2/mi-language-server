@@ -2,6 +2,7 @@
   "name": "call-template",
   "type": "mediator",
   "title": "Call Template Mediator",
+  "canTryOut": true,
   "help": "Invokes sequence template by populating pre-configured parameters with static values or XPath expressions.",
   "elements": [
     {

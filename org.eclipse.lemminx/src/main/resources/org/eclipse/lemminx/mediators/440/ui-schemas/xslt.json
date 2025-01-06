@@ -2,6 +2,7 @@
   "name": "XSLT",
   "type": "mediator",
   "title": "XSLT Mediator",
+  "canTryOut": true,
   "help": "Transforms message payload based on an XSLT script. For faster XSLT transformation, use FastXSLT.",
   "elements": [
     {

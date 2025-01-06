@@ -2,6 +2,7 @@
   "name": "Iterate",
   "type": "mediator",
   "title": "Iterate Mediator",
+  "canTryOut": true,
   "help": "Splits message into several for parallel processing (XPath/JSONPath).\n",
   "elements": [
     {

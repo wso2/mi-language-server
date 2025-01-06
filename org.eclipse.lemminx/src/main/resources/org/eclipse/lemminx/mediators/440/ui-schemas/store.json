@@ -2,6 +2,7 @@
   "name": "store",
   "type": "mediator",
   "title": "Store Mediator",
+  "canTryOut": true,
   "help": "Routes message to a predefined message store.",
   "elements": [
     {

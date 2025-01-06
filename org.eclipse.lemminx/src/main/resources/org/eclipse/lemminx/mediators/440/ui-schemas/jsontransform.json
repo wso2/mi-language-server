@@ -2,6 +2,7 @@
   "name": "JSONTransform",
   "type": "mediator",
   "title": "JSON Transform Mediator",
+  "canTryOut": true,
   "help": "Controls XML to JSON transformations inside a mediation.",
   "elements": [
     {

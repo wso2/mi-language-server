@@ -2,6 +2,7 @@
   "name": "Enrich",
   "type": "mediator",
   "title": "Enrich Mediator",
+  "canTryOut": true,
   "help": "Enriches message content (envelope, body, etc.) based on specification.",
   "elements": [
     {

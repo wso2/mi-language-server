@@ -2,6 +2,7 @@
   "name": "Event",
   "type":"mediator",
   "title": "Event Mediator",
+  "canTryOut": true,
   "help": "Sends event notifications to an event source, and publishes messages to topics.",
   "elements": [
     {

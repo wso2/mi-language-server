@@ -2,6 +2,7 @@
   "name": "Bean",
   "type": "mediator",
   "title": "Bean Mediator",
+  "canTryOut": true,
   "help": "Manipulates JavaBean bound to message context as a property.",
   "elements": [
     {

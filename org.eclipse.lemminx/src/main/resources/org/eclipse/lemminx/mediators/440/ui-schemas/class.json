@@ -2,6 +2,7 @@
   "name": "Class",
   "type": "mediator",
   "title": "Class Mediator",
+  "canTryOut": true,
   "help": "Uses custom class instance as mediator.",
   "elements": [
     {

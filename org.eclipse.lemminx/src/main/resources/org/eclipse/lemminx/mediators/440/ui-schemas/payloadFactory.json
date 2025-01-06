@@ -2,6 +2,7 @@
   "name": "Payload",
   "type": "mediator",
   "title": "Payload Mediator",
+  "canTryOut": true,
   "help": "Replaces message payload with a new payload.",
   "elements": [
     {

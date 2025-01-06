@@ -2,6 +2,7 @@
   "name": "validate",
   "type": "mediator",
   "title": "Validate Mediator",
+  "canTryOut": true,
   "help": "Validates an XML/JSON message against XML/JSON schema.",
   "elements": [
     {

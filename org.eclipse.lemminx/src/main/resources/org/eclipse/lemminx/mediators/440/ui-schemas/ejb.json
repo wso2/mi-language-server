@@ -2,6 +2,7 @@
   "name": "EJB",
   "type": "mediator",
   "title": "EJB Mediator",
+  "canTryOut": true,
   "help": "Calls EJB (Stateless/Stateful) and stores result in message payload/property.",
   "elements": [
     {
