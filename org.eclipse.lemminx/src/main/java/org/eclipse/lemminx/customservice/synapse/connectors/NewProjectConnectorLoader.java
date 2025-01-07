@@ -49,7 +49,6 @@ public class NewProjectConnectorLoader extends AbstractConnectorLoader {
     @Override
     protected File getConnectorExtractFolder() {
 
-        projectId = Utils.getHash(getProjectUri());
         String tempFolderPath = Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI,
                 Constant.CONNECTORS, projectId, Constant.EXTRACTED).toString();
         File tempFolder = new File(tempFolderPath);
@@ -98,7 +97,8 @@ public class NewProjectConnectorLoader extends AbstractConnectorLoader {
 
         connectorsZipFolderPath.add(Path.of(projectRoot, Constant.SRC, Constant.MAIN, Constant.WSO2MI,
                 Constant.RESOURCES, Constant.CONNECTORS).toString());
+        projectId = new File(projectRoot).getName() + "_" + Utils.getHash(projectRoot);
         connectorsZipFolderPath.add(Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI,
-                Constant.CONNECTORS, Utils.getHash(projectRoot), Constant.DOWNLOADED).toString());
+                Constant.CONNECTORS, projectId, Constant.DOWNLOADED).toString());
     }
 }

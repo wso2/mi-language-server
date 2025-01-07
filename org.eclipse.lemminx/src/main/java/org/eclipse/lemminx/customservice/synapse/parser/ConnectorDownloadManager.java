@@ -43,8 +43,9 @@ public class ConnectorDownloadManager {
 
     public static String downloadConnectors(String projectPath) {
 
+        String projectId = new File(projectPath).getName() + "_" + Utils.getHash(projectPath);
         File directory = Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI, Constant.CONNECTORS,
-                Utils.getHash(projectPath)).toFile();
+                projectId).toFile();
         File downloadDirectory = Path.of(directory.getAbsolutePath(), Constant.DOWNLOADED).toFile();
         File extractDirectory = Path.of(directory.getAbsolutePath(), Constant.EXTRACTED).toFile();
 

@@ -51,7 +51,7 @@ public class ConnectorReader {
                     DOMDocument connectorDocument = Utils.getDOMDocument(connectorFile);
                     DOMNode connectorElement = Utils.getChildNodeByName(connectorDocument, "connector");
                     DOMNode componentElement = Utils.getChildNodeByName(connectorElement, "component");
-                    DOMNode displayNameElement = Utils.getChildNodeByName(componentElement, "displayName");
+                    DOMNode displayNameElement = Utils.getChildNodeByName(connectorElement, "displayName");
                     String name = componentElement.getAttribute(Constant.NAME);
                     connector = new Connector();
                     connector.setName(name);
