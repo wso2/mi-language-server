@@ -270,6 +270,9 @@ public class PluginHandler extends DefaultHandler {
             case Constants.NAME:
                 pomDetailsResponse.getPrimaryDetails().setProjectName(new Node(value, Either.forLeft(range)));
                 break;
+            case Constants.PACKAGING:
+                pomDetailsResponse.getPrimaryDetails().setProjectPackaging(new Node(value, Either.forLeft(range)));
+                break;
         }
     }
 

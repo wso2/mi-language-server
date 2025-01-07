@@ -51,7 +51,7 @@ public class Constants {
     public static final String MI_CONTAINER_CONFIG_MAPPER = "mi-container-config-mapper";
     public static final String SYNAPSE_UNIT_TEST_MAVEN_PLUGIN = "synapse-unit-test-maven-plugin";
     public static final String GROUP_ID = "groupId";
-
+    public static final String PACKAGING = "packaging";
     public static final String DESCRIPTION = "description";
     public static final String FULL_RANGE = "fullRange";
 

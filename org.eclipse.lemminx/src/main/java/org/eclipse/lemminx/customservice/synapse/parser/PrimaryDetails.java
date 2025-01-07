@@ -23,6 +23,7 @@ public class PrimaryDetails {
     private Node projectName;
     private Node projectVersion;
     private Node projectDescription;
+    private Node projectPackaging;
 
     PrimaryDetails() {}
 
@@ -40,5 +41,9 @@ public class PrimaryDetails {
 
     public void setProjectName(Node projectName) {
         this.projectName = projectName;
+    }
+
+    public void setProjectPackaging(Node projectPackaging) {
+        this.projectPackaging = projectPackaging;
     }
 }
