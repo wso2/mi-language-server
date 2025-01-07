@@ -28,8 +28,10 @@ import org.eclipse.lemminx.customservice.synapse.debugger.entity.debuginfo.IDebu
 import org.eclipse.lemminx.customservice.synapse.debugger.visitor.VisitorUtils;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Edit;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.InvalidConfigurationException;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.InvocationInfo;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorInfo;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutRequest;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Params;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeGenerator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.NamedSequence;
@@ -57,6 +59,9 @@ import java.util.List;
 import java.util.UUID;
 
 public class TryOutUtils {
+
+    private static final List<String>
+            UNWANTED_ARTIFACTS = List.of("inbound-endpoints", "message-processors", "proxy-services", "tasks");
 
     private TryOutUtils() {
 
@@ -133,11 +138,41 @@ public class TryOutUtils {
 
         Path projectPath = Path.of(projectUri);
         Utils.copyFolder(projectPath, tempFolder, null);
-
+        removeUnwantedFiles(tempFolder);
         Path editFilePath = TryOutUtils.relativizeAndResolvePath(projectPath, Path.of(request.getFile()), tempFolder);
         removeBelowMediators(editFilePath, new Position(request.getLine(), request.getColumn()));
         doEdits(request.getEdits(), editFilePath);         // Apply the edits from user
         return editFilePath;
+    }
+
+    private static void removeUnwantedFiles(Path tempFolder) {
+
+        removeUnwantedArtifacts(tempFolder);
+        removeTargetFolder(tempFolder);
+    }
+
+    private static void removeUnwantedArtifacts(Path tempFolder) {
+
+        Path targetPath = tempFolder.resolve(TryOutConstants.PROJECT_ARTIFACT_PATH);
+        for (String artifact : UNWANTED_ARTIFACTS) {
+            Path artifactPath = targetPath.resolve(artifact);
+            if (artifactPath.toFile().exists()) {
+                try {
+                    Utils.deleteDirectory(artifactPath);
+                } catch (IOException e) {
+                    // Ignore
+                }
+            }
+        }
+    }
+
+    private static void removeTargetFolder(Path tempFolder) {
+
+        try {
+            Utils.deleteDirectory(tempFolder.resolve(Constant.TARGET));
+        } catch (IOException e) {
+            // Ignore
+        }
     }
 
     private static void removeBelowMediators(Path editFilePath, Position position) throws IOException {
@@ -280,14 +315,18 @@ public class TryOutUtils {
     }
 
     /**
-     * This method is used to get the service url of the API.
+     * Extracts the invocation info to invoke the API for the given position.
      *
+     * @param apiPath           the path of the API
+     * @param position          the position
      * @param activeBreakpoints the active breakpoints
      * @param host              the host
      * @param port              the port
-     * @return the service url
+     * @return the invocation info
+     * @throws IOException
      */
-    public static String getServiceUrl(Path apiPath, List<JsonObject> activeBreakpoints, String host, int port)
+    public static InvocationInfo getInvocationInfo(Path apiPath, Position position, List<JsonObject> activeBreakpoints,
+                                                   String host, int port)
             throws IOException {
 
         DOMDocument document = Utils.getDOMDocument(apiPath.toFile());
@@ -295,6 +334,31 @@ public class TryOutUtils {
             return null;
         }
         API api = (API) SyntaxTreeGenerator.buildTree(document.getDocumentElement());
+        String serviceUrl = getServiceUrl(api, host, port, activeBreakpoints);
+        String method = getServiceMethod(api, position);
+        return new InvocationInfo(serviceUrl, method);
+    }
+
+    private static String getServiceMethod(API api, Position position) {
+
+        APIResource[] resources = api.getResource();
+        if (resources != null) {
+            for (APIResource resource : resources) {
+                if (isNodeInRange(resource, position)) {
+                    for (String m : resource.getMethods()) {
+                        if (TryOutConstants.POST.equals(m)) {
+                            return m;
+                        }
+                    }
+                    return resource.getMethods()[0];
+                }
+            }
+        }
+        return null;
+    }
+
+    private static String getServiceUrl(API api, String host, int port, List<JsonObject> activeBreakpoints) {
+
         String apiContext = getApiContext(api);
         JsonObject apiObj =
                 activeBreakpoints.get(0).get(Constant.SEQUENCE).getAsJsonObject().get(Constant.API).getAsJsonObject();
@@ -331,18 +395,6 @@ public class TryOutUtils {
     }
 
     /**
-     * This method is used to get the service method of the API.
-     *
-     * @param activeBreakpoints the active breakpoints
-     * @return the service method
-     */
-    public static String getServiceMethod(List<JsonObject> activeBreakpoints) {
-
-        return activeBreakpoints.get(0).get(Constant.SEQUENCE).getAsJsonObject().get(Constant.API).getAsJsonObject()
-                .get(Constant.RESOURCE).getAsJsonObject().get(Constant.METHOD).getAsString();
-    }
-
-    /**
      * Check whether the given file is an API.
      *
      * @param projectUri
@@ -366,10 +418,13 @@ public class TryOutUtils {
 
         List<JsonObject> parsedProperties = parseProperties(properties);
         MediatorInfo mediatorInfo = new MediatorInfo();
+        Params params = new Params();
         for (JsonObject property : parsedProperties) {
             if (property.has(TryOutConstants.SYNAPSE_PROPERTIES)) {
-                mediatorInfo.addSynapseProperties(
-                        parseProperties(property.getAsJsonObject(TryOutConstants.SYNAPSE_PROPERTIES)));
+                List<Property> parsedSynapseProperties =
+                        parseProperties(property.getAsJsonObject(TryOutConstants.SYNAPSE_PROPERTIES));
+                mediatorInfo.addSynapseProperties(parsedSynapseProperties);
+                populateParams(parsedSynapseProperties, params);
             } else if (property.has(TryOutConstants.AXIS2_PROPERTIES)) {
                 mediatorInfo.addAxis2Properties(
                         parseProperties(property.getAsJsonObject(TryOutConstants.AXIS2_PROPERTIES)));
@@ -389,7 +444,19 @@ public class TryOutUtils {
                 mediatorInfo.addVariables(parseProperties(property.getAsJsonObject(TryOutConstants.MESSAGE_VARIABLES)));
             }
         }
+        mediatorInfo.setParams(params);
         return mediatorInfo;
+    }
+
+    private static void populateParams(List<Property> parsedSynapseProperties, Params params) {
+
+        for (Property property : parsedSynapseProperties) {
+            if (property.getKey().startsWith(TryOutConstants.URI_PARAM_PREFIX)) {
+                params.addUriParam(property);
+            } else if (property.getKey().startsWith(TryOutConstants.QUERY_PARAM_PREFIX)) {
+                params.addQueryParam(property);
+            }
+        }
     }
 
     private static List<Property> parseProperties(JsonObject propertiesJson) {

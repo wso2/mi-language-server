@@ -89,6 +89,12 @@ public class TryOutConstants {
     public static final String INVALID_ARTIFACT_ERROR = "Unable to try out the mediator due to an invalid " +
             "configuration in the API. Please review the API and try again.";
     public static final String URI_TEMPLATE = "uri-template";
+    public static final String BUILD_FAILURE_MESSAGE =
+            "Unable to tryout the mediator. Some required dependencies are missing.";
+    public static final String URI_PARAM_PREFIX = "uri.var.";
+    public static final String QUERY_PARAM_PREFIX = "query.param.";
+    public static final String PAYLOAD_NOT_HIT_ERROR =
+            "This mediator cannot be tried out with the current request payload. Please select a different payload.";
 
     private TryOutConstants() {
 

@@ -21,6 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.mediator.tryout.server;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.apache.maven.shared.invoker.InvocationRequest;
+import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants;
@@ -306,11 +307,12 @@ public class MIServer {
         LOGGER.log(Level.INFO, "Project deployed successfully");
     }
 
-    private void buildProject(String tempProjectUri) {
+    private void buildProject(String tempProjectUri) throws ArtifactDeploymentException {
 
+        Path projectPath = Path.of(tempProjectUri);
         Invoker invoker = new DefaultInvoker();
         invoker.setMavenHome(new File(tempProjectUri));
-        File mvnwFile = Path.of(tempProjectUri).resolve("mvnw").toFile();
+        File mvnwFile = projectPath.resolve("mvnw").toFile();
         invoker.setMavenExecutable(mvnwFile);
         InvocationRequest request = new DefaultInvocationRequest();
         request.setQuiet(true);
@@ -322,8 +324,11 @@ public class MIServer {
         request.setJavaHome(new File(System.getProperty("java.home")));
         try {
             invoker.execute(request);
+            if (!projectPath.resolve("target").toFile().exists()) {
+                throw new ArtifactDeploymentException(TryOutConstants.BUILD_FAILURE_MESSAGE);
+            }
             copyCarToMI(tempProjectUri);
-        } catch (Exception e) {
+        } catch (MavenInvocationException e) {
             LOGGER.log(Level.SEVERE, "Error building the project", e);
         }
     }
