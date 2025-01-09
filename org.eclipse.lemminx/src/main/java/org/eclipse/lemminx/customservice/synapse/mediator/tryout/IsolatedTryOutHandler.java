@@ -18,7 +18,6 @@
 
 package org.eclipse.lemminx.customservice.synapse.mediator.tryout;
 
-import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.DependencyLookUp;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.Dependency;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.visitor.MediatorDependencyVisitor;
@@ -46,13 +45,11 @@ public class IsolatedTryOutHandler {
     private static final Logger LOGGER = Logger.getLogger(IsolatedTryOutHandler.class.getName());
     private String projectRoot;
     private final TryOutHandler tryOutHandler;
-    private ConnectorHolder connectorHolder;
 
-    public IsolatedTryOutHandler(TryOutHandler tryOutHandler, String projectRoot, ConnectorHolder connectorHolder) {
+    public IsolatedTryOutHandler(TryOutHandler tryOutHandler, String projectRoot) {
 
         this.tryOutHandler = tryOutHandler;
         this.projectRoot = projectRoot;
-        this.connectorHolder = connectorHolder;
     }
 
     public MediatorTryoutInfo tryOut(MediatorTryoutRequest request) {

@@ -34,19 +34,14 @@ public class DebugCommandClient {
     private static final Logger LOGGER = Logger.getLogger(DebugCommandClient.class.getName());
 
     private static final String HOST = TryOutConstants.LOCALHOST;
-    private int port;
+    private int port = TryOutConstants.DEFAULT_DEBUGGER_COMMAND_PORT;
     private Socket socket;
-
-    public DebugCommandClient(int port) {
-
-        this.port = port;
-    }
 
     public void connect() {
 
         try {
             socket = new Socket(HOST, port);
-            socket.setSoTimeout(10000); // Set a timeout for reading from the socket
+            socket.setSoTimeout(5000); // Set a timeout for reading from the socket
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, String.format("Failed to connect to the server using port: %d", port), e);
         }

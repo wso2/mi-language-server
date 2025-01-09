@@ -21,7 +21,6 @@ package org.eclipse.lemminx.customservice.synapse.mediator.tryout;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.commons.BadLocationException;
-import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.debugger.DebuggerHelper;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
@@ -91,20 +90,20 @@ public class TryOutHandler {
     private boolean isFault = false;
     private MediatorInfo currentInputInfo;
 
-    public TryOutHandler(String projectUri, String miServerPath, ConnectorHolder connectorHolder) {
+    public TryOutHandler(String projectUri, String miServerPath) {
 
         this.projectUri = projectUri;
         this.lock = new Object();
-        server = new MIServer(Path.of(miServerPath), connectorHolder);
+        server = new MIServer(Path.of(miServerPath));
         activeBreakpoints = new ArrayList<>();
     }
 
     public synchronized void init() {
 
         server.startServer();
-        commandClient = new DebugCommandClient(server.getDebuggerCommandPort());
+        commandClient = new DebugCommandClient();
         breakpointEventProcessor = new BreakpointEventProcessor(commandClient, lock);
-        eventClient = new DebugEventClient(server.getDebuggerEventPort(), breakpointEventProcessor);
+        eventClient = new DebugEventClient(breakpointEventProcessor);
         commandClient.connect();
         eventClient.connect();
         eventClient.start();
@@ -142,12 +141,12 @@ public class TryOutHandler {
 
     private boolean isCompleteTryOut(MediatorTryoutRequest request) {
 
-        return request.getMediatorInfo() != null && breakpointEventProcessor.isDone();
+        return request.getMediatorInfo() != null && currentTryoutID == null;
     }
 
     private boolean isNewTryOut(MediatorTryoutRequest request) {
 
-        return currentTryoutID == null || !currentTryoutID.equals(request.getTryoutId());
+        return currentTryoutID == null || request.getMediatorInfo() == null;
     }
 
     /**
@@ -155,7 +154,7 @@ public class TryOutHandler {
      * <p>
      * This method deploys the project, execute the mediator, and return the input info of the mediator.
      *
-     * @param request the try-out request
+     * @param request     the try-out request
      * @param useSameCAPP whether to use the same CAPP for the try-out
      * @return the try-out info
      */
@@ -165,6 +164,7 @@ public class TryOutHandler {
         try {
             if (!useSameCAPP) {
                 reset();
+                CAPPCacheManager.validateCAPPCache(projectUri);
                 Path editFilePath = TryOutUtils.cloneAndPreprocessProject(projectUri, request, TEMP_FOLDER_PATH);
                 boolean needStepOver = checkNeedStepOver(request, editFilePath);
 
@@ -175,7 +175,7 @@ public class TryOutHandler {
                     serviceUrl = createApiForSequenceInvocation(request);
                     serviceMethod = TryOutConstants.POST;
                 }
-                server.deployProject(TEMP_FOLDER_PATH.toString(), request.getFile());
+                server.deployProject(TEMP_FOLDER_PATH.toString(), request.getFile(), projectUri);
 
                 // Get the mediator info
                 registerBreakpoints(request, editFilePath);
@@ -192,9 +192,7 @@ public class TryOutHandler {
                     currentInvocationInfo = new InvocationInfo(serviceUrl, serviceMethod, needStepOver);
                 }
             } else {
-                commandClient.sendResumeCommand(); // Resume the previous tryout
-                commandClient.sendResumeCommand(); // Resume the previous tryout
-                breakpointEventProcessor.reset();
+                resumeTryOutAndDiscard(); // Clear the previous try-out
             }
             sendRequest(currentInvocationInfo.getServiceUrl(), currentInvocationInfo.getMethod(),
                     request.getInputPayload());
@@ -209,12 +207,12 @@ public class TryOutHandler {
             return response;
         } catch (IOException | InvalidConfigurationException | ArtifactDeploymentException e) {
             LOGGER.log(Level.SEVERE, "Error while handling the tryout", e);
-            reset();
+            resumeTryOutAndDiscard();
             return new MediatorTryoutInfo(e.getMessage());
         } catch (NoBreakpointHitException e) {
             LOGGER.log(Level.INFO,
                     "Breakpoint not hit by the mediator. Consider adjusting the payload or retrying.");
-            reset();
+            resumeTryOutAndDiscard();
             return new MediatorTryoutInfo(e.getMessage());
         }
     }
@@ -242,8 +240,31 @@ public class TryOutHandler {
             LOGGER.log(Level.SEVERE, "Error while getting output info");
             return new MediatorTryoutInfo(TryOutConstants.TRYOUT_FAILURE_MESSAGE);
         } finally {
-            commandClient.sendResumeCommand(); // Resume the first debug point in case of a fault
-            commandClient.sendResumeCommand(); // Resume the second debug point
+            resumeTryOutAndDiscard();
+        }
+    }
+
+    private void resumeTryOutAndDiscard() {
+
+        try {
+            if (breakpointEventProcessor.isDone()) {
+                return;
+            }
+            List<JsonObject> tempBreakpoints = new ArrayList<>(activeBreakpoints);
+            clearBreakpoints();
+            commandClient.sendResumeCommand();
+            reRegisterBreakpoints(tempBreakpoints);
+        } finally {
+            currentTryoutID = null;
+            breakpointEventProcessor.reset();
+        }
+    }
+
+    private void reRegisterBreakpoints(List<JsonObject> tempBreakpoints) {
+
+        for (JsonObject command : tempBreakpoints) {
+            command.addProperty(TryOutConstants.COMMAND, TryOutConstants.SET);
+            sendCommand(command);
         }
     }
 
@@ -267,8 +288,9 @@ public class TryOutHandler {
         try {
             breakpointEventProcessor.reset();
             if (!useSameCAPP) {
+                CAPPCacheManager.validateCAPPCache(projectUri);
                 reset();
-                server.deployProject(projectPath, request.getFile());
+                server.deployProject(projectPath, request.getFile(), projectUri);
 
                 // Get the mediator info
                 registerBreakpoints(request, Path.of(request.getFile()));
@@ -300,8 +322,7 @@ public class TryOutHandler {
             LOGGER.log(Level.SEVERE, "Error while handling the mediator tryout", e);
             return new MediatorTryoutInfo(e.getMessage());
         } finally {
-            commandClient.sendResumeCommand(); // Resume first debug point in case of a fault
-            commandClient.sendResumeCommand(); // Resume second debug point
+            resumeTryOutAndDiscard();
         }
     }
 
@@ -410,6 +431,10 @@ public class TryOutHandler {
                 String result = sendCommand(command);
                 if (result != null && result.contains(TryOutConstants.SUCCESSFUL)) {
                     activeBreakpoints.add(command);
+                } else if (result != null && result.contains(TryOutConstants.BREAKPOINT_ALREADY_REGISTERED)) {
+                    if (!activeBreakpoints.contains(command)) {
+                        activeBreakpoints.add(command);
+                    }
                 } else {
                     throw new InvalidConfigurationException(TryOutConstants.INVALID_ARTIFACT_ERROR);
                 }
@@ -446,7 +471,7 @@ public class TryOutHandler {
             while (!isDone) {
                 count++;
                 if (count > BREAKPOINT_HIT_TIMEOUT / 1000) {
-                    cleanUp();
+                    resumeTryOutAndDiscard();
                     throw new NoBreakpointHitException(TryOutConstants.PAYLOAD_NOT_HIT_ERROR);
                 }
                 try {
@@ -463,8 +488,6 @@ public class TryOutHandler {
     private void cleanUp() {
 
         commandClient.sendResumeCommand();
-        clearBreakpoints();
-        server.deleteDeployedFiles();
     }
 
     private String createApiForSequenceInvocation(MediatorTryoutRequest request) throws InvalidConfigurationException {

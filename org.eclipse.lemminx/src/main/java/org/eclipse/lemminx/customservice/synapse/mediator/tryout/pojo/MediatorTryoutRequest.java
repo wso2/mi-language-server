@@ -18,6 +18,8 @@
 
 package org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo;
 
+import java.util.Arrays;
+
 public class MediatorTryoutRequest {
 
     private final String file;
@@ -89,5 +91,20 @@ public class MediatorTryoutRequest {
     public boolean isIsolatedTryout() {
 
         return isIsolatedTryout;
+    }
+
+    @Override
+    public String toString() {
+
+        return "MediatorTryoutRequest{" +
+                "file='" + file + '\'' +
+                ", tryoutId='" + tryoutId + '\'' +
+                ", line=" + line +
+                ", column=" + column +
+                ", inputPayload='" + inputPayload + '\'' +
+                ", edits=" + Arrays.toString(edits) +
+                ", mediatorInfo=" + mediatorInfo +
+                ", isIsolatedTryout=" + isIsolatedTryout +
+                '}';
     }
 }

@@ -26,6 +26,7 @@ import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.debuginfo.IDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.visitor.VisitorUtils;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.ArtifactDeploymentException;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Edit;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.InvalidConfigurationException;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.InvocationInfo;
@@ -57,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 public class TryOutUtils {
 
@@ -561,5 +563,18 @@ public class TryOutUtils {
             return null;
         }
         throw new IOException("Error while getting the mediator position");
+    }
+
+    public static Path findCAPP(Path targetPath) throws ArtifactDeploymentException {
+
+        try (Stream<Path> walk = Files.walk(targetPath)) {
+            return walk
+                    .filter(Files::isRegularFile)
+                    .filter(file -> file.getFileName().toString().endsWith(".car"))
+                    .findFirst()
+                    .orElseThrow(() -> new ArtifactDeploymentException(TryOutConstants.BUILD_FAILURE_MESSAGE));
+        } catch (IOException e) {
+            throw new ArtifactDeploymentException(TryOutConstants.BUILD_FAILURE_MESSAGE);
+        }
     }
 }

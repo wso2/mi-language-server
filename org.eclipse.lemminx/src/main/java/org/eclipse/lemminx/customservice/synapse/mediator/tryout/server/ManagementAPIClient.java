@@ -55,14 +55,13 @@ public class ManagementAPIClient {
     private ObjectMapper objectMapper;
     private HttpClient client;
     private static final String HOST = TryOutConstants.LOCALHOST;
-    private int port = 9154;
+    private int port = DEFAULT_PORT;
     private String accessToken;
     private boolean isRetried = false;
 
-    public ManagementAPIClient(int portOffset) {
+    public ManagementAPIClient() {
 
         try {
-            port = DEFAULT_PORT + portOffset;
             objectMapper = new ObjectMapper();
             init();
             connect();

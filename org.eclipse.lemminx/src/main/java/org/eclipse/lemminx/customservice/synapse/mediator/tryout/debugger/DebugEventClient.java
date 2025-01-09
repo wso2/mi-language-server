@@ -22,11 +22,12 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,14 +35,13 @@ public class DebugEventClient extends Thread {
 
     private static final Logger LOGGER = Logger.getLogger(DebugEventClient.class.getName());
     private static final String HOST = TryOutConstants.LOCALHOST;
-    private int port;
+    private int port = TryOutConstants.DEFAULT_DEBUGGER_EVENT_PORT;
     private Socket socket;
     private final BreakpointEventProcessor breakpointEventProcessor;
     private boolean isDebuggerActive = false;
 
-    public DebugEventClient(int port, BreakpointEventProcessor breakpointEventProcessor) {
+    public DebugEventClient(BreakpointEventProcessor breakpointEventProcessor) {
 
-        this.port = port;
         this.breakpointEventProcessor = breakpointEventProcessor;
     }
 
@@ -49,6 +49,7 @@ public class DebugEventClient extends Thread {
 
         try {
             socket = new Socket(HOST, port);
+            socket.setReceiveBufferSize(65536);
             isDebuggerActive = true;
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, String.format("Failed to connect to the server using port: %d", port), e);
@@ -77,12 +78,21 @@ public class DebugEventClient extends Thread {
     public String listen() {
 
         try {
-            var inputStream =
-                    new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
-            String event;
+            InputStream inputStream = socket.getInputStream();
+            byte[] tempBuffer = new byte[1024];
+            StringBuilder buffer = new StringBuilder();
+            int bytesRead;
 
-            if ((event = inputStream.readLine()) != null) {
-                return event;
+            while ((bytesRead = inputStream.read(tempBuffer)) != -1) {
+                String receivedData = new String(tempBuffer, 0, bytesRead, StandardCharsets.UTF_8);
+                buffer.append(receivedData);
+
+                int delimiterIndex;
+                while ((delimiterIndex = buffer.indexOf("\n")) != -1) {
+                    String event = buffer.substring(0, delimiterIndex).trim();
+                    buffer.delete(0, delimiterIndex + 1);
+                    return event;
+                }
             }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Failed to listen for events", e);

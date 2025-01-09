@@ -35,8 +35,8 @@ public class TryOutManager {
 
     public TryOutManager(String projectRoot, String miServerPath, ConnectorHolder connectorHolder) {
 
-        tryOutHandler = new TryOutHandler(projectRoot, miServerPath, connectorHolder);
-        isolatedTryOutHandler = new IsolatedTryOutHandler(tryOutHandler, projectRoot, connectorHolder);
+        tryOutHandler = new TryOutHandler(projectRoot, miServerPath);
+        isolatedTryOutHandler = new IsolatedTryOutHandler(tryOutHandler, projectRoot);
         serverLessTryoutHandler = new ServerLessTryoutHandler(projectRoot);
         connectionTester = new ConnectionTester(projectRoot, tryOutHandler, connectorHolder);
     }
