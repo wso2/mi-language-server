@@ -162,7 +162,9 @@ public class ConnectorAction {
             JsonElement value = entry.getValue();
             if (value.isJsonObject()) {
                 JsonObject propertyObject = value.getAsJsonObject();
-                String propDescription = propertyObject.get(Constant.DESCRIPTION).getAsString();
+                JsonElement propDescriptionObj = propertyObject.get(Constant.DESCRIPTION);
+                String propDescription = propDescriptionObj != null ?
+                        propDescriptionObj.getAsString() : StringUtils.EMPTY;
                 Property property = new Property(key, StringUtils.EMPTY, propDescription);
                 if (propertyObject.has(Constant.PROPERTIES)) {
                     List<Property> properties = extractProperties(propertyObject.getAsJsonObject(Constant.PROPERTIES));
