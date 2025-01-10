@@ -170,7 +170,8 @@ public class MediatorHandler {
             dataValue.put(Constant.VALUE, data);
         } else if (data instanceof Map) {
             dataValue = (Map) data;
-            boolean isExpression = (boolean) dataValue.get(Constant.IS_EXPRESSION);
+            Object isExpressionObj = dataValue.get(Constant.IS_EXPRESSION);
+            boolean isExpression = isExpressionObj == null ? false : (boolean) isExpressionObj;
             if (isExpression) {
                 dataValue.put(Constant.VALUE, String.format("{%s}", dataValue.get(Constant.VALUE)));
             } else {
@@ -213,12 +214,12 @@ public class MediatorHandler {
 
         String connectorName;
         String operation;
-        if (node == null) {
-            connectorName = mediator.split("\\.")[0];
-            operation = mediator.split("\\.")[1];
-        } else {
+        if (node instanceof Connector) {
             connectorName = ((Connector) node).getConnectorName();
             operation = ((Connector) node).getMethod();
+        } else {
+            connectorName = mediator.split("\\.")[0];
+            operation = mediator.split("\\.")[1];
         }
         if (!connectorHolder.exists(connectorName)) {
             return null;
