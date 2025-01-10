@@ -65,7 +65,7 @@ public class UISchemaMapper {
             String tableName = value.get("name").getAsString();
             if (elementData.has(tableName)) {
                 JsonArray tableData;
-                if (elementData.isJsonArray()) {
+                if (elementData.get(tableName).isJsonArray()) {
                     tableData = elementData.getAsJsonArray(tableName);
                 } else {
                     tableData = generateTableDataForConnector(elementData.get(tableName).getAsString());
