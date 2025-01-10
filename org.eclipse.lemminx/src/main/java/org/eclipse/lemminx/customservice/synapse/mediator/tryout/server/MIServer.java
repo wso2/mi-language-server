@@ -233,9 +233,7 @@ public class MIServer {
                 }
                 int count = 0;
                 while (count < 5) {
-                    boolean isDeployed =
-                            isDeployed(managementAPIClient, resourceName, type);
-                    if (isDeployed) {
+                    if (isDeployed(managementAPIClient, resourceName, type)) {
                         return;
                     }
                     count++;
@@ -309,17 +307,17 @@ public class MIServer {
 
         boolean isDeployed = false;
         int count = 0;
-        while (!isDeployed) {
+        while (!isDeployed && count <= 5) {
             try {
                 Thread.sleep(1000);
                 isDeployed = isDeployed();
-                if (count > 5) {
-                    throw new ArtifactDeploymentException("Error waiting for CAPP deployment");
-                }
                 count++;
             } catch (InterruptedException | IOException e) {
                 LOGGER.log(Level.SEVERE, "Error waiting for CAPP deployment", e);
             }
+        }
+        if (!isDeployed) {
+            throw new ArtifactDeploymentException("Error waiting for CAPP deployment");
         }
     }
 
