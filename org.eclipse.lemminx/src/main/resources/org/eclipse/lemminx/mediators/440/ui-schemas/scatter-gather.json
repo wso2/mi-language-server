@@ -42,7 +42,7 @@
               "displayName": "Expression",
               "inputType": "expression",
               "required": false,
-              "defaultValue": "payload",
+              "defaultValue": "${payload}",
               "helpTip": "Provide the expression that specifies the data to be aggregated from each message.",
               "enableCondition": [
                 {
@@ -58,7 +58,7 @@
               "displayName": "Expression",
               "inputType": "expression",
               "required": false,
-              "defaultValue": "xpath('$body/node()')",
+              "defaultValue": "${xpath('$body/node()')}",
               "helpTip": "Provide the expression that specifies the data to be aggregated from each message.",
               "enableCondition": [
                 {
