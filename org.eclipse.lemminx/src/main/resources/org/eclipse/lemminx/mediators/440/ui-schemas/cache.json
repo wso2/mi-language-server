@@ -2,6 +2,7 @@
   "name": "Cache",
   "type": "mediator",
   "title": "Cache Mediator",
+  "canTryOut": true,
   "help": "Utilizes cached response if a similar message has been stored previously.",
   "elements": [
     {

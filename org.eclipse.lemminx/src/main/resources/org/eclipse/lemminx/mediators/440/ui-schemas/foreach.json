@@ -2,6 +2,7 @@
   "name": "ForEachMediator",
   "type": "mediator",
   "title": "ForEach Mediator",
+  "canTryOut": true,
   "help": "Iterate over a list and then merges back the result.",
   "elements": [
     {

@@ -2,6 +2,7 @@
   "name": "Switch",
   "type": "mediator",
   "title": "Switch Mediator",
+  "canTryOut": true,
   "help": "Routes messages based on Regex matching.",
   "elements": [
     {

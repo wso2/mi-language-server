@@ -2,6 +2,7 @@
   "name": "variable",
   "type": "mediator",
   "title": "Variable Mediator",
+  "canTryOut": true,
   "help": "Set or remove a variable to/from the message",
   "elements": [
     {

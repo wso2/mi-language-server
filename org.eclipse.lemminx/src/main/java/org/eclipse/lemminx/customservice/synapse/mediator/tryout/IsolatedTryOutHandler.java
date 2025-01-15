@@ -18,7 +18,6 @@
 
 package org.eclipse.lemminx.customservice.synapse.mediator.tryout;
 
-import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.DependencyLookUp;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.Dependency;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.visitor.MediatorDependencyVisitor;
@@ -46,13 +45,11 @@ public class IsolatedTryOutHandler {
     private static final Logger LOGGER = Logger.getLogger(IsolatedTryOutHandler.class.getName());
     private String projectRoot;
     private final TryOutHandler tryOutHandler;
-    private ConnectorHolder connectorHolder;
 
-    public IsolatedTryOutHandler(TryOutHandler tryOutHandler, String projectRoot, ConnectorHolder connectorHolder) {
+    public IsolatedTryOutHandler(TryOutHandler tryOutHandler, String projectRoot) {
 
         this.tryOutHandler = tryOutHandler;
         this.projectRoot = projectRoot;
-        this.connectorHolder = connectorHolder;
     }
 
     public MediatorTryoutInfo tryOut(MediatorTryoutRequest request) {
@@ -77,7 +74,7 @@ public class IsolatedTryOutHandler {
                     new MediatorTryoutRequest(tryoutApi, position.getLine(), position.getCharacter(),
                             request.getInputPayload(), null);
             mediatorTryoutRequest.setMediatorInfo(request.getMediatorInfo());
-            return tryOutHandler.handleIsolatedTryOut(tempProjectPath, mediatorTryoutRequest);
+            return tryOutHandler.handleIsolatedTryOut(tempProjectPath, mediatorTryoutRequest, false);
         } catch (InvalidConfigurationException e) {
             LOGGER.log(Level.SEVERE, "Error while creating the API for the mediator tryout", e);
             return new MediatorTryoutInfo("Error while creating the API for the mediator");

@@ -2,6 +2,7 @@
   "name": "Spring",
   "type":"mediator",
   "title": "Spring Mediator",
+  "canTryOut": true,
   "help": "Exposes a Spring bean as a mediator.",
   "elements": [
     {

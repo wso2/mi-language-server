@@ -23,7 +23,15 @@ import java.util.List;
 
 public class TryOutConstants {
 
+    //Default Ports
+    public static final int DEFAULT_DEBUGGER_COMMAND_PORT = 9005;
+    public static final int DEFAULT_DEBUGGER_EVENT_PORT = 9006;
+    public static final int DEFAULT_SERVER_PORT = 8290;
+    public static final int DEFAULT_SERVER_INBOUND_PORT = 9201;
+
     public static final Path TEMP_FOLDER_PATH = Path.of(System.getProperty("user.home"), ".wso2-mi", "tryout");
+    public static final Path CAPP_CACHE_LOCATION =
+            Path.of(System.getProperty("user.home") + "/.wso2-mi/tryout_capp_cache");
     public static final Path API_RELATIVE_PATH = Path.of("src", "main", "wso2mi", "artifacts", "apis");
     public static final String SYNAPSE_PROPERTIES = "synapse-properties";
     public static final String AXIS2_PROPERTIES = "axis2-properties";
@@ -89,6 +97,14 @@ public class TryOutConstants {
     public static final String INVALID_ARTIFACT_ERROR = "Unable to try out the mediator due to an invalid " +
             "configuration in the API. Please review the API and try again.";
     public static final String URI_TEMPLATE = "uri-template";
+    public static final String BUILD_FAILURE_MESSAGE = "Unable to try-out the mediator." +
+            " Please build the project manually and resolve any issues before trying again.";
+    public static final String URI_PARAM_PREFIX = "uri.var.";
+    public static final String QUERY_PARAM_PREFIX = "query.param.";
+    public static final String PAYLOAD_NOT_HIT_ERROR =
+            "This mediator cannot be tried out with the current request payload. Please select a different payload.";
+    public static final CharSequence BREAKPOINT_ALREADY_REGISTERED = "already breakpoint enabled at mediator position";
+    public static final Path PROJECT_RESOURCES_RELATIVE_PATH = Path.of("src", "main", "wso2mi", "resources");
 
     private TryOutConstants() {
 

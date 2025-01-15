@@ -2,6 +2,7 @@
   "name": "DBReport",
   "type": "mediator",
   "title": "DB Report Mediator",
+  "canTryOut": true,
   "help": "Executes SQL INSERT/UPDATE/DELETE statements, and sets resulting values to message context as local properties.",
   "elements": [
     {

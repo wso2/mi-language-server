@@ -2,6 +2,7 @@
   "name": "DBLookup",
   "type": "mediator",
   "title": "DB Lookup Mediator",
+  "canTryOut": true,
   "help": "Executes SQL SELECT statements, and sets resulting values to message context as local properties.",
   "elements": [
     {

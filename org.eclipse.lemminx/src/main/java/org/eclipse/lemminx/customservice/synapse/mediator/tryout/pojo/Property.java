@@ -33,7 +33,6 @@ public class Property {
 
         this.key = key;
         this.value = value;
-        this.properties = new ArrayList<>();
     }
 
     public Property(String key, String value, String description) {
@@ -41,7 +40,6 @@ public class Property {
         this.key = key;
         this.value = value;
         this.description = description;
-        this.properties = new ArrayList<>();
     }
 
     public Property(String key, List<Property> properties) {
@@ -77,6 +75,9 @@ public class Property {
 
     public void addProperty(Property property) {
 
+        if (properties == null) {
+            properties = new ArrayList<>();
+        }
         properties.add(property);
     }
 
@@ -98,7 +99,9 @@ public class Property {
     public Property deepCopy() {
 
         Property property = new Property(key, value, description);
-        property.setProperties(new ArrayList<>(properties));
+        if (properties != null) {
+            property.setProperties(new ArrayList<>(properties));
+        }
         return property;
     }
 

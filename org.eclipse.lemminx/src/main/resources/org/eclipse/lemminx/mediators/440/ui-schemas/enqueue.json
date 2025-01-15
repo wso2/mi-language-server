@@ -2,6 +2,7 @@
   "name": "Enqueue",
   "type": "mediator",
   "title": "Enqueue Mediator",
+  "canTryOut": true,
   "help": "Executes different sequences for messages with different properties in high-load scenarios.",
   "elements": [
     {

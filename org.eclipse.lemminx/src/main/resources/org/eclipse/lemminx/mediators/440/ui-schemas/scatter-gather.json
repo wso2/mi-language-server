@@ -2,6 +2,7 @@
   "name": "scatter-gather",
   "type": "mediator",
   "title": "Scatter Gather Mediator",
+  "canTryOut": true,
   "help": "Clones a message into several messages and aggregate the responses back into a single message.",
   "elements": [
     {

@@ -2,6 +2,7 @@
   "name": "Fault",
   "type": "mediator",
   "title": "Fault Mediator",
+  "canTryOut": true,
   "help": "Transforms the current message into a fault message.",
   "elements": [
     {

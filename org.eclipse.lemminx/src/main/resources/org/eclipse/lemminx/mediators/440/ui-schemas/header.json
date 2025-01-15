@@ -2,6 +2,7 @@
     "name": "header",
     "type": "mediator",
     "title": "Header Mediator",
+    "canTryOut": true,
     "help": "Sets/removes message header (SOAP/transport scope).",
     "elements": [
         {

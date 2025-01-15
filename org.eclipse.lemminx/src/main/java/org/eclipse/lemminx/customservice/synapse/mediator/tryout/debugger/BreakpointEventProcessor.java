@@ -19,6 +19,7 @@
 package org.eclipse.lemminx.customservice.synapse.mediator.tryout.debugger;
 
 import com.google.gson.JsonObject;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.debuginfo.IDebugInfo;
 import org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants;
 import org.eclipse.lemminx.customservice.synapse.mediator.TryOutUtils;
@@ -62,16 +63,16 @@ public class BreakpointEventProcessor {
         }
         if (!isListeningForStepOver) {
             inputResponse = Collections.unmodifiableList(properties);
-            isListeningForStepOver = true;
-            isInputFetched = true;
             synchronized (lock) {
+                isListeningForStepOver = true;
+                isInputFetched = true;
                 lock.notifyAll();
             }
         } else {
             outputResponse = Collections.unmodifiableList(properties);
-            isDone = true;
-            isListeningForStepOver = false;
             synchronized (lock) {
+                isDone = true;
+                isListeningForStepOver = false;
                 lock.notifyAll();
             }
             commandClient.sendResumeCommand();
@@ -96,7 +97,12 @@ public class BreakpointEventProcessor {
                 TryOutConstants.VARIABLE.equals(context) ? TryOutConstants.VARIABLES : TryOutConstants.PROPERTIES);
         property.addProperty(TryOutConstants.CONTEXT, context);
 
-        return commandClient.sendCommand(property.toString());
+        try {
+            return commandClient.sendCommand(property.toString());
+        } catch (Exception e) {
+            LOGGER.warning("Error occurred while fetching the property.");
+        }
+        return StringUtils.EMPTY;
     }
 
     public boolean isDone() {

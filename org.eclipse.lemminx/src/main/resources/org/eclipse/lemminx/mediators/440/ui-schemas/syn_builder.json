@@ -2,6 +2,7 @@
   "name": "Builder",
   "type": "mediator",
   "title": "Builder Mediator",
+  "canTryOut": true,
   "help": "Builds (converts to XML) messages even with Binary Relay enabled in the server.",
   "elements": [
     {

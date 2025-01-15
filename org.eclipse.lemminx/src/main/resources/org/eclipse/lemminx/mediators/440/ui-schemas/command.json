@@ -2,6 +2,7 @@
   "name": "Command",
   "type": "mediator",
   "title": "Command Mediator",
+  "canTryOut": true,
   "help": "Creates an instance of a custom class to invoke an object encapsulating a method call.",
   "elements": [
     {

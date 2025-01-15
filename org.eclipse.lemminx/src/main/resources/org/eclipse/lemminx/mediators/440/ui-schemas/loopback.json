@@ -2,6 +2,7 @@
   "name": "loopback",
   "type":"mediator",
   "title": "Loopback Mediator",
+  "canTryOut": false,
   "help": "Routes messages from the inflow (In Sequence) to outflow (Out Sequence).",
   "elements": [
     {

@@ -2,6 +2,7 @@
   "name": "XQuery",
   "type": "mediator",
   "title": "XQuery Mediator",
+  "canTryOut": true,
   "help": "Performs XQuery transformation on messages.",
   "elements": [
     {

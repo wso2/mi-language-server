@@ -144,7 +144,7 @@ public class ConnectionTester {
         MediatorTryoutRequest mediatorTryoutRequest =
                 new MediatorTryoutRequest(apiPath, position.getLine(), position.getCharacter(),
                         "{}", null);
-        return tryOutHandler.handleIsolatedTryOut(tempProjectPath.toString(), mediatorTryoutRequest);
+        return tryOutHandler.handleIsolatedTryOut(tempProjectPath.toString(), mediatorTryoutRequest, false);
     }
 
     private void createLocalEntryFile(Path tempProjectPath, String localEntryXml, String localEntryKey)

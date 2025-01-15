@@ -2,6 +2,7 @@
   "name": "sequence",
   "type": "mediator",
   "title": "Sequence Mediator",
+  "canTryOut": true,
   "help": "Inserts reference to a sequence.",
   "elements": [
     {
