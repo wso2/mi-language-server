@@ -459,17 +459,22 @@ public class ExpressionCompletionUtils {
      */
     public static String getInputPayload(String projectPath) {
 
-        // TODO: Improve it to use separate input file for each API Resource
         Path inputFilePath = Path.of(projectPath, ".tryout", "input.json");
-        String payload = StringUtils.EMPTY;
         if (inputFilePath.toFile().exists()) {
             try {
-                payload = Utils.readFile(inputFilePath.toFile());
+                String payloads = Utils.readFile(inputFilePath.toFile());
+                JsonArray jsonArray = Utils.getJsonArray(payloads);
+                if (jsonArray != null && jsonArray.size() > 0) {
+                    JsonElement firstElement = jsonArray.get(0); // TODO: Handle multiple payloads
+                    if (firstElement.isJsonObject() && firstElement.getAsJsonObject().has("content")) {
+                        return firstElement.getAsJsonObject().get("content").toString();
+                    }
+                }
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, "Error while reading the input file", e);
             }
         }
-        return payload;
+        return StringUtils.EMPTY;
     }
 
     private ExpressionCompletionUtils() {
