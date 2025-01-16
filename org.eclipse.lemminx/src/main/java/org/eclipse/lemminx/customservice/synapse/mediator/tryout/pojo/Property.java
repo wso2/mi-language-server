@@ -83,6 +83,9 @@ public class Property {
 
     public List<Property> getProperties() {
 
+        if (properties == null) {
+            return Collections.emptyList();
+        }
         return Collections.unmodifiableList(properties);
     }
 
