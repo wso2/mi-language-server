@@ -565,6 +565,22 @@ public class Utils {
     }
 
     /**
+     * Get the file name without the extension
+     *
+     * @param file
+     * @return
+     */
+    public static String getFileName(File file) {
+
+        String fileName = file.getName();
+        int dotIndex = fileName.lastIndexOf(".");
+        if (dotIndex != -1) {
+            return fileName.substring(0, dotIndex);
+        }
+        return fileName;
+    }
+
+    /**
      * Unescape the given XML text
      *
      * @param text
