@@ -34,12 +34,8 @@ import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTr
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Params;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Properties;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.MediatorFactoryFinder;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.InvalidMediator;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
-import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -262,7 +258,7 @@ public class ExpressionCompletionsProvider {
         String firstSegment = expressionSegments.get(0);
 
         switch (firstSegment) {
-            case ExpressionConstants.VAR:
+            case ExpressionConstants.VARS:
                 handleVariableCompletions(request, response, mediatorInfo, expressionSegments, context);
                 break;
             case ExpressionConstants.PROPS:
@@ -278,7 +274,7 @@ public class ExpressionCompletionsProvider {
             case ExpressionConstants.PAYLOAD:
                 handlePayloadCompletions(request, response, mediatorInfo, context);
                 break;
-            case ExpressionConstants.CONFIG:
+            case ExpressionConstants.CONFIGS:
                 handleConfigCompletions(request, response, mediatorInfo, expressionSegments, context);
             default:
                 // Do nothing

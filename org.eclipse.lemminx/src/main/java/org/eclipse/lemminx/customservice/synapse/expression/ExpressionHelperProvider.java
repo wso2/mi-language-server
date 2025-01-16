@@ -98,7 +98,7 @@ public class ExpressionHelperProvider {
 
         HelperPanelData helperData = new HelperPanelData();
         List<Property> configurables = ExpressionCompletionUtils.getConfigs(projectPath);
-        helperData.setConfigs(createDataList(configurables, ExpressionConstants.CONFIG));
+        helperData.setConfigs(createDataList(configurables, ExpressionConstants.CONFIGS));
         setFunctions(helperData, ExpressionCompletionUtils.getFunctions());
         return helperData;
     }
@@ -116,11 +116,11 @@ public class ExpressionHelperProvider {
 
         HelperPanelData helperData = new HelperPanelData();
         setFunctions(helperData, functions);
-        helperData.setVariables(createDataList(propsData.getVariables(), ExpressionConstants.VAR));
+        helperData.setVariables(createDataList(propsData.getVariables(), ExpressionConstants.VARS));
         helperData.setPayload(createDataList(propsData.getPayload()));
         helperData.setProperties(createDataList(propsData.getProperties()));
         helperData.setParams(createDataList(propsData.getParams()));
-        helperData.setConfigs(createDataList(propsData.getConfigs(), ExpressionConstants.CONFIG));
+        helperData.setConfigs(createDataList(propsData.getConfigs(), ExpressionConstants.CONFIGS));
         helperData.setHeaders(createDataList(propsData.getHeaders(), ExpressionConstants.HEADERS));
         return helperData;
     }

@@ -30,7 +30,7 @@ public class ExpressionConstants {
     public static final String DETAIL = "details";
     public static final String CATEGORY = "category";
     public static final String SIGNATURE = "signature";
-    public static final String VAR = "var";
+    public static final String VARS = "vars";
     public static final String PROPERTIES = "properties";
     public static final String PROPS = "props";
     public static final String PARAMS = "params";
@@ -45,9 +45,9 @@ public class ExpressionConstants {
     public static final String QUERY_PARAMS = "queryParams";
     public static final String URI_PARAMS = "uriParams";
     public static final String FUNCTION_PARAMS = "functionParams";
-    public static final String CONFIG = "config";
+    public static final String CONFIGS = "configs";
     public static final List<String> ROOT_LEVEL_TOKENS =
-            List.of(VAR, PROPERTIES, PROPS, PARAMS, HEADERS, PAYLOAD, CONFIG);
+            List.of(VARS, PROPERTIES, PROPS, PARAMS, HEADERS, PAYLOAD, CONFIGS);
     public static final List<String> PARAMS_SECOND_LEVEL = List.of(QUERY_PARAMS, URI_PARAMS, FUNCTION_PARAMS);
     public static final String OBJECT = "Object";
     public static final String ITEMS = "items";
