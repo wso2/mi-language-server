@@ -29,12 +29,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DatamapperMediator {
-    private static final String REGEX = "resources:datamapper/([^/]+)/.*\\.dmc";
-    private static final String PATH = "resources:datamapper/";
 
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
                                                                                               Datamapper datamapper,
                                                                                               List<String> dirtyFields) {
+        final String PATH = "gov:datamapper/";
         String configurationLocalPath = PATH + data.get("name") + "/" + data.get("name") + ".dmc";
         String inputSchemaLocalPath = PATH + data.get("name") + "/" + data.get("name") + "_inputSchema.json";
         String outputSchemaLocalPath = PATH + data.get("name") + "/" + data.get("name") + "_outputSchema.json";
@@ -47,6 +46,39 @@ public class DatamapperMediator {
 
     public static Map<String, Object> getDataFromST430(Datamapper node) {
 
+        final String REGEX = "gov:datamapper/([^/]+)/.*\\.dmc";
+        Map<String, Object> data = new HashMap<>();
+        data.put("description", node.getDescription());
+        data.put("inputType", node.getInputType());
+        data.put("outputType", node.getOutputType());
+        String configPath = node.getConfig();
+        if (configPath != null) {
+            Pattern pattern = Pattern.compile(REGEX);
+            Matcher matcher = pattern.matcher(configPath);
+            if (matcher.find()) {
+                data.put("name", matcher.group(1));
+            }
+        }
+        return data;
+    }
+
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData440(Map<String, Object> data,
+                                                                                              Datamapper datamapper,
+                                                                                              List<String> dirtyFields) {
+        final String PATH = "resources:datamapper/";
+        String configurationLocalPath = PATH + data.get("name") + "/" + data.get("name") + ".dmc";
+        String inputSchemaLocalPath = PATH + data.get("name") + "/" + data.get("name") + "_inputSchema.json";
+        String outputSchemaLocalPath = PATH + data.get("name") + "/" + data.get("name") + "_outputSchema.json";
+        data.put("configurationLocalPath", configurationLocalPath);
+        data.put("inputSchemaLocalPath", inputSchemaLocalPath);
+        data.put("outputSchemaLocalPath", outputSchemaLocalPath);
+        return Either.forLeft(data);
+
+    }
+
+    public static Map<String, Object> getDataFromST440(Datamapper node) {
+
+        final String REGEX = "resources:datamapper/([^/]+)/.*\\.dmc";
         Map<String, Object> data = new HashMap<>();
         data.put("description", node.getDescription());
         data.put("inputType", node.getInputType());
