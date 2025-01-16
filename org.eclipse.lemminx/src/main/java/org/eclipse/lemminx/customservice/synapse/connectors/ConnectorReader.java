@@ -168,24 +168,39 @@ public class ConnectorReader {
 
         String uiSchemaPath = connector.getUiSchemaPath();
         File uiSchemaFolder = new File(uiSchemaPath);
-        if (uiSchemaFolder.exists()) {
-            File[] files = uiSchemaFolder.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    try {
-                        String schema = Utils.readFile(file);
-                        JsonObject uiJson = Utils.getJsonObject(schema);
-                        JsonElement operation = uiJson.get(Constant.OPERATION_NAME);
-                        if (operation != null) {
-                            String operationName = operation.getAsString();
-                            connector.addOperationUiSchema(operationName, file.getAbsolutePath());
-                        }
-                    } catch (IOException e) {
-                        log.log(Level.SEVERE, "Error while reading connector ui schema file", e);
-                    }
-                }
+        if (!uiSchemaFolder.exists()) {
+            log.log(Level.SEVERE, "UI schema folder does not exist for connector: " + connector.getName());
+        }
+        File[] files = uiSchemaFolder.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                processUISchemaFile(file, connector);
             }
         }
+    }
+
+    private void processUISchemaFile(File file, Connector connector) {
+
+        try {
+            String fileName = Utils.getFileName(file);
+            if (connector.getAction(fileName) != null) {
+                connector.addOperationUiSchema(fileName, file.getAbsolutePath());
+            } else {
+                JsonElement operation = getOperationNameFromUISchema(file);
+                if (operation != null) {
+                    connector.addOperationUiSchema(operation.getAsString(), file.getAbsolutePath());
+                }
+            }
+        } catch (IOException e) {
+            log.log(Level.SEVERE, "Error while reading connector ui schema file", e);
+        }
+    }
+
+    private JsonElement getOperationNameFromUISchema(File file) throws IOException {
+
+        String schema = Utils.readFile(file);
+        JsonObject uiJson = Utils.getJsonObject(schema);
+        return uiJson.get(Constant.OPERATION_NAME);
     }
 
     private void readOutputSchema(Connector connector) {
