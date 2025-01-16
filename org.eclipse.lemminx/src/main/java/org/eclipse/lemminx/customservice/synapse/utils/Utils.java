@@ -69,6 +69,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -674,12 +675,11 @@ public class Utils {
     private static void removeFavouritesMediators(JsonElement mediators, List<String> favouritesMediators) {
 
         if (mediators.isJsonArray()) {
-            JsonArray mediatorsArray = mediators.getAsJsonArray();
-            for (int i = 0; i < mediatorsArray.size(); i++) {
-                JsonObject mediator = mediatorsArray.get(i).getAsJsonObject();
+            Iterator<JsonElement> iterator = mediators.getAsJsonArray().iterator();
+            while (iterator.hasNext()) {
+                JsonObject mediator = iterator.next().getAsJsonObject();
                 if (favouritesMediators.contains(mediator.get(Constant.TITLE).getAsString())) {
-                    mediatorsArray.remove(i);
-                    i--;
+                    iterator.remove();
                 }
             }
         }
