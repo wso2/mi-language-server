@@ -28,7 +28,6 @@ import org.eclipse.lemminx.customservice.synapse.expression.pojo.FunctionComplet
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.Functions;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property;
 import org.eclipse.lemminx.customservice.synapse.parser.Node;
-import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
 import org.eclipse.lemminx.customservice.synapse.parser.config.ConfigParser;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.MediatorFactoryFinder;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.InvalidMediator;
@@ -150,7 +149,7 @@ public class ExpressionCompletionUtils {
 
     private static void getRootLevelObjectCompletions(List<CompletionItem> items) {
 
-        items.add(createCompletionItem(ExpressionConstants.VAR, ExpressionConstants.VAR,
+        items.add(createCompletionItem(ExpressionConstants.VARS, ExpressionConstants.VARS,
                 "Access defined variables", CompletionItemKind.Keyword, 0, Boolean.FALSE));
         items.add(createCompletionItem(ExpressionConstants.PROPS, ExpressionConstants.PROPS,
                 "Access mediation attributes", CompletionItemKind.Keyword, 0, Boolean.FALSE));
@@ -160,7 +159,7 @@ public class ExpressionCompletionUtils {
                 "Access defined headers", CompletionItemKind.Keyword, 0, Boolean.FALSE));
         items.add(createCompletionItem(ExpressionConstants.PAYLOAD, ExpressionConstants.PAYLOAD,
                 "Access defined payload", CompletionItemKind.Keyword, 0, Boolean.FALSE));
-        items.add(createCompletionItem(ExpressionConstants.CONFIG, ExpressionConstants.CONFIG,
+        items.add(createCompletionItem(ExpressionConstants.CONFIGS, ExpressionConstants.CONFIGS,
                 "Access defined configurables", CompletionItemKind.Keyword, 0, Boolean.FALSE));
     }
 
