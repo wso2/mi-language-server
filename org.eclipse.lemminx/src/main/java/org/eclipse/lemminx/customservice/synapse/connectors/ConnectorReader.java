@@ -30,15 +30,19 @@ import org.eclipse.lemminx.dom.DOMNode;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ConnectorReader {
 
     private static final Logger log = Logger.getLogger(ConnectorReader.class.getName());
+    private static final Pattern ARTIFACT_VERSION_REGEX = Pattern.compile("(.+)-(\\d\\.\\d\\.\\d(-SNAPSHOT)?)");
     private HashMap<String, List<String>> allowedConnectionTypesMap = new HashMap<>();
 
     public Connector readConnector(String connectorPath) {
@@ -51,7 +55,7 @@ public class ConnectorReader {
                     DOMDocument connectorDocument = Utils.getDOMDocument(connectorFile);
                     DOMNode connectorElement = Utils.getChildNodeByName(connectorDocument, "connector");
                     DOMNode componentElement = Utils.getChildNodeByName(connectorElement, "component");
-                    DOMNode displayNameElement = Utils.getChildNodeByName(connectorElement, "displayName");
+                    DOMNode displayNameElement = Utils.getChildNodeByName(connectorElement, Constant.DISPLAY_NAME);
                     String name = componentElement.getAttribute(Constant.NAME);
                     connector = new Connector();
                     connector.setName(name);
@@ -62,7 +66,7 @@ public class ConnectorReader {
                         connector.setDisplayName(displayName);
                     }
                     connector.setPath(connectorPath);
-                    connector.setVersion(getConnectorVersion(connectorPath));
+                    setConnectorArtifactIdAndVersion(connector, connectorPath);
                     connector.setIconPath(connectorPath + File.separator + "icon");
                     connector.setUiSchemaPath(connectorPath + File.separator + "uischema");
                     connector.setOutputSchemaPath(connectorPath + File.separator + "outputschema");
@@ -142,14 +146,14 @@ public class ConnectorReader {
         return null;
     }
 
-    private String getConnectorVersion(String connectorPath) {
+    private void setConnectorArtifactIdAndVersion(Connector connector, String connectorPath) {
 
-        String connectorName = connectorPath.substring(connectorPath.lastIndexOf(File.separator) + 1);
-        int versionStartIndex = connectorName.lastIndexOf("-");
-        if (versionStartIndex == -1) {
-            return "";
+        String connectorName = Path.of(connectorPath).getFileName().toString();
+        Matcher matcher = ARTIFACT_VERSION_REGEX.matcher(connectorName);
+        if (matcher.find()) {
+            connector.setArtifactId(matcher.group(1));
+            connector.setVersion(matcher.group(2));
         }
-        return connectorName.substring(versionStartIndex + 1);
     }
 
     private void populateConnectorActions(Connector connector, DOMNode componentElement) {
@@ -272,6 +276,11 @@ public class ConnectorReader {
                     action.setName(name);
                     String tag = connector.getName() + Constant.DOT + name;
                     action.setTag(tag);
+                    DOMNode displayNameNode = Utils.getChildNodeByName(child, Constant.DISPLAY_NAME);
+                    if (displayNameNode != null) {
+                        String displayName = Utils.getInlineString(displayNameNode.getFirstChild());
+                        action.setDisplayName(displayName);
+                    }
                     DOMNode descriptionNode = Utils.getChildNodeByName(child, Constant.DESCRIPTION);
                     if (descriptionNode != null) {
                         String description = Utils.getInlineString(descriptionNode.getFirstChild());

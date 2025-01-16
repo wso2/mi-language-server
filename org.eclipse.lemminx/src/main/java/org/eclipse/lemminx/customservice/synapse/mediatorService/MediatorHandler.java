@@ -236,7 +236,7 @@ public class MediatorHandler {
             IllegalAccessException {
 
         for (Map.Entry<String, JsonElement> entry : mediatorList.entrySet()) {
-            JsonArray mediatorsArray = entry.getValue().getAsJsonArray();
+            JsonArray mediatorsArray = entry.getValue().getAsJsonObject().getAsJsonArray(Constant.ITEMS);
             for (JsonElement mediatorElement : mediatorsArray) {
                 JsonObject mediatorObject = mediatorElement.getAsJsonObject();
                 if (mediator.equals(mediatorObject.get(Constant.TAG).getAsString())) {
@@ -310,7 +310,7 @@ public class MediatorHandler {
         String mediatorName = node.getTag();
         JsonObject uiSchema = uiSchemaMap.get(mediatorName).deepCopy();
         for (Map.Entry<String, JsonElement> entry : mediatorList.entrySet()) {
-            JsonArray mediatorsArray = entry.getValue().getAsJsonArray();
+            JsonArray mediatorsArray = entry.getValue().getAsJsonObject().getAsJsonArray(Constant.ITEMS);
             for (JsonElement mediatorElement : mediatorsArray) {
                 JsonObject mediator = mediatorElement.getAsJsonObject();
                 if (mediatorName.equals(mediator.get(Constant.TAG).getAsString())) {
@@ -349,20 +349,27 @@ public class MediatorHandler {
         return null;
     }
 
-    private JsonObject removeMediators(JsonObject jsonObject, List<String> mediatorsToRemove) {
+    private JsonObject removeMediators(JsonObject mediatorList, List<String> mediatorsToRemove) {
 
         JsonObject filteredMediators = new JsonObject();
-        for (String key : jsonObject.keySet()) {
-            JsonArray mediatorsArray = jsonObject.getAsJsonArray(key);
-            JsonArray filteredArray = new JsonArray();
-            for (JsonElement element : mediatorsArray) {
-                JsonObject mediator = element.getAsJsonObject();
-                String tag = mediator.get(Constant.TAG).getAsString();
-                if (!mediatorsToRemove.contains(tag)) {
-                    filteredArray.add(mediator);
+        for (String key : mediatorList.keySet()) {
+            JsonObject mediatorObject = mediatorList.getAsJsonObject(key);
+            if (mediatorObject.has(Constant.IS_CONNECTOR) && mediatorObject.get(Constant.IS_CONNECTOR).getAsBoolean()) {
+                filteredMediators.add(key, mediatorObject);
+            } else {
+                JsonArray mediatorsArray = mediatorObject.getAsJsonArray(Constant.ITEMS);
+                JsonArray filteredArray = new JsonArray();
+                for (JsonElement element : mediatorsArray) {
+                    JsonObject mediator = element.getAsJsonObject();
+                    String tag = mediator.get(Constant.TAG).getAsString();
+                    if (!mediatorsToRemove.contains(tag)) {
+                        filteredArray.add(mediator);
+                    }
                 }
+                JsonObject items = new JsonObject();
+                items.add(Constant.ITEMS, filteredArray);
+                filteredMediators.add(key, items);
             }
-            filteredMediators.add(key, filteredArray);
         }
         return filteredMediators;
     }

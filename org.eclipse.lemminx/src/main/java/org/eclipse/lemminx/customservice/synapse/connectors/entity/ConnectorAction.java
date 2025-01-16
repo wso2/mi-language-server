@@ -36,6 +36,7 @@ public class ConnectorAction {
 
     private String name;
     private String tag;
+    private String displayName;
     private List<String> parameters;
     private List<String> allowedConnectionTypes;
     private String description;
@@ -123,6 +124,16 @@ public class ConnectorAction {
     public void setUiSchemaPath(String uiSchemaPath) {
 
         this.uiSchemaPath = uiSchemaPath;
+    }
+
+    public String getDisplayName() {
+
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+
+        this.displayName = displayName;
     }
 
     public void setOutputSchemaPath(String outputSchemaPath) {

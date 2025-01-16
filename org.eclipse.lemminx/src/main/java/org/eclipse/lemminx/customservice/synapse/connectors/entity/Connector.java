@@ -29,6 +29,7 @@ public class Connector {
     private String displayName;
     private String path;
     private String packageName;
+    private String artifactId;
     private String version;
     private List<ConnectorAction> actions;
     private Map<String, String> connectionUiSchema;
@@ -120,6 +121,16 @@ public class Connector {
     public void setConnectionUiSchema(Map<String, String> connectionUiSchema) {
 
         this.connectionUiSchema = connectionUiSchema;
+    }
+
+    public String getArtifactId() {
+
+        return artifactId;
+    }
+
+    public void setArtifactId(String artifactId) {
+
+        this.artifactId = artifactId;
     }
 
     public String getVersion() {
