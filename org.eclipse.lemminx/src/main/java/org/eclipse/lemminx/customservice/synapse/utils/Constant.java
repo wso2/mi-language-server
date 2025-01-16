@@ -538,4 +538,9 @@ public class Constant {
     public static final String RESPONSE_VARIABLE = "responseVariable";
     public static final String PROPERTY_NAME = "propertyName";
     public static final String PROPERTY_VALUE = "propertyValue";
+    public static final String DISPLAY_NAME = "displayName";
+    public static final String IS_CONNECTOR = "isConnector";
+    public static final String ITEMS = "items";
+    public static final String FAVOURITES = "favourites";
+    public static final String ARTIFACT_ID = "artifactId";
 }

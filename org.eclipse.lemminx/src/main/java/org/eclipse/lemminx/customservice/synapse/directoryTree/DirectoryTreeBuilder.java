@@ -127,29 +127,26 @@ public class DirectoryTreeBuilder {
             ObjectNode newArtifacts = mapper.createObjectNode();
 
             newArtifacts.set("APIs", artifacts.path(Constant.APIS));
-            newArtifacts.set("Triggers", artifacts.path(Constant.INBOUNDENDPOINTS));
-            newArtifacts.set("Scheduled Tasks", artifacts.path(Constant.TASKS));
+            newArtifacts.set("Event Integrations", artifacts.path(Constant.INBOUNDENDPOINTS));
+            newArtifacts.set("Automations", artifacts.path(Constant.TASKS));
+            newArtifacts.set("Data Services", artifacts.path(Constant.DATA_SERVICES));
 
-            ObjectNode dataIntegration = newArtifacts.putObject("Data Integration");
-            dataIntegration.set("Data Services", artifacts.path(Constant.DATA_SERVICES));
-            dataIntegration.set("Data Sources", artifacts.path(Constant.DATA_SOURCES));
-
-            ObjectNode commonArtifacts = newArtifacts.putObject("Common Artifacts");
-            commonArtifacts.set("Sequences", artifacts.path(Constant.SEQUENCES));
-            commonArtifacts.set("Connections", artifacts.path(Constant.CONNECTIONS));
+            ObjectNode otherArtifacts = newArtifacts.putObject("Other Artifacts");
+            otherArtifacts.set("Sequences", artifacts.path(Constant.SEQUENCES));
+            otherArtifacts.set("Connections", artifacts.path(Constant.CONNECTIONS));
+            otherArtifacts.set("Data Sources", artifacts.path(Constant.DATA_SOURCES));
 
             ArrayNode classMediatorArray = mapper.createArrayNode();
             JsonNode mediatorFolders = root.path(Constant.SRC).path(MAIN).path(JAVA).path(Constant.FOLDERS);
             extractClassMediators(mediatorFolders, classMediatorArray);
-            commonArtifacts.set("Class Mediators", classMediatorArray);
+            otherArtifacts.set("Class Mediators", classMediatorArray);
 
-            ObjectNode advancedArtifacts = newArtifacts.putObject("Advanced Artifacts");
-            advancedArtifacts.set("Endpoints", artifacts.path(Constant.ENDPOINTS));
-            advancedArtifacts.set("Proxy Services", artifacts.path(Constant.PROXYSERVICES));
-            advancedArtifacts.set("Message Stores", artifacts.path(Constant.MESSAGE_STORES));
-            advancedArtifacts.set("Message Processors", artifacts.path(Constant.MESSAGE_PROCESSORS));
-            advancedArtifacts.set("Local Entries", artifacts.path(Constant.LOCALENTRIES));
-            advancedArtifacts.set("Templates", artifacts.path(Constant.TEMPLATES));
+            otherArtifacts.set("Endpoints", artifacts.path(Constant.ENDPOINTS));
+            otherArtifacts.set("Proxy Services", artifacts.path(Constant.PROXYSERVICES));
+            otherArtifacts.set("Message Stores", artifacts.path(Constant.MESSAGE_STORES));
+            otherArtifacts.set("Message Processors", artifacts.path(Constant.MESSAGE_PROCESSORS));
+            otherArtifacts.set("Local Entries", artifacts.path(Constant.LOCALENTRIES));
+            otherArtifacts.set("Templates", artifacts.path(Constant.TEMPLATES));
 
             JsonNode registryFolders = root.path(Constant.SRC).path(MAIN).path(WSO2MI).path(Constant.RESOURCES)
                     .path(Constant.REGISTRY).path(Constant.GOV).path(Constant.FOLDERS);
@@ -160,9 +157,9 @@ public class DirectoryTreeBuilder {
             ArrayNode dataMapperConfigs = getDataMapperConfigs(mapper, registryFolders, newResourcesFolders);
 
             if (dataMapperConfigs.isEmpty()) {
-                commonArtifacts.set("Data Mappers", mapper.createArrayNode());
+                otherArtifacts.set("Data Mappers", mapper.createArrayNode());
             } else {
-                commonArtifacts.set("Data Mappers", dataMapperConfigs);
+                otherArtifacts.set("Data Mappers", dataMapperConfigs);
             }
 
             ((ObjectNode) root.path(Constant.SRC).path(MAIN).path(WSO2MI)).set(Constant.ARTIFACTS, newArtifacts);

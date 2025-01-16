@@ -64,12 +64,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -78,6 +78,7 @@ import java.util.regex.Pattern;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -650,8 +651,38 @@ public class Utils {
         }
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         JsonObject mediatorList = JsonParser.parseReader(reader).getAsJsonObject();
+        processMediatorList(mediatorList);
         addConnectorsToMediatorList(mediatorList, connectorHolder);
         return mediatorList;
+    }
+
+    private static void processMediatorList(JsonObject mediatorList) {
+
+        List<String> favouritesMediators = mediatorList.getAsJsonArray(Constant.FAVOURITES).asList().stream()
+                .map(ele -> ele.getAsJsonObject().get(Constant.TITLE).getAsString()).collect(Collectors.toList());
+        for (Map.Entry<String, JsonElement> entry : mediatorList.entrySet()) {
+            String key = entry.getKey();
+            JsonElement value = entry.getValue();
+            if (!Constant.FAVOURITES.equals(key)) {
+                removeFavouritesMediators(value, favouritesMediators);
+            }
+            JsonObject itemObject = new JsonObject();
+            itemObject.add(Constant.ITEMS, value);
+            mediatorList.add(key, itemObject);
+        }
+    }
+
+    private static void removeFavouritesMediators(JsonElement mediators, List<String> favouritesMediators) {
+
+        if (mediators.isJsonArray()) {
+            Iterator<JsonElement> iterator = mediators.getAsJsonArray().iterator();
+            while (iterator.hasNext()) {
+                JsonObject mediator = iterator.next().getAsJsonObject();
+                if (favouritesMediators.contains(mediator.get(Constant.TITLE).getAsString())) {
+                    iterator.remove();
+                }
+            }
+        }
     }
 
     private static void addConnectorsToMediatorList(JsonObject mediatorList, ConnectorHolder connectorHolder) {
@@ -664,7 +695,9 @@ public class Utils {
             for (ConnectorAction operation : operations) {
                 if (!operation.getHidden()) {
                     JsonObject operationObject = new JsonObject();
-                    operationObject.addProperty(Constant.TITLE, operation.getName());
+                    String operationName = StringUtils.isEmpty(operation.getDisplayName()) ? operation.getName() :
+                            operation.getDisplayName();
+                    operationObject.addProperty(Constant.TITLE, operationName);
                     operationObject.addProperty(Constant.OPERATION_NAME, operation.getName());
                     operationObject.addProperty(Constant.TAG, operation.getTag());
                     operationObject.addProperty(Constant.TOOLTIP, operation.getDescription());
@@ -672,9 +705,14 @@ public class Utils {
                     operationsArray.add(operationObject);
                 }
             }
+            JsonObject connectorObject = new JsonObject();
+            connectorObject.add(Constant.ITEMS, operationsArray);
+            connectorObject.addProperty(Constant.IS_CONNECTOR, true);
+            connectorObject.addProperty(Constant.ARTIFACT_ID, connector.getArtifactId());
+            connectorObject.addProperty(Constant.VERSION, connector.getVersion());
             mediatorList.add(
                     StringUtils.isEmpty(connector.getDisplayName()) ? connector.getName() : connector.getDisplayName(),
-                    operationsArray);
+                    connectorObject);
         }
         if (otherCategoryMediators != null) {
             mediatorList.add(Constant.OTHER, otherCategoryMediators);
