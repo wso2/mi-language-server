@@ -40,13 +40,11 @@
         "defaultValue": "STRING",
         "comboValues": [
           "STRING",
-          "INTEGER",
           "BOOLEAN",
-          "DOUBLE",
-          "FLOAT",
+          "INTEGER",
           "LONG",
-          "SHORT",
-          "OM",
+          "DOUBLE",
+          "XML",
           "JSON"
         ],
         "required": true,

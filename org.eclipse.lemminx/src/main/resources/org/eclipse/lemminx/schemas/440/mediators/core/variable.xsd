@@ -43,10 +43,8 @@
                         <xs:enumeration value="INTEGER"/>
                         <xs:enumeration value="BOOLEAN"/>
                         <xs:enumeration value="DOUBLE"/>
-                        <xs:enumeration value="FLOAT"/>
                         <xs:enumeration value="LONG"/>
-                        <xs:enumeration value="SHORT"/>
-                        <xs:enumeration value="OM"/>
+                        <xs:enumeration value="XML"/>
                         <xs:enumeration value="JSON"/>
                     </xs:restriction>
                 </xs:simpleType>
