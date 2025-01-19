@@ -34,6 +34,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Invali
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
+import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.extensions.contentmodel.participants.completion.AttributeValueCompletionResolver;
 import org.eclipse.lemminx.services.data.DataEntryField;
@@ -66,7 +67,8 @@ public class ExpressionCompletionUtils {
 
     private static final Logger LOGGER = Logger.getLogger(ExpressionCompletionUtils.class.getName());
     private static final String FUNCTIONS_JSON_PATH = "org/eclipse/lemminx/expression/functions.json";
-    private static final Map<String, Functions> functions = new HashMap<>();
+    private static final Map<String, Functions> FUNCTIONS = new HashMap<>();
+    private static final List<List<String>> OPERATOR_COMPLETIONS = new ArrayList<>();
 
     static {
         try {
@@ -74,6 +76,20 @@ public class ExpressionCompletionUtils {
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Failed to load function completions", e);
         }
+
+        OPERATOR_COMPLETIONS.add(List.of("+", "Addition"));
+        OPERATOR_COMPLETIONS.add(List.of("-", "Subtraction"));
+        OPERATOR_COMPLETIONS.add(List.of("*", "Multiplication"));
+        OPERATOR_COMPLETIONS.add(List.of("/", "Division"));
+        OPERATOR_COMPLETIONS.add(List.of("? ${1} : ${2}", "Ternary operator"));
+        OPERATOR_COMPLETIONS.add(List.of(">", "Greater than"));
+        OPERATOR_COMPLETIONS.add(List.of("<", "Less than"));
+        OPERATOR_COMPLETIONS.add(List.of(">=", "Greater than or equal"));
+        OPERATOR_COMPLETIONS.add(List.of("<=", "Less than or equal"));
+        OPERATOR_COMPLETIONS.add(List.of("==", "Equal"));
+        OPERATOR_COMPLETIONS.add(List.of("!=", "Not equal"));
+        OPERATOR_COMPLETIONS.add(List.of("&&", "Logical AND"));
+        OPERATOR_COMPLETIONS.add(List.of("||", "Logical OR"));
     }
 
     /**
@@ -113,7 +129,7 @@ public class ExpressionCompletionUtils {
                     }
                     String sortText = functionCategory.get(ExpressionConstants.SORT_TEXT).getAsString();
                     Functions processedFunctions = new Functions(sortText, functionList);
-                    functions.put(key, processedFunctions);
+                    FUNCTIONS.put(key, processedFunctions);
                 });
             }
         }
@@ -126,7 +142,7 @@ public class ExpressionCompletionUtils {
      */
     public static Map<String, Functions> getFunctions() {
 
-        return Collections.unmodifiableMap(functions);
+        return Collections.unmodifiableMap(FUNCTIONS);
     }
 
     /**
@@ -166,7 +182,7 @@ public class ExpressionCompletionUtils {
     private static void getFunctionCompletions(List<CompletionItem> items) {
 
         List<CompletionItem> functionCompletions = new ArrayList<>();
-        functions.values().forEach(functions -> functionCompletions.addAll(functions.getItems()));
+        FUNCTIONS.values().forEach(functions -> functionCompletions.addAll(functions.getItems()));
         items.addAll(Collections.unmodifiableCollection(functionCompletions));
     }
 
@@ -178,16 +194,11 @@ public class ExpressionCompletionUtils {
      */
     public static void addOperatorCompletions(ICompletionRequest request, ICompletionResponse response) {
 
-        addCompletionItem(request, response, "+", "Addition", CompletionItemKind.Operator,
-                0, Boolean.FALSE);
-        addCompletionItem(request, response, "-", "Subtraction", CompletionItemKind.Operator,
-                0, Boolean.FALSE);
-        addCompletionItem(request, response, "*", "Multiplication", CompletionItemKind.Operator,
-                0, Boolean.FALSE);
-        addCompletionItem(request, response, "/", "Division", CompletionItemKind.Operator,
-                0, Boolean.FALSE);
-        addCompletionItem(request, response, "? ${1} : ${2}", "Ternary operator",
-                CompletionItemKind.Operator, 0, Boolean.TRUE);
+        for (int i = 0; i < OPERATOR_COMPLETIONS.size(); i++) {
+            List<String> operator = OPERATOR_COMPLETIONS.get(i);
+            addCompletionItem(request, response, operator.get(0), operator.get(1), CompletionItemKind.Operator, i,
+                    operator.get(0).contains("${"));
+        }
     }
 
     /**
@@ -447,7 +458,7 @@ public class ExpressionCompletionUtils {
                 return document.positionAt(currentNode.getStart());
             }
         }
-        return null;
+        return document.positionAt(((DOMElement) node).getStartTagCloseOffset());
     }
 
     /**

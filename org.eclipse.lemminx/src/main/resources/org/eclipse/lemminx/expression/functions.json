@@ -1,4 +1,18 @@
 {
+  "array": {
+    "sortText": "0_array",
+    "items": [
+      {
+        "label": "length(value:array)",
+        "insertText": "length($1)",
+        "details": "Returns the length of the JSON array",
+        "signature": {
+          "value": "array"
+        },
+        "category": 1
+      }
+    ]
+  },
   "string": {
     "sortText": "1_string",
     "items": [
@@ -30,23 +44,23 @@
         "category": 1
       },
       {
-        "label": "subString(value:string, start:integer)",
+        "label": "subString(value:string, beginIndex:integer)",
         "insertText": "subString($1, $2)",
-        "details": "Extracts a substring from starting index",
+        "details": "Extracts a substring from beginIndex",
         "signature": {
           "value": "string",
-          "start": "integer"
+          "beginIndex": "integer"
         },
         "category": 1
       },
       {
-        "label": "subString(value:string, start:integer, end:integer)",
+        "label": "subString(value:string, beginIndex:integer, endIndex:integer)",
         "insertText": "subString($1, $2, $3)",
-        "details": "Extracts a substring from start to end",
+        "details": "Extracts a substring from beginIndex to endIndex",
         "signature": {
           "value": "string",
-          "start": "integer",
-          "end": "integer"
+          "beginIndex": "integer",
+          "endIndex": "integer"
         },
         "category": 1
       },
@@ -90,13 +104,13 @@
         "category": 1
       },
       {
-        "label": "replace(value:string, old:string, new:string)",
+        "label": "replace(sourceText: string, textToReplace: string, replacementText: string)",
         "insertText": "replace($1, $2, $3)",
         "details": "Replaces occurrences of old with new",
         "signature": {
-          "value": "string",
-          "old": "string",
-          "new": "string"
+          "sourceText": "string",
+          "textToReplace": "string",
+          "replacementText": "string"
         },
         "category": 1
       },
@@ -121,23 +135,23 @@
         "category": 1
       },
       {
-        "label": "indexOf(value:string, input:string)",
+        "label": "indexOf(text:string, target:string)",
         "insertText": "indexOf($1, $2)",
-        "details": "Return the position of the first occurrence of input in value",
+        "details": "Return the position of the first occurrence of target in text",
         "signature": {
-          "value": "string",
-          "input": "string"
+          "text": "string",
+          "target": "string"
         },
         "category": 1
       },
       {
-        "label": "indexOf(value:string, input:string, afterIndex:integer)",
+        "label": "indexOf(text:string, target:string, fromIndex:integer)",
         "insertText": "indexOf($1, $2, $3)",
-        "details": "Return the position of the first occurrence of input in value after index",
+        "details": "Return the position of the first occurrence of target in text after fromIndex",
         "signature": {
-          "value": "string",
-          "input": "string",
-          "afterIndex": "integer"
+          "text": "string",
+          "target": "string",
+          "fromIndex": "integer"
         },
         "category": 1
       }
@@ -266,6 +280,15 @@
           "charset": "string"
         },
         "category": 6
+      },
+      {
+        "label": "urlEncode(value:string)",
+        "insertText": "urlEncode($1)",
+        "details": "Encodes a string for safe inclusion in a URL",
+        "signature": {
+          "value": "string"
+        },
+        "category": 7
       }
     ]
   },
@@ -276,15 +299,6 @@
         "label": "base64decode(value:string)",
         "insertText": "base64decode($1)",
         "details": "Decodes a Base64-encoded value",
-        "signature": {
-          "value": "string"
-        },
-        "category": 7
-      },
-      {
-        "label": "urlEncode(value:string)",
-        "insertText": "urlEncode($1)",
-        "details": "Encodes a string for safe inclusion in a URL",
         "signature": {
           "value": "string"
         },

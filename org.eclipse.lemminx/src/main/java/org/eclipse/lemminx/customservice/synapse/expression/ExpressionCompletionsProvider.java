@@ -218,15 +218,15 @@ public class ExpressionCompletionsProvider {
                 currentSegment.addSegment(currentSegmentValue.toString());
                 currentSegment = new ExpressionCompletionContext(currentSegment, ExpressionCompletionType.ROOT_LEVEL);
                 currentSegmentValue = new StringBuilder();
-            } else if (c == '(' || ExpressionConstants.OPERATORS.contains(String.valueOf(
-                    c))) {  // If the character is an opening bracket or an operator, the completion should be root level.
+            } else if (c == '(' || isOperatorCharacter(c, currentSegmentValue.toString())) {
+                // If the character is an opening bracket or an operator, the completion should be root level.
                 currentSegment = new ExpressionCompletionContext(currentSegment);
                 currentSegment.addSegment(String.valueOf(c));
                 currentSegment = new ExpressionCompletionContext(currentSegment, ExpressionCompletionType.ROOT_LEVEL);
                 currentSegmentValue = new StringBuilder();
             } else if (c == ' ') { // Handle spaces
                 if (ExpressionCompletionType.ROOT_LEVEL.equals(currentSegment.getType()) ||
-                        (currentSegment.getParent() != null && ExpressionConstants.OPERATORS.contains(
+                        (currentSegment.getParent() != null && ExpressionConstants.OPERATORS_CHARS.contains(
                                 currentSegment.getParent().getSegment().get(0)))) {
                     currentSegment.addSegment(currentSegmentValue.toString());
                     currentSegment =
@@ -247,6 +247,15 @@ public class ExpressionCompletionsProvider {
             }
         }
         return currentSegment;
+    }
+
+    private static boolean isOperatorCharacter(char c, String string) {
+
+        if (ExpressionConstants.OPERATORS_CHARS.contains(String.valueOf(c)) ||
+                ExpressionConstants.OPERATORS_CHARS.contains(string + c)) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
     }
 
     private static void getCompletionItems(ICompletionRequest request, ICompletionResponse response,

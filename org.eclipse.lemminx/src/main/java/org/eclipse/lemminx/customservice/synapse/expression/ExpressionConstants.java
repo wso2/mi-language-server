@@ -23,8 +23,9 @@ import java.util.List;
 public class ExpressionConstants {
 
     public static final String EXPRESSION_PREFIX = "${";
-    public static final List<String>
-            OPERATORS = List.of("+", "-", "*", "/", "?", ":", ">", "<", ">= ", "<=", "==", "!=", "&&", "||");
+    public static final List<String> OPERATORS_CHARS =
+            List.of("+", "-", "*", "/", "?", ":", ">", "<", ">= ", "<=", "==", "!=", "&&", "||", "and", "or",
+                    "=", "&", "|");
     public static final String LABEL = "label";
     public static final String INSERT_TEXT = "insertText";
     public static final String DETAIL = "details";

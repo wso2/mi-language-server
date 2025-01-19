@@ -70,6 +70,7 @@ public class ExpressionHelperProvider {
         try {
             Position mediatorPosition =
                     ExpressionCompletionUtils.getMediatorPosition(param.getDocumentUri(), param.getPosition());
+            boolean isNewMediator = mediatorPosition != param.getPosition();
             String payload = ExpressionCompletionUtils.getInputPayload(projectPath);
             if (mediatorPosition == null && param.getPosition() == null) {
                 return getBasicHelperData();
@@ -80,7 +81,7 @@ public class ExpressionHelperProvider {
                     new MediatorTryoutRequest(param.getDocumentUri(), mediatorPosition.getLine(),
                             mediatorPosition.getCharacter(), payload, null);
             MediatorTryoutInfo tryoutInfo = getMediatorTryoutInfo(request);
-            MediatorInfo propsData = tryoutInfo.getOutput();
+            MediatorInfo propsData = isNewMediator ? tryoutInfo.getOutput() : tryoutInfo.getInput();
             return createHelperData(propsData, ExpressionCompletionUtils.getFunctions());
         } catch (BadLocationException | IOException e) {
             return getBasicHelperData();

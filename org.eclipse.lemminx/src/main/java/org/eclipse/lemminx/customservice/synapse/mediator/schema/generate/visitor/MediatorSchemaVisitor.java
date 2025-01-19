@@ -81,6 +81,8 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transf
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.xquery.Xquery;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.xslt.Xslt;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.targets.Target;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lsp4j.Position;
 
@@ -150,6 +152,16 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitHeader(Header node) {
 
+        if (Constant.SET.equalsIgnoreCase(node.getAction())) {
+            String name = node.getName();
+            String value = node.getValue() != null ? node.getValue() : node.getExpression();
+            org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property property =
+                    new org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property(name, value);
+            info.addOutputHeader(property);
+        } else if (Constant.REMOVE.equalsIgnoreCase(node.getAction())) {
+            String name = node.getName();
+            info.removeOutputHeader(name);
+        }
     }
 
     @Override
@@ -187,11 +199,13 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitThrottle(Throttle node) {
 
+        // Do nothing
     }
 
     @Override
     protected void visitCache(Cache node) {
 
+        // Do nothing
     }
 
     @Override
@@ -217,6 +231,7 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitRespond(Respond node) {
 
+        // Do nothing
     }
 
     @Override
@@ -247,6 +262,7 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitLoopback(Loopback node) {
 
+        // Do nothing
     }
 
     @Override
@@ -262,11 +278,18 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitFilter(Filter node) {
 
+        if (node.getThen() != null) {
+            Utils.visitMediators(node.getThen().getMediatorList(), info, position);
+        }
+        if (node.getElse_() != null) {
+            Utils.visitMediators(node.getElse_().getMediatorList(), info, position);
+        }
     }
 
     @Override
     protected void visitSend(Send node) {
 
+        info.setOutputPayload(null);
     }
 
     @Override
@@ -277,6 +300,7 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitClass(Class node) {
 
+        info.setOutputPayload(null);
     }
 
     @Override
@@ -287,6 +311,7 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitLog(Log node) {
 
+        // Do nothing
     }
 
     @Override
@@ -307,16 +332,22 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitCallTemplate(CallTemplate node) {
 
+        info.setOutputPayload(null);
     }
 
     @Override
     protected void visitCall(Call node) {
 
+        info.setOutputPayload(null);
     }
 
     @Override
     protected void visitIterate(Iterate node) {
 
+        Target target = node.getTarget();
+        if (target != null) {
+            Utils.visitSequence(target.getSequence(), info, position, true);
+        }
     }
 
     @Override
@@ -325,7 +356,8 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
         String propertyName = node.getName();
         PropertyScope scope = node.getScope();
         org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property property =
-                new org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property(propertyName, node.getValue()!=null ? node.getValue() : node.getExpression());
+                new org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property(propertyName,
+                        node.getValue() != null ? node.getValue() : node.getExpression());
         if (scope != null) {
             switch (scope) {
                 case AXIS2:
@@ -368,7 +400,11 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
 
     @Override
     protected void visitForeach(Foreach node) {
-        // Do nothing
+
+        Sequence sequence = node.getSequence();
+        if (sequence != null) {
+            Utils.visitSequence(sequence, info, position, true);
+        }
     }
 
     @Override
@@ -430,6 +466,7 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitSequence(SequenceMediator node) {
 
+        Utils.visitMediators(node.getMediatorList(), info, position);
     }
 
     @Override

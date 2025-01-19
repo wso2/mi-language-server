@@ -527,6 +527,17 @@ public class Utils {
         return null;
     }
 
+    /**
+     * Get the JSON element from the given content
+     *
+     * @param content the content
+     * @return the JSON element from the given content
+     */
+    public static JsonElement getJsonElement(String content) {
+
+        return JsonParser.parseString(content);
+    }
+
     public static <T extends Enum<T>> T getEnumFromValue(String value, Class<T> enumClass) {
 
         if (value != null) {
