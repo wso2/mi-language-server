@@ -696,7 +696,7 @@ public class Utils {
                     Matcher matcher = pattern.matcher(version);
                     if (matcher.matches()) {
                         if (Integer.parseInt(version.replace(".", "")) <
-                                Integer.parseInt(Constant.OLDER_DEFAULT_MI_VERSION.replace(".", ""))) {
+                                Integer.parseInt(Constant.MI_430_VERSION.replace(".", ""))) {
                             return Constant.MI_430_VERSION;
                         }
                         return version;
