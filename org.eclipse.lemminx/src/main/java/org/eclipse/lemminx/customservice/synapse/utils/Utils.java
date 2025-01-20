@@ -27,6 +27,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSyntaxException;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.commons.TextDocument;
@@ -525,6 +526,21 @@ public class Utils {
             return jsonElement.getAsJsonArray();
         }
         return null;
+    }
+
+    /**
+     * Get the JSON element from the given content
+     *
+     * @param content the content
+     * @return the JSON element from the given content
+     */
+    public static JsonElement getJsonElement(String content) {
+
+        try {
+            return JsonParser.parseString(content);
+        } catch (JsonSyntaxException e) {
+            return null;
+        }
     }
 
     public static <T extends Enum<T>> T getEnumFromValue(String value, Class<T> enumClass) {

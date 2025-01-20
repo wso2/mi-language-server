@@ -18,11 +18,14 @@
 
 package org.eclipse.lemminx.customservice.synapse.mediator.schema.generate.visitor;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 import org.eclipse.lemminx.customservice.synapse.AbstractMediatorVisitor;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
-import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
 import org.eclipse.lsp4j.Position;
 
 import java.lang.reflect.InvocationTargetException;
@@ -36,16 +39,67 @@ public class Utils {
     private static final Logger LOGGER = Logger.getLogger(Utils.class.getName());
     public static void visitSequence(Sequence seq, MediatorTryoutInfo info, Position position) {
 
-        if (seq != null && checkNodeInRange(seq, position)) {
+        visitSequence(seq, info, position, false);
+    }
+
+    public static void visitSequence(Sequence seq, MediatorTryoutInfo info, Position position,
+                                     boolean isSplitAndAggregate) {
+
+        if (seq != null) {
+            boolean isSplit = splitPayloadIfRequired(info, isSplitAndAggregate);
             List<Mediator> mediatorList = seq.getMediatorList();
             if (mediatorList != null) {
                 visitMediators(mediatorList, info, position);
             }
+            if (isAggregateNeeded(isSplit, seq, position)) {
+                aggregatePayload(info);
+            }
         }
     }
 
-    private static void visitMediators(List<Mediator> mediatorList, MediatorTryoutInfo info, Position position) {
+    private static boolean splitPayloadIfRequired(MediatorTryoutInfo info, boolean isSplitAndAggregate) {
 
+        if (isSplitAndAggregate) {
+            JsonPrimitive input = info.getOutput().getPayload();
+            if (input != null) {
+                String payload = input.getAsString();
+                JsonArray jsonArray = org.eclipse.lemminx.customservice.synapse.utils.Utils.getJsonArray(payload);
+                if (jsonArray != null) {
+                    JsonPrimitive payloadElement = new JsonPrimitive(jsonArray.get(0).toString());
+                    info.setInputPayload(payloadElement);
+                    info.setOutputPayload(payloadElement);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean isAggregateNeeded(boolean isSplit, Sequence sequence, Position position) {
+
+        if (!isSplit) {
+            return false;
+        }
+        return !checkNodeInRange(sequence, position);
+    }
+
+    private static void aggregatePayload(MediatorTryoutInfo info) {
+
+        JsonPrimitive output = info.getOutput().getPayload();
+        if (output != null) {
+            String payload = output.getAsString();
+            JsonElement outputElement = org.eclipse.lemminx.customservice.synapse.utils.Utils.getJsonElement(payload);
+            JsonArray jsonArray = new JsonArray();
+            jsonArray.add(outputElement);
+            info.setOutputPayload(new JsonPrimitive(jsonArray.toString()));
+        }
+    }
+
+    public static void visitMediators(List<Mediator> mediatorList, MediatorTryoutInfo info, Position position) {
+
+        if (mediatorList == null) {
+            return;
+        }
         MediatorSchemaVisitor mediatorVisitor = new MediatorSchemaVisitor(info, position);
         for (Mediator mediator : mediatorList) {
             visitMediator(mediator, mediatorVisitor);
@@ -123,4 +177,7 @@ public class Utils {
         }
     }
 
+    private Utils() {
+
+    }
 }

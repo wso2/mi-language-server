@@ -237,6 +237,19 @@ public class MediatorInfo {
         this.headers.addAll(headers);
     }
 
+    public void removeHeader(String name) {
+
+        if (headers == null) {
+            return;
+        }
+        for (Property header : headers) {
+            if (header.getKey().equals(name)) {
+                headers.remove(header);
+                break;
+            }
+        }
+    }
+
     public void removeVariable(String name) {
 
         if (variables == null) {

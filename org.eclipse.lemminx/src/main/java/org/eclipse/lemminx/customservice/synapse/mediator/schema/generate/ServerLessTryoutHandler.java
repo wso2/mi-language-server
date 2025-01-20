@@ -19,9 +19,7 @@
 package org.eclipse.lemminx.customservice.synapse.mediator.schema.generate;
 
 import com.google.gson.JsonPrimitive;
-import org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants;
 import org.eclipse.lemminx.customservice.synapse.mediator.schema.generate.visitor.APIVisitor;
-import org.eclipse.lemminx.customservice.synapse.mediator.TryOutUtils;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorInfo;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutRequest;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
@@ -34,7 +32,6 @@ import org.eclipse.lemminx.dom.DOMDocument;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 
 public class ServerLessTryoutHandler {
 
@@ -69,8 +66,7 @@ public class ServerLessTryoutHandler {
             payload = new JsonPrimitive(request.getInputPayload());
         }
         mediatorInfo.setPayload(payload);
-        //TODO: Add params to the mediatorInfo
-        return new MediatorTryoutInfo(mediatorInfo, mediatorInfo);
+        return new MediatorTryoutInfo(mediatorInfo, mediatorInfo.deepCopy());
     }
 
     private void visitNode(STNode node, MediatorTryoutRequest request, MediatorTryoutInfo mediatorTryoutInfo) {

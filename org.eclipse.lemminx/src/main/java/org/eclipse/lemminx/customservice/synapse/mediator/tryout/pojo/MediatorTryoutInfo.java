@@ -176,6 +176,26 @@ public class MediatorTryoutInfo {
         output.removeVariable(name);
     }
 
+    public void addOutputHeader(Property property) {
+
+        output.addHeader(property);
+    }
+
+    public void removeOutputHeader(String name) {
+
+        output.removeHeader(name);
+    }
+
+    public void setInputParams(Params params) {
+
+        input.setParams(params);
+    }
+
+    public void setOutputParams(Params params) {
+
+        output.setParams(params);
+    }
+
     public void replaceInputWithOutput() {
 
         input = output.deepCopy();

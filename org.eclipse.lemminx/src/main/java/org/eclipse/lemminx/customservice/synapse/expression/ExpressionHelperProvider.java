@@ -18,9 +18,10 @@
 
 package org.eclipse.lemminx.customservice.synapse.expression;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionParam;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.Functions;
@@ -70,6 +71,7 @@ public class ExpressionHelperProvider {
         try {
             Position mediatorPosition =
                     ExpressionCompletionUtils.getMediatorPosition(param.getDocumentUri(), param.getPosition());
+            boolean isNewMediator = mediatorPosition != param.getPosition();
             String payload = ExpressionCompletionUtils.getInputPayload(projectPath);
             if (mediatorPosition == null && param.getPosition() == null) {
                 return getBasicHelperData();
@@ -80,7 +82,7 @@ public class ExpressionHelperProvider {
                     new MediatorTryoutRequest(param.getDocumentUri(), mediatorPosition.getLine(),
                             mediatorPosition.getCharacter(), payload, null);
             MediatorTryoutInfo tryoutInfo = getMediatorTryoutInfo(request);
-            MediatorInfo propsData = tryoutInfo.getOutput();
+            MediatorInfo propsData = isNewMediator ? tryoutInfo.getOutput() : tryoutInfo.getInput();
             return createHelperData(propsData, ExpressionCompletionUtils.getFunctions());
         } catch (BadLocationException | IOException e) {
             return getBasicHelperData();
@@ -164,46 +166,64 @@ public class ExpressionHelperProvider {
     private List<CompletionItem> createDataList(JsonPrimitive payload) {
 
         List<CompletionItem> dataList = new ArrayList<>();
-        if (payload != null && Utils.isJSONObject(payload.getAsString())) {
-            JsonObject jsonObject = Utils.getJsonObject(payload.getAsString());
-            if (jsonObject != null) {
+        if (payload != null) {
+            JsonElement element = Utils.getJsonElement(payload.getAsString());
+            if (element != null) {
                 CompletionItem item = new HelperPanelItem(ExpressionConstants.PAYLOAD, ExpressionConstants.PAYLOAD);
-                ((HelperPanelItem) item).addChildren(addJsonChildren(jsonObject, ExpressionConstants.PAYLOAD));
+                ((HelperPanelItem) item).addChildren(addJsonChildren(element, ExpressionConstants.PAYLOAD));
                 dataList.add(item);
             }
         }
         return dataList;
     }
 
-    private List<CompletionItem> createDataList(List<Property> variables, String expressionPrefix) {
+    private List<CompletionItem> createDataList(List<Property> properties, String expressionPrefix) {
 
         List<CompletionItem> dataList = new ArrayList<>();
-        for (Property variable : variables) {
+        for (Property variable : properties) {
             String expression = expressionPrefix + Constant.DOT + variable.getKey();
             HelperPanelItem item = new HelperPanelItem(variable.getKey(), expression);
             String value = variable.getValue();
             if (variable.getProperties() != null && !variable.getProperties().isEmpty()) {
                 item.addChildren(createDataList(variable.getProperties(), expression));
-            } else if (value != null && Utils.isJSONObject(value)) {
-                item.addChildren(addJsonChildren(Utils.getJsonObject(value), expression));
+            } else if (value != null) {
+                item.addChildren(addJsonChildren(Utils.getJsonElement(value), expression));
             }
             dataList.add(item);
         }
         return dataList;
     }
 
-    private List<CompletionItem> addJsonChildren(JsonObject jsonObject, String expressionPrefix) {
+    private List<CompletionItem> addJsonChildren(JsonElement jsonObject, String expressionPrefix) {
 
         List<CompletionItem> dataList = new ArrayList<>();
-        for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-            String expression = expressionPrefix + "." + entry.getKey();
-            HelperPanelItem item = new HelperPanelItem(entry.getKey(), expression);
-            JsonElement value = entry.getValue();
-            if (value.isJsonObject()) {
-                item.addChildren(addJsonChildren(value.getAsJsonObject(), expression));
+        if (jsonObject != null) {
+            if (jsonObject.isJsonObject()) {
+                for (Map.Entry<String, JsonElement> entry : jsonObject.getAsJsonObject().entrySet()) {
+                    String expressionSuffix = getExpressionSuffix(entry.getKey());
+                    String expression = expressionPrefix + expressionSuffix;
+                    HelperPanelItem item = new HelperPanelItem(entry.getKey(), expression);
+                    JsonElement value = entry.getValue();
+                    item.addChildren(addJsonChildren(value, expression));
+                    dataList.add(item);
+                }
+            } else if (jsonObject.isJsonArray()) {
+                JsonArray jsonArray = jsonObject.getAsJsonArray();
+                HelperPanelItem item = new HelperPanelItem(ExpressionConstants.ARRAY_COMPLETION_LABEL,
+                        ExpressionConstants.ARRAY_COMPLETION_INSERT_TEXT);
+                expressionPrefix = expressionPrefix + ExpressionConstants.ARRAY_COMPLETION_INSERT_TEXT;
+                item.addChildren(addJsonChildren(jsonArray.get(0), expressionPrefix));
+                dataList.add(item);
             }
-            dataList.add(item);
         }
         return dataList;
+    }
+
+    private String getExpressionSuffix(String key) {
+
+        if (key.contains(StringUtils.SPACE)) {
+            return "[\"" + key + "\"]";
+        }
+        return Constant.DOT + key;
     }
 }
