@@ -186,9 +186,11 @@ public class PluginHandler extends DefaultHandler {
                 break;
             case Constants.ARTIFACT_ID:
                 artifactId = value;
+                this.pomDetailsResponse.getBuildDetails().getDockerDetails().setProjectArtifactId(artifactId);
                 break;
             case Constants.VERSION:
                 version = value;
+                this.pomDetailsResponse.getBuildDetails().getDockerDetails().setProjectVersion(artifactId);
                 break;
             case Constants.TYPE:
                 dependencyType = value;
@@ -218,6 +220,7 @@ public class PluginHandler extends DefaultHandler {
         switch (qName) {
             case Constants.PROJECT_RUNTIME_VERSION:
                 this.pomDetailsResponse.getPrimaryDetails().setRuntimeVersion(new Node(value, Either.forLeft(range)));
+                this.pomDetailsResponse.getBuildDetails().getDockerDetails().setProjectRuntimeVersion(value);
                 break;
             case Constants.KEY_STORE_TYPE:
                 pomDetailsResponse.getBuildDetails().getDockerDetails().

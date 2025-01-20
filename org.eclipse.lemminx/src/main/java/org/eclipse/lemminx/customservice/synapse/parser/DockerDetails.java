@@ -26,6 +26,9 @@ public class DockerDetails {
     private Node keyStorePassword;
     private Node keyStoreAlias;
     private Node keyStoreType;
+    private String projectRuntimeVersion;
+    private String projectArtifactId;
+    private String projectVersion;
 
     DockerDetails() {}
 
@@ -55,5 +58,17 @@ public class DockerDetails {
 
     public void setKeyStoreType(Node keyStoreType) {
         this.keyStoreType = keyStoreType;
+    }
+
+    public void setProjectRuntimeVersion(String projectRuntimeVersion) {
+        this.projectRuntimeVersion = projectRuntimeVersion;
+    }
+
+    public void setProjectArtifactId(String projectArtifactId) {
+        this.projectArtifactId = projectArtifactId;
+    }
+
+    public void setProjectVersion(String projectVersion) {
+        this.projectVersion = projectVersion;
     }
 }
