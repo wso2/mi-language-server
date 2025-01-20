@@ -697,7 +697,7 @@ public class Utils {
                     if (matcher.matches()) {
                         if (Integer.parseInt(version.replace(".", "")) <
                                 Integer.parseInt(Constant.OLDER_DEFAULT_MI_VERSION.replace(".", ""))) {
-                            return Constant.OLDER_DEFAULT_MI_VERSION;
+                            return Constant.MI_430_VERSION;
                         }
                         return version;
                     }
