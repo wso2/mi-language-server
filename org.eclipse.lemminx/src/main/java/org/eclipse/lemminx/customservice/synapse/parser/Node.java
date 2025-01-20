@@ -25,7 +25,7 @@ import java.util.List;
 public class Node {
 
     private Either<Range, List<Range>> range;
-    private String value;
+    public String value;
     private String key;
 
     public Node() {

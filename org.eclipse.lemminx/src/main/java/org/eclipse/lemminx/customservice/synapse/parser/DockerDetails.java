@@ -29,15 +29,19 @@ public class DockerDetails {
     private String projectRuntimeVersion;
     private String projectArtifactId;
     private String projectVersion;
+    private boolean updateDockerBaseImage = false;
+    private boolean updateDockerName = false;
 
     DockerDetails() {}
 
     public void setDockerFileBaseImage(Node dockerFileBaseImage) {
         this.dockerFileBaseImage = dockerFileBaseImage;
+        updateDockerFileBaseImage();
     }
 
     public void setDockerName(Node dockerName) {
         this.dockerName = dockerName;
+        updateDockerName();
     }
 
     public void setCipherToolEnable(Node cipherToolEnable) {
@@ -62,13 +66,45 @@ public class DockerDetails {
 
     public void setProjectRuntimeVersion(String projectRuntimeVersion) {
         this.projectRuntimeVersion = projectRuntimeVersion;
+        updateDockerFileBaseImage();
     }
 
     public void setProjectArtifactId(String projectArtifactId) {
         this.projectArtifactId = projectArtifactId;
+        updateDockerName();
     }
 
     public void setProjectVersion(String projectVersion) {
         this.projectVersion = projectVersion;
+        updateDockerName();
+    }
+
+    private void updateDockerFileBaseImage() {
+        if (!updateDockerBaseImage && this.projectRuntimeVersion != null && this.dockerFileBaseImage != null) {
+            String[] values = this.dockerFileBaseImage.value.split(Constants.COLON);
+            if (values.length == 2 && values[1].trim().equals(Constants.PROJECT_RUNTIME_VERSION_CONSTANT)) {
+                this.dockerFileBaseImage.value = values[0] + Constants.COLON + this.projectRuntimeVersion;
+                updateDockerBaseImage = true;
+            }
+        }
+    }
+
+    private void updateDockerName() {
+        if (!updateDockerName && this.projectVersion != null && this.dockerName != null &&
+                this.projectArtifactId != null) {
+            String[] values = this.dockerName.value.split(Constants.COLON);
+            if (values.length == 2) {
+                String version = values[1];
+                String artifactId = values[0];
+                if (version.trim().equals(Constants.PROJECT_VERSION_CONSTANT)) {
+                    version = this.projectVersion;
+                }
+                if (artifactId.trim().equals(Constants.PROJECT_ARTIFACT_ID_CONSTANT)) {
+                    artifactId = this.projectArtifactId;
+                }
+                this.dockerName.value = artifactId + Constants.COLON + version;
+                updateDockerName = true;
+            }
+        }
     }
 }

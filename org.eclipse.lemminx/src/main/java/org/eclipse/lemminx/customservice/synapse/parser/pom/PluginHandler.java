@@ -29,8 +29,6 @@ import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
 import org.xml.sax.helpers.DefaultHandler;
 
-import java.util.Objects;
-
 public class PluginHandler extends DefaultHandler {
     private Locator locator;
     private final StringBuilder contentBuffer = new StringBuilder();
@@ -186,11 +184,9 @@ public class PluginHandler extends DefaultHandler {
                 break;
             case Constants.ARTIFACT_ID:
                 artifactId = value;
-                this.pomDetailsResponse.getBuildDetails().getDockerDetails().setProjectArtifactId(artifactId);
                 break;
             case Constants.VERSION:
                 version = value;
-                this.pomDetailsResponse.getBuildDetails().getDockerDetails().setProjectVersion(artifactId);
                 break;
             case Constants.TYPE:
                 dependencyType = value;
@@ -263,9 +259,11 @@ public class PluginHandler extends DefaultHandler {
             case Constants.ARTIFACT_ID:
                 pomDetailsResponse.getBuildDetails().getAdvanceDetails().
                         setProjectArtifactId(new Node(value, Either.forLeft(range)));
+                this.pomDetailsResponse.getBuildDetails().getDockerDetails().setProjectArtifactId(value);
                 break;
             case Constants.VERSION:
-                pomDetailsResponse.getPrimaryDetails().setProjectVersion(new Node(value, Either.forLeft(range)));
+                this.pomDetailsResponse.getPrimaryDetails().setProjectVersion(new Node(value, Either.forLeft(range)));
+                this.pomDetailsResponse.getBuildDetails().getDockerDetails().setProjectVersion(value);
                 break;
             case Constants.DESCRIPTION:
                 pomDetailsResponse.getPrimaryDetails().setProjectDescription(new Node(value, Either.forLeft(range)));
