@@ -765,6 +765,10 @@ public class Utils {
                     Pattern pattern = Pattern.compile("^\\d+\\.\\d+\\.\\d+$");
                     Matcher matcher = pattern.matcher(version);
                     if (matcher.matches()) {
+                        if (Integer.parseInt(version.replace(".", "")) <
+                                Integer.parseInt(Constant.MI_430_VERSION.replace(".", ""))) {
+                            return Constant.MI_430_VERSION;
+                        }
                         return version;
                     }
                 }
