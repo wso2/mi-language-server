@@ -53,6 +53,8 @@ public class ExpressionConstants {
     public static final String OBJECT = "Object";
     public static final String ITEMS = "items";
     public static final String SORT_TEXT = "sortText";
+    public static final String ARRAY_COMPLETION_INSERT_TEXT = "[0]";
+    public static final String ARRAY_COMPLETION_LABEL = "[]";
 
     private ExpressionConstants() {
 
