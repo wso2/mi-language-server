@@ -68,11 +68,17 @@ public class ConnectorHolder {
     public Connector getConnector(String name) {
 
         for (Connector connector : connectors) {
-            if (connector.getName().equalsIgnoreCase(name)) {
+            if (isConnectorMatched(name, connector)) {
                 return connector;
             }
         }
         return null;
+    }
+
+    private boolean isConnectorMatched(String name, Connector connector) {
+
+        return connector.getName().equalsIgnoreCase(name) ||
+                (connector.getDisplayName() != null && connector.getDisplayName().equalsIgnoreCase(name));
     }
 
     public Boolean isValidConnector(String name) {

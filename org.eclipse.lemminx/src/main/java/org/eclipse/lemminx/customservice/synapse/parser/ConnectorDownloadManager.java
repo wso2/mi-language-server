@@ -29,11 +29,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static org.eclipse.lemminx.customservice.synapse.parser.pom.PomParser.getPomDetails;
 
@@ -62,6 +64,7 @@ public class ConnectorDownloadManager {
         OverviewPageDetailsResponse pomDetailsResponse = new OverviewPageDetailsResponse();
         getPomDetails(projectPath, pomDetailsResponse);
         List<DependencyDetails> dependencies = pomDetailsResponse.getDependenciesDetails().getConnectorDependencies();
+        deleteRemovedConnectors(downloadDirectory, dependencies);
         List<String> failedDependencies = new ArrayList<>();
         for (DependencyDetails dependency : dependencies) {
             try {
@@ -90,6 +93,31 @@ public class ConnectorDownloadManager {
             return "Some connectors were not downloaded: " + String.join(", ", failedDependencies);
         }
         return "Success";
+    }
+
+    private static void deleteRemovedConnectors(File downloadDirectory, List<DependencyDetails> dependencies) {
+
+        List<String> existingConnectors =
+                dependencies.stream().map(dependency -> dependency.getArtifact() + "-" + dependency.getVersion())
+                        .collect(Collectors.toList());
+        File[] files = downloadDirectory.listFiles();
+        if (files == null) {
+            return;
+        }
+        for (File file : files) {
+            if (isConnectorRemoved(file, existingConnectors)) {
+                try {
+                    Files.delete(file.toPath());
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE, "Error occurred while deleting removed connector: " + file.getName());
+                }
+            }
+        }
+    }
+
+    private static boolean isConnectorRemoved(File file, List<String> existingConnectors) {
+
+        return file.isFile() && !existingConnectors.contains(file.getName().replace(Constant.ZIP_EXTENSION, ""));
     }
 
     private static void downloadConnector(String groupId, String artifactId, String version, File targetDirectory)
