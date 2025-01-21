@@ -74,4 +74,7 @@ public class Constants {
     public static final String DEPENDENCIES_START_TAG = "<dependencies>";
     public static final String PROPERTIES_END_TAG = "</properties>";
     public static final String YES = "yes";
+    public static final String PROJECT_RUNTIME_VERSION_CONSTANT = "${project.runtime.version}";
+    public static final String PROJECT_VERSION_CONSTANT = "${project.version}";
+    public static final String PROJECT_ARTIFACT_ID_CONSTANT = "${project.artifactId}";
 }
