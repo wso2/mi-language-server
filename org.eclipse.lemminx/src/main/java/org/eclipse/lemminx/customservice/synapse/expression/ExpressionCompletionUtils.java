@@ -458,7 +458,15 @@ public class ExpressionCompletionUtils {
                 return document.positionAt(currentNode.getStart());
             }
         }
-        return document.positionAt(((DOMElement) node).getStartTagCloseOffset());
+        if (node instanceof DOMElement) {
+            return document.positionAt(((DOMElement) node).getStartTagCloseOffset());
+        } else {
+            DOMNode parentNode = node.getParentNode();
+            if (parentNode instanceof DOMElement) {
+                return document.positionAt(((DOMElement) parentNode).getStartTagCloseOffset());
+            }
+        }
+        return null;
     }
 
     /**
