@@ -81,9 +81,9 @@ public class DockerDetails {
 
     private void updateDockerFileBaseImage() {
         if (!updateDockerBaseImage && this.projectRuntimeVersion != null && this.dockerFileBaseImage != null) {
-            String[] values = this.dockerFileBaseImage.value.split(Constants.COLON);
+            String[] values = this.dockerFileBaseImage.getValue().split(Constants.COLON);
             if (values.length == 2 && values[1].trim().equals(Constants.PROJECT_RUNTIME_VERSION_CONSTANT)) {
-                this.dockerFileBaseImage.value = values[0] + Constants.COLON + this.projectRuntimeVersion;
+                this.dockerFileBaseImage.setDisplayValue(values[0] + Constants.COLON + this.projectRuntimeVersion);
                 updateDockerBaseImage = true;
             }
         }
@@ -92,7 +92,7 @@ public class DockerDetails {
     private void updateDockerName() {
         if (!updateDockerName && this.projectVersion != null && this.dockerName != null &&
                 this.projectArtifactId != null) {
-            String[] values = this.dockerName.value.split(Constants.COLON);
+            String[] values = this.dockerName.getValue().split(Constants.COLON);
             if (values.length == 2) {
                 String version = values[1];
                 String artifactId = values[0];
@@ -102,7 +102,7 @@ public class DockerDetails {
                 if (artifactId.trim().equals(Constants.PROJECT_ARTIFACT_ID_CONSTANT)) {
                     artifactId = this.projectArtifactId;
                 }
-                this.dockerName.value = artifactId + Constants.COLON + version;
+                this.dockerName.setDisplayValue(artifactId + Constants.COLON + version);
                 updateDockerName = true;
             }
         }
