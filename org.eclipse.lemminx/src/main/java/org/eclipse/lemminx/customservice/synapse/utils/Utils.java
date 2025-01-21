@@ -1017,10 +1017,36 @@ public class Utils {
         return result.toString();
     }
 
+    /**
+     * Copy the file from the source path to the target path
+     *
+     * @param sourcePath
+     * @param targetPath
+     * @throws IOException
+     */
     public static void copyFile(String sourcePath, String targetPath) throws IOException {
 
+        copyFile(sourcePath, targetPath, null);
+    }
+
+    /**
+     * Copy the file from the source path to the target path with the given target file name
+     *
+     * @param sourcePath
+     * @param targetPath
+     * @param targetFileName
+     * @throws IOException
+     */
+    public static void copyFile(String sourcePath, String targetPath, String targetFileName) throws IOException {
+
         Path source = Paths.get(sourcePath);
-        Path target = Paths.get(targetPath).resolve(source.getFileName());
+        Path targetFolder = Paths.get(targetPath);
+        Path target;
+        if (targetFileName != null) {
+            target = targetFolder.resolve(targetFileName);
+        } else {
+            target = targetFolder.resolve(source.getFileName());
+        }
         if (Files.notExists(target)) {
             Files.createDirectories(target.getParent());
         }
@@ -1033,5 +1059,70 @@ public class Utils {
             return false;
         }
         return value.startsWith("${") && value.endsWith("}");
+    }
+
+    /**
+     * Copies selected folders and files from source to destination based on include paths.
+     *
+     * @param sourceFolder Source directory path
+     * @param includePaths List of relative paths to include in the copy
+     * @throws IOException If an I/O error occurs
+     */
+    public static void copySelectedContent(Path sourceFolder, Path targetFolder, List<String> includePaths)
+            throws IOException {
+
+        // Normalize all include paths (convert to system-specific format)
+        List<Path> normalizedIncludePaths = includePaths.stream()
+                .map(path -> Paths.get(path).normalize())
+                .collect(Collectors.toList());
+
+        // Create the target root directory if it doesn't exist
+        Files.createDirectories(targetFolder);
+
+        // Walk through the source directory
+        try (Stream<Path> paths = Files.walk(sourceFolder)) {
+            paths.forEach(sourcePath -> {
+                try {
+                    // Get the relative path from the source root
+                    Path relativePath = sourceFolder.relativize(sourcePath);
+
+                    // Check if this path should be included
+                    if (shouldIncludePath(relativePath, normalizedIncludePaths)) {
+                        Path targetPath = targetFolder.resolve(relativePath);
+
+                        // Create parent directories if needed
+                        Files.createDirectories(targetPath.getParent());
+
+                        // Copy the file or directory
+                        if (Files.isDirectory(sourcePath)) {
+                            Files.createDirectories(targetPath);
+                        } else {
+                            Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                        }
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException("Failed to copy path: " + sourcePath, e);
+                }
+            });
+        }
+    }
+
+    /**
+     * Determines if a given path should be included based on the include paths list.
+     *
+     * @param relativePath The path to check
+     * @param includePaths List of paths to include
+     * @return true if the path should be included
+     */
+    private static boolean shouldIncludePath(Path relativePath, List<Path> includePaths) {
+
+        for (Path includePath : includePaths) {
+            if (relativePath.startsWith(includePath) || // Path is under an include path
+                    includePath.startsWith(relativePath) || // Path is a parent of an include path
+                    relativePath.toString().isEmpty()) { // Root directory
+                return true;
+            }
+        }
+        return false;
     }
 }

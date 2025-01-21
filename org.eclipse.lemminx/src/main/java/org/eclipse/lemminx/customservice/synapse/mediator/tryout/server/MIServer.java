@@ -65,6 +65,7 @@ public class MIServer {
     private final List<String> deployedFiles;
     private boolean isStarted = false;
     private boolean isStarting = false;
+    private String projectUri;
     private ManagementAPIClient managementAPIClient;
 
     static {
@@ -79,9 +80,10 @@ public class MIServer {
         ARTIFACT_FOLDERS_MAP.put("templates", "templates");
     }
 
-    public MIServer(Path serverPath) {
+    public MIServer(Path serverPath, String projectUri) {
 
         this.serverPath = serverPath;
+        this.projectUri = projectUri;
         deployedFiles = new ArrayList<>();
     }
 
@@ -142,11 +144,28 @@ public class MIServer {
         }
         Map<String, String> env = processBuilder.environment();
         env.put("JAVA_HOME", System.getProperty("java.home"));
+        addUserDefinedEnvs(env);
         processBuilder.directory(serverBinPath.toFile());
 
         processBuilder.redirectErrorStream(true);
         isStarting = true;
         return processBuilder.start();
+    }
+
+    private void addUserDefinedEnvs(Map<String, String> env) {
+
+        Path envFilePath = Path.of(projectUri).resolve(".env");
+        if (Files.exists(envFilePath)) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(Files.newInputStream(envFilePath)))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] envVar = line.split("=");
+                    env.put(envVar[0], envVar[1]);
+                }
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, String.format("Error reading environment variables: %s", e.getMessage()));
+            }
+        }
     }
 
     private synchronized void handleKeystorePassword() {
@@ -292,10 +311,12 @@ public class MIServer {
         Path targetPath = serverPath.resolve(TryOutConstants.MI_DEPLOYMENT_PATH);
         try {
             String projectId = Utils.getHash(projectUri);
-            Path projectCAPPPath = TryOutUtils.findCAPP(TryOutConstants.CAPP_CACHE_LOCATION.resolve(projectId));
+            Path projectCAPPPath = TryOutConstants.CAPP_CACHE_LOCATION.resolve(projectId);
             if (Files.exists(projectCAPPPath)) {
-                Utils.copyFile(projectCAPPPath.toString(), targetPath.toString());
-                deployedFiles.add(targetPath.resolve(projectCAPPPath.getFileName()).toString());
+                for (File file : projectCAPPPath.toFile().listFiles()) {
+                    Utils.copyFile(file.toString(), targetPath.toString());
+                    deployedFiles.add(targetPath.resolve(file.getName()).toString());
+                }
             }
             waitForCAPPDeployment();
         } catch (IOException e) {
