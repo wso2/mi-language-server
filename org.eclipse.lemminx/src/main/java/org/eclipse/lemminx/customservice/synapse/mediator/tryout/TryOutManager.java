@@ -63,6 +63,7 @@ public class TryOutManager {
     public boolean shutdown() {
 
         tryOutHandler.reset();
+        CAPPCacheManager.shutdown();
         return tryOutHandler.shutDown();
     }
 }

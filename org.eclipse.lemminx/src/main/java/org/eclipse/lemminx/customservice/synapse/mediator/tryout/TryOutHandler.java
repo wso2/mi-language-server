@@ -94,7 +94,7 @@ public class TryOutHandler {
 
         this.projectUri = projectUri;
         this.lock = new Object();
-        server = new MIServer(Path.of(miServerPath));
+        server = new MIServer(Path.of(miServerPath), projectUri);
         activeBreakpoints = new ArrayList<>();
     }
 
