@@ -19,14 +19,13 @@
 package org.eclipse.lemminx.customservice.synapse.mediator.schema.generate;
 
 import com.google.gson.JsonPrimitive;
-import org.eclipse.lemminx.customservice.synapse.mediator.schema.generate.visitor.APIVisitor;
+import org.eclipse.lemminx.customservice.synapse.mediator.schema.generate.visitor.SchemaVisitor;
+import org.eclipse.lemminx.customservice.synapse.mediator.schema.generate.visitor.SchemaVisitorFactory;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorInfo;
-import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutRequest;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutRequest;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeGenerator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
-import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.API;
-import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
 
@@ -71,10 +70,9 @@ public class ServerLessTryoutHandler {
 
     private void visitNode(STNode node, MediatorTryoutRequest request, MediatorTryoutInfo mediatorTryoutInfo) {
 
-        String nodeType = node.getTag();
-        if (Constant.API.equals(nodeType)) {
-            APIVisitor apiVisitor = new APIVisitor();
-            apiVisitor.visit((API) node, mediatorTryoutInfo, request);
+        SchemaVisitor visitor = SchemaVisitorFactory.getSchemaVisitor(node);
+        if (visitor != null) {
+            visitor.visit(node, mediatorTryoutInfo, request);
         }
     }
 }

@@ -20,6 +20,7 @@ package org.eclipse.lemminx.customservice.synapse.mediator.schema.generate.visit
 
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Params;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.API;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.APIResource;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutRequest;
@@ -32,9 +33,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class APIVisitor {
+public class APIVisitor implements SchemaVisitor {
 
-    public void visit(API api, MediatorTryoutInfo info, MediatorTryoutRequest request) {
+    @Override
+    public void visit(STNode node, MediatorTryoutInfo info, MediatorTryoutRequest request) {
+
+        if (node instanceof API) {
+            visit((API) node, info, request);
+        }
+    }
+
+    private void visit(API api, MediatorTryoutInfo info, MediatorTryoutRequest request) {
 
         int line = request.getLine();
         int column = request.getColumn();
