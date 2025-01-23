@@ -89,11 +89,13 @@ import org.eclipse.lsp4j.Position;
 
 public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
 
+    private String projectPath;
     private MediatorTryoutInfo info;
     private Position position;
 
-    public MediatorSchemaVisitor(MediatorTryoutInfo info, Position position) {
+    public MediatorSchemaVisitor(String projectPath, MediatorTryoutInfo info, Position position) {
 
+        this.projectPath = projectPath;
         this.info = info;
         this.position = position;
     }
@@ -295,10 +297,10 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     protected void visitFilter(Filter node) {
 
         if (node.getThen() != null) {
-            Utils.visitMediators(node.getThen().getMediatorList(), info, position);
+            Utils.visitMediators(projectPath, node.getThen().getMediatorList(), info, position);
         }
         if (node.getElse_() != null) {
-            Utils.visitMediators(node.getElse_().getMediatorList(), info, position);
+            Utils.visitMediators(projectPath, node.getElse_().getMediatorList(), info, position);
         }
     }
 
@@ -362,7 +364,7 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
 
         Target target = node.getTarget();
         if (target != null) {
-            Utils.visitSequence(target.getSequence(), info, position, true);
+            Utils.visitSequence(projectPath, target.getSequence(), info, position, true);
         }
     }
 
@@ -419,7 +421,7 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
 
         Sequence sequence = node.getSequence();
         if (sequence != null) {
-            Utils.visitSequence(sequence, info, position, true);
+            Utils.visitSequence(projectPath, sequence, info, position, true);
         }
     }
 
@@ -482,7 +484,11 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitSequence(SequenceMediator node) {
 
-        Utils.visitMediators(node.getMediatorList(), info, position);
+        if (node.getKey() != null) {
+            Utils.visitNamedSequence(projectPath, node.getKey(), info, position);
+        } else {
+            Utils.visitMediators(projectPath, node.getMediatorList(), info, position);
+        }
     }
 
     @Override

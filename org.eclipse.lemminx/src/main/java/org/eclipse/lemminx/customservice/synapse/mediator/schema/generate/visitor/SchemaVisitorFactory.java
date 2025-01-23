@@ -27,14 +27,14 @@ public class SchemaVisitorFactory {
 
     private static final Logger LOGGER = Logger.getLogger(SchemaVisitorFactory.class.getName());
 
-    public static SchemaVisitor getSchemaVisitor(STNode node) {
+    public static SchemaVisitor getSchemaVisitor(STNode node, String projectPath) {
 
         String nodeType = node.getTag();
         SchemaVisitor visitor = null;
         if (Constant.API.equals(nodeType)) {
-            visitor = new APIVisitor();
+            visitor = new APIVisitor(projectPath);
         } else if (Constant.SEQUENCE.equals(nodeType)) {
-            visitor = new SequenceVisitor();
+            visitor = new SequenceVisitor(projectPath);
         } else {
             LOGGER.warning("No visitor found for the node type: " + nodeType);
         }
