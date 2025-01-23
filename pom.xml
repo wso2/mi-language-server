@@ -20,6 +20,7 @@
 		<org.wsdl4j.version>1.6.2</org.wsdl4j.version>
 		<apache.woden.version>1.0.0.M9-wso2v1</apache.woden.version>
 		<org.apache.maven.shared.version>3.1.0</org.apache.maven.shared.version>
+		<velocity.version>2.4</velocity.version>
 	</properties>
 	<url>https://github.com/eclipse/lemminx</url>
 	<licenses>
@@ -172,6 +173,11 @@
 				<groupId>org.apache.maven.shared</groupId>
 				<artifactId>maven-invoker</artifactId>
 				<version>${org.apache.maven.shared.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.velocity</groupId>
+				<artifactId>velocity-engine-core</artifactId>
+				<version>${velocity.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
