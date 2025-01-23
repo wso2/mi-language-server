@@ -21,7 +21,7 @@
       "value": {
         "name": "xsltSchemaKey",
         "displayName": "XSLT Schema Key",
-        "inputType": "keyOrExpression",
+        "inputType": "resourceOrExpression",
         "defaultValue": "",
         "required": true,
         "helpTip": "",

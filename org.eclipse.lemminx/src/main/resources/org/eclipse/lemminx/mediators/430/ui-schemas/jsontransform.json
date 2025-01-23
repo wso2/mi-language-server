@@ -9,7 +9,7 @@
       "value": {
         "name": "schema",
         "displayName": "Schema",
-        "inputType": "key",
+        "inputType": "resource",
         "keyType": "json",
         "required": false,
         "helpTip": ""
