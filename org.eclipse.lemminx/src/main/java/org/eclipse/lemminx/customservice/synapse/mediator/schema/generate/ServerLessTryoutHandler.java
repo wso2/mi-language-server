@@ -70,7 +70,7 @@ public class ServerLessTryoutHandler {
 
     private void visitNode(STNode node, MediatorTryoutRequest request, MediatorTryoutInfo mediatorTryoutInfo) {
 
-        SchemaVisitor visitor = SchemaVisitorFactory.getSchemaVisitor(node);
+        SchemaVisitor visitor = SchemaVisitorFactory.getSchemaVisitor(node, projectUri);
         if (visitor != null) {
             visitor.visit(node, mediatorTryoutInfo, request);
         }

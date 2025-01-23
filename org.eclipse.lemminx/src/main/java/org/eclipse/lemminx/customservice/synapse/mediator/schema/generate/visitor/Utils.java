@@ -24,11 +24,17 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.eclipse.lemminx.customservice.synapse.AbstractMediatorVisitor;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeGenerator;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.NamedSequence;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
+import org.eclipse.lemminx.customservice.synapse.utils.ConfigFinder;
+import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lsp4j.Position;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -38,19 +44,20 @@ import java.util.logging.Logger;
 public class Utils {
 
     private static final Logger LOGGER = Logger.getLogger(Utils.class.getName());
-    public static void visitSequence(Sequence seq, MediatorTryoutInfo info, Position position) {
 
-        visitSequence(seq, info, position, false);
+    public static void visitSequence(String projectPath, Sequence seq, MediatorTryoutInfo info, Position position) {
+
+        visitSequence(projectPath, seq, info, position, false);
     }
 
-    public static void visitSequence(Sequence seq, MediatorTryoutInfo info, Position position,
+    public static void visitSequence(String projectPath, Sequence seq, MediatorTryoutInfo info, Position position,
                                      boolean isSplitAndAggregate) {
 
         if (seq != null) {
-            boolean isSplit = splitPayloadIfRequired(info, isSplitAndAggregate);
+            boolean isSplit = splitPayloadIfRequired(info, isSplitNeeded(isSplitAndAggregate, seq, position));
             List<Mediator> mediatorList = seq.getMediatorList();
             if (mediatorList != null) {
-                visitMediators(mediatorList, info, position);
+                visitMediators(projectPath, mediatorList, info, position);
             }
             if (isAggregateNeeded(isSplit, seq, position)) {
                 aggregatePayload(info);
@@ -76,6 +83,14 @@ public class Utils {
         return false;
     }
 
+    private static boolean isSplitNeeded(boolean isSplit, Sequence sequence, Position position) {
+
+        if (!isSplit) {
+            return false;
+        }
+        return checkNodeInRange(sequence, position);
+    }
+
     private static boolean isAggregateNeeded(boolean isSplit, Sequence sequence, Position position) {
 
         if (!isSplit) {
@@ -96,15 +111,22 @@ public class Utils {
         }
     }
 
-    public static void visitMediators(List<Mediator> mediatorList, MediatorTryoutInfo info, Position position) {
+    public static void visitMediators(String projectPath, List<Mediator> mediatorList, MediatorTryoutInfo info,
+                                      Position position) {
+
+        visitMediators(projectPath, mediatorList, info, position, true);
+    }
+
+    public static void visitMediators(String projectPath, List<Mediator> mediatorList, MediatorTryoutInfo info,
+                                      Position position, boolean needRangeCheck) {
 
         if (mediatorList == null) {
             return;
         }
-        MediatorSchemaVisitor mediatorVisitor = new MediatorSchemaVisitor(info, position);
+        MediatorSchemaVisitor mediatorVisitor = new MediatorSchemaVisitor(projectPath, info, position);
         for (Mediator mediator : mediatorList) {
             visitMediator(mediator, mediatorVisitor);
-            if (checkNodeInRange(mediator, position)) {
+            if (needRangeCheck && checkNodeInRange(mediator, position)) {
                 break;
             }
             info.replaceInputWithOutput();
@@ -192,6 +214,33 @@ public class Utils {
                     jsonObject.add(prop.getKey(), new JsonPrimitive(prop.getValue()));
                 }
             }
+        }
+    }
+
+    public static void visitNamedSequence(String projectPath, String key, MediatorTryoutInfo info, Position position) {
+
+        try {
+            String sequencePath = getSequencePath(key, projectPath);
+            if (sequencePath != null) {
+                DOMDocument domDocument =
+                        org.eclipse.lemminx.customservice.synapse.utils.Utils.getDOMDocument(new File(sequencePath));
+                NamedSequence sequence =
+                        (NamedSequence) SyntaxTreeGenerator.buildTree(domDocument.getDocumentElement());
+                if (sequence != null) {
+                    visitMediators(projectPath, sequence.getMediatorList(), info, position, false);
+                }
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Error while visiting named sequence: " + key, e);
+        }
+    }
+
+    private static String getSequencePath(String key, String projectPath) {
+
+        try {
+            return ConfigFinder.findEsbComponentPath(key, "sequences", projectPath);
+        } catch (IOException e) {
+            return null;
         }
     }
 

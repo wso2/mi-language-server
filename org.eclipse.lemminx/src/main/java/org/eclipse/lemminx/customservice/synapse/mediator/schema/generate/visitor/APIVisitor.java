@@ -35,6 +35,13 @@ import java.util.stream.Collectors;
 
 public class APIVisitor implements SchemaVisitor {
 
+    private String projectPath;
+
+    public APIVisitor(String projectPath) {
+
+        this.projectPath = projectPath;
+    }
+
     @Override
     public void visit(STNode node, MediatorTryoutInfo info, MediatorTryoutRequest request) {
 
@@ -64,10 +71,10 @@ public class APIVisitor implements SchemaVisitor {
 
         updateResourceParams(resource, info);
         if (needToVisit(resource.getInSequence(), position) || needToVisit(resource.getOutSequence(), position)) {
-            Utils.visitSequence(resource.getInSequence(), info, position);
-            Utils.visitSequence(resource.getOutSequence(), info, position);
+            Utils.visitSequence(projectPath, resource.getInSequence(), info, position);
+            Utils.visitSequence(projectPath, resource.getOutSequence(), info, position);
         } else if (needToVisit(resource.getFaultSequence(), position)) {
-            Utils.visitSequence(resource.getFaultSequence(), info, position);
+            Utils.visitSequence(projectPath, resource.getFaultSequence(), info, position);
         }
     }
 

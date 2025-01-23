@@ -30,6 +30,13 @@ import java.util.List;
 
 public class SequenceVisitor implements SchemaVisitor {
 
+    private String projectPath;
+
+    public SequenceVisitor(String projectPath) {
+
+        this.projectPath = projectPath;
+    }
+
     @Override
     public void visit(STNode node, MediatorTryoutInfo info, MediatorTryoutRequest request) {
 
@@ -46,7 +53,7 @@ public class SequenceVisitor implements SchemaVisitor {
         if (Utils.checkNodeInRange(sequence, position)) {
             List<Mediator> mediatorList = sequence.getMediatorList();
             if (mediatorList != null) {
-                Utils.visitMediators(mediatorList, info, position);
+                Utils.visitMediators(projectPath, mediatorList, info, position);
             }
         }
     }
