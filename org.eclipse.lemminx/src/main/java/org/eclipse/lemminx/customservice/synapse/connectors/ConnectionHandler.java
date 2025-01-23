@@ -65,7 +65,7 @@ public class ConnectionHandler {
         if (connector != null) {
             Map<String, String> connectionSchemas = connector.getConnectionUiSchema();
             if (connectionSchemas != null) {
-                String path = connectionSchemas.get(connectionType);
+                String path = connectionSchemas.get(connectionType.toUpperCase());
                 if (path != null) {
                     File file = new File(path);
                     if (file.exists()) {

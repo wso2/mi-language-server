@@ -42,7 +42,7 @@ import java.util.regex.Pattern;
 public class ConnectorReader {
 
     private static final Logger log = Logger.getLogger(ConnectorReader.class.getName());
-    private static final Pattern ARTIFACT_VERSION_REGEX = Pattern.compile("(.+)-(\\d\\.\\d\\.\\d(-SNAPSHOT)?)");
+    private static final Pattern ARTIFACT_VERSION_REGEX = Pattern.compile("(.+)-(\\d+\\.\\d+\\.\\d+(-SNAPSHOT)?)");
     private HashMap<String, List<String>> allowedConnectionTypesMap = new HashMap<>();
 
     public Connector readConnector(String connectorPath) {
@@ -228,7 +228,7 @@ public class ConnectorReader {
                 for (File file : files) {
                     String connectionName = getConnectionSchemaName(file);
                     if (connectionName != null) {
-                        connector.addConnectionUiSchema(connectionName, file.getAbsolutePath());
+                        connector.addConnectionUiSchema(connectionName.toUpperCase(), file.getAbsolutePath());
                     }
                 }
             }
