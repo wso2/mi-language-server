@@ -126,6 +126,13 @@ public class Property {
         return result;
     }
 
+    public boolean deleteProperty(String key) {
+        if (properties == null || properties.isEmpty()) {
+            return false;
+        }
+        return properties.removeIf(property -> property.getKey().equals(key));
+    }
+
     @Override
     public String toString() {
 

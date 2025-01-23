@@ -20,6 +20,7 @@ package org.eclipse.lemminx.customservice.synapse.mediator.schema.generate.visit
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.eclipse.lemminx.customservice.synapse.AbstractMediatorVisitor;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
@@ -174,6 +175,23 @@ public class Utils {
             return column < endColumn;
         } else {
             return false;
+        }
+    }
+
+    public static void convertToJsonObject(org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property property,
+                                     JsonObject jsonObject) {
+
+        if (property.getProperties() != null) {
+            for (org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property prop :
+                    property.getProperties()) {
+                if (prop.getProperties() != null) {
+                    JsonObject obj = new JsonObject();
+                    convertToJsonObject(prop, obj);
+                    jsonObject.add(prop.getKey(), obj);
+                } else {
+                    jsonObject.add(prop.getKey(), new JsonPrimitive(prop.getValue()));
+                }
+            }
         }
     }
 
