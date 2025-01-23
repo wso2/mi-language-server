@@ -120,13 +120,16 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
                 property.setKey(responseVariable);
                 // if overwriteBody is true, then the payload will not be stored in the variable and only in the body
                 ConnectorParameter overwriteMsgInMsgCtxParam = node.getParameter(Constant.OVERWRITE_BODY);
-                if (overwriteMsgInMsgCtxParam != null && overwriteMsgInMsgCtxParam.getValue() != null) {
-                    org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property payload = property.getProperties()
-                            .stream().filter(p -> p.getKey().equals(Constant.PAYLOAD)).findFirst().orElse(null);
-                    if (payload != null) {
-                        JsonObject payloadObj = new JsonObject();
-                        Utils.convertToJsonObject(payload, payloadObj);
-                        info.setOutputPayload(new JsonPrimitive(payloadObj.toString()));
+                if (overwriteMsgInMsgCtxParam != null) {
+                    String paramValue = overwriteMsgInMsgCtxParam.getValue();
+                    if ("true".equalsIgnoreCase(paramValue)) {
+                        org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property payload = property.getProperties()
+                                .stream().filter(p -> p.getKey().equals(Constant.PAYLOAD)).findFirst().orElse(null);
+                        if (payload != null) {
+                            JsonObject payloadObj = new JsonObject();
+                            Utils.convertToJsonObject(payload, payloadObj);
+                            info.setOutputPayload(new JsonPrimitive(payloadObj.toString()));
+                        }
                         property.deleteProperty(Constant.PAYLOAD);
                     }
                 }
