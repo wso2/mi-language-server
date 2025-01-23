@@ -350,7 +350,9 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitCallTemplate(CallTemplate node) {
 
-        info.setOutputPayload(null);
+        if (node.getTarget() != null) {
+            Utils.visitSequenceTemplate(projectPath, node.getTarget(), info, position);
+        }
     }
 
     @Override

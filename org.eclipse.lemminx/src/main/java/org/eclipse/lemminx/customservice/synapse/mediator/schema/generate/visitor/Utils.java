@@ -29,6 +29,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.NamedSequence;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.template.Template;
 import org.eclipse.lemminx.customservice.synapse.utils.ConfigFinder;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lsp4j.Position;
@@ -220,7 +221,7 @@ public class Utils {
     public static void visitNamedSequence(String projectPath, String key, MediatorTryoutInfo info, Position position) {
 
         try {
-            String sequencePath = getSequencePath(key, projectPath);
+            String sequencePath = getArtifactPath(key, projectPath, "sequences");
             if (sequencePath != null) {
                 DOMDocument domDocument =
                         org.eclipse.lemminx.customservice.synapse.utils.Utils.getDOMDocument(new File(sequencePath));
@@ -231,16 +232,35 @@ public class Utils {
                 }
             }
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Error while visiting named sequence: " + key, e);
+            LOGGER.log(Level.SEVERE, String.format("Error while visiting named sequence: %s", key), e);
         }
     }
 
-    private static String getSequencePath(String key, String projectPath) {
+    private static String getArtifactPath(String key, String projectPath, String type) {
 
         try {
-            return ConfigFinder.findEsbComponentPath(key, "sequences", projectPath);
+            return ConfigFinder.findEsbComponentPath(key, type, projectPath);
         } catch (IOException e) {
             return null;
+        }
+    }
+
+    public static void visitSequenceTemplate(String projectPath, String target, MediatorTryoutInfo info,
+                                             Position position) {
+
+        try {
+            String sequencePath = getArtifactPath(target, projectPath, "templates");
+            if (sequencePath != null) {
+                DOMDocument domDocument =
+                        org.eclipse.lemminx.customservice.synapse.utils.Utils.getDOMDocument(new File(sequencePath));
+                NamedSequence sequence =
+                        ((Template) SyntaxTreeGenerator.buildTree(domDocument.getDocumentElement())).getSequence();
+                if (sequence != null) {
+                    visitMediators(projectPath, sequence.getMediatorList(), info, position, false);
+                }
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, String.format("Error while visiting sequence template: %s", target), e);
         }
     }
 
