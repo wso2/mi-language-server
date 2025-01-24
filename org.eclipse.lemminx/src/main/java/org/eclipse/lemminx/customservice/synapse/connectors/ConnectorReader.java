@@ -23,6 +23,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorAction;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.OperationParameter;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -166,17 +167,61 @@ public class ConnectorReader {
 
     private void readUISchema(Connector connector) {
 
+        addUISchemasFromConnector(connector);
+        generateUISchemasIfNeeded(connector);
+    }
+
+    private void addUISchemasFromConnector(Connector connector) {
+
         String uiSchemaPath = connector.getUiSchemaPath();
         File uiSchemaFolder = new File(uiSchemaPath);
-        if (!uiSchemaFolder.exists()) {
-            log.log(Level.SEVERE, "UI schema folder does not exist for connector: " + connector.getName());
-        }
-        File[] files = uiSchemaFolder.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                processUISchemaFile(file, connector);
+        if (uiSchemaFolder.exists()) {
+            File[] files = uiSchemaFolder.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    processUISchemaFile(file, connector);
+                }
             }
         }
+    }
+
+    private void generateUISchemasIfNeeded(Connector connector) {
+
+        for (ConnectorAction action : connector.getActions()) {
+            if (action.getUiSchemaPath() == null) {
+                try {
+                    generateUISchema(action, connector);
+                } catch (IOException e) {
+                    log.log(Level.SEVERE, "Error while generating ui schema", e);
+                }
+            }
+        }
+    }
+
+    private void generateUISchema(ConnectorAction action, Connector connector) throws IOException {
+
+        JsonObject uiSchema = new JsonObject();
+        uiSchema.addProperty(Constant.CONNECTOR_NAME, connector.getName());
+        uiSchema.addProperty(Constant.OPERATION_NAME, action.getName());
+        uiSchema.addProperty(Constant.TITLE, action.getDisplayName());
+        uiSchema.addProperty(Constant.HELP, action.getDescription());
+        JsonArray elements = new JsonArray();
+        for (OperationParameter parameter : action.getParameters()) {
+            JsonObject element = new JsonObject();
+            element.addProperty(Constant.TYPE, Constant.ATTRIBUTE);
+            JsonObject value = new JsonObject();
+            value.addProperty(Constant.NAME, parameter.getName());
+            value.addProperty(Constant.DISPLAY_NAME, parameter.getName());
+            value.addProperty(Constant.INPUT_TYPE, "stringOrExpression");
+            value.addProperty(Constant.REQUIRED, false);
+            value.addProperty(Constant.HELP_TIP, parameter.getDescription());
+            element.add(Constant.VALUE, value);
+            elements.add(element);
+        }
+        uiSchema.add(Constant.ELEMENTS, elements);
+        Path uiSchemaPath = Path.of(connector.getUiSchemaPath(), action.getName() + ".json");
+        Utils.writeToFile(uiSchemaPath.toString(), uiSchema.toString());
+        action.setUiSchemaPath(uiSchemaPath.toString());
     }
 
     private void processUISchemaFile(File file, Connector connector) {
@@ -337,7 +382,8 @@ public class ConnectorReader {
                     for (DOMNode child : children) {
                         if ("parameter".equalsIgnoreCase(child.getNodeName())) {
                             String name = child.getAttribute("name");
-                            action.addParameter(name);
+                            String description = child.getAttribute("description");
+                            action.addParameter(new OperationParameter(name, description));
                         }
                     }
                 }

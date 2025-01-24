@@ -20,6 +20,7 @@ package org.eclipse.lemminx.customservice.synapse.connectors;
 
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorAction;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.OperationParameter;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.TestConnectionRequest;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.TestConnectionResponse;
 import org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants;
@@ -178,10 +179,10 @@ public class ConnectionTester {
         connection.setTag(initOperation.getTag());
         connection.setMethod(Constant.INIT);
         if (parameters != null) {
-            for (String parameter : initOperation.getParameters()) {
+            for (OperationParameter parameter : initOperation.getParameters()) {
                 if (parameters.containsKey(parameter)) {
                     ConnectorParameter connectorParameter = new ConnectorParameter();
-                    connectorParameter.setName(parameter);
+                    connectorParameter.setName(parameter.getName());
                     if (parameters.get(parameter) instanceof Map) {
                         Map parameterMap = (Map) parameters.get(parameter);
                         if (Boolean.parseBoolean(parameterMap.get(Constant.IS_EXPRESSION).toString())) {

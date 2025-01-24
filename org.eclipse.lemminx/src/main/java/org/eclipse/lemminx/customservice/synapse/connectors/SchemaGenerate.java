@@ -20,6 +20,7 @@ package org.eclipse.lemminx.customservice.synapse.connectors;
 
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorAction;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.OperationParameter;
 
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
@@ -98,9 +99,9 @@ public class SchemaGenerate {
                     sb.append("            <xs:element name=\"" + action.getTag() + "\">\n");
                     sb.append("                <xs:complexType>\n" +
                             "                    <xs:all>\n");
-                    for (String parameter : action.getParameters()) {
-                        sb.append("                        <xs:element name=\"" + parameter + "\" type=\"xs:string\" " +
-                                "minOccurs=\"0\" maxOccurs=\"1\" />\n");
+                    for (OperationParameter parameter : action.getParameters()) {
+                        sb.append("                        <xs:element name=\"" + parameter.getName() +
+                                "\" type=\"xs:string\" minOccurs=\"0\" maxOccurs=\"1\" />\n");
                     }
                     sb.append("                    </xs:all>\n");
                     sb.append("                    <xs:attribute name=\"configKey\" type=\"xs:string\"/>\n");

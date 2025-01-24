@@ -27,6 +27,7 @@ import com.google.gson.internal.LinkedTreeMap;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorAction;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.OperationParameter;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.SynapseConfigResponse;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.MediatorFactoryFinder;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
@@ -141,15 +142,15 @@ public class MediatorHandler {
 
         ConnectorAction operation = getConnectorOperation(node, mediator);
         if (operation != null) {
-            List<String> parameters = operation.getParameters();
+            List<OperationParameter> parameters = operation.getParameters();
             Map<String, Object> connectorData = new HashMap<>();
             connectorData.put(Constant.TAG, operation.getTag());
             connectorData.put(Constant.CONFIG_KEY, data.get(Constant.CONFIG_KEY));
             List<Object> parameterData = new ArrayList<>();
-            for (String parameter : parameters) {
-                if (data.containsKey(parameter)) {
-                    Map<String, Object> dataValue = processConnectorParameter(data.get(parameter));
-                    parameterData.add(Map.of(Constant.NAME, parameter, Constant.VALUE, dataValue));
+            for (OperationParameter parameter : parameters) {
+                if (data.containsKey(parameter.getName())) {
+                    Map<String, Object> dataValue = processConnectorParameter(data.get(parameter.getName()));
+                    parameterData.add(Map.of(Constant.NAME, parameter.getName(), Constant.VALUE, dataValue));
                 }
             }
             connectorData.put(Constant.PARAMETERS, parameterData);
