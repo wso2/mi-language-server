@@ -337,7 +337,13 @@ public abstract class AbstractResourceFinder {
         resource.setType(type.toUpperCase());
         resource.setFrom(registry);
         ((RegistryResource) resource).setRegistryPath(file.getAbsolutePath());
-        ((RegistryResource) resource).setRegistryKey(getRegistryKey(file));
+        if (Utils.isFileInRegistry(file)) {
+            resource.setFrom(Constant.REGISTRY);
+            ((RegistryResource) resource).setRegistryKey(Utils.getRegistryKey(file));
+        } else {
+            resource.setFrom(Constant.RESOURCES);
+            ((RegistryResource) resource).setRegistryKey(Utils.getResourceKey(file));
+        }
         return resource;
     }
 
@@ -397,7 +403,7 @@ public abstract class AbstractResourceFinder {
         registry.setType(Utils.addUnderscoreBetweenWords(type).toUpperCase());
         registry.setFrom(REGISTRY);
         ((RegistryResource) registry).setRegistryPath(file.getAbsolutePath());
-        ((RegistryResource) registry).setRegistryKey(getRegistryKey(file));
+        ((RegistryResource) registry).setRegistryKey(Utils.getRegistryKey(file));
         return registry;
     }
 
@@ -436,22 +442,6 @@ public abstract class AbstractResourceFinder {
             if (nameNode != null) {
                 return Utils.getInlineString(nameNode.getFirstChild());
             }
-            return null;
-        }
-    }
-
-    private String getRegistryKey(File file) {
-
-        String pattern = "(.*)(\\b(gov|conf)\\b)(.*)";
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(file.getAbsolutePath());
-
-        if (m.find()) {
-            String type = m.group(3);
-            String path = m.group(4).replaceAll("\\\\", "/");
-            path = path.replaceAll("^/+", "");
-            return type + ":" + path;
-        } else {
             return null;
         }
     }

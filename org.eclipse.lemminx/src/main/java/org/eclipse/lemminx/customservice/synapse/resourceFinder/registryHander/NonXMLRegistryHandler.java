@@ -62,43 +62,12 @@ public abstract class NonXMLRegistryHandler {
         resource.setRegistryPath(file.getAbsolutePath());
         if (Utils.isFileInRegistry(file)) {
             resource.setFrom(Constant.REGISTRY);
-            resource.setRegistryKey(getRegistryKey(file));
+            resource.setRegistryKey(Utils.getRegistryKey(file));
         } else {
             resource.setFrom(Constant.RESOURCES);
-            resource.setRegistryKey(getResourceKey(file));
+            resource.setRegistryKey(Utils.getResourceKey(file));
         }
         return resource;
-    }
-
-    private String getResourceKey(File file) {
-
-        String pattern = "(.*)(\\b(resources)\\b)(.*)";
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(file.getAbsolutePath());
-
-        if (m.find()) {
-            String path = m.group(4).replaceAll("\\\\", "/");
-            path = path.replaceAll("^/+", "");
-            return Constant.RESOURCES + ":" + path;
-        } else {
-            return null;
-        }
-    }
-
-    private String getRegistryKey(File file) {
-
-        String pattern = "(.*)(\\b(gov|conf)\\b)(.*)";
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(file.getAbsolutePath());
-
-        if (m.find()) {
-            String type = m.group(3);
-            String path = m.group(4).replaceAll("\\\\", "/");
-            path = path.replaceAll("^/+", "");
-            return type + ":" + path;
-        } else {
-            return null;
-        }
     }
 
     public NonXMLRegistryHandler getNextHandler() {
