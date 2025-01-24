@@ -57,8 +57,27 @@
       "value": {
         "name": "scriptKey",
         "displayName": "Script Key",
-        "inputType": "keyOrExpression",
-        "keyType": "registry",
+        "inputType": "resourceOrExpression",
+        "keyType": {
+          "conditionField": "scriptLanguage",
+          "values": [
+            {
+              "js": "js"
+            },
+            {
+              "rb": "rb"
+            },
+            {
+              "groovy": "groovy"
+            },
+            {
+              "nashornJs": "js"
+            },
+            {
+              "rhinoJs": "js"
+            }
+          ]
+        },
         "required": false,
         "helpTip": "",
         "enableCondition": [

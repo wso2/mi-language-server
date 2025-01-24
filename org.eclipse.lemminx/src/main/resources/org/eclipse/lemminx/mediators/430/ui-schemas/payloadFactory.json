@@ -56,7 +56,8 @@
       "value": {
         "name": "payloadKey",
         "displayName": "Payload Key",
-        "inputType": "registry",
+        "inputType": "resource",
+        "keyType": ["xml", "json", "txt", "ftl"],
         "defaultValue": "",
         "required": true,
         "helpTip": "",

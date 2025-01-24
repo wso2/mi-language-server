@@ -41,10 +41,10 @@
             "value": {
               "name": "validateSchemaKey",
               "displayName": "Validate Schema Key",
-              "inputType": "key",
+              "inputType": "resource",
               "keyType": [
-                "schema",
-                "localEntry"
+                "xsd",
+                "json"
               ],
               "required": true,
               "helpTip": ""
