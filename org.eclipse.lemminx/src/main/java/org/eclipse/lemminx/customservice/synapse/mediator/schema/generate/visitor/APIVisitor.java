@@ -110,12 +110,9 @@ public class APIVisitor implements SchemaVisitor {
     private List<String> getPathParams(String uri) {
 
         List<String> pathParams = new ArrayList<>();
-        if (uri.contains("?")) {
-            String pathParamPart = uri.split("\\?")[0];
-            for (String part : pathParamPart.split("/")) {
-                if (part.startsWith("{") && part.endsWith("}")) {
-                    pathParams.add(part.substring(1, part.length() - 1));
-                }
+        for (String part : uri.split("\\?")[0].split("/")) {
+            if (part.startsWith("{") && part.endsWith("}")) {
+                pathParams.add(part.substring(1, part.length() - 1));
             }
         }
         return pathParams;
