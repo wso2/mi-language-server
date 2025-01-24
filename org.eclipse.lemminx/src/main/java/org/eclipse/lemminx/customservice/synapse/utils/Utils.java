@@ -271,6 +271,37 @@ public class Utils {
         return file.getAbsolutePath().contains(Constant.REGISTRY + File.separator + Constant.GOV) || file.getAbsolutePath().contains(Constant.REGISTRY + File.separator + Constant.CONF);
     }
 
+    public static String getRegistryKey(File file) {
+
+        String pattern = "(.*)(\\b(gov|conf)\\b)(.*)";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(file.getAbsolutePath());
+
+        if (m.find()) {
+            String type = m.group(3);
+            String path = m.group(4).replaceAll("\\\\", "/");
+            path = path.replaceAll("^/+", "");
+            return type + ":" + path;
+        } else {
+            return null;
+        }
+    }
+
+    public static String getResourceKey(File file) {
+
+        String pattern = "(.*)(\\b(resources)\\b)(.*)";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(file.getAbsolutePath());
+
+        if (m.find()) {
+            String path = m.group(4).replaceAll("\\\\", "/");
+            path = path.replaceAll("^/+", "");
+            return Constant.RESOURCES + ":" + path;
+        } else {
+            return null;
+        }
+    }
+
     public static boolean isZipFile(File file) {
 
         String fileName = file.getName();
