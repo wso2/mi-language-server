@@ -46,6 +46,7 @@
                 </xs:annotation>
             </xs:attribute>
             <xs:attribute name="parallel-execution" type="xs:boolean" default="true"/>
+            <xs:attribute name="continue-without-aggregation" type="xs:boolean" use="optional"/>
             <xs:attribute name="result-target" type="xs:string" use="optional"/>
             <xs:attribute name="counter-variable" type="xs:string" use="optional"/>
             <xs:attribute name="result-type" use="optional">

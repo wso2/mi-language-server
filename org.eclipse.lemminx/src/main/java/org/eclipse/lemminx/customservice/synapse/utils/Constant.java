@@ -528,6 +528,7 @@ public class Constant {
     public static final String DOWNLOADED = "Downloaded";
     public static final String EXTRACTED = "Extracted";
     public static final String PARALLEL_EXECUTION = "parallelExecution";
+    public static final String CONTINUE_WITHOUT_AGGREGATION = "continueWithoutAggregation";
     public static final String RESULT_TARGET = "resultTarget";
     public static final String INIT = "init";
     public static final String TEST_CONNECTION_OPERATION = "testconnection";

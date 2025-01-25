@@ -99,6 +99,10 @@ public class ForeachFactory extends AbstractMediatorFactory {
         if (StringUtils.isNotBlank(executeParallel)) {
             ((Foreach) node).setExecuteParallel(Boolean.parseBoolean(executeParallel));
         }
+        String continueWithoutAggregation = element.getAttribute("continue-without-aggregation");
+        if (StringUtils.isNotBlank(continueWithoutAggregation)) {
+            ((Foreach) node).setContinueWithoutAggregation(Boolean.parseBoolean(continueWithoutAggregation));
+        }
     }
 
     @Override
