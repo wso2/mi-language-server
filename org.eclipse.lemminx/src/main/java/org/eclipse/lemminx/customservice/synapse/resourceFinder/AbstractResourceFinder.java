@@ -177,18 +177,21 @@ public abstract class AbstractResourceFinder {
                 handler.setNextHandler(new SchemaResourceHandler(resources));
             }
         }
+        if (hasRequestedResourceOfType(requestedResources, "dataMapper")) {
+            if (handler == null) {
+                handler = new DatamapperHandler(resources);
+            } else {
+                handler.setNextHandler(new DatamapperHandler(resources));
+            }
+        }
         for (RequestedResource requestedResource : requestedResources) {
-            if (requestedResource.type.equals("schema") || requestedResource.type.equals("swagger")) {
+            if (requestedResource.type.equals("schema") || requestedResource.type.equals("swagger") || requestedResource.type.equals("dataMapper")) {
                 continue;
             }
             if (handler == null) {
                 handler = new SimpleResourceHandler(requestedResources, resources);
             } else {
-                if (requestedResource.type.equals("dataMapper")) {
-                    handler.setNextHandler(new DatamapperHandler(resources));
-                } else {
-                    handler.setNextHandler(new SimpleResourceHandler(requestedResources, resources));
-                }
+                handler.setNextHandler(new SimpleResourceHandler(requestedResources, resources));
             }
             break;
         }

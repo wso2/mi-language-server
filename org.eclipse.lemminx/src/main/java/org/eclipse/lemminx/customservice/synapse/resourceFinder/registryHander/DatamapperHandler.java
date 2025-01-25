@@ -39,10 +39,15 @@ public class DatamapperHandler extends NonXMLRegistryHandler {
     @Override
     protected boolean canHandle(File file) {
 
-        if (file.getAbsolutePath().endsWith(".ts")) {
+        if (file.getAbsolutePath().endsWith(".ts") || file.getAbsolutePath().endsWith(".dmc")) {
             return isDatamapperFile(file.getAbsolutePath());
         }
         return Boolean.FALSE;
+    }
+
+    @Override
+    protected String formatKey(String key) {
+        return key != null ? key.replaceAll("/[^/]*.ts$","") : null;
     }
 
     private boolean isDatamapperFile(String path) {
@@ -51,10 +56,15 @@ public class DatamapperHandler extends NonXMLRegistryHandler {
             return Boolean.FALSE;
         }
         for (String datamapperPath : datamapperPaths) {
-            if (path.contains(datamapperPath)) {
+            if (path.contains(datamapperPath) && (!isDMUtilsFile(path))) {
                 return Boolean.TRUE;
             }
         }
         return Boolean.FALSE;
+    }
+
+    private static boolean isDMUtilsFile(String path) {
+        String regex = ".*/datamapper/.*?/dm-utils\\.ts$";
+        return path.matches(regex);
     }
 }

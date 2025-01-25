@@ -10,10 +10,12 @@
       "value": {
         "name": "name",
         "displayName": "Name",
-        "inputType": "string",
+        "inputType": "comboOrKey",
         "defaultValue": "",
         "required": true,
-        "helpTip": ""
+        "helpTip": "",
+        "keyType": "dataMapper",
+        "canAddNew": true
       }
     },
     {

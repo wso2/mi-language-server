@@ -54,6 +54,9 @@ public abstract class NonXMLRegistryHandler {
 
     protected abstract boolean canHandle(File file);
 
+    protected String formatKey(String key){
+        return key;
+    }
     private Resource createNonXmlResource(File file) {
 
         RegistryResource resource = new RegistryResource();
@@ -62,10 +65,10 @@ public abstract class NonXMLRegistryHandler {
         resource.setRegistryPath(file.getAbsolutePath());
         if (Utils.isFileInRegistry(file)) {
             resource.setFrom(Constant.REGISTRY);
-            resource.setRegistryKey(Utils.getRegistryKey(file));
+            resource.setRegistryKey(formatKey(Utils.getRegistryKey(file)));
         } else {
             resource.setFrom(Constant.RESOURCES);
-            resource.setRegistryKey(Utils.getResourceKey(file));
+            resource.setRegistryKey(formatKey(Utils.getResourceKey(file)));
         }
         return resource;
     }
