@@ -545,4 +545,8 @@ public class Constant {
     public static final String ITEMS = "items";
     public static final String FAVOURITES = "favourites";
     public static final String ARTIFACT_ID = "artifactId";
+    public static final String CONNECTOR_NAME = "connectorName";
+    public static final String HELP = "help";
+    public static final String REQUIRED = "required";
+    public static final String HELP_TIP = "helpTip";
 }

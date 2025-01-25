@@ -37,7 +37,7 @@ public class ConnectorAction {
     private String name;
     private String tag;
     private String displayName;
-    private List<String> parameters;
+    private List<OperationParameter> parameters;
     private List<String> allowedConnectionTypes;
     private String description;
     private Boolean isHidden;
@@ -81,17 +81,17 @@ public class ConnectorAction {
         this.tag = tag;
     }
 
-    public void addParameter(String parameter) {
+    public void addParameter(OperationParameter parameter) {
 
         parameters.add(parameter);
     }
 
-    public List<String> getParameters() {
+    public List<OperationParameter> getParameters() {
 
         return Collections.unmodifiableList(parameters);
     }
 
-    public void setParameters(List<String> parameters) {
+    public void setParameters(List<OperationParameter> parameters) {
 
         this.parameters = parameters;
     }
