@@ -100,6 +100,7 @@ public class TryOutHandler {
 
     public synchronized void init() {
 
+        CAPPCacheManager.init();
         server.startServer();
         commandClient = new DebugCommandClient();
         breakpointEventProcessor = new BreakpointEventProcessor(commandClient, lock);

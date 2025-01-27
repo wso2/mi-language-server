@@ -217,7 +217,8 @@ public class ExpressionCompletionUtils {
                                                    String completion, String detail, CompletionItemKind kind, int order,
                                                    boolean isSnippet) {
 
-        return addCompletionItem(request, response, completion, completion, detail, kind, order, isSnippet);
+        String insertText = completion.contains(StringUtils.SPACE) ? "['" + completion + "']" : completion;
+        return addCompletionItem(request, response, completion, insertText, detail, kind, order, isSnippet);
     }
 
     /**
