@@ -40,6 +40,12 @@ public class ConfigFinder {
                 if (Utils.isFileExists(possiblePath.toString())) {
                     foundPath = possiblePath.toString();
                 }
+            } else if (key.contains(Constant.RESOURCES)) {
+                key = key.substring(key.indexOf(':') + 1);
+                Path possiblePath = Path.of(projectPath, "src", "main", "wso2mi", "resources", key);
+                if (Utils.isFileExists(possiblePath.toString())) {
+                    foundPath = possiblePath.toString();
+                }
             } else {
                 resourceFrom = "artifacts" + File.separator + type;
                 configPath = Path.of(projectPath, "src", "main", "wso2mi", resourceFrom);

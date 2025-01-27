@@ -53,8 +53,8 @@ public class Utils {
     public static void visitSequence(String projectPath, Sequence seq, MediatorTryoutInfo info, Position position,
                                      boolean isSplitAndAggregate) {
 
-        if (seq != null) {
-            boolean isSplit = splitPayloadIfRequired(info, isSplitNeeded(isSplitAndAggregate, seq, position));
+        if (seq != null && needToVisit(seq, position)) {
+            boolean isSplit = splitPayloadIfRequired(info, isSplitAndAggregate);
             List<Mediator> mediatorList = seq.getMediatorList();
             if (mediatorList != null) {
                 visitMediators(projectPath, mediatorList, info, position);
@@ -63,6 +63,16 @@ public class Utils {
                 aggregatePayload(info);
             }
         }
+    }
+
+    private static boolean needToVisit(STNode node, Position position) {
+
+        int line = node.getRange().getStartTagRange().getStart().getLine();
+        int column = node.getRange().getStartTagRange().getStart().getCharacter();
+        if (line > position.getLine() || (line == position.getLine() && column > position.getCharacter())) {
+            return false;
+        }
+        return true;
     }
 
     private static boolean splitPayloadIfRequired(MediatorTryoutInfo info, boolean isSplitAndAggregate) {
@@ -96,7 +106,7 @@ public class Utils {
         if (!isSplit) {
             return false;
         }
-        return !checkNodeInRange(sequence, position);
+        return isOutOfSequence(sequence, position) || !checkNodeInRange(sequence, position);
     }
 
     private static void aggregatePayload(MediatorTryoutInfo info) {
@@ -120,7 +130,7 @@ public class Utils {
     public static void visitMediators(String projectPath, List<Mediator> mediatorList, MediatorTryoutInfo info,
                                       Position position, boolean needRangeCheck) {
 
-        if (mediatorList == null) {
+        if (mediatorList == null || mediatorList.isEmpty() || !needToVisit(mediatorList.get(0), position)) {
             return;
         }
         MediatorSchemaVisitor mediatorVisitor = new MediatorSchemaVisitor(projectPath, info, position);
@@ -180,14 +190,14 @@ public class Utils {
         int startColumn = node.getRange().getStartTagRange().getStart().getCharacter();
         int endLine;
         int endColumn;
-        if (node.isSelfClosed()) {
+        if (node.getRange().getEndTagRange() == null) {
             endLine = node.getRange().getStartTagRange().getEnd().getLine();
             endColumn = node.getRange().getStartTagRange().getEnd().getCharacter();
         } else {
             endLine = node.getRange().getEndTagRange().getEnd().getLine();
             endColumn = node.getRange().getEndTagRange().getEnd().getCharacter();
         }
-        if (startLine < line && line < endLine) {
+        if (line < startLine || (startLine < line && line < endLine)) {
             return true;
         } else if (startLine == line && endLine == line) {
             return (startColumn <= column && column < endColumn);
@@ -200,8 +210,31 @@ public class Utils {
         }
     }
 
-    public static void convertToJsonObject(org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property property,
-                                     JsonObject jsonObject) {
+    public static boolean isOutOfSequence(Sequence node, Position position) {
+
+        int line = position.getLine();
+        int column = position.getCharacter();
+        if (node == null) {
+            return false;
+        }
+        int startLine = node.getRange().getStartTagRange().getStart().getLine();
+        int startColumn = node.getRange().getStartTagRange().getStart().getCharacter();
+        int endLine;
+        int endColumn;
+        if (node.getRange().getEndTagRange() == null) {
+            endLine = node.getRange().getStartTagRange().getEnd().getLine();
+            endColumn = node.getRange().getStartTagRange().getEnd().getCharacter();
+        } else {
+            endLine = node.getRange().getEndTagRange().getEnd().getLine();
+            endColumn = node.getRange().getEndTagRange().getEnd().getCharacter();
+        }
+        return startLine > line || (line == startLine && column < startColumn) || line > endLine ||
+                (line == endLine && column > endColumn);
+    }
+
+    public static void convertToJsonObject(
+            org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property property,
+            JsonObject jsonObject) {
 
         if (property.getProperties() != null) {
             for (org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property prop :
