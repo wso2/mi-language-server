@@ -61,7 +61,12 @@ public class CAPPCacheManager {
     private static final Logger LOGGER = Logger.getLogger(CAPPCacheManager.class.getName());
     private static final Path TRYOUT_CAPP_BUILD_TEMP =
             Path.of(System.getProperty("user.home")).resolve(".wso2-mi").resolve("tryout_capp_build_temp");
-    private static ExecutorService executor = Executors.newFixedThreadPool(4);
+    private static ExecutorService executor;
+
+    public static void init() {
+
+        executor = Executors.newFixedThreadPool(4);
+    }
 
     public static void validateCAPPCache(String projectUri) throws ArtifactDeploymentException {
 
