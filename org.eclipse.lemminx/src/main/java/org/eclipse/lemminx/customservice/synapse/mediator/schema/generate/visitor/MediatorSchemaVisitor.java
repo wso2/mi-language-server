@@ -84,8 +84,12 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transf
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.targets.Target;
+import org.eclipse.lemminx.customservice.synapse.utils.ConfigFinder;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lsp4j.Position;
+
+import java.io.File;
+import java.io.IOException;
 
 public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
 
@@ -206,7 +210,20 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     protected void visitPayloadFactory(PayloadFactory node) {
 
         String content = (String) node.getFormat().getContent();
-        info.setOutputPayload(new JsonPrimitive(content));
+        if (!StringUtils.isEmpty(content)) {
+            info.setOutputPayload(new JsonPrimitive(content));
+        } else if (node.getFormat().getKey() != null) {
+            try {
+                String path =
+                        ConfigFinder.findEsbComponentPath(node.getFormat().getKey(), Constant.RESOURCE, projectPath);
+                String regContent = org.eclipse.lemminx.customservice.synapse.utils.Utils.readFile(new File(path));
+                info.setOutputPayload(new JsonPrimitive(regContent));
+            } catch (IOException e) {
+                info.setOutputPayload(new JsonPrimitive(StringUtils.EMPTY));
+            }
+        } else {
+            info.setOutputPayload(new JsonPrimitive(StringUtils.EMPTY));
+        }
     }
 
     @Override
