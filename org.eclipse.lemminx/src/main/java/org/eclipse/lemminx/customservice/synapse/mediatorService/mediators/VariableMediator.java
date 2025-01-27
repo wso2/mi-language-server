@@ -32,13 +32,6 @@ public class VariableMediator {
                                                                                            Variable variable,
                                                                                            List<String> dirtyFields) {
 
-        if ("set".equals(data.get("variableAction"))) {
-            data.remove("variableAction");
-        } else {
-            data.remove("value");
-            data.remove("variableDataType");
-        }
-
         Map<String, Object> variableValue = (Map<String, Object>) data.get("variableValue");
         if (variableValue != null && Boolean.TRUE.equals(variableValue.get("isExpression"))) {
             data.put("expression", variableValue.get("value"));

@@ -3,23 +3,8 @@
   "type": "mediator",
   "title": "Variable Mediator",
   "canTryOut": true,
-  "help": "Set or remove a variable to/from the message",
+  "help": "Set a variable to the message",
   "elements": [
-    {
-      "type": "attribute",
-      "value": {
-        "name": "variableAction",
-        "displayName": "Action",
-        "inputType": "combo",
-        "defaultValue": "set",
-        "comboValues": [
-          "set",
-          "remove"
-        ],
-        "required": true,
-        "helpTip": "Action to be performed. Set or remove a variable"
-      }
-    },
     {
       "type": "attribute",
       "value": {
