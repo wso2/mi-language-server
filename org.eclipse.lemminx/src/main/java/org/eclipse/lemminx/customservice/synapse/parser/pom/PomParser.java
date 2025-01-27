@@ -176,6 +176,16 @@ public class PomParser {
             Element type = document.createElement(Constants.TYPE);
             type.setTextContent(dependencyDetails.getType() );
             dependency.appendChild(type);
+            Element exclusion = document.createElement(Constants.EXCLUSION);
+            Element conGroupId = document.createElement(Constants.GROUP_ID);
+            conGroupId.setTextContent("*");
+            exclusion.appendChild(conGroupId);
+            Element conArtifactId = document.createElement(Constants.ARTIFACT_ID);
+            conArtifactId.setTextContent("*");
+            exclusion.appendChild(conArtifactId);
+            Element exclusions = document.createElement(Constants.EXCLUSIONS);
+            exclusions.appendChild(exclusion);
+            dependency.appendChild(exclusions);
         }
         return dependency;
     }

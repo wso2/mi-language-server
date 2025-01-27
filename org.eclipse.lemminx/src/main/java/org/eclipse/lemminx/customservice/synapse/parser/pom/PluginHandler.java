@@ -21,7 +21,7 @@ import org.eclipse.lemminx.customservice.synapse.parser.Constants;
 import org.eclipse.lemminx.customservice.synapse.parser.DependencyDetails;
 import org.eclipse.lemminx.customservice.synapse.parser.Node;
 import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
-import org.eclipse.lemminx.utils.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -182,10 +182,14 @@ public class PluginHandler extends DefaultHandler {
     private void processDependencies(String qName, String value, int valueEndLine, int valueEndColumn) {
         switch (qName) {
             case Constants.GROUP_ID:
-                groupId = value;
+                if (StringUtils.isBlank(groupId)) {
+                    groupId = value;
+                }
                 break;
             case Constants.ARTIFACT_ID:
-                artifactId = value;
+                if (StringUtils.isBlank(artifactId)) {
+                    artifactId = value;
+                }
                 break;
             case Constants.VERSION:
                 version = value;
@@ -208,6 +212,8 @@ public class PluginHandler extends DefaultHandler {
                     pomDetailsResponse.getDependenciesDetails().addOtherDependencies(dependency);
                 }
                 isDependency = false;
+                groupId = StringUtils.EMPTY;
+                artifactId = StringUtils.EMPTY;
                 break;
         }
     }
