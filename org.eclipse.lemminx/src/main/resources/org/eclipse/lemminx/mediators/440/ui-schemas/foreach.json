@@ -49,12 +49,32 @@
       }
     },
     {
+      "type": "attribute",
+      "value": {
+        "name": "continueWithoutAggregation",
+        "displayName": "Continue without aggregation",
+        "inputType": "checkbox",
+        "defaultValue": false,
+        "required": false,
+        "helpTip": "If enabled, the parent flow will continue without waiting for the aggregation.",
+        "enableCondition": [
+          {
+            "version": "v2"
+          }
+        ]
+      }
+    },
+    {
       "type": "attributeGroup",
       "value": {
         "groupName": "Output Configurations",
         "enableCondition": [
+          "AND",
           {
             "version": "v2"
+          },
+          {
+            "continueWithoutAggregation": false
           }
         ],
         "elements": [

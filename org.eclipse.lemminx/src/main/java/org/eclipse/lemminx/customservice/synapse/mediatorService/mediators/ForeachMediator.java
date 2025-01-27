@@ -128,7 +128,7 @@ public class ForeachMediator {
 
         Map<Range, Map<String, Object>> edits = new HashMap<>();
         List<String> foreachAttributes = List.of(COLLECTION, Constant.PARALLEL_EXECUTION, RESULT_TYPE, Constant.RESULT_TARGET,
-                "counterVariableName", UPDATE_ORIGINAL_CONTENT, Constant.DESCRIPTION);
+                "counterVariableName", UPDATE_ORIGINAL_CONTENT, Constant.DESCRIPTION, Constant.CONTINUE_WITHOUT_AGGREGATION);
 
         if (MediatorUtils.anyMatch(dirtyFields, foreachAttributes)) {
             Map<String, Object> scatterGatherData = new HashMap<>(data);
@@ -150,6 +150,9 @@ public class ForeachMediator {
             Map<String, Object> data = new HashMap<>();
             data.put(Constant.DESCRIPTION, foreach.getDescription());
             data.put(Constant.PARALLEL_EXECUTION, foreach.isExecuteParallel());
+            if (foreach.isContinueWithoutAggregation()) {
+                data.put(Constant.CONTINUE_WITHOUT_AGGREGATION, foreach.isContinueWithoutAggregation());
+            }
             if (foreach.getResultTarget() == null) {
                 data.put(UPDATE_ORIGINAL_CONTENT, true);
             } else {

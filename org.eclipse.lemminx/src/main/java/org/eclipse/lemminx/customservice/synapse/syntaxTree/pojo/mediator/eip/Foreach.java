@@ -34,6 +34,7 @@ public class Foreach extends Mediator {
     String resultType;
     String collection;
     String counterVariableName;
+    boolean continueWithoutAggregation;
 
     public Foreach() {
         setDisplayName("Foreach");
@@ -137,5 +138,15 @@ public class Foreach extends Mediator {
     public void setCounterVariableName(String counterVariableName) {
 
         this.counterVariableName = counterVariableName;
+    }
+
+    public boolean isContinueWithoutAggregation() {
+
+        return continueWithoutAggregation;
+    }
+
+    public void setContinueWithoutAggregation(boolean continueWithoutAggregation) {
+
+        this.continueWithoutAggregation = continueWithoutAggregation;
     }
 }
