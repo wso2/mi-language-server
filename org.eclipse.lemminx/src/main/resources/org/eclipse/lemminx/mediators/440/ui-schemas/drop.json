@@ -2,7 +2,7 @@
   "name": "drop",
   "type": "mediator",
   "title": "Drop Mediator",
-  "canTryOut": false,
+  "canTryOut": true,
   "help": "Stops processing of the current message and terminates message flow.",
   "elements": [
     {

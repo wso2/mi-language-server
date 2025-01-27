@@ -89,7 +89,7 @@ public class ScriptMediator {
         if (node.getKey() == null) {
             data.put("scriptType", "INLINE");
         } else {
-            data.put("scriptType", "REGISTRY_REFERENCE");
+            data.put("scriptType", "RESOURCE_REFERENCE");
         }
 
         // Set script language

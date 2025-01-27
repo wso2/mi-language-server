@@ -3,6 +3,7 @@
   "type": "mediator",
   "title": "Data Mapper Mediator",
   "help": "Transforms one data format to another, or changes the data structure in the message.",
+  "canTryOut": true,
   "onSubmit": "openDataMapperEditor",
   "elements": [
     {
