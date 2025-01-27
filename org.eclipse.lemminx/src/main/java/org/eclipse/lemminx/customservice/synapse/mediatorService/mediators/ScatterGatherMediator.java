@@ -48,8 +48,8 @@ public class ScatterGatherMediator {
             return Either.forLeft(data);
         }
 
-        if (VARIABLE.equals(data.get(Constant.RESULT_TARGET))) {
-            data.put(Constant.RESULT_TARGET, data.get(VARIABLE_NAME));
+        if (!VARIABLE.equals(data.get(Constant.RESULT_TARGET))) {
+            data.remove(VARIABLE_NAME);
         }
         setExpression(data);
         Map<String, Object> condition = (Map<String, Object>) data.get(Constant.CONDITION);
@@ -121,7 +121,7 @@ public class ScatterGatherMediator {
             data.put(Constant.RESULT_TARGET, resultTarget);
         } else {
             data.put(Constant.RESULT_TARGET, VARIABLE);
-            data.put(VARIABLE_NAME, resultTarget);
+            data.put(VARIABLE_NAME, scatterGather.getVariableName());
         }
         if (scatterGather.getScatterGatherAggregation().getCondition() != null) {
             data.put(Constant.CONDITION, MediatorUtils.getExpressionData(scatterGather.getScatterGatherAggregation().getCondition()));

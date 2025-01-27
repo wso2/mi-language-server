@@ -33,6 +33,7 @@ public class ForeachMediator {
 
     private static final String UPDATE_ORIGINAL_CONTENT = "updateOriginalContent";
     private static final String RESULT_TYPE = "resultType";
+    private static final String ROOT_ELEMENT = "rootElement";
     private static final String COLLECTION = "collection";
 
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
@@ -110,6 +111,12 @@ public class ForeachMediator {
         // If the version is v2, then the mediator is a v2 mediator
         // Otherwise, return the use 430 mediator to preserve the backward compatibility
         if ("v2".equals(data.get(Constant.VERSION))) {
+            if (data.get(Constant.CONTINUE_WITHOUT_AGGREGATION) != null && (Boolean) data.get(Constant.CONTINUE_WITHOUT_AGGREGATION)) {
+                data.remove(UPDATE_ORIGINAL_CONTENT);
+                data.remove(RESULT_TYPE);
+                data.remove(ROOT_ELEMENT);
+                data.remove(Constant.RESULT_TARGET);
+            }
             Map<String, Object> collectionExpr = (Map<String, Object>) data.get(COLLECTION);
             if (collectionExpr != null) {
                 data.put(COLLECTION, collectionExpr.get(Constant.VALUE));
@@ -153,12 +160,15 @@ public class ForeachMediator {
             if (foreach.isContinueWithoutAggregation()) {
                 data.put(Constant.CONTINUE_WITHOUT_AGGREGATION, foreach.isContinueWithoutAggregation());
             }
-            if (foreach.getResultTarget() == null) {
+            if (foreach.isUpdateOriginal()) {
                 data.put(UPDATE_ORIGINAL_CONTENT, true);
             } else {
                 data.put(UPDATE_ORIGINAL_CONTENT, false);
-                data.put(Constant.RESULT_TARGET, foreach.getResultTarget());
+                data.put(Constant.RESULT_TARGET, foreach.getVariableName());
                 data.put(RESULT_TYPE, foreach.getResultType());
+            }
+            if ("XML".equalsIgnoreCase(foreach.getResultType())) {
+                data.put(ROOT_ELEMENT, foreach.getEnclosingElement());
             }
             data.put(COLLECTION, MediatorUtils.getExpressionData(foreach.getCollection()));
             data.put(Constant.VERSION, "v2");

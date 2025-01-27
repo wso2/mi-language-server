@@ -27,6 +27,7 @@ public class ScatterGather extends Mediator {
     CloneTarget[] targets;
     boolean executeParallel;
     String resultTarget;
+    String variableName;
     String contentType;
     String rootElement;
     String description;
@@ -109,5 +110,15 @@ public class ScatterGather extends Mediator {
     public void setRootElement(String rootElement) {
 
         this.rootElement = rootElement;
+    }
+
+    public String getVariableName() {
+
+        return variableName;
+    }
+
+    public void setVariableName(String variableName) {
+
+        this.variableName = variableName;
     }
 }

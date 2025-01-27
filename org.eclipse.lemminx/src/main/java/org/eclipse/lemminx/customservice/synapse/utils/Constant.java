@@ -550,4 +550,7 @@ public class Constant {
     public static final String HELP = "help";
     public static final String REQUIRED = "required";
     public static final String HELP_TIP = "helpTip";
+    public static final String TARGET_VARIABLE = "target-variable";
+    public static final String RESULT_CONTENT_TYPE = "result-content-type";
+    public static final String RESULT_ENCLOSING_ELEMENT = "result-enclosing-element";
 }

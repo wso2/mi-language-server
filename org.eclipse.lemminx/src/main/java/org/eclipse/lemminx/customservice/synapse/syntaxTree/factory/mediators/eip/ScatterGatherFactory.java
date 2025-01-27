@@ -87,15 +87,19 @@ public class ScatterGatherFactory extends AbstractMediatorFactory {
             } else {
                 ((ScatterGather) node).setExecuteParallel(true);
             }
-            String resultTarget = element.getAttribute("result-target");
+            String resultTarget = element.getAttribute(Constant.TARGET);
             if (resultTarget != null) {
                 ((ScatterGather) node).setResultTarget(resultTarget);
             }
-            String contentType = element.getAttribute("content-type");
+            String variableName = element.getAttribute(Constant.TARGET_VARIABLE);
+            if (variableName != null) {
+                ((ScatterGather) node).setVariableName(variableName);
+            }
+            String contentType = element.getAttribute(Constant.RESULT_CONTENT_TYPE);
             if (contentType != null) {
                 ((ScatterGather) node).setContentType(contentType);
             }
-            String rootElement = element.getAttribute("root-element");
+            String rootElement = element.getAttribute(Constant.RESULT_ENCLOSING_ELEMENT);
             if (rootElement != null) {
                 ((ScatterGather) node).setRootElement(rootElement);
             }

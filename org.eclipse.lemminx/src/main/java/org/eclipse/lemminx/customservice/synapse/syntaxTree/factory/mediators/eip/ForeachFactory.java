@@ -87,13 +87,21 @@ public class ForeachFactory extends AbstractMediatorFactory {
         if (StringUtils.isNotBlank(counterVariableName)) {
             ((Foreach) node).setCounterVariableName(counterVariableName);
         }
-        String contentType = element.getAttribute("result-type");
+        String contentType = element.getAttribute(Constant.RESULT_CONTENT_TYPE);
         if (StringUtils.isNotBlank(contentType)) {
             ((Foreach) node).setResultType(contentType);
         }
-        String resultTarget = element.getAttribute("result-target");
-        if (StringUtils.isNotBlank(resultTarget)) {
-            ((Foreach) node).setResultTarget(resultTarget);
+        String enclosingElement = element.getAttribute(Constant.RESULT_ENCLOSING_ELEMENT);
+        if (StringUtils.isNotBlank(enclosingElement)) {
+            ((Foreach) node).setEnclosingElement(enclosingElement);
+        }
+        String updateOriginal = element.getAttribute("update-original");
+        if (StringUtils.isNotBlank(updateOriginal)) {
+            ((Foreach) node).setUpdateOriginal(Boolean.parseBoolean(updateOriginal));
+        }
+        String targetVariableName = element.getAttribute(Constant.TARGET_VARIABLE);
+        if (StringUtils.isNotBlank(targetVariableName)) {
+            ((Foreach) node).setVariableName(targetVariableName);
         }
         String executeParallel = element.getAttribute("parallel-execution");
         if (StringUtils.isNotBlank(executeParallel)) {

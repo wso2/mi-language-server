@@ -1,11 +1,11 @@
 {{#newMediatorV2}}
-    <foreach {{#collection}}collection="{{collection}}" {{/collection}} parallel-execution="{{parallelExecution}}" {{#resultTarget}}result-target="{{resultTarget}}" {{/resultTarget}} {{#resultType}}result-type="{{resultType}}" {{/resultType}} {{#counterVariableName}}counter-variable="{{counterVariableName}}" {{/counterVariableName}} continue-without-aggregation="{{continueWithoutAggregation}}" {{#description}}description="{{description}}" {{/description}}>
+    <foreach {{#collection}}collection="{{collection}}" {{/collection}} parallel-execution="{{parallelExecution}}" {{^continueWithoutAggregation}}update-original="{{updateOriginalContent}}" {{/continueWithoutAggregation}} {{#resultTarget}}target-variable="{{resultTarget}}" {{/resultTarget}} {{#resultType}}result-content-type="{{resultType}}" {{/resultType}} {{#rootElement}}result-enclosing-element="{{rootElement}}" {{/rootElement}} {{#counterVariableName}}counter-variable="{{counterVariableName}}" {{/counterVariableName}} continue-without-aggregation="{{continueWithoutAggregation}}" {{#description}}description="{{description}}" {{/description}}>
         <sequence></sequence>
     </foreach>
 {{/newMediatorV2}}
 {{^newMediatorV2}}
     {{#editForeachV2}}
-        <foreach {{#collection}}collection="{{collection}}" {{/collection}} parallel-execution="{{parallelExecution}}" {{#resultTarget}}result-target="{{resultTarget}}" {{/resultTarget}} {{#resultType}}result-type="{{resultType}}" {{/resultType}} {{#counterVariableName}}counter-variable="{{counterVariableName}}" {{/counterVariableName}} continue-without-aggregation="{{continueWithoutAggregation}}" {{#description}}description="{{description}}" {{/description}}>
+        <foreach {{#collection}}collection="{{collection}}" {{/collection}} parallel-execution="{{parallelExecution}}" {{^continueWithoutAggregation}}update-original="{{updateOriginalContent}}" {{/continueWithoutAggregation}} {{#resultTarget}}target-variable="{{resultTarget}}" {{/resultTarget}} {{#resultType}}result-content-type="{{resultType}}" {{/resultType}} {{#rootElement}}result-enclosing-element="{{rootElement}}" {{/rootElement}} {{#counterVariableName}}counter-variable="{{counterVariableName}}" {{/counterVariableName}} continue-without-aggregation="{{continueWithoutAggregation}}" {{#description}}description="{{description}}" {{/description}}>
     {{/editForeachV2}}
 {{/newMediatorV2}}
 {{#isNewMediator}}
