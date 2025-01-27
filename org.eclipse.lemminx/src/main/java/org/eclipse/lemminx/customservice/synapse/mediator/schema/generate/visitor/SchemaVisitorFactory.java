@@ -19,6 +19,7 @@
 package org.eclipse.lemminx.customservice.synapse.mediator.schema.generate.visitor;
 
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.template.Template;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 
 import java.util.logging.Logger;
@@ -35,6 +36,9 @@ public class SchemaVisitorFactory {
             visitor = new APIVisitor(projectPath);
         } else if (Constant.SEQUENCE.equals(nodeType)) {
             visitor = new SequenceVisitor(projectPath);
+        } else if (Constant.TEMPLATE.equals(nodeType) && ((Template) node).getSequence() != null) {
+            visitor = new SequenceTemplateVisitor(projectPath);
+
         } else {
             LOGGER.warning("No visitor found for the node type: " + nodeType);
         }
