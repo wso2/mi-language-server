@@ -228,6 +228,9 @@ public class TryOutHandler {
 
         LOGGER.info("Fetching the output info of the mediator");
         try {
+            if (!currentInvocationInfo.isNeedStepOver()) {
+                return new MediatorTryoutInfo(currentInputInfo, currentInputInfo);
+            }
             PropertyInjector.injectProperties(currentInputInfo, request.getMediatorInfo(), this::sendCommand);
             commandClient.sendResumeCommand();
             waitForMediatorInfo(true, true);
@@ -457,6 +460,7 @@ public class TryOutHandler {
             throws NoBreakpointHitException {
 
         if (!needStepOver) {
+            waitForBreakpointHit(false);
             cleanUp();
             return;
         }
