@@ -3,6 +3,7 @@
   "type": "mediator",
   "title": "Throw Error Mediator",
   "help": "Throw an error from the mediation flow.",
+  "canTryOut": true,
   "elements": [
     {
       "type": "attribute",

@@ -19,6 +19,7 @@
               "description": "Editing of the properties of an object Message Builder",
               "tableKey": "contentType",
               "tableValue": "builderClass",
+              "required": true,
               "elements": [
                 {
                   "type": "attribute",

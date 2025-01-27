@@ -2,7 +2,7 @@
   "name": "respond",
   "type": "mediator",
   "title": "Respond Mediator",
-  "canTryOut": false,
+  "canTryOut": true,
   "help": "Terminates the processing of the current message flow and returns the message to the client.",
   "elements": [
     {
