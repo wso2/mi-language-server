@@ -52,7 +52,7 @@ public class ExpressionHelperProvider {
             Properties.Type.AXIS2, "properties.axis2");
     private static final Map<Params.Type, String> PARAMS_SECOND_LEVEL = Map.of(
             Params.Type.QUERY, "params.queryParams",
-            Params.Type.URI, "params.uriParams",
+            Params.Type.PATH, "params.pathParams",
             Params.Type.FUNC, "params.functionParams");
     private final ServerLessTryoutHandler tryoutHandler;
     private final String projectPath;

@@ -371,8 +371,8 @@ public class ExpressionCompletionsProvider {
         switch (type) {
             case ExpressionConstants.QUERY_PARAMS:
                 return params.getQueryParams();
-            case ExpressionConstants.URI_PARAMS:
-                return params.getUriParams();
+            case ExpressionConstants.PATH_PARAMS:
+                return params.getPathParams();
             case ExpressionConstants.FUNCTION_PARAMS:
                 return params.getFunctionParams();
             default:

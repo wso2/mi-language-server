@@ -44,12 +44,12 @@ public class ExpressionConstants {
     public static final String PAYLOAD = "payload";
     public static final List<String> ATTRIBUTES_SECOND_LEVEL = List.of(SYNAPSE, AXIS2);
     public static final String QUERY_PARAMS = "queryParams";
-    public static final String URI_PARAMS = "uriParams";
+    public static final String PATH_PARAMS = "pathParams";
     public static final String FUNCTION_PARAMS = "functionParams";
     public static final String CONFIGS = "configs";
     public static final List<String> ROOT_LEVEL_TOKENS =
             List.of(VARS, PROPERTIES, PROPS, PARAMS, HEADERS, PAYLOAD, CONFIGS);
-    public static final List<String> PARAMS_SECOND_LEVEL = List.of(QUERY_PARAMS, URI_PARAMS, FUNCTION_PARAMS);
+    public static final List<String> PARAMS_SECOND_LEVEL = List.of(QUERY_PARAMS, PATH_PARAMS, FUNCTION_PARAMS);
     public static final String OBJECT = "Object";
     public static final String ITEMS = "items";
     public static final String SORT_TEXT = "sortText";
