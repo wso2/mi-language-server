@@ -34,6 +34,8 @@ public class Constants {
     public static final String PLUGIN_REPOSITORY = "pluginRepository";
     public static final String PROPERTIES = "properties";
     public static final String ARTIFACT_ID = "artifactId";
+    public static final String EXCLUSIONS = "exclusions";
+    public static final String EXCLUSION = "exclusion";
 
     public static final String VERSION = "version";
 
