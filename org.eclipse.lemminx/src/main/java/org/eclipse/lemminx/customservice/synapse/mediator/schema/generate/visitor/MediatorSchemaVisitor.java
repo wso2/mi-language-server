@@ -210,7 +210,7 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     protected void visitPayloadFactory(PayloadFactory node) {
 
         String content = (String) node.getFormat().getContent();
-        if (content != null) {
+        if (!StringUtils.isEmpty(content)) {
             info.setOutputPayload(new JsonPrimitive(content));
         } else if (node.getFormat().getKey() != null) {
             try {

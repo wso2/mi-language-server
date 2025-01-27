@@ -24,6 +24,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.eclipse.lemminx.customservice.synapse.AbstractMediatorVisitor;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeGenerator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.NamedSequence;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
@@ -232,9 +233,7 @@ public class Utils {
                 (line == endLine && column > endColumn);
     }
 
-    public static void convertToJsonObject(
-            org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property property,
-            JsonObject jsonObject) {
+    public static void convertToJsonObject(Property property, JsonObject jsonObject) {
 
         if (property.getProperties() != null) {
             for (org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property prop :
