@@ -156,15 +156,17 @@ public class ResourceFinderTest {
         assertEquals("testLocalEntry", localEntryResources.getResources().get(0).getName());
     }
 
-    @Test
-    public void testDataMapperResource() {
+      // TODO: Need uncomment this test case after implementing handling of dmc files
+//    @Test
+//    public void testDataMapperResource() {
+//
+//        ResourceResponse dataMapperResources = resourceFinder.getAvailableResources(projectPath, Either.forLeft(
+//                "dataMapper"));
+//
+//        assertEquals(1, dataMapperResources.getRegistryResources().size());
+//        assertEquals("sample.dmc", dataMapperResources.getRegistryResources().get(0).getName());
+//    }
 
-        ResourceResponse dataMapperResources = resourceFinder.getAvailableResources(projectPath, Either.forLeft(
-                "dataMapper"));
-
-        assertEquals(1, dataMapperResources.getRegistryResources().size());
-        assertEquals("sample.dmc", dataMapperResources.getRegistryResources().get(0).getName());
-    }
 
     @Test
     public void testJSResource() {

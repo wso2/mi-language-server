@@ -39,7 +39,7 @@ public class DatamapperHandler extends NonXMLRegistryHandler {
     @Override
     protected boolean canHandle(File file) {
 
-        if (file.getAbsolutePath().endsWith(".ts") || file.getAbsolutePath().endsWith(".dmc")) {
+        if (file.getAbsolutePath().endsWith(".ts")) {
             return isDatamapperFile(file.getAbsolutePath());
         }
         return Boolean.FALSE;
