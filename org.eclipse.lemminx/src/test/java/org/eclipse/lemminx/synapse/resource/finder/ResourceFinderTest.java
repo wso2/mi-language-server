@@ -156,7 +156,7 @@ public class ResourceFinderTest {
         assertEquals("testLocalEntry", localEntryResources.getResources().get(0).getName());
     }
 
-//TODO: Need uncomment this test case after implementing handling of dmc files
+    // TODO: Need uncomment this test case after implementing handling of dmc files
 //    @Test
 //    public void testDataMapperResource() {
 //
