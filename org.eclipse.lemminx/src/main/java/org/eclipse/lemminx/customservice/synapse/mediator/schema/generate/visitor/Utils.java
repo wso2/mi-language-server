@@ -303,7 +303,7 @@ public class Utils {
 
     public static String getIterateContent(MediatorTryoutInfo info, String collectionToIterate) {
 
-        if (collectionToIterate == null) {
+        if (StringUtils.isEmpty(collectionToIterate)) {
             return StringUtils.EMPTY;
         }
         collectionToIterate = collectionToIterate.substring(2, collectionToIterate.length() - 1); //Remove ${}
@@ -333,7 +333,7 @@ public class Utils {
         if (propType.contains("[")) {
             propType = propType.split("\\[")[0];
         }
-        if (propType != null) {
+        if (StringUtils.isNotEmpty(propType)) {
             switch (propType) {
                 case ExpressionConstants.SYNAPSE:
                     return getTargetElement(properties.getSynapse(),
@@ -395,7 +395,7 @@ public class Utils {
         StringBuilder element = new StringBuilder();
         for (int i = 0; i < chars.length; i++) {
             if (chars[i] == '.' || chars[i] == '[' || chars[i] == ']') {
-                if (!StringUtils.EMPTY.equals(element.toString())) {
+                if (StringUtils.isNotEmpty(element.toString())) {
                     elements.add(element.toString());
                     element = new StringBuilder();
                 }
