@@ -22,8 +22,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.synapse.AbstractMediatorVisitor;
+import org.eclipse.lemminx.customservice.synapse.expression.ExpressionConstants;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Properties;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeGenerator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.NamedSequence;
@@ -39,6 +42,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -135,6 +139,7 @@ public class Utils {
         if (mediatorList == null || mediatorList.isEmpty() || !needToVisit(mediatorList.get(0), position)) {
             return;
         }
+        info.replaceInputWithOutput();
         MediatorSchemaVisitor mediatorVisitor = new MediatorSchemaVisitor(projectPath, info, position);
         for (Mediator mediator : mediatorList) {
             visitMediator(mediator, mediatorVisitor);
@@ -294,6 +299,114 @@ public class Utils {
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, String.format("Error while visiting sequence template: %s", target), e);
         }
+    }
+
+    public static String getIterateContent(MediatorTryoutInfo info, String collectionToIterate) {
+
+        if (StringUtils.isEmpty(collectionToIterate)) {
+            return StringUtils.EMPTY;
+        }
+        collectionToIterate = collectionToIterate.substring(2, collectionToIterate.length() - 1); //Remove ${}
+        String part = collectionToIterate.split("\\.")[0];
+        part = part.split("\\[")[0];
+        switch (part) {
+            case ExpressionConstants.PAYLOAD:
+                if (collectionToIterate.equals(part)) {
+                    return info.getOutput().getPayload().getAsString();
+                }
+                return getTargetElement(info.getOutput().getPayload().getAsString(),
+                        collectionToIterate.substring(part.length() + 1));
+            case ExpressionConstants.VARS:
+                return getTargetElement(info.getOutput().getVariables(),
+                        collectionToIterate.substring(part.length() + 1));
+            case ExpressionConstants.PROPS:
+            case ExpressionConstants.PROPERTIES:
+                return getTargetElement(info.getOutput().getProperties(),
+                        collectionToIterate.substring(part.length() + 1));
+        }
+        return StringUtils.EMPTY;
+    }
+
+    private static String getTargetElement(Properties properties, String targetExpression) {
+
+        String propType = targetExpression.split("\\.")[0];
+        if (propType.contains("[")) {
+            propType = propType.split("\\[")[0];
+        }
+        if (StringUtils.isNotEmpty(propType)) {
+            switch (propType) {
+                case ExpressionConstants.SYNAPSE:
+                    return getTargetElement(properties.getSynapse(),
+                            targetExpression.substring(propType.length() + 1));
+                case ExpressionConstants.AXIS2:
+                    return getTargetElement(properties.getAxis2(),
+                            targetExpression.substring(propType.length() + 1));
+            }
+        }
+        return StringUtils.EMPTY;
+    }
+
+    private static String getTargetElement(List<Property> variables, String targetExpression) {
+
+        String varName = targetExpression.split("\\.")[0];
+        if (varName.contains("[")) {
+            varName = varName.split("\\[")[0];
+        }
+        for (Property property : variables) {
+            if (property.getKey().equals(varName)) {
+                return getTargetElement(property.getValue(),
+                        targetExpression.substring(varName.length() + 1));
+            }
+        }
+        return StringUtils.EMPTY;
+    }
+
+    private static String getTargetElement(String value, String targetExpression) {
+
+        JsonElement element = org.eclipse.lemminx.customservice.synapse.utils.Utils.getJsonElement(value);
+        if (element == null) {
+            return StringUtils.EMPTY;
+        }
+        List<String> elements = parsePathExpression(targetExpression);
+        for (String ele : elements) {
+            if (ele.matches("\\d+")) {
+                int index = Integer.parseInt(ele);
+                if (element.isJsonArray() && element.getAsJsonArray().size() > index) {
+                    element = element.getAsJsonArray().get(index);
+                } else {
+                    return StringUtils.EMPTY;
+                }
+            } else {
+                if (element.isJsonObject() && element.getAsJsonObject().has(ele)) {
+                    element = element.getAsJsonObject().get(ele);
+                } else {
+                    return StringUtils.EMPTY;
+                }
+            }
+        }
+        return element.toString();
+    }
+
+    public static List<String> parsePathExpression(String pathExpression) {
+
+        List<String> elements = new ArrayList<>();
+
+        char[] chars = pathExpression.toCharArray();
+        StringBuilder element = new StringBuilder();
+        for (int i = 0; i < chars.length; i++) {
+            if (chars[i] == '.' || chars[i] == '[' || chars[i] == ']') {
+                if (StringUtils.isNotEmpty(element.toString())) {
+                    elements.add(element.toString());
+                    element = new StringBuilder();
+                }
+            } else if (chars[i] != '\'' && chars[i] != '\"') {
+                element.append(chars[i]);
+            }
+        }
+        if (StringUtils.isNotEmpty(element.toString())) {
+            elements.add(element.toString());
+        }
+        return elements;
     }
 
     private Utils() {

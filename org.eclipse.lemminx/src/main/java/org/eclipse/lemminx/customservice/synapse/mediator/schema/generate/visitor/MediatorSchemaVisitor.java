@@ -199,6 +199,8 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitDatamapper(Datamapper node) {
 
+
+        // TODO: replace with the json schema
     }
 
     @Override
@@ -324,7 +326,8 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitSend(Send node) {
 
-        info.setOutputPayload(null);
+        // The payload can't be determined
+        info.setOutputPayload(new JsonPrimitive(StringUtils.EMPTY));
     }
 
     @Override
@@ -335,7 +338,8 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitClass(Class node) {
 
-        info.setOutputPayload(null);
+        // The payload can't be determined
+        info.setOutputPayload(new JsonPrimitive(StringUtils.EMPTY));
     }
 
     @Override
@@ -375,7 +379,8 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitCall(Call node) {
 
-        info.setOutputPayload(null);
+        // The payload can't be determined
+        info.setOutputPayload(new JsonPrimitive(StringUtils.EMPTY));
     }
 
     @Override
@@ -433,6 +438,7 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitScatterGather(ScatterGather node) {
 
+        // Do nothing
     }
 
     @Override
@@ -440,18 +446,34 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
 
         Sequence sequence = node.getSequence();
         if (sequence != null) {
+            String initialPayload = info.getInput().getPayload().getAsString();
+            String collectionToIterate = node.getCollection();
+            String iterateContent = Utils.getIterateContent(info, collectionToIterate);
+            info.setOutputPayload(new JsonPrimitive(iterateContent));
             Utils.visitSequence(projectPath, sequence, info, position, true);
+            if (!Utils.checkNodeInRange(node, position)) {
+                if (node.getResultTarget() != null) {
+                    info.addOutputVariable(node.getResultTarget(), info.getOutput().getPayload().getAsString());
+                    info.setOutputPayload(new JsonPrimitive(initialPayload));
+                } else {
+                    info.setOutputPayload(new JsonPrimitive(StringUtils.EMPTY));
+                }
+            }
         }
     }
 
     @Override
     protected void visitEnrich(Enrich node) {
 
+        // The payload can't be determined
+        info.setOutputPayload(new JsonPrimitive(StringUtils.EMPTY));
     }
 
     @Override
     protected void visitScript(Script node) {
 
+        // The payload can't be determined
+        info.setOutputPayload(new JsonPrimitive(StringUtils.EMPTY));
     }
 
     @Override
@@ -478,6 +500,8 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitXslt(Xslt node) {
 
+        // The payload can't be determined
+        info.setOutputPayload(new JsonPrimitive(StringUtils.EMPTY));
     }
 
     @Override
@@ -488,6 +512,8 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitFastXSLT(FastXSLT node) {
 
+        // The payload can't be determined
+        info.setOutputPayload(new JsonPrimitive(StringUtils.EMPTY));
     }
 
     @Override
@@ -498,6 +524,8 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitCallout(Callout node) {
 
+        // The payload can't be determined
+        info.setOutputPayload(new JsonPrimitive(StringUtils.EMPTY));
     }
 
     @Override
