@@ -52,9 +52,10 @@
 
             <!-- Root Element Attributes -->
             <xs:attribute name="parallel-execution" type="xs:boolean" default="true"/>
-            <xs:attribute name="result-target" type="xs:string"/>
-            <xs:attribute name="root-element" type="xs:string" use="optional"/>
-            <xs:attribute name="content-type" use="required">
+            <xs:attribute name="target" type="xs:string"/>
+            <xs:attribute name="target-variable" type="xs:string" use="optional"/>
+            <xs:attribute name="result-enclosing-element" type="xs:string" use="optional"/>
+            <xs:attribute name="result-content-type" use="required">
                 <xs:simpleType>
                     <xs:restriction base="xs:string">
                         <xs:enumeration value="JSON"/>

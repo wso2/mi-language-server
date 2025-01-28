@@ -72,7 +72,7 @@
             "type": "attribute",
             "value": {
               "name": "rootElement",
-              "displayName": "Root Element Name",
+              "displayName": "Result Enclosing Element Name",
               "inputType": "string",
               "defaultValue": "ScatterGatherResult",
               "required": true,

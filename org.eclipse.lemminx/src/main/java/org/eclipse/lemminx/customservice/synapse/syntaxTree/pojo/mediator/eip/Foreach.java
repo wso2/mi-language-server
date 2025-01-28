@@ -30,8 +30,10 @@ public class Foreach extends Mediator {
     String description;
     // V2 attributes
     boolean executeParallel;
-    String resultTarget;
+    boolean updateOriginal;
+    String variableName;
     String resultType;
+    String enclosingElement;
     String collection;
     String counterVariableName;
     boolean continueWithoutAggregation;
@@ -100,14 +102,24 @@ public class Foreach extends Mediator {
         this.executeParallel = executeParallel;
     }
 
-    public String getResultTarget() {
+    public boolean isUpdateOriginal() {
 
-        return resultTarget;
+        return updateOriginal;
     }
 
-    public void setResultTarget(String resultTarget) {
+    public void setUpdateOriginal(boolean updateOriginal) {
 
-        this.resultTarget = resultTarget;
+        this.updateOriginal = updateOriginal;
+    }
+
+    public String getVariableName() {
+
+        return variableName;
+    }
+
+    public void setVariableName(String variableName) {
+
+        this.variableName = variableName;
     }
 
     public String getResultType() {
@@ -148,5 +160,15 @@ public class Foreach extends Mediator {
     public void setContinueWithoutAggregation(boolean continueWithoutAggregation) {
 
         this.continueWithoutAggregation = continueWithoutAggregation;
+    }
+
+    public String getEnclosingElement() {
+
+        return enclosingElement;
+    }
+
+    public void setEnclosingElement(String enclosingElement) {
+
+        this.enclosingElement = enclosingElement;
     }
 }

@@ -123,6 +123,26 @@
                 }
               ]
             }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "rootElement",
+              "displayName": "Result Enclosing Element Name",
+              "inputType": "string",
+              "defaultValue": "ForEachResult",
+              "required": true,
+              "helpTip": "The aggregation result will be wrapped in this root element.",
+              "enableCondition": [
+                "AND",
+                {
+                  "updateOriginalContent": false
+                },
+                {
+                  "resultType": "XML"
+                }
+              ]
+            }
           }
         ]
       }
