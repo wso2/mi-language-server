@@ -452,11 +452,11 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
             info.setOutputPayload(new JsonPrimitive(iterateContent));
             Utils.visitSequence(projectPath, sequence, info, position, true);
             if (!Utils.checkNodeInRange(node, position)) {
-                if (node.getResultTarget() != null) {
-                    info.addOutputVariable(node.getResultTarget(), info.getOutput().getPayload().getAsString());
-                    info.setOutputPayload(new JsonPrimitive(initialPayload));
-                } else {
+                if (node.isUpdateOriginal()) {
                     info.setOutputPayload(new JsonPrimitive(StringUtils.EMPTY));
+                } else {
+                    info.addOutputVariable(node.getVariableName(), info.getOutput().getPayload().getAsString());
+                    info.setOutputPayload(new JsonPrimitive(initialPayload));
                 }
             }
         }
