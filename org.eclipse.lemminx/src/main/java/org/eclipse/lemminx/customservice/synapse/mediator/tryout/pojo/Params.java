@@ -25,13 +25,13 @@ import java.util.List;
 public class Params {
 
     private List<Property> queryParams;
-    private List<Property> uriParams;
+    private List<Property> pathParams;
     private List<Property> functionParams;
 
     public Params() {
 
         queryParams = new ArrayList<>();
-        uriParams = new ArrayList<>();
+        pathParams = new ArrayList<>();
         functionParams = new ArrayList<>();
     }
 
@@ -46,14 +46,14 @@ public class Params {
         this.queryParams = queryParams;
     }
 
-    public List<Property> getUriParams() {
+    public List<Property> getPathParams() {
 
-        return uriParams;
+        return pathParams;
     }
 
-    public void setUriParams(List<Property> uriParams) {
+    public void setPathParams(List<Property> pathParams) {
 
-        this.uriParams = uriParams;
+        this.pathParams = pathParams;
     }
 
     public List<Property> getFunctionParams() {
@@ -72,9 +72,9 @@ public class Params {
         queryParams.add(property);
     }
 
-    public void addUriParam(Property property) {
+    public void addPathParam(Property property) {
 
-        uriParams.add(property);
+        pathParams.add(property);
     }
 
     public void addFunctionParam(Property property) {
@@ -87,9 +87,9 @@ public class Params {
         queryParams.addAll(properties);
     }
 
-    public void addUriParams(List<Property> properties) {
+    public void addPathParams(List<Property> properties) {
 
-        uriParams.addAll(properties);
+        pathParams.addAll(properties);
     }
 
     public void addFunctionParams(List<Property> properties) {
@@ -105,8 +105,8 @@ public class Params {
         switch (key) {
             case QUERY:
                 return queryParams;
-            case URI:
-                return uriParams;
+            case PATH:
+                return pathParams;
             case FUNC:
                 return functionParams;
             default:
@@ -118,7 +118,7 @@ public class Params {
 
         Params params = new Params();
         params.addQueryParams(new ArrayList<>(queryParams));
-        params.addUriParams(new ArrayList<>(uriParams));
+        params.addPathParams(new ArrayList<>(pathParams));
         params.addFunctionParams(new ArrayList<>(functionParams));
         return params;
     }
@@ -128,14 +128,14 @@ public class Params {
 
         return "Params{" +
                 "queryParams=" + queryParams +
-                ", uriParams=" + uriParams +
+                ", uriParams=" + pathParams +
                 ", functionParams=" + functionParams +
                 '}';
     }
 
     public enum Type {
         QUERY,
-        URI,
+        PATH,
         FUNC
     }
 }

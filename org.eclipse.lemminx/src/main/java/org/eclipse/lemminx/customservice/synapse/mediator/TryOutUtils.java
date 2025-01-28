@@ -454,7 +454,7 @@ public class TryOutUtils {
 
         for (Property property : parsedSynapseProperties) {
             if (property.getKey().startsWith(TryOutConstants.URI_PARAM_PREFIX)) {
-                params.addUriParam(property);
+                params.addPathParam(property);
             } else if (property.getKey().startsWith(TryOutConstants.QUERY_PARAM_PREFIX)) {
                 params.addQueryParam(property);
             }

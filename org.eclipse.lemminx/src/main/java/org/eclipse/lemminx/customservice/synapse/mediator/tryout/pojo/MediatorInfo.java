@@ -122,7 +122,7 @@ public class MediatorInfo {
 
     public void addUriParam(String key, String value) {
 
-        params.addUriParam(new Property(key, value));
+        params.addPathParam(new Property(key, value));
     }
 
     public void addFunctionParam(String key, String value) {

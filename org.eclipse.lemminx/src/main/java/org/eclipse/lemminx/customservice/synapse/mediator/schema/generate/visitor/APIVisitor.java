@@ -99,7 +99,7 @@ public class APIVisitor implements SchemaVisitor {
         String uri = resource.getUriTemplate();
         if (uri != null) {
             Params params = new Params();
-            params.setUriParams(getPathParams(uri).stream().map(p -> new Property(p, "")).collect(Collectors.toList()));
+            params.setPathParams(getPathParams(uri).stream().map(p -> new Property(p, "")).collect(Collectors.toList()));
             params.setQueryParams(
                     getQueryParams(uri).stream().map(p -> new Property(p, "")).collect(Collectors.toList()));
             info.setInputParams(params);
