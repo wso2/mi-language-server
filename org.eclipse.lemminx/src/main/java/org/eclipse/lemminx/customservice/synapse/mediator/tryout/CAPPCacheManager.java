@@ -328,7 +328,9 @@ public class CAPPCacheManager {
 
     public static void shutdown() {
 
-        executor.shutdown();
+        if (executor != null && !executor.isTerminated()) {
+            executor.shutdown();
+        }
     }
 
     private enum CAPPType {
