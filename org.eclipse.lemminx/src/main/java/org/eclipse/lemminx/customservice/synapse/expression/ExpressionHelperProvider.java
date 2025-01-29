@@ -28,6 +28,7 @@ import org.eclipse.lemminx.customservice.synapse.expression.pojo.Functions;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.HelperPanelData;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.HelperPanelItem;
 import org.eclipse.lemminx.customservice.synapse.mediator.schema.generate.ServerLessTryoutHandler;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Edit;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorInfo;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutRequest;
@@ -38,6 +39,7 @@ import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -69,24 +71,27 @@ public class ExpressionHelperProvider {
             return getBasicHelperData();
         }
         try {
-            Position mediatorPosition =
-                    ExpressionCompletionUtils.getMediatorPosition(param.getDocumentUri(), param.getPosition());
-            boolean isNewMediator = mediatorPosition != param.getPosition();
+            boolean isNewMediator = isNewMediator(param);
             String payload = ExpressionCompletionUtils.getInputPayload(projectPath);
-            if (mediatorPosition == null && param.getPosition() == null) {
+            if (param.getPosition() == null) {
                 return getBasicHelperData();
-            } else if (mediatorPosition == null) {
-                return getBasicHelperData(payload);
             }
             MediatorTryoutRequest request =
-                    new MediatorTryoutRequest(param.getDocumentUri(), mediatorPosition.getLine(),
-                            mediatorPosition.getCharacter(), payload, null);
-            MediatorTryoutInfo tryoutInfo = getMediatorTryoutInfo(request);
-            MediatorInfo propsData = isNewMediator ? tryoutInfo.getOutput() : tryoutInfo.getInput();
+                    new MediatorTryoutRequest(param.getDocumentUri(), param.getPosition().getLine(),
+                            param.getPosition().getCharacter(), payload, null);
+            MediatorTryoutInfo tryoutInfo = getMediatorTryoutInfo(request, isNewMediator);
+            MediatorInfo propsData = isNewMediator ? tryoutInfo.getInput() : tryoutInfo.getInput();
             return createHelperData(propsData, ExpressionCompletionUtils.getFunctions());
         } catch (BadLocationException | IOException e) {
             return getBasicHelperData();
         }
+    }
+
+    private boolean isNewMediator(ExpressionParam param) throws IOException, BadLocationException {
+
+        Position mediatorPosition =
+                ExpressionCompletionUtils.getMediatorPosition(param.getDocumentUri(), param.getPosition());
+        return mediatorPosition != param.getPosition();
     }
 
     private HelperPanelData getBasicHelperData(String payload) {
@@ -105,8 +110,17 @@ public class ExpressionHelperProvider {
         return helperData;
     }
 
-    private MediatorTryoutInfo getMediatorTryoutInfo(MediatorTryoutRequest request) {
+    private MediatorTryoutInfo getMediatorTryoutInfo(MediatorTryoutRequest request, boolean isNewMediator) {
 
+        //If it is a new mediator, add a dummy log mediator to get the tryout info
+        if (isNewMediator) {
+            Position position = new Position(request.getLine(), request.getColumn());
+            Edit edit = new Edit("<log />", new Range(position, position));
+            Edit[] editArray = new Edit[1];
+            editArray[0] = edit;
+            request = new MediatorTryoutRequest(request.getFile(), request.getLine(), request.getColumn() + 1,
+                    request.getInputPayload(), editArray);
+        }
         MediatorTryoutInfo info = tryoutHandler.handle(request);
         List<Property> configurables = ExpressionCompletionUtils.getConfigs(projectPath);
         info.setInputConfigs(configurables);
@@ -209,9 +223,9 @@ public class ExpressionHelperProvider {
                 }
             } else if (jsonObject.isJsonArray()) {
                 JsonArray jsonArray = jsonObject.getAsJsonArray();
-                HelperPanelItem item = new HelperPanelItem(ExpressionConstants.ARRAY_COMPLETION_LABEL,
-                        ExpressionConstants.ARRAY_COMPLETION_INSERT_TEXT);
                 expressionPrefix = expressionPrefix + ExpressionConstants.ARRAY_COMPLETION_INSERT_TEXT;
+                HelperPanelItem item =
+                        new HelperPanelItem(ExpressionConstants.ARRAY_COMPLETION_LABEL, expressionPrefix);
                 item.addChildren(addJsonChildren(jsonArray.get(0), expressionPrefix));
                 dataList.add(item);
             }

@@ -19,6 +19,7 @@
 package org.eclipse.lemminx.customservice.synapse.mediator.schema.generate;
 
 import com.google.gson.JsonPrimitive;
+import org.eclipse.lemminx.customservice.synapse.mediator.TryOutUtils;
 import org.eclipse.lemminx.customservice.synapse.mediator.schema.generate.visitor.SchemaVisitor;
 import org.eclipse.lemminx.customservice.synapse.mediator.schema.generate.visitor.SchemaVisitorFactory;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorInfo;
@@ -31,9 +32,12 @@ import org.eclipse.lemminx.dom.DOMDocument;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 public class ServerLessTryoutHandler {
 
+    Path TEMP_FOLDER = Path.of(System.getProperty("user.home"), ".wso2-mi", "expression-temp");
+    private static final String TEMP_FILE_NAME = "temp.xml";
     private final String projectUri;
 
     public ServerLessTryoutHandler(String projectUri) {
@@ -45,6 +49,14 @@ public class ServerLessTryoutHandler {
 
         try {
             String filePath = request.getFile();
+            if (request.getEdits() != null) {
+                String documentUri = request.getFile();
+                Utils.copyFile(documentUri, TEMP_FOLDER.toString(), TEMP_FILE_NAME);
+                filePath = TEMP_FOLDER.resolve(TEMP_FILE_NAME).toString();
+                TryOutUtils.doEdits(request.getEdits(), Path.of(filePath));
+                request = new MediatorTryoutRequest(filePath, request.getLine(), request.getColumn() + 1,
+                        request.getInputPayload(), null);
+            }
             DOMDocument domDocument = Utils.getDOMDocument(new File(filePath));
             STNode node = SyntaxTreeGenerator.buildTree(domDocument.getDocumentElement());
             MediatorTryoutInfo mediatorTryoutInfo = createInitialMediatorTryoutInfo(request);
