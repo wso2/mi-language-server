@@ -199,7 +199,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
             connectorLoader = new NewProjectConnectorLoader(languageClient, connectorHolder);
         }
         connectorLoader.init(projectUri);
-        updateConnectors();
+        updateConnectorDependencies();
     }
 
     @Override
