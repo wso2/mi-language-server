@@ -74,6 +74,15 @@ public class ScriptMediator {
 
     }
 
+    public static Map<String, Object> getDataFromST440(Script node) {
+
+        Map<String, Object> data = getDataFromST430(node);
+        if (data.containsKey("scriptType") && "REGISTRY_REFERENCE".equals(data.get("scriptType"))) {
+            data.put("scriptType", "RESOURCE_REFERENCE");
+        }
+        return data;
+    }
+
     public static Map<String, Object> getDataFromST430(Script node) {
 
         Map<String, Object> data = new HashMap<>();
@@ -89,7 +98,7 @@ public class ScriptMediator {
         if (node.getKey() == null) {
             data.put("scriptType", "INLINE");
         } else {
-            data.put("scriptType", "RESOURCE_REFERENCE");
+            data.put("scriptType", "REGISTRY_REFERENCE");
         }
 
         // Set script language
