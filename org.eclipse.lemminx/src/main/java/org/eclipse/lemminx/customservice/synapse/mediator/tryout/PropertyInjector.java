@@ -102,8 +102,8 @@ public class PropertyInjector {
         if (payload == null || StringUtils.isEmpty(payload.getAsString())) {
             return;
         }
-        injectProperty(sendCommand, TryOutConstants.ENVELOPE, payload.getAsString(), TryOutConstants.AXIS2,
-                false);
+        injectProperty(sendCommand, TryOutConstants.ENVELOPE, payload.getAsString(),
+                TryOutConstants.ENVELOPE, false);
     }
 
     private static void injectVariables(List<Property> variables, Consumer<JsonObject> sendCommand) {

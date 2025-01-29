@@ -41,6 +41,7 @@ import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lsp4j.InitializeParams;
+import org.w3c.dom.Node;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -48,23 +49,24 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.IOException;
+import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -72,17 +74,23 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 public class Utils {
 
@@ -572,6 +580,17 @@ public class Utils {
         } catch (JsonSyntaxException e) {
             return null;
         }
+    }
+
+    /**
+     * Check whether the given content is a JSON
+     *
+     * @param content
+     * @return
+     */
+    public static boolean isJson(String content) {
+
+        return getJsonElement(content) != null;
     }
 
     public static <T extends Enum<T>> T getEnumFromValue(String value, Class<T> enumClass) {
@@ -1175,5 +1194,27 @@ public class Utils {
             }
         }
         return false;
+    }
+
+    /**
+     * Transform the org.w3c.dom.Node to a string
+     *
+     * @param node
+     * @return
+     */
+    public static String nodeToString(Node node) {
+
+        try {
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            DOMSource source = new DOMSource(node);
+            StringWriter writer = new StringWriter();
+            StreamResult result = new StreamResult(writer);
+            transformer.transform(source, result);
+            return writer.toString();
+        } catch (Exception e) {
+            return StringUtils.EMPTY;
+        }
     }
 }
