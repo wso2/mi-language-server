@@ -250,6 +250,10 @@ public class PluginHandler extends DefaultHandler {
                 pomDetailsResponse.getBuildDetails().getDockerDetails().setDockerFileBaseImage(
                         new Node(value, Either.forLeft(range)));
                 break;
+            case Constants.CAR_PLUGIN_VERSION:
+                pomDetailsResponse.getBuildDetails().getAdvanceDetails().getPluginDetails()
+                        .setProjectBuildPluginVersion(value, range);
+                break;
             case Constants.PROPERTIES:
                 isProperties = false;
                 break;

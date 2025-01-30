@@ -35,6 +35,8 @@ import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorAction;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.legacyBuilder.utils.ProjectType;
+import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
+import org.eclipse.lemminx.customservice.synapse.parser.pom.PomParser;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
@@ -1216,5 +1218,32 @@ public class Utils {
         } catch (Exception e) {
             return StringUtils.EMPTY;
         }
+    }
+
+    /**
+     * Check whether the given project is using an older version of CAR plugin
+     *
+     * @param projectPath
+     * @return
+     */
+    public static boolean isOlderCARPlugin(String projectPath) {
+
+        OverviewPageDetailsResponse overviewPageDetailsResponse = new OverviewPageDetailsResponse();
+        PomParser.getPomDetails(projectPath, overviewPageDetailsResponse);
+        String currentVersion = overviewPageDetailsResponse.getBuildDetails().getAdvanceDetails().getPluginDetails()
+                .getProjectBuildPluginVersion().getValue();
+
+        String[] currentVersionParts = currentVersion.split("\\.");
+        String[] checkVersionParts = Constant.CAR_PLUGIN_CHECK_VERSION.split("\\.");
+        int length = Math.max(currentVersionParts.length, checkVersionParts.length);
+
+        for (int i = 0; i < length; i++) {
+            int v1 = i < checkVersionParts.length ? Integer.parseInt(checkVersionParts[i]) : 0;
+            int v2 = i < currentVersionParts.length ? Integer.parseInt(currentVersionParts[i]) : 0;
+
+            if (v1 < v2) return false;
+            if (v1 > v2) return true;
+        }
+        return false;
     }
 }

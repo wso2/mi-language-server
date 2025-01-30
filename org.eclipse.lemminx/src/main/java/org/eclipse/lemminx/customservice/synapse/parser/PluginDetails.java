@@ -45,4 +45,9 @@ public class PluginDetails {
         ranges.add(range);
         this.projectBuildPluginVersion = new Node(pluginVersion, Either.forRight(ranges));
     }
+
+    public Node getProjectBuildPluginVersion() {
+
+        return projectBuildPluginVersion;
+    }
 }
