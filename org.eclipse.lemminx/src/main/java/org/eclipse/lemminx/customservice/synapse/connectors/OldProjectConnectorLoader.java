@@ -37,6 +37,11 @@ public class OldProjectConnectorLoader extends AbstractConnectorLoader {
     }
 
     @Override
+    protected void copyToProjectIfNeeded(List<File> connectorZips) {
+        // Do nothing
+    }
+
+    @Override
     protected File getConnectorExtractFolder() {
 
         File connectorsFolderPath = Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI,

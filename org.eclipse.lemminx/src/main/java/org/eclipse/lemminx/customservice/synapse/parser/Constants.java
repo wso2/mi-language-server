@@ -65,6 +65,7 @@ public class Constants {
     public static final String KEY_STORE_NAME = "keystore.name";
     public static final String KEY_STORE_TYPE = "keystore.type";
     public static final String PROJECT_RUNTIME_VERSION = "project.runtime.version";
+    public static final String CAR_PLUGIN_VERSION = "car.plugin.version";
     public static final String DOCKER_MAVEN_PLUGIN = "docker-maven-plugin";
     public static final String HASH = "#";
     public static final String COLON = ":";

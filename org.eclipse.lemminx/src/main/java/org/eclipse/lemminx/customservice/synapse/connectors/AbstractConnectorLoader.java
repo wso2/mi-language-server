@@ -69,10 +69,13 @@ public abstract class AbstractConnectorLoader {
             List<File> connectorZips = getConnectorZips();
             connectorHolder.setConnectorZips(Collections.unmodifiableList(connectorZips));
             cleanOldConnectors(connectorExtractFolder, connectorZips);
+            copyToProjectIfNeeded(connectorZips);
             extractZips(connectorZips, connectorExtractFolder);
             readConnectors(connectorExtractFolder);
         }
     }
+
+    protected abstract void copyToProjectIfNeeded(List<File> connectorZips);
 
     protected abstract File getConnectorExtractFolder();
 

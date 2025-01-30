@@ -18,6 +18,7 @@
 
 package org.eclipse.lemminx.customservice.synapse.parser;
 
+import org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 
@@ -64,7 +65,7 @@ public class ConnectorDownloadManager {
         OverviewPageDetailsResponse pomDetailsResponse = new OverviewPageDetailsResponse();
         getPomDetails(projectPath, pomDetailsResponse);
         List<DependencyDetails> dependencies = pomDetailsResponse.getDependenciesDetails().getConnectorDependencies();
-        deleteRemovedConnectors(downloadDirectory, dependencies);
+        deleteRemovedConnectors(downloadDirectory, dependencies, projectPath);
         List<String> failedDependencies = new ArrayList<>();
         for (DependencyDetails dependency : dependencies) {
             try {
@@ -95,7 +96,8 @@ public class ConnectorDownloadManager {
         return "Success";
     }
 
-    private static void deleteRemovedConnectors(File downloadDirectory, List<DependencyDetails> dependencies) {
+    private static void deleteRemovedConnectors(File downloadDirectory, List<DependencyDetails> dependencies,
+                                                String projectPath) {
 
         List<String> existingConnectors =
                 dependencies.stream().map(dependency -> dependency.getArtifact() + "-" + dependency.getVersion())
@@ -108,10 +110,23 @@ public class ConnectorDownloadManager {
             if (isConnectorRemoved(file, existingConnectors)) {
                 try {
                     Files.delete(file.toPath());
+                    removeFromProjectIfUsingOldCARPlugin(projectPath, file.getName());
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE, "Error occurred while deleting removed connector: " + file.getName());
                 }
             }
+        }
+    }
+
+    private static void removeFromProjectIfUsingOldCARPlugin(String projectPath, String name) throws IOException {
+
+        if (!Utils.isOlderCARPlugin(projectPath)) {
+            return;
+        }
+        File connectorInProject =
+                Path.of(projectPath).resolve(TryOutConstants.PROJECT_CONNECTOR_PATH).resolve(name).toFile();
+        if (connectorInProject.exists()) {
+            Files.delete(connectorInProject.toPath());
         }
     }
 
