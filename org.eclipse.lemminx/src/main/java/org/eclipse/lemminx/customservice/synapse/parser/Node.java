@@ -27,6 +27,7 @@ public class Node {
     private Either<Range, List<Range>> range;
     private String value;
     private String key;
+    private String displayValue;
 
     public Node() {
 
@@ -53,5 +54,9 @@ public class Node {
     public String getKey() {
 
         return key;
+    }
+
+    public void setDisplayValue(String displayValue) {
+        this.displayValue = displayValue;
     }
 }
