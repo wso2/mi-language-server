@@ -77,6 +77,7 @@
                     "name": "argumentValue",
                     "displayName": "Argument Value",
                     "inputType": "stringOrExpression",
+                    "expressionType":"xpath/jsonPath",
                     "defaultValue": "",
                     "required": false,
                     "helpTip": ""
