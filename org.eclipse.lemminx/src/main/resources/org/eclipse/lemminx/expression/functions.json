@@ -249,11 +249,32 @@
     "sortText": "5_secret",
     "items": [
       {
-        "label": "secret(alias:string)",
-        "insertText": "secret($1)",
-        "details": "Retrieves the secret associated with the given alias",
+        "label": "wso2-vault(alias:string)",
+        "insertText": "wso2-vault($1)",
+        "details": "Retrieves the secret associated with the given alias from WSO2 secure vault",
         "signature": {
           "alias": "string"
+        },
+        "category": 5
+      },
+      {
+        "label": "hashicorp-vault(pathName:string, fieldName:string)",
+        "insertText": "hashicorp-vault($1, $2)",
+        "details": "Retrieves a secret from HashiCorp Vault using the specified path and field name",
+        "signature": {
+          "pathName": "string",
+          "fieldName": "string"
+        },
+        "category": 5
+      },
+      {
+        "label": "hashicorp-vault(namespace:string, pathName:string, fieldName:string)",
+        "insertText": "hashicorp-vault($1, $2, $3)",
+        "details": "Retrieves a secret from HashiCorp Vault using the specified namespace, path, and field name",
+        "signature": {
+          "namespace": "string",
+          "pathName": "string",
+          "fieldName": "string"
         },
         "category": 5
       }
