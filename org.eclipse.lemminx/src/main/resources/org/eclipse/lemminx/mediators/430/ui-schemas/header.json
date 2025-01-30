@@ -10,11 +10,46 @@
             "value": {
                 "name": "headerName",
                 "displayName": "Header Name",
-                "inputType": "expression",
+                "inputType": "string",
                 "expressionType":"xpath/jsonPath",
                 "defaultValue": "To",
                 "required": false,
                 "helpTip": ""
+            }
+        },
+        {
+            "type": "table",
+            "value": {
+                "name": "namespaces",
+                "displayName": "Namespaces",
+                "title": "Namespaces",
+                "description": "Editing of the namespaces of the header",
+                "tableKey": "prefix",
+                "tableValue": "uri",
+                "elements": [
+                    {
+                        "type": "attribute",
+                        "value": {
+                            "name": "prefix",
+                            "displayName": "Prefix",
+                            "inputType": "string",
+                            "defaultValue": "",
+                            "required": true,
+                            "helpTip": ""
+                        }
+                    },
+                    {
+                        "type": "attribute",
+                        "value": {
+                            "name": "uri",
+                            "displayName": "Namespace URI",
+                            "inputType": "string",
+                            "defaultValue": "",
+                            "required": true,
+                            "helpTip": ""
+                        }
+                    }
+                ]
             }
         },
         {
@@ -75,7 +110,7 @@
                             "displayName": "Value Literal",
                             "inputType": "string",
                             "defaultValue": "",
-                            "required": false,
+                            "required": true,
                             "helpTip": "",
                             "enableCondition": [
                                 {
@@ -92,7 +127,7 @@
                             "inputType": "expression",
                             "expressionType":"xpath/jsonPath",
                             "defaultValue": "",
-                            "required": false,
+                            "required": true,
                             "helpTip": "",
                             "enableCondition": [
                                 {
@@ -108,7 +143,7 @@
                             "displayName": "Value Inline",
                             "inputType": "string",
                             "defaultValue": "",
-                            "required": false,
+                            "required": true,
                             "helpTip": "",
                             "enableCondition": [
                                 {
