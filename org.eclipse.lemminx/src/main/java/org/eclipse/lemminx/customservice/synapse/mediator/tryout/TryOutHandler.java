@@ -376,13 +376,13 @@ public class TryOutHandler {
                     }
 
                     // Add a log mediator if the trying out mediator is the last mediator
-                    TryOutUtils.addNewLogMediator(document, lastNode.getEnd() + 1, editFilePath);
+                    TryOutUtils.addNewLogMediator(document, lastNode.getEnd(), editFilePath);
                 }
                 return Boolean.TRUE;
             }
             return Boolean.FALSE;
         } catch (IOException | BadLocationException e) {
-            throw new InvalidConfigurationException("Invalid synapse configuration");
+            throw new InvalidConfigurationException("Invalid synapse configuration", e);
         }
     }
 

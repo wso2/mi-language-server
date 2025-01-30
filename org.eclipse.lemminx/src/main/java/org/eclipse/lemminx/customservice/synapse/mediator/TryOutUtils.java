@@ -81,23 +81,6 @@ public class TryOutUtils {
     }
 
     /**
-     * This method is used to get the offset of the given position in the content.
-     *
-     * @param content
-     * @param position
-     * @return
-     */
-    public static int getOffset(String content, Position position) {
-
-        String[] lines = content.split("\n", -1);
-        int offset = 0;
-        for (int i = 0; i < position.getLine(); i++) {
-            offset += lines[i].length() + 1;
-        }
-        return offset + position.getCharacter();
-    }
-
-    /**
      * This method is used to check whether the actual breakpoint is the expected breakpoint.
      *
      * @param actual
@@ -301,13 +284,37 @@ public class TryOutUtils {
         Range editRange = edit.getRange();
 
         String fileContent = Files.readString(editFilePath);
-
-        int startOffset = TryOutUtils.getOffset(fileContent, editRange.getStart());
-        int endOffset = TryOutUtils.getOffset(fileContent, editRange.getEnd());
-
-        String newContent = fileContent.substring(0, startOffset) + editContent + fileContent.substring(endOffset);
-
+        String newContent = editContent(fileContent, editRange, editContent);
         Files.writeString(editFilePath, newContent);
+    }
+
+    private static String editContent(String originalText, Range range, String newText) {
+
+        // Normalize line endings to \n for consistent processing (For windows CRLF)
+        String normalizedText = originalText.replace("\r\n", "\n");
+
+        String[] lines = normalizedText.split("\n", -1);
+        Position start = range.getStart();
+        Position end = range.getEnd();
+
+        int startIndex = getOffsetFromPosition(lines, start);
+        int endIndex = getOffsetFromPosition(lines, end);
+        StringBuilder result = new StringBuilder(normalizedText);
+        result.replace(startIndex, endIndex, newText);
+        if (originalText.contains("\r\n")) {
+            return result.toString().replace("\n", "\r\n");
+        }
+        return result.toString();
+    }
+
+    private static int getOffsetFromPosition(String[] lines, Position position) {
+
+        int index = 0;
+        for (int i = 0; i < position.getLine(); i++) {
+            index += lines[i].length() + 1;
+        }
+        index += position.getCharacter();
+        return index;
     }
 
     /**
