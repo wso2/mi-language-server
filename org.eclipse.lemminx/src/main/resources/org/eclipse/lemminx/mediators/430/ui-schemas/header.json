@@ -11,7 +11,6 @@
                 "name": "headerName",
                 "displayName": "Header Name",
                 "inputType": "string",
-                "expressionType":"xpath/jsonPath",
                 "defaultValue": "To",
                 "required": false,
                 "helpTip": ""
