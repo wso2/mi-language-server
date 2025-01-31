@@ -28,6 +28,7 @@ import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionCompl
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionCompletionType;
 import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionParam;
 import org.eclipse.lemminx.customservice.synapse.mediator.schema.generate.ServerLessTryoutHandler;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Edit;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorInfo;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutRequest;
@@ -40,6 +41,7 @@ import org.eclipse.lemminx.services.extensions.completion.ICompletionRequest;
 import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,10 +59,11 @@ import static org.eclipse.lemminx.customservice.synapse.expression.ExpressionCon
 public class ExpressionCompletionsProvider {
 
     private static final Logger LOGGER = Logger.getLogger(ExpressionCompletionsProvider.class.getName());
-    private static final String PROJECT_PATH_REGEX =
+    private static final Pattern PROJECT_PATH_REGEX = Pattern.compile(
             Pattern.quote("file:" + File.separator + File.separator) + "(.+?)" +
-                    Pattern.quote(Path.of("src", "main", "wso2mi").toString()) + ".*";
+                    Pattern.quote(Path.of("src", "main", "wso2mi").toString()) + ".*");
     private static final String EXPRESSION_REGEX = "\\$\\{([^}]*)}?$";
+    private static String projectPath;
 
     private ExpressionCompletionsProvider() {
 
@@ -88,13 +91,10 @@ public class ExpressionCompletionsProvider {
                                                      int cursorOffset) {
 
         try {
-            Position mediatorPosition = ExpressionCompletionUtils.getMediatorPosition(document, position);
-            if (mediatorPosition == null) {
-                return null;
-            }
-            ICompletionRequest request = new ExpressionCompletionRequest(document, mediatorPosition);
+            boolean isNewMediator = ExpressionCompletionUtils.getMediatorPosition(document, position) != position;
+            ICompletionRequest request = new ExpressionCompletionRequest(document, position);
             ICompletionResponse response = new ExpressionCompletionResponse();
-            doComplete(valuePrefix, request, response, cursorOffset, mediatorPosition != position);
+            doComplete(valuePrefix, request, response, cursorOffset, isNewMediator);
             return response;
         } catch (BadLocationException e) {
             LOGGER.log(Level.SEVERE, "Error while getting the mediator position", e);
@@ -121,27 +121,49 @@ public class ExpressionCompletionsProvider {
         return response;
     }
 
-    private static MediatorTryoutInfo getMediatorProperties(ICompletionRequest request) {
+    private static MediatorTryoutInfo getMediatorProperties(ICompletionRequest request, boolean isNewMediator) {
 
         if (request.getXMLDocument() == null) {
             return null;
         }
-        Pattern pattern = Pattern.compile(PROJECT_PATH_REGEX);
-        Matcher matcher = pattern.matcher(request.getXMLDocument().getDocumentURI());
-        if (!matcher.matches()) {
-            return null;
-        }
-        String projectPath = matcher.group(1);
+        String projectPath = getProjectPath(request.getXMLDocument().getDocumentURI());
         ServerLessTryoutHandler serverLessTryoutHandler = new ServerLessTryoutHandler(projectPath);
         String payload = ExpressionCompletionUtils.getInputPayload(projectPath);
+
+        // Add a dummy mediator if the current mediator is a new mediator
+        int line = request.getPosition().getLine();
+        int column = request.getPosition().getCharacter();
+        Edit[] editArray = null;
+        if (isNewMediator) {
+            Position position = new Position(line, column);
+            Edit edit = new Edit("<log />", new Range(position, position));
+            editArray = new Edit[1];
+            editArray[0] = edit;
+            column++;
+        }
+
+        // Create a mediator tryout request and get the mediator properties
         MediatorTryoutRequest propertyRequest = new MediatorTryoutRequest(
                 request.getXMLDocument().getDocumentURI().substring(7), // Remove the "file://" prefix
-                request.getPosition().getLine(), request.getPosition().getCharacter(), payload, null);
+                line, column, payload, editArray);
         MediatorTryoutInfo info = serverLessTryoutHandler.handle(propertyRequest);
         List<Property> configs = ExpressionCompletionUtils.getConfigs(projectPath);
         info.setInputConfigs(configs);
         info.setOutputConfigs(configs);
         return info;
+    }
+
+    private static String getProjectPath(String documentURI) {
+
+        if (StringUtils.isNotEmpty(projectPath)) {
+            return projectPath;
+        }
+        Matcher matcher = PROJECT_PATH_REGEX.matcher(documentURI);
+        if (!matcher.matches()) {
+            return null;
+        }
+        projectPath = matcher.group(1);
+        return projectPath;
     }
 
     private static void fillAttributeValueWithExpression(String valuePrefix, ICompletionRequest request,
@@ -192,9 +214,9 @@ public class ExpressionCompletionsProvider {
             if (!segment.getSegment().isEmpty()) {
                 List<String> segments = segment.getSegment();
                 if (ExpressionConstants.ROOT_LEVEL_TOKENS.contains(segments.get(0))) {
-                    MediatorTryoutInfo info = getMediatorProperties(request);
+                    MediatorTryoutInfo info = getMediatorProperties(request, isNewMediator);
                     if (info != null) {
-                        getCompletionItems(request, response, info, segment, isNewMediator);
+                        getCompletionItems(request, response, info, segment);
                     }
                 }
             }
@@ -259,11 +281,10 @@ public class ExpressionCompletionsProvider {
     }
 
     private static void getCompletionItems(ICompletionRequest request, ICompletionResponse response,
-                                           MediatorTryoutInfo info, ExpressionCompletionContext context,
-                                           boolean isNewMediator) {
+                                           MediatorTryoutInfo info, ExpressionCompletionContext context) {
 
         List<String> expressionSegments = context.getSegment();
-        MediatorInfo mediatorInfo = isNewMediator ? info.getOutput() : info.getInput();
+        MediatorInfo mediatorInfo = info.getInput();
         String firstSegment = expressionSegments.get(0);
 
         switch (firstSegment) {

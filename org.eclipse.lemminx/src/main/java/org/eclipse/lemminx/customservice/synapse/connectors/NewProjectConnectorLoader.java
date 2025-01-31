@@ -20,6 +20,7 @@ package org.eclipse.lemminx.customservice.synapse.connectors;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
+import org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 
@@ -38,7 +39,6 @@ import java.util.stream.Collectors;
 public class NewProjectConnectorLoader extends AbstractConnectorLoader {
 
     private static final Logger log = Logger.getLogger(NewProjectConnectorLoader.class.getName());
-
     private String projectId;
 
     public NewProjectConnectorLoader(SynapseLanguageClientAPI languageClient, ConnectorHolder connectorHolder) {
@@ -53,6 +53,29 @@ public class NewProjectConnectorLoader extends AbstractConnectorLoader {
                 Constant.CONNECTORS, projectId, Constant.EXTRACTED).toString();
         File tempFolder = new File(tempFolderPath);
         return tempFolder;
+    }
+
+    @Override
+    protected void copyToProjectIfNeeded(List<File> connectorZips) {
+
+        if (!Utils.isOlderCARPlugin(projectUri)) {
+            return;
+        }
+        File downloadedConnectorsFolder = getConnnectorDownloadPath().toFile();
+        File projectConnectorPath = Path.of(projectUri).resolve(TryOutConstants.PROJECT_CONNECTOR_PATH).toFile();
+        if (downloadedConnectorsFolder.exists()) {
+            File[] downloadedConnectors = downloadedConnectorsFolder.listFiles();
+            for (File downloadedConnector : downloadedConnectors) {
+                boolean isExists = FileUtils.getFile(projectConnectorPath, downloadedConnector.getName()).exists();
+                if (!isExists) {
+                    try {
+                        FileUtils.copyFileToDirectory(downloadedConnector, projectConnectorPath);
+                    } catch (IOException e) {
+                        log.log(Level.WARNING, "Failed to copy connector to project", e);
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -92,13 +115,18 @@ public class NewProjectConnectorLoader extends AbstractConnectorLoader {
         }
     }
 
+    private Path getConnnectorDownloadPath() {
+
+        return Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI,
+                Constant.CONNECTORS, projectId, Constant.DOWNLOADED);
+    }
+
     @Override
     protected void setConnectorsZipFolderPath(String projectRoot) {
 
         connectorsZipFolderPath.add(Path.of(projectRoot, Constant.SRC, Constant.MAIN, Constant.WSO2MI,
                 Constant.RESOURCES, Constant.CONNECTORS).toString());
         projectId = new File(projectRoot).getName() + "_" + Utils.getHash(projectRoot);
-        connectorsZipFolderPath.add(Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI,
-                Constant.CONNECTORS, projectId, Constant.DOWNLOADED).toString());
+        connectorsZipFolderPath.add(getConnnectorDownloadPath().toString());
     }
 }

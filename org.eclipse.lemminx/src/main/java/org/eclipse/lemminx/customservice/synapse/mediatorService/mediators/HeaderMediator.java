@@ -23,9 +23,11 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.H
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class HeaderMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
@@ -38,6 +40,19 @@ public class HeaderMediator {
             data.remove("valueInline");
         }
 
+        if (data.containsKey("namespaces") && data.get("namespaces") instanceof List<?>) {
+            List<Object> targetNamespaces = (List<Object>) data.get("namespaces");
+            List<Map<String, String>> processedNamespaces = new ArrayList<>();
+            for (Object namespaceObj : targetNamespaces) {
+                if (namespaceObj instanceof List<?>) {
+                    List<String> namespace = (List<String>) namespaceObj;
+                    processedNamespaces.add(Map.of(
+                            "prefix", namespace.get(0) != null ? namespace.get(0) : "",
+                            "uri", namespace.get(1) != null ? namespace.get(1) : ""));
+                }
+            }
+            data.put("namespaces", processedNamespaces);
+        }
         String valueType = (String) data.get("valueType");
         if ("LITERAL".equals(valueType)) {
             data.remove("valueExpression");
@@ -45,6 +60,15 @@ public class HeaderMediator {
         } else if ("EXPRESSION".equals(valueType)) {
             data.remove("valueLiteral");
             data.remove("valueInline");
+            if (data.get("valueExpression") != null && ((Map) data.get("valueExpression")).containsKey("namespaces")) {
+                ((List) ((Map) data.get("valueExpression")).get("namespaces")).forEach(namespace -> {
+                    if (namespace instanceof Map) {
+                        if (!((List) data.get("namespaces")).contains(namespace)) {
+                            ((List) data.get("namespaces")).add(namespace);
+                        }
+                    }
+                });
+            }
         } else {
             data.remove("valueExpression");
             data.remove("valueLiteral");
@@ -57,13 +81,12 @@ public class HeaderMediator {
     public static Map<String, Object> getDataFromST430(Header node) {
 
         Map<String, Object> data = new HashMap<>();
+        data.put("namespaces", MediatorUtils.transformNamespaces(node.getNamespaces())
+                .stream().map(namespace -> List.of(namespace.getPrefix(), namespace.getUri())).collect(
+                        Collectors.toList()));
         data.put("description", node.getDescription());
         if (node.getName() != null) {
-            Map<String, Object> headerName = new HashMap<>();
-            headerName.put("isExpression", true);
-            headerName.put("value", node.getName());
-            headerName.put("namespaces", MediatorUtils.transformNamespaces(node.getNamespaces()));
-            data.put("headerName", headerName);
+            data.put("headerName", node.getName());
         }
 
         if (node.getAction() != null) {

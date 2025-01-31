@@ -21,6 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.mediator;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
@@ -49,9 +50,14 @@ import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -60,30 +66,18 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 public class TryOutUtils {
 
     private static final List<String>
             UNWANTED_ARTIFACTS = List.of("inbound-endpoints", "message-processors", "proxy-services", "tasks");
+    private static final String SOAP_ENVELOPE_URI = "http://schemas.xmlsoap.org/soap/envelope/";
+    private static final String BODY = "Body";
 
     private TryOutUtils() {
 
-    }
-
-    /**
-     * This method is used to get the offset of the given position in the content.
-     *
-     * @param content
-     * @param position
-     * @return
-     */
-    public static int getOffset(String content, Position position) {
-
-        String[] lines = content.split("\n", -1);
-        int offset = 0;
-        for (int i = 0; i < position.getLine(); i++) {
-            offset += lines[i].length() + 1;
-        }
-        return offset + position.getCharacter();
     }
 
     /**
@@ -290,13 +284,37 @@ public class TryOutUtils {
         Range editRange = edit.getRange();
 
         String fileContent = Files.readString(editFilePath);
-
-        int startOffset = TryOutUtils.getOffset(fileContent, editRange.getStart());
-        int endOffset = TryOutUtils.getOffset(fileContent, editRange.getEnd());
-
-        String newContent = fileContent.substring(0, startOffset) + editContent + fileContent.substring(endOffset);
-
+        String newContent = editContent(fileContent, editRange, editContent);
         Files.writeString(editFilePath, newContent);
+    }
+
+    private static String editContent(String originalText, Range range, String newText) {
+
+        // Normalize line endings to \n for consistent processing (For windows CRLF)
+        String normalizedText = originalText.replace("\r\n", "\n");
+
+        String[] lines = normalizedText.split("\n", -1);
+        Position start = range.getStart();
+        Position end = range.getEnd();
+
+        int startIndex = getOffsetFromPosition(lines, start);
+        int endIndex = getOffsetFromPosition(lines, end);
+        StringBuilder result = new StringBuilder(normalizedText);
+        result.replace(startIndex, endIndex, newText);
+        if (originalText.contains("\r\n")) {
+            return result.toString().replace("\n", "\r\n");
+        }
+        return result.toString();
+    }
+
+    private static int getOffsetFromPosition(String[] lines, Position position) {
+
+        int index = 0;
+        for (int i = 0; i < position.getLine(); i++) {
+            index += lines[i].length() + 1;
+        }
+        index += position.getCharacter();
+        return index;
     }
 
     /**
@@ -430,9 +448,10 @@ public class TryOutUtils {
             } else if (property.has(TryOutConstants.AXIS2_PROPERTIES)) {
                 mediatorInfo.addAxis2Properties(
                         parseProperties(property.getAsJsonObject(TryOutConstants.AXIS2_PROPERTIES)));
-                mediatorInfo.setPayload(
+                JsonPrimitive payload = processPayload(
                         property.getAsJsonObject(TryOutConstants.AXIS2_PROPERTIES).get(TryOutConstants.ENVELOPE)
-                                .getAsJsonPrimitive());
+                                .getAsString());
+                mediatorInfo.setPayload(payload);
             } else if (property.has(TryOutConstants.AXIS2_CLIENT_PROPERTIES)) {
                 mediatorInfo.addAxis2ClientProperties(
                         parseProperties(property.getAsJsonObject(TryOutConstants.AXIS2_CLIENT_PROPERTIES)));
@@ -448,6 +467,50 @@ public class TryOutUtils {
         }
         mediatorInfo.setParams(params);
         return mediatorInfo;
+    }
+
+    private static JsonPrimitive processPayload(String payload) {
+
+        if (StringUtils.isEmpty(payload)) {
+            return new JsonPrimitive(StringUtils.EMPTY);
+        }
+        if (Utils.isJson(payload)) {
+            return new JsonPrimitive(payload);
+        }
+        try {
+            return new JsonPrimitive(getBodyContent(payload));
+        } catch (Exception e) {
+            // If it throws an exception, it means the payload is not an XML
+        }
+        return new JsonPrimitive(payload);
+    }
+
+    public static String getBodyContent(String xmlContent) throws Exception {
+
+        // Parse the XML content
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document document = builder.parse(new InputSource(new StringReader(xmlContent)));
+
+        // Find Body element using namespace URI
+        NodeList bodyList = document.getElementsByTagNameNS(SOAP_ENVELOPE_URI, BODY);
+
+        if (bodyList.getLength() > 0) {
+            Node bodyNode = bodyList.item(0);
+
+            // Get the first child of Body element (the payload)
+            NodeList children = bodyNode.getChildNodes();
+            for (int i = 0; i < children.getLength(); i++) {
+                Node child = children.item(i);
+                if (child.getNodeName().matches("axis2ns.+:text")) {
+                    return child.getTextContent();
+                } else if (child.getNodeType() == Node.ELEMENT_NODE) {
+                    return Utils.nodeToString(child);
+                }
+            }
+        }
+        return null;
     }
 
     private static void populateParams(List<Property> parsedSynapseProperties, Params params) {

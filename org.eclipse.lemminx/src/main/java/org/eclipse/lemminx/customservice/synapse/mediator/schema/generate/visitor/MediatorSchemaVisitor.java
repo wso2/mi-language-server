@@ -315,10 +315,12 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitFilter(Filter node) {
 
-        if (node.getThen() != null) {
+        if (node.getThen() != null && Utils.checkNodeInRange(node.getThen(), position)) {
             Utils.visitMediators(projectPath, node.getThen().getMediatorList(), info, position);
-        }
-        if (node.getElse_() != null) {
+        } else if (node.getElse_() != null && Utils.checkNodeInRange(node.getElse_(), position)) {
+            Utils.visitMediators(projectPath, node.getElse_().getMediatorList(), info, position);
+        } else {
+            Utils.visitMediators(projectPath, node.getThen().getMediatorList(), info, position);
             Utils.visitMediators(projectPath, node.getElse_().getMediatorList(), info, position);
         }
     }
@@ -333,6 +335,7 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitClone(Clone node) {
 
+        // Deprecated
     }
 
     @Override
@@ -438,7 +441,13 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitScatterGather(ScatterGather node) {
 
-        // Do nothing
+        if (!Utils.checkNodeInRange(node, position) && node.getResultTarget() != null) {
+            if (Constant.VARIABLE.equalsIgnoreCase(node.getResultTarget())) {
+                info.addOutputVariable(node.getVariableName(), StringUtils.EMPTY);
+            } else {
+                info.setOutputPayload(new JsonPrimitive(StringUtils.EMPTY));
+            }
+        }
     }
 
     @Override

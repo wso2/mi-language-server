@@ -337,7 +337,7 @@
       "factoryClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.extension.ScriptFactory",
       "processingClass": "org.eclipse.lemminx.customservice.synapse.mediatorService.mediators.ScriptMediator",
       "storeMethod": "processData430",
-      "retrieveMethod": "getDataFromST430"
+      "retrieveMethod": "getDataFromST440"
     },
     {
       "title": "Class",

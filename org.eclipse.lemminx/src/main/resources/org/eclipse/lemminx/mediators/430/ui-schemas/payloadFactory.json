@@ -138,9 +138,7 @@
                     "required": false,
                     "enableCondition": [
                       {
-                        "argumentValue": {
-                          "isExpression": true
-                        }
+                        "argumentValue.isExpression": true
                       }
                     ],
                     "helpTip": ""
