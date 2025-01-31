@@ -124,41 +124,6 @@ public class PluginHandler extends DefaultHandler {
                                     valueStartColumn, valueEndLine, valueEndColumn - closingTagLength))));
                 }
                 break;
-            case Constants.TEST_SERVER_TYPE:
-                pomDetailsResponse.getUnitTestDetails().setServerType(
-                        new Node(value, Either.forLeft(getRange(valueStartLine, valueStartColumn,
-                                valueEndLine, valueEndColumn - closingTagLength))));
-                break;
-            case Constants.TEST_SERVER_HOST:
-                pomDetailsResponse.getUnitTestDetails().setServerHost(new Node(value,
-                        Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
-                                valueEndColumn - closingTagLength))));
-                break;
-            case Constants.TEST_SERVER_PORT:
-                pomDetailsResponse.getUnitTestDetails().setServerPort(new Node(value,
-                        Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
-                                valueEndColumn - closingTagLength))));
-                break;
-            case Constants.TEST_SERVER_PATH:
-                pomDetailsResponse.getUnitTestDetails().setServerPath(new Node(value,
-                        Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
-                                valueEndColumn - closingTagLength))));
-                break;
-            case Constants.TEST_SERVER_VERSION:
-                pomDetailsResponse.getUnitTestDetails().setServerVersion(new Node(value,
-                        Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
-                                valueEndColumn - closingTagLength))));
-                break;
-            case Constants.TEST_SERVER_DOWNLOAD_LINK:
-                pomDetailsResponse.getUnitTestDetails().setServerDownloadLink(new Node(value,
-                        Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
-                                valueEndColumn - closingTagLength))));
-                break;
-            case Constants.SKIP_TEST:
-                pomDetailsResponse.getUnitTestDetails().setSkipTest(new Node(value,
-                        Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
-                                valueEndColumn - closingTagLength))));
-                break;
             case Constants.PLUGIN:
                 switch (pluginArtifactId.trim()) {
                     case Constants.VSCODE_CAR_PLUGIN:
@@ -249,6 +214,27 @@ public class PluginHandler extends DefaultHandler {
             case Constants.DOCKER_FILE_BASE_IMAGE:
                 pomDetailsResponse.getBuildDetails().getDockerDetails().setDockerFileBaseImage(
                         new Node(value, Either.forLeft(range)));
+                break;
+            case Constants.TEST_SERVER_TYPE:
+                pomDetailsResponse.getUnitTestDetails().setServerType(new Node(value, Either.forLeft(range)));
+                break;
+            case Constants.TEST_SERVER_HOST:
+                pomDetailsResponse.getUnitTestDetails().setServerHost(new Node(value, Either.forLeft(range)));
+                break;
+            case Constants.TEST_SERVER_PORT:
+                pomDetailsResponse.getUnitTestDetails().setServerPort(new Node(value, Either.forLeft(range)));
+                break;
+            case Constants.TEST_SERVER_PATH:
+                pomDetailsResponse.getUnitTestDetails().setServerPath(new Node(value, Either.forLeft(range)));
+                break;
+            case Constants.TEST_SERVER_VERSION:
+                pomDetailsResponse.getUnitTestDetails().setServerVersion(new Node(value, Either.forLeft(range)));
+                break;
+            case Constants.TEST_SERVER_DOWNLOAD_LINK:
+                pomDetailsResponse.getUnitTestDetails().setServerDownloadLink(new Node(value, Either.forLeft(range)));
+                break;
+            case Constants.SKIP_TEST:
+                pomDetailsResponse.getUnitTestDetails().setSkipTest(new Node(value, Either.forLeft(range)));
                 break;
             case Constants.PROPERTIES:
                 isProperties = false;

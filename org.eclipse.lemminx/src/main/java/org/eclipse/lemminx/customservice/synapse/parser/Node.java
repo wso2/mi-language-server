@@ -56,6 +56,10 @@ public class Node {
         return key;
     }
 
+    public void setRange(Either<Range, List<Range>> range) {
+        this.range = range;
+    }
+
     public void setDisplayValue(String displayValue) {
         this.displayValue = displayValue;
     }
