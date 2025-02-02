@@ -43,12 +43,18 @@ public class Constants {
 
     public static final String TYPE = "type";
     public static final String TEST_SERVER_TYPE = "testServerType";
+    public static final String PRO_TEST_SERVER_TYPE = "test.server.type";
     public static final String TEST_SERVER_HOST = "testServerHost";
+    public static final String PRO_TEST_SERVER_HOST = "test.server.host";
     public static final String TEST_SERVER_PORT = "testServerPort";
+    public static final String PRO_TEST_SERVER_PORT = "test.server.port";
     public static final String TEST_SERVER_PATH = "testServerPath";
+    public static final String PRO_TEST_SERVER_PATH = "test.server.path";
     public static final String TEST_SERVER_VERSION = "testServerVersion";
+    public static final String PRO_TEST_SERVER_VERSION = "test.server.version";
     public static final String TEST_SERVER_DOWNLOAD_LINK = "testServerDownloadLink";
     public static final String SKIP_TEST = "mavenTestSkip";
+    public static final String MAVEN_SKIP_TEST = "maven.test.skip";
     public static final String VSCODE_CAR_PLUGIN = "vscode-car-plugin";
     public static final String MI_CONTAINER_CONFIG_MAPPER = "mi-container-config-mapper";
     public static final String SYNAPSE_UNIT_TEST_MAVEN_PLUGIN = "synapse-unit-test-maven-plugin";
@@ -79,6 +85,7 @@ public class Constants {
     public static final String PROPERTIES_END_TAG = "</properties>";
     public static final String YES = "yes";
     public static final String PROJECT_RUNTIME_VERSION_CONSTANT = "${project.runtime.version}";
+    public static final String PROJECT_RUNTIME_VERSION_CONSTANT_WITH_ESCAPE = "\\$\\{project.runtime.version\\}";
     public static final String PROJECT_VERSION_CONSTANT = "${project.version}";
     public static final String PROJECT_ARTIFACT_ID_CONSTANT = "${project.artifactId}";
 }

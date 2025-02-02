@@ -60,6 +60,10 @@ public class Node {
         this.range = range;
     }
 
+    public void setValue(String value) {
+        this.value = value;
+    }
+
     public void setDisplayValue(String displayValue) {
         this.displayValue = displayValue;
     }
