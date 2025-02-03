@@ -136,6 +136,8 @@ public abstract class AbstractConnectorLoader {
             if (!connectorHolder.exists(connectorName)) {
                 Connector connector = connectorReader.readConnector(f.getAbsolutePath());
                 if (connector != null) {
+                    connector.setConnectorZipPath(
+                            getConnectorZip(connectorHolder.getConnectorZips(), connector.getExtractedConnectorPath()));
                     connectorHolder.addConnector(connector);
                     notifyAddConnector(connector.getName(), true, "Connector added successfully");
                     continue;
@@ -144,6 +146,23 @@ public abstract class AbstractConnectorLoader {
                         "Corrupted connector file.");
             }
         }
+    }
+
+    private String getConnectorZip(List<File> connectorZips, String extractedConnectorPath) {
+
+        String extractedConnectorName =
+                extractedConnectorPath.substring(extractedConnectorPath.lastIndexOf(File.separator) + 1);
+        for (File zip : connectorZips) {
+            if (!zip.getAbsolutePath().contains(projectUri)) {
+                continue;
+            }
+            String zipName = zip.getName();
+            zipName = zipName.substring(0, zipName.lastIndexOf("."));
+            if (extractedConnectorName.equals(zipName)) {
+                return zip.getAbsolutePath();
+            }
+        }
+        return null;
     }
 
     protected void notifyAddConnector(String connector, boolean isSuccessful, String message) {

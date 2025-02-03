@@ -554,4 +554,5 @@ public class Constant {
     public static final String RESULT_CONTENT_TYPE = "result-content-type";
     public static final String RESULT_ENCLOSING_ELEMENT = "result-enclosing-element";
     public static final String CAR_PLUGIN_CHECK_VERSION = "5.2.88";
+    public static final String CONNECTOR_PATH = "connectorPath";
 }
