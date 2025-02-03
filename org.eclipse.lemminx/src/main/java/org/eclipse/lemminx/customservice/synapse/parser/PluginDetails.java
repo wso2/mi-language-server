@@ -46,6 +46,10 @@ public class PluginDetails {
         this.projectBuildPluginVersion = new Node(pluginVersion, Either.forRight(ranges));
     }
 
+    public void initialiseRanges() {
+        this.ranges = new ArrayList<>();
+    }
+
     public Node getProjectBuildPluginVersion() {
 
         return projectBuildPluginVersion;

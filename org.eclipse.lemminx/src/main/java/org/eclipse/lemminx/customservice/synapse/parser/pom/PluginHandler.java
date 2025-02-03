@@ -22,14 +22,13 @@ import org.eclipse.lemminx.customservice.synapse.parser.DependencyDetails;
 import org.eclipse.lemminx.customservice.synapse.parser.Node;
 import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.lemminx.customservice.synapse.parser.UnitTestDetails;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
 import org.xml.sax.helpers.DefaultHandler;
-
-import java.util.Objects;
 
 public class PluginHandler extends DefaultHandler {
     private Locator locator;
@@ -42,10 +41,13 @@ public class PluginHandler extends DefaultHandler {
     private String groupId;
     private String artifactId;
     private String version;
+    private boolean hasPropertiesUnitTestDetails;
+    private String projectRuntimeVersion;
 
     private final OverviewPageDetailsResponse pomDetailsResponse;
 
     public PluginHandler(OverviewPageDetailsResponse pomDetailsResponse) {
+        this.hasPropertiesUnitTestDetails = false;
         this.pomDetailsResponse = pomDetailsResponse;
     }
 
@@ -125,39 +127,53 @@ public class PluginHandler extends DefaultHandler {
                 }
                 break;
             case Constants.TEST_SERVER_TYPE:
-                pomDetailsResponse.getUnitTestDetails().setServerType(
-                        new Node(value, Either.forLeft(getRange(valueStartLine, valueStartColumn,
-                                valueEndLine, valueEndColumn - closingTagLength))));
+                if (!hasPropertiesUnitTestDetails) {
+                    pomDetailsResponse.getUnitTestDetails().setServerType(
+                            new Node(value, Either.forLeft(getRange(valueStartLine, valueStartColumn,
+                                    valueEndLine, valueEndColumn - closingTagLength))));
+                }
                 break;
             case Constants.TEST_SERVER_HOST:
-                pomDetailsResponse.getUnitTestDetails().setServerHost(new Node(value,
-                        Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
-                                valueEndColumn - closingTagLength))));
+                if (!hasPropertiesUnitTestDetails) {
+                    pomDetailsResponse.getUnitTestDetails().setServerHost(new Node(value,
+                            Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
+                                    valueEndColumn - closingTagLength))));
+                }
                 break;
             case Constants.TEST_SERVER_PORT:
-                pomDetailsResponse.getUnitTestDetails().setServerPort(new Node(value,
-                        Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
-                                valueEndColumn - closingTagLength))));
+                if (!hasPropertiesUnitTestDetails) {
+                    pomDetailsResponse.getUnitTestDetails().setServerPort(new Node(value,
+                            Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
+                                    valueEndColumn - closingTagLength))));
+                }
                 break;
             case Constants.TEST_SERVER_PATH:
-                pomDetailsResponse.getUnitTestDetails().setServerPath(new Node(value,
-                        Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
-                                valueEndColumn - closingTagLength))));
+                if (!hasPropertiesUnitTestDetails) {
+                    pomDetailsResponse.getUnitTestDetails().setServerPath(new Node(value,
+                            Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
+                                    valueEndColumn - closingTagLength))));
+                }
                 break;
             case Constants.TEST_SERVER_VERSION:
-                pomDetailsResponse.getUnitTestDetails().setServerVersion(new Node(value,
-                        Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
-                                valueEndColumn - closingTagLength))));
+                if (!hasPropertiesUnitTestDetails) {
+                    pomDetailsResponse.getUnitTestDetails().setServerVersion(new Node(value,
+                            Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
+                                    valueEndColumn - closingTagLength))));
+                }
                 break;
             case Constants.TEST_SERVER_DOWNLOAD_LINK:
-                pomDetailsResponse.getUnitTestDetails().setServerDownloadLink(new Node(value,
-                        Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
-                                valueEndColumn - closingTagLength))));
+                if(!this.hasPropertiesUnitTestDetails) {
+                    pomDetailsResponse.getUnitTestDetails().setServerDownloadLink(new Node(value,
+                            Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
+                                    valueEndColumn - closingTagLength))));
+                }
                 break;
             case Constants.SKIP_TEST:
-                pomDetailsResponse.getUnitTestDetails().setSkipTest(new Node(value,
-                        Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
-                                valueEndColumn - closingTagLength))));
+                if (!this.hasPropertiesUnitTestDetails) {
+                    pomDetailsResponse.getUnitTestDetails().setSkipTest(new Node(value,
+                            Either.forLeft(getRange(valueStartLine, valueStartColumn, valueEndLine,
+                                    valueEndColumn - closingTagLength))));
+                }
                 break;
             case Constants.PLUGIN:
                 switch (pluginArtifactId.trim()) {
@@ -225,6 +241,19 @@ public class PluginHandler extends DefaultHandler {
             case Constants.PROJECT_RUNTIME_VERSION:
                 this.pomDetailsResponse.getPrimaryDetails().setRuntimeVersion(new Node(value, Either.forLeft(range)));
                 this.pomDetailsResponse.getBuildDetails().getDockerDetails().setProjectRuntimeVersion(value);
+                this.projectRuntimeVersion = value;
+                if (this.pomDetailsResponse.getUnitTestDetails().getServerVersion() != null) {
+                    this.pomDetailsResponse.getUnitTestDetails().setServerVersionDisplayValue(projectRuntimeVersion);
+                }
+                if (pomDetailsResponse.getUnitTestDetails().getServerDownloadLink() != null) {
+                    Node link =  pomDetailsResponse.getUnitTestDetails().getServerDownloadLink();
+                    String linkValue = link.getValue();
+                    if (linkValue.contains(Constants.PROJECT_RUNTIME_VERSION_CONSTANT)) {
+                        link.setDisplayValue(linkValue.replaceAll(Constants.PROJECT_RUNTIME_VERSION_CONSTANT,
+                                projectRuntimeVersion));
+                        pomDetailsResponse.getUnitTestDetails().setServerDownloadLink(link);
+                    }
+                }
                 break;
             case Constants.KEY_STORE_TYPE:
                 pomDetailsResponse.getBuildDetails().getDockerDetails().
@@ -251,8 +280,47 @@ public class PluginHandler extends DefaultHandler {
                         new Node(value, Either.forLeft(range)));
                 break;
             case Constants.CAR_PLUGIN_VERSION:
+                pomDetailsResponse.getBuildDetails().getAdvanceDetails().getPluginDetails().initialiseRanges();
                 pomDetailsResponse.getBuildDetails().getAdvanceDetails().getPluginDetails()
                         .setProjectBuildPluginVersion(value, range);
+                break;
+            case Constants.PRO_TEST_SERVER_TYPE:
+                this.hasPropertiesUnitTestDetails = true;
+                pomDetailsResponse.getUnitTestDetails().setServerType(new Node(value, Either.forLeft(range)));
+                break;
+            case Constants.PRO_TEST_SERVER_HOST:
+                this.hasPropertiesUnitTestDetails = true;
+                pomDetailsResponse.getUnitTestDetails().setServerHost(new Node(value, Either.forLeft(range)));
+                break;
+            case Constants.PRO_TEST_SERVER_PORT:
+                this.hasPropertiesUnitTestDetails = true;
+                pomDetailsResponse.getUnitTestDetails().setServerPort(new Node(value, Either.forLeft(range)));
+                break;
+            case Constants.PRO_TEST_SERVER_PATH:
+                this.hasPropertiesUnitTestDetails = true;
+                pomDetailsResponse.getUnitTestDetails().setServerPath(new Node(value, Either.forLeft(range)));
+                break;
+            case Constants.TEST_SERVER_VERSION:
+                this.hasPropertiesUnitTestDetails = true;
+                UnitTestDetails unitTestDetails = pomDetailsResponse.getUnitTestDetails();
+                unitTestDetails.setServerVersion(new Node(value, Either.forLeft(range)));
+                if (projectRuntimeVersion != null && value.equals(Constants.PROJECT_RUNTIME_VERSION_CONSTANT)) {
+                    unitTestDetails.setServerVersionDisplayValue(projectRuntimeVersion);
+                }
+                break;
+            case Constants.TEST_SERVER_DOWNLOAD_LINK:
+                this.hasPropertiesUnitTestDetails = true;
+                pomDetailsResponse.getUnitTestDetails().setServerDownloadLink(new Node(value,
+                        Either.forLeft(range)));
+                if (projectRuntimeVersion != null && value.contains(Constants.PROJECT_RUNTIME_VERSION_CONSTANT)) {
+                    pomDetailsResponse.getUnitTestDetails().getServerDownloadLink().setDisplayValue(
+                            value.replaceAll(Constants.PROJECT_RUNTIME_VERSION_CONSTANT_WITH_ESCAPE,
+                                    projectRuntimeVersion));
+                }
+                break;
+            case Constants.MAVEN_SKIP_TEST:
+                this.hasPropertiesUnitTestDetails = true;
+                pomDetailsResponse.getUnitTestDetails().setSkipTest(new Node(value, Either.forLeft(range)));
                 break;
             case Constants.PROPERTIES:
                 isProperties = false;

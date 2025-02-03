@@ -53,7 +53,19 @@ public class UnitTestDetails {
         this.serverVersion = serverVersion;
     }
 
+    public void setServerVersionDisplayValue(String displayValue) {
+        this.serverVersion.setDisplayValue(displayValue);
+    }
+
+    public Node getServerVersion() {
+        return this.serverVersion;
+    }
+
     public void setServerDownloadLink(Node serverDownloadLink) {
         this.serverDownloadLink = serverDownloadLink;
+    }
+
+    public Node getServerDownloadLink() {
+        return this.serverDownloadLink;
     }
 }
