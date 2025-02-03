@@ -571,8 +571,13 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
     @Override
     public CompletableFuture<ConnectorGeneratorResponse> generateConnector(ConnectorGenerateRequest connectorGenReq) {
-        String filePath =
-                ConnectorGenerator.generateConnector(connectorGenReq.openAPIPath, connectorGenReq.connectorProjectPath);
+        String filePath = null;
+        try {
+            filePath = ConnectorGenerator.generateConnector(connectorGenReq.openAPIPath,
+                    connectorGenReq.connectorProjectPath);
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "Error occurred while generating the connector", e);
+        }
         ConnectorGeneratorResponse response = new ConnectorGeneratorResponse(filePath != null, filePath);
         return CompletableFuture.supplyAsync(() -> response);
     }
