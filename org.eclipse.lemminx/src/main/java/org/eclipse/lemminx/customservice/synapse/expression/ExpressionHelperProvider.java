@@ -65,6 +65,12 @@ public class ExpressionHelperProvider {
         this.tryoutHandler = new ServerLessTryoutHandler(projectPath);
     }
 
+    /**
+     * Get the expression helper panel data for the requested mediator.
+     *
+     * @param param ExpressionParam
+     * @return HelperPanelData
+     */
     public HelperPanelData getExpressionHelperData(ExpressionParam param) {
 
         if (!ExpressionCompletionUtils.isValidRequest(param)) {
@@ -83,6 +89,26 @@ public class ExpressionHelperProvider {
             MediatorInfo propsData = isNewMediator ? tryoutInfo.getInput() : tryoutInfo.getInput();
             return createHelperData(propsData, ExpressionCompletionUtils.getFunctions());
         } catch (BadLocationException | IOException e) {
+            return getBasicHelperData();
+        }
+    }
+
+    /**
+     * Get the expression helper panel data for the last mediator of the requested mediation sequence.
+     *
+     * @param param ExpressionParam
+     * @return HelperPanelData
+     */
+    public HelperPanelData getLastMediatorHelperData(ExpressionParam param) {
+
+        if (!ExpressionCompletionUtils.isValidRequest(param)) {
+            return getBasicHelperData();
+        }
+        try {
+            Position position =
+                    ExpressionCompletionUtils.getLastMediatorPosition(param.getDocumentUri(), param.getPosition());
+            return getExpressionHelperData(new ExpressionParam(param.getDocumentUri(), position));
+        } catch (IOException e) {
             return getBasicHelperData();
         }
     }
