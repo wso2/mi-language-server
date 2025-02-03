@@ -794,6 +794,7 @@ public class Utils {
             connectorObject.addProperty(Constant.IS_CONNECTOR, true);
             connectorObject.addProperty(Constant.ARTIFACT_ID, connector.getArtifactId());
             connectorObject.addProperty(Constant.VERSION, connector.getVersion());
+            connectorObject.addProperty(Constant.CONNECTOR_PATH, connector.getConnectorZipPath());
             mediatorList.add(
                     StringUtils.isEmpty(connector.getDisplayName()) ? connector.getName() : connector.getDisplayName(),
                     connectorObject);

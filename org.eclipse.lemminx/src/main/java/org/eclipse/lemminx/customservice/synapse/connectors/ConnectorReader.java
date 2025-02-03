@@ -66,7 +66,7 @@ public class ConnectorReader {
                         String displayName = Utils.getInlineString(displayNameElement.getFirstChild());
                         connector.setDisplayName(displayName);
                     }
-                    connector.setPath(connectorPath);
+                    connector.setExtractedConnectorPath(connectorPath);
                     setConnectorArtifactIdAndVersion(connector, connectorPath);
                     connector.setIconPath(connectorPath + File.separator + "icon");
                     connector.setUiSchemaPath(connectorPath + File.separator + "uischema");
@@ -188,7 +188,7 @@ public class ConnectorReader {
     private void generateUISchemasIfNeeded(Connector connector) {
 
         for (ConnectorAction action : connector.getActions()) {
-            if (action.getUiSchemaPath() == null) {
+            if (action.getUiSchemaPath() == null && !action.getHidden()) {
                 try {
                     generateUISchema(action, connector);
                 } catch (IOException e) {
@@ -314,8 +314,8 @@ public class ConnectorReader {
     private void readDependencies(Connector connector, List<String> dependencies) {
 
         for (String dependency : dependencies) {
-            File dependencyFile = new File(connector.getPath() + File.separator + dependency + File.separator +
-                    "component.xml");
+            File dependencyFile = Path.of(connector.getExtractedConnectorPath(), dependency, "component.xml")
+                    .toFile();
             if (dependencyFile.exists()) {
                 readSubComponents(connector, dependencyFile);
             }

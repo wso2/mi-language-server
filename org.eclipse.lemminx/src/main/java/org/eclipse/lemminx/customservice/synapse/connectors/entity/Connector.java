@@ -27,7 +27,8 @@ public class Connector {
 
     private String name;
     private String displayName;
-    private String path;
+    private String extractedConnectorPath;
+    private String connectorZipPath;
     private String packageName;
     private String artifactId;
     private String version;
@@ -73,14 +74,24 @@ public class Connector {
         this.packageName = packageName;
     }
 
-    public String getPath() {
+    public String getExtractedConnectorPath() {
 
-        return path;
+        return extractedConnectorPath;
     }
 
-    public void setPath(String path) {
+    public void setExtractedConnectorPath(String extractedConnectorPath) {
 
-        this.path = path;
+        this.extractedConnectorPath = extractedConnectorPath;
+    }
+
+    public String getConnectorZipPath() {
+
+        return connectorZipPath;
+    }
+
+    public void setConnectorZipPath(String connectorZipPath) {
+
+        this.connectorZipPath = connectorZipPath;
     }
 
     public void addAction(ConnectorAction action) {
