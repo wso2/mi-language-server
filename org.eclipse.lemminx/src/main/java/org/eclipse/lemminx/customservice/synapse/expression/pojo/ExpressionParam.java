@@ -41,6 +41,12 @@ public class ExpressionParam {
         this.offset = offset;
     }
 
+    public ExpressionParam(String documentUri, Position position) {
+
+        this.documentUri = documentUri;
+        this.position = position;
+    }
+
     public String getDocumentUri() {
 
         return documentUri;

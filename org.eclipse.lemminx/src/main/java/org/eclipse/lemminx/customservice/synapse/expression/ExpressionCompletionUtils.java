@@ -29,9 +29,16 @@ import org.eclipse.lemminx.customservice.synapse.expression.pojo.Functions;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property;
 import org.eclipse.lemminx.customservice.synapse.parser.Node;
 import org.eclipse.lemminx.customservice.synapse.parser.config.ConfigParser;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeGenerator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.MediatorFactoryFinder;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.API;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.APIResource;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.InvalidMediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.proxy.Proxy;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.template.Template;
+import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
@@ -494,6 +501,79 @@ public class ExpressionCompletionUtils {
             }
         }
         return StringUtils.EMPTY;
+    }
+
+    /**
+     * Get the last mediator position in the given mediation artifact.
+     *
+     * @param documentUri             document uri
+     * @param currentMediatorPosition current mediator position
+     * @return last mediator position
+     * @throws IOException
+     */
+    public static Position getLastMediatorPosition(String documentUri, Position currentMediatorPosition)
+            throws IOException {
+
+        DOMDocument document = Utils.getDOMDocument(new File(documentUri));
+        STNode node = SyntaxTreeGenerator.buildTree(document.getDocumentElement());
+        if (node == null) {
+            return currentMediatorPosition;
+        }
+        switch (node.getTag()) {
+            case Constant.API:
+                return getLastMediatorPositionInAPI((API) node, currentMediatorPosition);
+            case Constant.SEQUENCE:
+                return node.getRange().getEndTagRange().getStart();
+            case Constant.PROXY:
+                return getLastMediatorPositionInProxy((Proxy) node, currentMediatorPosition);
+            case Constant.TEMPLATE:
+                return ((Template) node).getSequence().getRange().getEndTagRange().getStart();
+        }
+        return currentMediatorPosition;
+    }
+
+    private static Position getLastMediatorPositionInAPI(API node, Position currentMediatorPosition) {
+
+        APIResource[] resources = node.getResource();
+        if (resources.length > 0) {
+            for (APIResource resource : resources) {
+                if (isNodeInRange(resource, currentMediatorPosition)) {
+                    return getLastMediatorPositionInAPIResource(resource, currentMediatorPosition);
+                }
+            }
+        }
+        return currentMediatorPosition;
+    }
+
+    private static Position getLastMediatorPositionInAPIResource(APIResource resource,
+                                                                 Position currentMediatorPosition) {
+
+        if (isNodeInRange(resource.getInSequence(), currentMediatorPosition)) {
+            return resource.getInSequence().getRange().getEndTagRange().getStart();
+        } else if (isNodeInRange(resource.getOutSequence(), currentMediatorPosition)) {
+            return resource.getOutSequence().getRange().getEndTagRange().getStart();
+        } else if (isNodeInRange(resource.getFaultSequence(), currentMediatorPosition)) {
+            return resource.getFaultSequence().getRange().getEndTagRange().getStart();
+        }
+        return currentMediatorPosition;
+    }
+
+    private static Position getLastMediatorPositionInProxy(Proxy node, Position currentMediatorPosition) {
+
+        if (isNodeInRange(node.getTarget().getInSequence(), currentMediatorPosition)) {
+            return node.getTarget().getInSequence().getRange().getEndTagRange().getStart();
+        } else if (isNodeInRange(node.getTarget().getOutSequence(), currentMediatorPosition)) {
+            return node.getTarget().getOutSequence().getRange().getEndTagRange().getStart();
+        } else if (isNodeInRange(node.getTarget().getFaultSequence(), currentMediatorPosition)) {
+            return node.getTarget().getFaultSequence().getRange().getEndTagRange().getStart();
+        }
+        return currentMediatorPosition;
+    }
+
+    private static boolean isNodeInRange(STNode node, Position position) {
+
+        return org.eclipse.lemminx.customservice.synapse.mediator.schema.generate.visitor.Utils.checkNodeInRange(node,
+                position);
     }
 
     private ExpressionCompletionUtils() {

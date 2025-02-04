@@ -38,7 +38,8 @@ public class SchemaVisitorFactory {
             visitor = new SequenceVisitor(projectPath);
         } else if (Constant.TEMPLATE.equals(nodeType) && ((Template) node).getSequence() != null) {
             visitor = new SequenceTemplateVisitor(projectPath);
-
+        } else if (Constant.PROXY.equals(nodeType)) {
+            visitor = new ProxyVisitor(projectPath);
         } else {
             LOGGER.warning("No visitor found for the node type: " + nodeType);
         }
