@@ -41,7 +41,8 @@ import org.eclipse.lemminx.customservice.synapse.connectors.entity.TestConnectio
 import org.eclipse.lemminx.customservice.synapse.dataService.DynamicClassLoader;
 import org.eclipse.lemminx.customservice.synapse.dataService.QueryGenerator;
 import org.eclipse.lemminx.customservice.synapse.dataService.CheckDBDriverRequestParams;
-import org.eclipse.lemminx.customservice.synapse.dataService.AddDriverRequestParams;
+import org.eclipse.lemminx.customservice.synapse.dataService.CheckDBDriverResponseParams;
+import org.eclipse.lemminx.customservice.synapse.dataService.ModifyDriverRequestParams;
 import org.eclipse.lemminx.customservice.synapse.dataService.QueryGenRequestParams;
 import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTestParams;
 import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTestResponse;
@@ -443,15 +444,28 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     }
 
     @Override
-    public CompletableFuture<Boolean> checkDBDriver(CheckDBDriverRequestParams requestParams) {
-        boolean isDriverAvailable = QueryGenerator.isDriverAvailableInClassPath(requestParams.className);
-        return CompletableFuture.supplyAsync(() -> isDriverAvailable);
+    public CompletableFuture<CheckDBDriverResponseParams> checkDBDriver(CheckDBDriverRequestParams requestParams) {
+        CheckDBDriverResponseParams response = QueryGenerator.isDriverAvailableInClassPath(requestParams.className, projectUri);
+        return CompletableFuture.supplyAsync(() -> response);
     }
 
     @Override
-    public CompletableFuture<Boolean> addDBDriver(AddDriverRequestParams requestParams) {
-        boolean isSuccess = QueryGenerator.addDriverToClassPath(requestParams.driverPath, requestParams.className);
+    public CompletableFuture<Boolean> addDBDriver(ModifyDriverRequestParams requestParams) {
+        boolean isSuccess = QueryGenerator.addDriverToClassPath(requestParams.addDriverPath, requestParams.className);
         return CompletableFuture.supplyAsync(() -> isSuccess);
+    }
+
+    @Override
+    public CompletableFuture<Boolean> removeDBDriver(ModifyDriverRequestParams requestParams) {
+        boolean response = QueryGenerator.removeDriverFromClassPath(requestParams.removeDriverPath);
+        return CompletableFuture.supplyAsync(() -> response);
+    }
+
+    @Override
+    public CompletableFuture<Boolean> modifyDBDriver(ModifyDriverRequestParams requestParams) {
+        boolean response = QueryGenerator.modifyDriverInClassPath(requestParams.addDriverPath,
+                requestParams.removeDriverPath, requestParams.className);
+        return CompletableFuture.supplyAsync(() -> response);
     }
 
     @Override

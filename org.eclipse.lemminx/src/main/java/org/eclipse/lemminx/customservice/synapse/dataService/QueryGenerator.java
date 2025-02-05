@@ -24,16 +24,20 @@ import java.io.File;
 import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.Driver;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -46,6 +50,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.synapse.dataService.queryBuilders.DeleteQueryBuilder;
 import org.eclipse.lemminx.customservice.synapse.dataService.queryBuilders.InsertQueryBuilder;
 import org.eclipse.lemminx.customservice.synapse.dataService.queryBuilders.SelectAllQueryBuilder;
@@ -154,16 +159,19 @@ public class QueryGenerator {
      * Check whether a driver is available in the class path
      *
      * @param className DB connector class name in the driver
+     * @param projectPath Absolute path of the project root directory
      *
-     * @return Whether the DB driver is available in the class path
+     * @return Whether the DB driver is available in the class path and if available the version and driver path
      */
-    public static boolean isDriverAvailableInClassPath(String className) {
+    public static CheckDBDriverResponseParams isDriverAvailableInClassPath(String className, String projectPath) {
         try {
+            File libFolder = Paths.get(projectPath, "deployment","libs").toFile();
             Class.forName(className, true, DynamicClassLoader.getClassLoader());
-            return true;
+            return new CheckDBDriverResponseParams(true, getDriverVersion(className),
+                    getJarForClass(className, libFolder));
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error occurred while loading the DB driver class.", e);
-            return false;
+            return new CheckDBDriverResponseParams(false, StringUtils.EMPTY, StringUtils.EMPTY);
         }
     }
 
@@ -177,13 +185,62 @@ public class QueryGenerator {
      */
     public static boolean addDriverToClassPath(String driverPath, String className) {
         try {
+            if (!Files.exists(Paths.get(driverPath))) {
+                LOGGER.log(Level.SEVERE, "Driver not found in the given folder path.");
+                return false;
+            }
             Path jarPath = Paths.get(driverPath);
             URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{jarPath.toUri().toURL()});
             Class.forName(className, true, urlClassLoader).newInstance();
-            DynamicClassLoader.addJarToClassLoader(new File(driverPath));
+            DynamicClassLoader.updateJarInClassLoader(new File(driverPath), true);
             return true;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error occurred while loading the DB driver class.", e);
+            return false;
+        }
+    }
+
+    /**
+     * Remove a DB driver from the class path
+     *
+     * @param driverPath folder path of the DB driver
+     *
+     * @return Whether the DB driver was successfully removed from the class path
+     */
+    public static boolean removeDriverFromClassPath(String driverPath) {
+        if (!Files.exists(Paths.get(driverPath))) {
+            LOGGER.log(Level.SEVERE, "Driver not found in the given folder path.");
+            return false;
+        }
+        try {
+            DynamicClassLoader.updateJarInClassLoader(new File(driverPath), false);
+            return true;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error occurred while removing the DB driver class.", e);
+            return false;
+        }
+    }
+
+    /**
+     * Modify a DB driver in the class path
+     *
+     * @param addDriverPath folder path of the DB driver to be added
+     * @param removeDriverPath folder path of the DB driver to be removed
+     * @param className DB connector class name in the driver
+     *
+     * @return Whether the DB driver was modified successfully in the class path
+     */
+    public static boolean modifyDriverInClassPath(String addDriverPath, String removeDriverPath, String className) {
+        if (!(Files.exists(Paths.get(addDriverPath)) && Files.exists(Paths.get(removeDriverPath)))) {
+            LOGGER.log(Level.SEVERE, "Driver not found in the given folder path.");
+            return false;
+        }
+        try {
+            removeDriverFromClassPath(removeDriverPath);
+            addDriverToClassPath(addDriverPath, className);
+            return true;
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error occurred while modifying the DB driver class.", e);
             return false;
         }
     }
@@ -425,5 +482,42 @@ public class QueryGenerator {
             type = 1;
         }
         return QueryGenerateUtils.getDefinedTypes().get(type);
+    }
+
+    private static String getJarForClass(String className, File jarFolder) {
+        String classPath = className.replace('.', '/') + ".class";
+        File[] jarFiles = jarFolder.listFiles((dir, name) -> name.endsWith(".jar"));
+        if (jarFiles == null || jarFiles.length == 0) {
+            return StringUtils.EMPTY;
+        }
+        for (File jarFile : jarFiles) {
+            try (JarFile jar = new JarFile(jarFile)) {
+                JarEntry entry = jar.getJarEntry(classPath);
+                if (entry != null) {
+                    return jarFile.getAbsolutePath();
+                }
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Error reading JAR file: " + jarFile.getAbsolutePath(), e);
+            }
+        }
+        return StringUtils.EMPTY;
+    }
+
+    private static String getDriverVersion(String className) {
+        try {
+            Class<?> driverClass = Class.forName(className, true, DynamicClassLoader.getClassLoader());
+            if (Driver.class.isAssignableFrom(driverClass)) {
+                Package driverPackage = driverClass.getPackage();
+                String version = driverPackage != null ? driverPackage.getImplementationVersion() : StringUtils.EMPTY;
+                if (StringUtils.isBlank(version)) {
+                    Driver driverInstance = (Driver) driverClass.getDeclaredConstructor().newInstance();
+                    version = driverInstance.getMajorVersion() + "." + driverInstance.getMinorVersion();
+                }
+                return version;
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error occurred while obtaining DB driver version.", e);
+        }
+        return StringUtils.EMPTY;
     }
 }

@@ -62,17 +62,25 @@ public class DynamicClassLoader {
     }
 
     /**
-     * Add a DB driver to the class loader
+     * Add or remove a DB driver from the class path
      *
      * @param jarFile path of the DB driver jar
+     * @param addJar whether the jar should be added or removed
      */
-    public static void addJarToClassLoader(File jarFile) throws Exception {
+    public static void updateJarInClassLoader(File jarFile, boolean addJar) throws Exception {
         synchronized (lock) {
             URL jarUrl = jarFile.toURI().toURL();
-            if (!currentUrls.contains(jarUrl)) {
-                Set<URL> updatedUrls = new HashSet<>(currentUrls);
-                updatedUrls.add(jarUrl);
-
+            Set<URL> updatedUrls = new HashSet<>(currentUrls);
+            if (addJar) {
+                if (!currentUrls.contains(jarUrl)) {
+                    updatedUrls.add(jarUrl);
+                }
+            } else {
+                if (currentUrls.contains(jarUrl)) {
+                    updatedUrls.remove(jarUrl);
+                }
+            }
+            if (!updatedUrls.equals(currentUrls)) {
                 classLoader = new URLClassLoader(updatedUrls.toArray(new URL[0]),
                         Thread.currentThread().getContextClassLoader());
                 currentUrls = updatedUrls;
