@@ -291,12 +291,14 @@ public class PluginHandler extends DefaultHandler {
                 this.hasPropertiesUnitTestDetails = true;
                 pomDetailsResponse.getUnitTestDetails().setServerPath(new Node(value, Either.forLeft(range)));
                 break;
-            case Constants.TEST_SERVER_VERSION:
+            case Constants.PRO_TEST_SERVER_VERSION:
                 this.hasPropertiesUnitTestDetails = true;
                 UnitTestDetails unitTestDetails = pomDetailsResponse.getUnitTestDetails();
                 unitTestDetails.setServerVersion(new Node(value, Either.forLeft(range)));
                 if (projectRuntimeVersion != null && value.equals(Constants.PROJECT_RUNTIME_VERSION_CONSTANT)) {
                     unitTestDetails.setServerVersionDisplayValue(projectRuntimeVersion);
+                } else {
+                    unitTestDetails.setServerVersionDisplayValue(value);
                 }
                 if (pomDetailsResponse.getUnitTestDetails().getServerDownloadLink() != null) {
                     Node link =  pomDetailsResponse.getUnitTestDetails().getServerDownloadLink();
@@ -317,7 +319,7 @@ public class PluginHandler extends DefaultHandler {
                         value.contains(Constants.PROJECT_TEST_SERVER_VERSION_CONSTANT)) {
                     pomDetailsResponse.getUnitTestDetails().getServerDownloadLink().setDisplayValue(
                             value.replaceAll(Constants.PROJECT_TEST_SERVER_VERSION_CONSTANT_WITH_ESCAPE,
-                                    projectRuntimeVersion));
+                                    pomDetailsResponse.getUnitTestDetails().getServerVersion().getDisplayValue()));
                 }
                 break;
             case Constants.MAVEN_SKIP_TEST:
