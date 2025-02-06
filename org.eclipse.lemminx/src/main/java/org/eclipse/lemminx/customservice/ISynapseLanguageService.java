@@ -33,8 +33,9 @@ import org.eclipse.lemminx.customservice.synapse.connectors.entity.TestConnectio
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.TestConnectionResponse;
 import org.eclipse.lemminx.customservice.synapse.connectors.generate.ConnectorGenerateRequest;
 import org.eclipse.lemminx.customservice.synapse.connectors.generate.ConnectorGeneratorResponse;
-import org.eclipse.lemminx.customservice.synapse.dataService.AddDriverRequestParams;
 import org.eclipse.lemminx.customservice.synapse.dataService.CheckDBDriverRequestParams;
+import org.eclipse.lemminx.customservice.synapse.dataService.CheckDBDriverResponseParams;
+import org.eclipse.lemminx.customservice.synapse.dataService.ModifyDriverRequestParams;
 import org.eclipse.lemminx.customservice.synapse.dataService.QueryGenRequestParams;
 import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTestParams;
 import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTestResponse;
@@ -165,10 +166,16 @@ public interface ISynapseLanguageService {
     CompletableFuture<OverviewModel> getOverviewModel();
 
     @JsonRequest
-    CompletableFuture<Boolean> checkDBDriver(CheckDBDriverRequestParams requestParams);
+    CompletableFuture<CheckDBDriverResponseParams> checkDBDriver(CheckDBDriverRequestParams requestParams);
 
     @JsonRequest
-    CompletableFuture<Boolean> addDBDriver(AddDriverRequestParams requestParams);
+    CompletableFuture<Boolean> addDBDriver(ModifyDriverRequestParams requestParams);
+
+    @JsonRequest
+    CompletableFuture<Boolean> removeDBDriver(ModifyDriverRequestParams requestParams);
+
+    @JsonRequest
+    CompletableFuture<Boolean> modifyDBDriver(ModifyDriverRequestParams requestParams);
 
     @JsonRequest
     CompletableFuture<String> generateQueries(QueryGenRequestParams requestParams);
