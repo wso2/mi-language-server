@@ -235,14 +235,7 @@ public class QueryGenerator {
             LOGGER.log(Level.SEVERE, "Driver not found in the given folder path.");
             return false;
         }
-        try {
-            removeDriverFromClassPath(removeDriverPath);
-            addDriverToClassPath(addDriverPath, className);
-            return true;
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error occurred while modifying the DB driver class.", e);
-            return false;
-        }
+        return removeDriverFromClassPath(removeDriverPath) && addDriverToClassPath(addDriverPath, className);
     }
 
     /**
