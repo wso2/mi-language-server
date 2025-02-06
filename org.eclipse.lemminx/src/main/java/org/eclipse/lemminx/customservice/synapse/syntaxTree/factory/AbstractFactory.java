@@ -23,7 +23,18 @@ import org.eclipse.lemminx.dom.DOMElement;
 
 public abstract class AbstractFactory {
 
+    private String miVersion;
     public abstract STNode create(DOMElement element);
 
     public abstract void populateAttributes(STNode node, DOMElement element);
+
+    public String getMiVersion() {
+
+        return miVersion;
+    }
+
+    public void setMiVersion(String miVersion) {
+
+        this.miVersion = miVersion;
+    }
 }

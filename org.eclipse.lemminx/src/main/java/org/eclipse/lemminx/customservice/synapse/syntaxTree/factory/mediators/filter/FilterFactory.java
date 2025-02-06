@@ -18,6 +18,7 @@
 
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.filter;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.AbstractMediatorFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
@@ -26,6 +27,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.filter.filter.FilterThen;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.utils.SyntaxTreeUtils;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 
@@ -39,6 +41,10 @@ public class FilterFactory extends AbstractMediatorFactory {
     protected Mediator createSpecificMediator(DOMElement element) {
 
         Filter filter = new Filter();
+        if (StringUtils.isNotEmpty(getMiVersion()) &&
+                Utils.compareVersions(getMiVersion(), Constant.MI_440_VERSION) < 0) {
+            filter.setDisplayName("Filter");
+        }
         filter.elementNode(element);
         populateAttributes(filter, element);
         List<DOMNode> children = element.getChildren();

@@ -147,14 +147,22 @@ public class MediatorFactoryFinder {
     };
 
     private final static MediatorFactoryFinder instance = new MediatorFactoryFinder();
-    private static Map<String, AbstractMediatorFactory> factoryMap = new HashMap<>();
+    private Map<String, AbstractMediatorFactory> factoryMap = new HashMap<>();
     private ConnectorHolder connectorHolder;
-    private static boolean initialized = false;
+    private boolean initialized = false;
+    private String miVersion;
+
+    public static synchronized void init(String miVersion, ConnectorHolder connectorHolder) {
+
+        instance.setMiVersion(miVersion);
+        instance.setConnectorHolder(connectorHolder);
+        instance.loadMediatorFactories();
+    }
 
     public static synchronized MediatorFactoryFinder getInstance() {
 
-        if (!initialized) {
-            loadMediatorFactories();
+        if (!instance.initialized) {
+            instance.loadMediatorFactories();
         }
         return instance;
     }
@@ -163,11 +171,12 @@ public class MediatorFactoryFinder {
 
     }
 
-    private static void loadMediatorFactories() {
+    private void loadMediatorFactories() {
 
         for (Class c : mediatorFactories) {
             try {
                 AbstractMediatorFactory fac = (AbstractMediatorFactory) c.newInstance();
+                fac.setMiVersion(miVersion);
                 factoryMap.put(fac.getTagName().toLowerCase(), fac);
             } catch (Exception e) {
                 log.log(Level.SEVERE, "Error instantiating " + c.getName(), e);
@@ -199,5 +208,10 @@ public class MediatorFactoryFinder {
     public void setConnectorHolder(ConnectorHolder connectorHolder) {
 
         this.connectorHolder = connectorHolder;
+    }
+
+    public void setMiVersion(String miVersion) {
+
+        this.miVersion = miVersion;
     }
 }
