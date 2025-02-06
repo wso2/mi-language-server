@@ -555,4 +555,5 @@ public class Constant {
     public static final String RESULT_ENCLOSING_ELEMENT = "result-enclosing-element";
     public static final String CAR_PLUGIN_CHECK_VERSION = "5.2.88";
     public static final String CONNECTOR_PATH = "connectorPath";
+    public static final String MI_440_VERSION = "4.4.0";
 }

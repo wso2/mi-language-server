@@ -177,7 +177,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
             initializeConnectorLoader();
             mediatorHandler.init(projectServerVersion, connectorHolder);
             connectionHandler.init(connectorHolder);
-            MediatorFactoryFinder.getInstance().setConnectorHolder(connectorHolder);
+            MediatorFactoryFinder.init(projectServerVersion, connectorHolder);
             try {
                 DynamicClassLoader.updateClassLoader(Path.of(projectUri, "deployment", "libs").toFile());
                 this.tryOutManager = new TryOutManager(projectUri, miServerPath, connectorHolder);

@@ -1234,17 +1234,31 @@ public class Utils {
         String currentVersion = overviewPageDetailsResponse.getBuildDetails().getAdvanceDetails().getPluginDetails()
                 .getProjectBuildPluginVersion().getValue();
 
-        String[] currentVersionParts = currentVersion.split("\\.");
-        String[] checkVersionParts = Constant.CAR_PLUGIN_CHECK_VERSION.split("\\.");
-        int length = Math.max(currentVersionParts.length, checkVersionParts.length);
+        return compareVersions(currentVersion, Constant.CAR_PLUGIN_CHECK_VERSION) < 0;
+    }
+
+    /**
+     * Compares two version strings and determines their relative order.
+     *
+     * @param version1 The first version string to compare.
+     * @param version2 The second version string to compare.
+     * @return a negative integer if {@code version1} is less than {@code version2},
+     * a positive integer if {@code version1} is greater than {@code version2},
+     * or 0 if they are equal
+     */
+    public static int compareVersions(String version1, String version2) {
+
+        String[] version1Parts = version1.split("\\.");
+        String[] version2Parts = version2.split("\\.");
+        int length = Math.max(version1Parts.length, version2Parts.length);
 
         for (int i = 0; i < length; i++) {
-            int v1 = i < checkVersionParts.length ? Integer.parseInt(checkVersionParts[i]) : 0;
-            int v2 = i < currentVersionParts.length ? Integer.parseInt(currentVersionParts[i]) : 0;
+            int v1 = i < version1Parts.length ? Integer.parseInt(version1Parts[i]) : 0;
+            int v2 = i < version2Parts.length ? Integer.parseInt(version2Parts[i]) : 0;
 
-            if (v1 < v2) return false;
-            if (v1 > v2) return true;
+            if (v1 < v2) return -1;
+            if (v1 > v2) return 1;
         }
-        return false;
+        return 0;
     }
 }
