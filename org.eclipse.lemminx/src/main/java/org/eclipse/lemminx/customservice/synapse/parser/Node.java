@@ -67,4 +67,8 @@ public class Node {
     public void setDisplayValue(String displayValue) {
         this.displayValue = displayValue;
     }
+
+    public String getDisplayValue() {
+        return this.displayValue;
+    }
 }

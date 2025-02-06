@@ -85,7 +85,8 @@ public class Constants {
     public static final String PROPERTIES_END_TAG = "</properties>";
     public static final String YES = "yes";
     public static final String PROJECT_RUNTIME_VERSION_CONSTANT = "${project.runtime.version}";
-    public static final String PROJECT_RUNTIME_VERSION_CONSTANT_WITH_ESCAPE = "\\$\\{project.runtime.version\\}";
+    public static final String PROJECT_TEST_SERVER_VERSION_CONSTANT_WITH_ESCAPE = "\\$\\{test.server.version\\}";
+    public static final String PROJECT_TEST_SERVER_VERSION_CONSTANT = "${test.server.version}";
     public static final String PROJECT_VERSION_CONSTANT = "${project.version}";
     public static final String PROJECT_ARTIFACT_ID_CONSTANT = "${project.artifactId}";
 }
