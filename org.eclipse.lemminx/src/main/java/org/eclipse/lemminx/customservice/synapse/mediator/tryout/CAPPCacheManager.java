@@ -113,7 +113,9 @@ public class CAPPCacheManager {
 
         String dataMapperPath =
                 TryOutConstants.PROJECT_RESOURCES_RELATIVE_PATH.resolve(Constant.DATA_MAPPER).toString();
-        List<String> includePaths = List.of(dataMapperPath);
+        String artifactXmlPath =
+                TryOutConstants.PROJECT_RESOURCES_RELATIVE_PATH.resolve(Constant.ARTIFACT_XML).toString();
+        List<String> includePaths = List.of(dataMapperPath, artifactXmlPath);
         validateCAPPByType(projectUri, includePaths, CAPPType.DATA_MAPPER);
     }
 
