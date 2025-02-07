@@ -24,12 +24,7 @@
         "displayName": "Collection to iterate",
         "inputType": "expression",
         "required": true,
-        "helpTip": "The collection to iterate over. This can be a JSON array or XML list",
-        "enableCondition": [
-          {
-            "version": "v2"
-          }
-        ]
+        "helpTip": "The collection to iterate over. This can be a JSON array or XML list"
       }
     },
     {
@@ -40,12 +35,7 @@
         "inputType": "checkbox",
         "defaultValue": true,
         "required": false,
-        "helpTip": "If enabled, the messages will be processed in parallel. If disabled, the messages will be processed sequentially.",
-        "enableCondition": [
-          {
-            "version": "v2"
-          }
-        ]
+        "helpTip": "If enabled, the messages will be processed in parallel. If disabled, the messages will be processed sequentially."
       }
     },
     {
@@ -56,12 +46,7 @@
         "inputType": "checkbox",
         "defaultValue": false,
         "required": false,
-        "helpTip": "If enabled, the parent flow will continue without waiting for the aggregation.",
-        "enableCondition": [
-          {
-            "version": "v2"
-          }
-        ]
+        "helpTip": "If enabled, the parent flow will continue without waiting for the aggregation."
       }
     },
     {
@@ -69,10 +54,6 @@
       "value": {
         "groupName": "Output Configurations",
         "enableCondition": [
-          "AND",
-          {
-            "version": "v2"
-          },
           {
             "continueWithoutAggregation": false
           }
@@ -153,10 +134,6 @@
         "groupName": "Advanced",
         "isCollapsed": "true",
         "enableCondition": [
-          "AND",
-          {
-            "version": "v2"
-          },
           {
             "parallelExecution": false
           }
@@ -171,81 +148,6 @@
               "defaultValue": "",
               "required": "false",
               "helpTip": "You can access the current iteration number using this variable within the ForEach mediator."
-            }
-          }
-        ]
-      }
-    },
-    {
-      "type": "attribute",
-      "value": {
-        "name": "forEachID",
-        "displayName": "ForEach ID",
-        "inputType": "string",
-        "required": false,
-        "helpTip": "",
-        "enableCondition": [
-          {
-            "version": "v1"
-          }
-        ]
-      }
-    },
-    {
-      "type": "attribute",
-      "value": {
-        "name": "forEachExpression",
-        "displayName": "ForEach Expression",
-        "inputType": "expression",
-        "expressionType":"xpath/jsonPath",
-        "required": true,
-        "helpTip": "",
-        "enableCondition": [
-          {
-            "version": "v1"
-          }
-        ]
-      }
-    },
-    {
-      "type": "attributeGroup",
-      "value": {
-        "groupName": "Sequence",
-        "enableCondition": [
-          {
-            "version": "v1"
-          }
-        ],
-        "elements": [
-          {
-            "type": "attribute",
-            "value": {
-              "name": "sequenceType",
-              "displayName": "Sequence Type",
-              "inputType": "combo",
-              "defaultValue": "Anonymous",
-              "comboValues": [
-                "Anonymous",
-                "Key"
-              ],
-              "required": false,
-              "helpTip": ""
-            }
-          },
-          {
-            "type": "attribute",
-            "value": {
-              "name": "sequenceKey",
-              "displayName": "Sequence Key",
-              "inputType": "key",
-              "enableCondition": [
-                {
-                  "sequenceType": "Key"
-                }
-              ],
-              "required": false,
-              "helpTip": "",
-              "keyType": "sequence"
             }
           }
         ]

@@ -67,12 +67,14 @@ public class MediatorHandler {
     private Map<String, Mustache> templateMap;
     private ConnectorHolder connectorHolder;
     private boolean isInitialized;
+    private Gson gson;
 
     public void init(String projectServerVersion, ConnectorHolder connectorHolder) {
 
         try {
             this.connectorHolder = connectorHolder;
             this.mediatorList = Utils.getMediatorList(projectServerVersion, connectorHolder);
+            gson = new Gson();
         } catch (IOException e) {
             logger.log(Level.SEVERE,
                     String.format("Failed to load mediators for the MI server version: %s", projectServerVersion), e);
@@ -309,7 +311,6 @@ public class MediatorHandler {
             InstantiationException {
 
         String mediatorName = node.getTag();
-        JsonObject uiSchema = uiSchemaMap.get(mediatorName).deepCopy();
         for (Map.Entry<String, JsonElement> entry : mediatorList.entrySet()) {
             JsonArray mediatorsArray = entry.getValue().getAsJsonObject().getAsJsonArray(Constant.ITEMS);
             for (JsonElement mediatorElement : mediatorsArray) {
@@ -323,13 +324,24 @@ public class MediatorHandler {
                     Method processorMethod =
                             mediatorProcessor.getMethod(processingMethod, Class.forName(mediatorClass));
                     Object data = processorMethod.invoke(processorInstance, node);
-
-                    return UISchemaMapper.mapInputToUISchema(new Gson().toJsonTree(data).getAsJsonObject(),
-                            uiSchema);
+                    JsonObject dataJson = gson.toJsonTree(data).getAsJsonObject();
+                    return UISchemaMapper.mapInputToUISchema(dataJson,
+                            findUISchema(mediatorName, dataJson.get(Constant.UI_SCHEMA_NAME)));
                 }
             }
         }
-        return uiSchema;
+        return uiSchemaMap.get(mediatorName);
+    }
+
+    private JsonObject findUISchema(String mediatorName, JsonElement uiSchemaName) {
+
+        if (uiSchemaName != null) {
+
+            // Replace _ with : in the UI schema name to match the UI schema map key
+            String uiSchemaNameValue = uiSchemaName.getAsString().replace("_", ":");
+            return uiSchemaMap.get(uiSchemaNameValue);
+        }
+        return uiSchemaMap.get(mediatorName);
     }
 
     private STNode getMediatorNodeAtPosition(DOMDocument document, Position position, Boolean isUpdate)

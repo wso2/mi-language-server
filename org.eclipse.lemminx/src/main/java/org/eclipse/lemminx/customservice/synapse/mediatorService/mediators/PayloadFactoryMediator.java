@@ -121,7 +121,7 @@ public class PayloadFactoryMediator {
                                                                                            List<String> dirtyFields) {
 
         Boolean useTemplateResource = (Boolean) data.get("useTemplateResource");
-        if (!useTemplateResource) {
+        if (useTemplateResource == null || !useTemplateResource) {
             data.put("isInlined", true);
         }
         // Process args
@@ -168,6 +168,7 @@ public class PayloadFactoryMediator {
             }
             data.put(Constant.ARGS, args);
             data.put(CONTAIN_ARGS, true);
+            data.put(Constant.UI_SCHEMA_NAME, "payloadFactory_430");
         }
         return data;
     }
