@@ -18,6 +18,7 @@
 
 package org.eclipse.lemminx.customservice.synapse.mediatorService.mediators;
 
+import org.eclipse.lemminx.customservice.synapse.mediatorService.MediatorUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Variable;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -35,6 +36,7 @@ public class VariableMediator {
         Map<String, Object> variableValue = (Map<String, Object>) data.get("variableValue");
         if (variableValue != null && Boolean.TRUE.equals(variableValue.get("isExpression"))) {
             data.put("expression", variableValue.get("value"));
+            data.put("namespaces", variableValue.get("namespaces"));
             data.remove("variableValue");
         } else if (variableValue != null) {
             data.put("value", variableValue.get("value"));
@@ -64,6 +66,7 @@ public class VariableMediator {
         } else if (variable.getExpression() != null) {
             variableValue.put("isExpression", true);
             variableValue.put("value", variable.getExpression());
+            variableValue.put("namespaces", MediatorUtils.transformNamespaces(variable.getNamespaces()));
         }
         data.put("variableValue", variableValue);
         return data;
