@@ -27,37 +27,6 @@
     {
       "type": "attribute",
       "value": {
-        "name": "level",
-        "displayName": "Log Level",
-        "inputType": "combo",
-        "comboValues": [
-          "SIMPLE",
-          "HEADERS",
-          "FULL",
-          "CUSTOM"
-        ],
-        "required": "false",
-        "helpTip": "Log Level",
-        "enableCondition": [
-          "OR",
-          {
-            "level": "SIMPLE"
-          },
-          {
-            "level": "HEADERS"
-          },
-          {
-            "level": "FULL"
-          },
-          {
-            "level": "CUSTOM"
-          }
-        ]
-      }
-    },
-    {
-      "type": "attribute",
-      "value": {
         "name": "message",
         "displayName": "Message",
         "inputType": "expressionTextArea",

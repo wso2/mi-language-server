@@ -55,67 +55,6 @@
                 ]
               }
             }
-          },
-          {
-            "type": "table",
-            "value": {
-              "name": "args",
-              "displayName": "Arguments",
-              "title": "Payload Factory Argument",
-              "description": "Arguments to be passed to the payload factory.",
-              "tableKey": "{row.number}",
-              "tableValue": "argumentValue",
-              "enableCondition": [
-                {
-                  "containArgs": true
-                }
-              ],
-              "elements": [
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "argumentValue",
-                    "displayName": "Argument Value",
-                    "inputType": "stringOrExpression",
-                    "expressionType":"xpath/jsonPath",
-                    "defaultValue": "",
-                    "required": false,
-                    "helpTip": ""
-                  }
-                },
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "evaluator",
-                    "displayName": "Evaluator",
-                    "inputType": "combo",
-                    "defaultValue": "xml",
-                    "comboValues": [
-                      "xml",
-                      "json"
-                    ],
-                    "required": false,
-                    "enableCondition": [
-                      {
-                        "argumentValue.isExpression": true
-                      }
-                    ],
-                    "helpTip": ""
-                  }
-                },
-                {
-                  "type": "attribute",
-                  "value": {
-                    "name": "literal",
-                    "displayName": "Literal",
-                    "inputType": "checkbox",
-                    "defaultValue": false,
-                    "required": false,
-                    "helpTip": ""
-                  }
-                }
-              ]
-            }
           }
         ]
       }
@@ -158,7 +97,12 @@
               "name": "payloadKey",
               "displayName": "Resource Key",
               "inputType": "resource",
-              "keyType": ["xml", "json", "txt", "ftl"],
+              "keyType": [
+                "xml",
+                "json",
+                "txt",
+                "ftl"
+              ],
               "required": true,
               "helpTip": "",
               "enableCondition": [
@@ -170,18 +114,6 @@
             }
           }
         ]
-      }
-    },
-    {
-      "type": "attribute",
-      "value": {
-        "name": "containArgs",
-        "displayName": "containArgs",
-        "inputType": "checkbox",
-        "defaultValue": false,
-        "required": false,
-        "helpTip": "",
-        "hidden": true
       }
     },
     {

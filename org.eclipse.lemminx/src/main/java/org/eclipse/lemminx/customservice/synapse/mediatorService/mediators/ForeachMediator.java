@@ -101,6 +101,7 @@ public class ForeachMediator {
         }
         data.put("prevSequenceType", data.get("sequenceType"));
         data.put(Constant.VERSION, "v1");
+        data.put(Constant.UI_SCHEMA_NAME, "foreach_430");
         return data;
     }
 

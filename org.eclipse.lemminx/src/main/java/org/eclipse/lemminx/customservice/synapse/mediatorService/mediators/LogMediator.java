@@ -21,6 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.mediatorService.mediators;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.MediatorUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Log;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.MediatorProperty;
+import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
@@ -108,6 +109,7 @@ public class LogMediator {
         }
         if (node.getLevel() != null) {
             data.put("level", node.getLevel().toUpperCase());
+            data.put(Constant.UI_SCHEMA_NAME, "log_430");
         }
         data.put("message", node.getMessage());
         data.put("description", node.getDescription());
