@@ -245,15 +245,6 @@ public class PluginHandler extends DefaultHandler {
                 if (this.pomDetailsResponse.getUnitTestDetails().getServerVersion() != null) {
                     this.pomDetailsResponse.getUnitTestDetails().setServerVersionDisplayValue(projectRuntimeVersion);
                 }
-                if (pomDetailsResponse.getUnitTestDetails().getServerDownloadLink() != null) {
-                    Node link =  pomDetailsResponse.getUnitTestDetails().getServerDownloadLink();
-                    String linkValue = link.getValue();
-                    if (linkValue.contains(Constants.PROJECT_RUNTIME_VERSION_CONSTANT)) {
-                        link.setDisplayValue(linkValue.replaceAll(Constants.PROJECT_RUNTIME_VERSION_CONSTANT,
-                                projectRuntimeVersion));
-                        pomDetailsResponse.getUnitTestDetails().setServerDownloadLink(link);
-                    }
-                }
                 break;
             case Constants.KEY_STORE_TYPE:
                 pomDetailsResponse.getBuildDetails().getDockerDetails().
@@ -300,22 +291,35 @@ public class PluginHandler extends DefaultHandler {
                 this.hasPropertiesUnitTestDetails = true;
                 pomDetailsResponse.getUnitTestDetails().setServerPath(new Node(value, Either.forLeft(range)));
                 break;
-            case Constants.TEST_SERVER_VERSION:
+            case Constants.PRO_TEST_SERVER_VERSION:
                 this.hasPropertiesUnitTestDetails = true;
                 UnitTestDetails unitTestDetails = pomDetailsResponse.getUnitTestDetails();
                 unitTestDetails.setServerVersion(new Node(value, Either.forLeft(range)));
                 if (projectRuntimeVersion != null && value.equals(Constants.PROJECT_RUNTIME_VERSION_CONSTANT)) {
                     unitTestDetails.setServerVersionDisplayValue(projectRuntimeVersion);
+                } else {
+                    unitTestDetails.setServerVersionDisplayValue(value);
+                }
+                if (pomDetailsResponse.getUnitTestDetails().getServerDownloadLink() != null) {
+                    Node link =  pomDetailsResponse.getUnitTestDetails().getServerDownloadLink();
+                    String linkValue = link.getValue();
+                    if (linkValue.contains(Constants.PROJECT_TEST_SERVER_VERSION_CONSTANT)) {
+                        link.setDisplayValue(linkValue.replaceAll(
+                                Constants.PROJECT_TEST_SERVER_VERSION_CONSTANT_WITH_ESCAPE,
+                                pomDetailsResponse.getUnitTestDetails().getServerVersion().getDisplayValue()));
+                        pomDetailsResponse.getUnitTestDetails().setServerDownloadLink(link);
+                    }
                 }
                 break;
             case Constants.TEST_SERVER_DOWNLOAD_LINK:
                 this.hasPropertiesUnitTestDetails = true;
                 pomDetailsResponse.getUnitTestDetails().setServerDownloadLink(new Node(value,
                         Either.forLeft(range)));
-                if (projectRuntimeVersion != null && value.contains(Constants.PROJECT_RUNTIME_VERSION_CONSTANT)) {
+                if (pomDetailsResponse.getUnitTestDetails().getServerVersion().getDisplayValue() != null &&
+                        value.contains(Constants.PROJECT_TEST_SERVER_VERSION_CONSTANT)) {
                     pomDetailsResponse.getUnitTestDetails().getServerDownloadLink().setDisplayValue(
-                            value.replaceAll(Constants.PROJECT_RUNTIME_VERSION_CONSTANT_WITH_ESCAPE,
-                                    projectRuntimeVersion));
+                            value.replaceAll(Constants.PROJECT_TEST_SERVER_VERSION_CONSTANT_WITH_ESCAPE,
+                                    pomDetailsResponse.getUnitTestDetails().getServerVersion().getDisplayValue()));
                 }
                 break;
             case Constants.MAVEN_SKIP_TEST:
