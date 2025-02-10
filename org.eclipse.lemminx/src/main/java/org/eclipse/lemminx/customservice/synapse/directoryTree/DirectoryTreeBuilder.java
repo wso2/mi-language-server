@@ -215,6 +215,7 @@ public class DirectoryTreeBuilder {
             });
             return result;
         } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "Error occurred while building the project explorer directory tree.", ex);
             return Collections.emptyList();
         }
     }
