@@ -33,13 +33,13 @@ import java.util.Map;
 
 public class PayloadFactoryMediator {
 
+    public static final String CONTAIN_ARGS = "containArgs";
     private static final String TEMPLATE_TYPE = "templateType";
     private static final String MEDIA_TYPE = "mediaType";
-    public static final String CONTAIN_ARGS = "containArgs";
 
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           PayloadFactory payloadFactory,
-                                                                                           List<String> dirtyFields) {
+                                                                                              PayloadFactory payloadFactory,
+                                                                                              List<String> dirtyFields) {
         data.put("isInlined", "Inline".equals(data.get("payloadFormat")));
         data.put("isFreemarker", "Freemarker".equals(data.get(TEMPLATE_TYPE)));
 
@@ -117,8 +117,8 @@ public class PayloadFactoryMediator {
     }
 
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData440(Map<String, Object> data,
-                                                                                           PayloadFactory payloadFactory,
-                                                                                           List<String> dirtyFields) {
+                                                                                              PayloadFactory payloadFactory,
+                                                                                              List<String> dirtyFields) {
 
         Boolean useTemplateResource = (Boolean) data.get("useTemplateResource");
         if (useTemplateResource == null || !useTemplateResource) {
@@ -194,7 +194,8 @@ public class PayloadFactoryMediator {
             if (propertyObj instanceof List<?>) {
                 List<Object> property = (List<Object>) propertyObj;
                 Map<String, Object> argMap = new HashMap<>();
-                if (property.get(0) instanceof Map<?, ?> && !Boolean.TRUE.equals(((Map<?, ?>) property.get(0)).get(Constant.IS_EXPRESSION))) {
+                if (property.get(0) instanceof Map<?, ?> &&
+                        !Boolean.TRUE.equals(((Map<?, ?>) property.get(0)).get(Constant.IS_EXPRESSION))) {
                     argMap.put(Constant.VALUE, ((Map<?, ?>) property.get(0)).get(Constant.VALUE));
                     argMap.put(Constant.LITERAL, property.size() > 2 ? property.get(2) : null);
                 } else {

@@ -30,8 +30,8 @@ import java.util.Map;
 
 public class ScriptMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Script script,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Script script,
+                                                                                              List<String> dirtyFields) {
         if (!"INLINE".equals(data.get("scriptType"))) {
             data.put("isRegistry", true);
 

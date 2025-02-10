@@ -37,12 +37,15 @@ import java.util.Map;
 public class AggregateMediator {
     private static final List<String> aggregateTagAttributes = List.of("aggregateID", "description");
     private static final List<String> correlateOnAttributes = List.of("correlationExpression");
-    private static final List<String> completeConditionAttributes = List.of("completionTimeout", "completionMaxMessages", "completionMinMessages");
-    private static final List<String> onCompleteAttributes = List.of("aggregateElementType", "enclosingElementProperty", "aggregationExpression", "sequenceKey", "sequenceType");
+    private static final List<String> completeConditionAttributes =
+            List.of("completionTimeout", "completionMaxMessages", "completionMinMessages");
+    private static final List<String> onCompleteAttributes =
+            List.of("aggregateElementType", "enclosingElementProperty",
+                    "aggregationExpression", "sequenceKey", "sequenceType");
 
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Aggregate aggregate,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Aggregate aggregate,
+                                                                                              List<String> dirtyFields) {
 
         data.replaceAll((key, value) -> {
             if (value instanceof Double) {
@@ -66,9 +69,9 @@ public class AggregateMediator {
         }
 
         List<Object> messageCountNamespaces = new ArrayList<>();
-        Map<String, Object> completionMaxMessages = data.get("completionMaxMessages") instanceof Map<?,?> ?
+        Map<String, Object> completionMaxMessages = data.get("completionMaxMessages") instanceof Map<?, ?> ?
                 (Map<String, Object>) data.get("completionMaxMessages") : null;
-        Map<String, Object> completionMinMessages = data.get("completionMinMessages") instanceof Map<?,?> ?
+        Map<String, Object> completionMinMessages = data.get("completionMinMessages") instanceof Map<?, ?> ?
                 (Map<String, Object>) data.get("completionMinMessages") : null;
 
         if (completionMaxMessages != null && completionMaxMessages.get("namespaces") instanceof List<?>) {
@@ -91,9 +94,11 @@ public class AggregateMediator {
             data.remove("enclosingElementProperty");
         }
 
-        Map<String, Object> correlationExpression = data.get("correlationExpression") instanceof  Map<?,?> ?
+        Map<String, Object> correlationExpression = data.get("correlationExpression") instanceof Map<?, ?> ?
                 (Map<String, Object>) data.get("correlationExpression") : null;
-        if (correlationExpression == null || correlationExpression.get("value") == null || "".equals(correlationExpression.get("value"))) {
+        if (correlationExpression == null ||
+                correlationExpression.get("value") == null ||
+                "".equals(correlationExpression.get("value"))) {
             data.remove("correlationExpression");
         }
 
@@ -149,7 +154,8 @@ public class AggregateMediator {
         if (range != null) {
             Position start = range.getStartTagRange().getStart();
             Position end = editStartTagOnly ? range.getStartTagRange().getEnd() :
-                    (range.getEndTagRange() != null ? range.getEndTagRange().getEnd() : range.getStartTagRange().getEnd());
+                    (range.getEndTagRange() != null ?
+                            range.getEndTagRange().getEnd() : range.getStartTagRange().getEnd());
             editRange = new Range(start, end);
         } else {
             TagRanges aggregateRange = ranges.get("aggregate");
@@ -164,13 +170,16 @@ public class AggregateMediator {
         Map<String, TagRanges> ranges = new HashMap<>();
         ranges.put("aggregate", aggregate.getRange());
         if (aggregate.getCorrelateOnOrCompleteConditionOrOnComplete().getCorrelateOn().isPresent()) {
-            ranges.put("correlateOn", aggregate.getCorrelateOnOrCompleteConditionOrOnComplete().getCorrelateOn().get().getRange());
+            ranges.put("correlateOn",
+                    aggregate.getCorrelateOnOrCompleteConditionOrOnComplete().getCorrelateOn().get().getRange());
         }
         if (aggregate.getCorrelateOnOrCompleteConditionOrOnComplete().getCompleteCondition().isPresent()) {
-            ranges.put("completeCondition", aggregate.getCorrelateOnOrCompleteConditionOrOnComplete().getCompleteCondition().get().getRange());
+            ranges.put("completeCondition",
+                    aggregate.getCorrelateOnOrCompleteConditionOrOnComplete().getCompleteCondition().get().getRange());
         }
         if (aggregate.getCorrelateOnOrCompleteConditionOrOnComplete().getOnComplete().isPresent()) {
-            ranges.put("onComplete", aggregate.getCorrelateOnOrCompleteConditionOrOnComplete().getOnComplete().get().getRange());
+            ranges.put("onComplete",
+                    aggregate.getCorrelateOnOrCompleteConditionOrOnComplete().getOnComplete().get().getRange());
         }
         return ranges;
     }
@@ -196,9 +205,11 @@ public class AggregateMediator {
             completeCondition = node.getCorrelateOnOrCompleteConditionOrOnComplete().getCompleteCondition().get();
             data.put("completionTimeout", completeCondition.getTimeout());
 
-            String max = completeCondition.getMessageCount() != null ? completeCondition.getMessageCount().getMax() : null;
+            String max = completeCondition.getMessageCount() != null ?
+                    completeCondition.getMessageCount().getMax() : null;
             List<Namespace> messageCountNamespaces = MediatorUtils.transformNamespaces(
-                    completeCondition.getMessageCount() != null ? completeCondition.getMessageCount().getNamespaces() : null);
+                    completeCondition.getMessageCount() != null ?
+                            completeCondition.getMessageCount().getNamespaces() : null);
 
             if (max != null && max.startsWith("{")) {
                 String value = extractExpressionValue(max);
@@ -214,7 +225,8 @@ public class AggregateMediator {
                 ));
             }
 
-            String min = completeCondition.getMessageCount() != null ? completeCondition.getMessageCount().getMin() : null;
+            String min = completeCondition.getMessageCount() != null ?
+                    completeCondition.getMessageCount().getMin() : null;
             if (min != null && min.startsWith("{")) {
                 String value = extractExpressionValue(min);
                 data.put("completionMinMessages", Map.of(

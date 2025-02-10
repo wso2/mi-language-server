@@ -29,8 +29,8 @@ import java.util.Map;
 
 public class FastXSLTMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           FastXSLT fastXSLT,
-                                                                                           List<String> dirtyFields) {
+                                                                                              FastXSLT fastXSLT,
+                                                                                              List<String> dirtyFields) {
         if (data.containsKey("schemaKay") && data.get("schemaKay") instanceof Map<?, ?>) {
             Map<String, Object> schemaKay = (Map<String, Object>) data.get("schemaKay");
             if (Boolean.TRUE.equals(schemaKay.get("isExpression"))) {

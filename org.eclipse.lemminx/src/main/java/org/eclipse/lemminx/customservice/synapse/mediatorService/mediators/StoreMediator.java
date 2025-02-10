@@ -29,8 +29,8 @@ import java.util.Map;
 
 public class StoreMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Store store,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Store store,
+                                                                                              List<String> dirtyFields) {
         if (data.containsKey("messageStore") && data.get("messageStore") instanceof Map<?, ?>) {
             Map<String, Object> messageStore = (Map<String, Object>) data.get("messageStore");
             if (Boolean.TRUE.equals(messageStore.get("isExpression")) && messageStore.containsKey("value")) {

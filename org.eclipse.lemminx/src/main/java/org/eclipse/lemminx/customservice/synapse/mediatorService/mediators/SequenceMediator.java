@@ -29,8 +29,8 @@ import java.util.Map;
 public class SequenceMediator {
 
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.SequenceMediator sequence,
-                                                                                           List<String> dirtyFields) {
+                                                                                              org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.SequenceMediator sequence,
+                                                                                              List<String> dirtyFields) {
         Object referringSequenceObj = data.get("referringSequence");
         if (referringSequenceObj instanceof Map<?, ?>) {
             Map<String, Object> referringSequence = (Map<String, Object>) referringSequenceObj;

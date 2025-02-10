@@ -29,8 +29,8 @@ import java.util.Map;
 
 public class SmooksMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Smooks smooks,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Smooks smooks,
+                                                                                              List<String> dirtyFields) {
         String outputMethod = (String) data.get("outputMethod");
         if ("Property".equals(outputMethod)) {
             data.remove("outputExpression");

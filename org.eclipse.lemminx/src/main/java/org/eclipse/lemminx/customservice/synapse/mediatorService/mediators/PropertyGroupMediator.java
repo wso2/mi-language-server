@@ -32,27 +32,31 @@ import java.util.Map;
 
 public class PropertyGroupMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           PropertyGroup propertyGroup,
-                                                                                           List<String> dirtyFields) {
-        List<Object> propertiesList = data.get("properties") instanceof List<?> ? (List<Object>) data.get("properties") : new ArrayList<>();
+                                                                                              PropertyGroup propertyGroup,
+                                                                                              List<String> dirtyFields) {
+        List<Object> propertiesList = data.get("properties") instanceof List<?> ?
+                (List<Object>) data.get("properties") : new ArrayList<>();
         List<Map<String, Object>> properties = new ArrayList<>();
 
         for (Object propertyObj : propertiesList) {
             if (propertyObj instanceof List<?>) {
                 List<Object> property = (List<Object>) propertyObj;
 
-                String name = property.get(0) instanceof Map<?, ?> && Boolean.TRUE.equals(((Map<?, ?>) property.get(0)).get("isExpression"))
+                String name = property.get(0) instanceof Map<?, ?> &&
+                        Boolean.TRUE.equals(((Map<?, ?>) property.get(0)).get("isExpression"))
                         ? "{" + ((Map<?, ?>) property.get(0)).get("value") + "}"
                         : (String) ((Map<?, ?>) property.get(0)).get("value");
 
                 List<Map<String, Object>> namespaces = new ArrayList<>();
-                if (property.get(0) instanceof Map<?, ?> && ((Map<?, ?>) property.get(0)).get("namespaces") instanceof List<?>) {
+                if (property.get(0) instanceof Map<?, ?> &&
+                        ((Map<?, ?>) property.get(0)).get("namespaces") instanceof List<?>) {
                     namespaces.addAll((List<Map<String, Object>>) ((Map<?, ?>) property.get(0)).get("namespaces"));
                 }
 
                 Object value = null, expression = null, omValue = null, isInlineOMValue = null;
                 if ("OM".equals(property.get(2))) {
-                    if (property.get(4) instanceof Map<?, ?> && Boolean.TRUE.equals(((Map<?, ?>) property.get(4)).get("isExpression"))) {
+                    if (property.get(4) instanceof Map<?, ?> &&
+                            Boolean.TRUE.equals(((Map<?, ?>) property.get(4)).get("isExpression"))) {
                         expression = ((Map<?, ?>) property.get(4)).get("value");
                         if (((Map<?, ?>) property.get(4)).get("namespaces") instanceof List<?>) {
                             namespaces.addAll((List<Map<String, Object>>) ((Map<?, ?>) property.get(4)).get("namespaces"));
@@ -62,7 +66,8 @@ public class PropertyGroupMediator {
                         omValue = ((Map<?, ?>) property.get(4)).get("value");
                     }
                 } else {
-                    if (property.get(3) instanceof Map<?, ?> && Boolean.TRUE.equals(((Map<?, ?>) property.get(3)).get("isExpression"))) {
+                    if (property.get(3) instanceof Map<?, ?> &&
+                            Boolean.TRUE.equals(((Map<?, ?>) property.get(3)).get("isExpression"))) {
                         expression = ((Map<?, ?>) property.get(3)).get("value");
                         if (((Map<?, ?>) property.get(3)).get("namespaces") instanceof List<?>) {
                             namespaces.addAll((List<Map<String, Object>>) ((Map<?, ?>) property.get(3)).get("namespaces"));
@@ -74,7 +79,8 @@ public class PropertyGroupMediator {
 
                 List<Map<String, Object>> filteredNamespaces = MediatorUtils.filterNamespaces(namespaces);
 
-                boolean hasStringPattern = property.size() > 6 && property.get(6) != null && !((String) property.get(6)).isEmpty();
+                boolean hasStringPattern = property.size() > 6 &&
+                        property.get(6) != null && !((String) property.get(6)).isEmpty();
 
                 Map<String, Object> propertyMap = new HashMap<>();
                 propertyMap.put("newPropertyName", name);
@@ -84,7 +90,8 @@ public class PropertyGroupMediator {
                 propertyMap.put("expression", expression);
                 propertyMap.put("namespaces", filteredNamespaces);
                 propertyMap.put("OMValue", omValue);
-                propertyMap.put("propertyScope", property.size() > 5 && property.get(5) != null ? ((String) property.get(5)).toLowerCase() : null);
+                propertyMap.put("propertyScope", property.size() > 5 && property.get(5) != null ?
+                        ((String) property.get(5)).toLowerCase() : null);
                 propertyMap.put("valueStringPattern", hasStringPattern ? property.get(6) : null);
                 propertyMap.put("valueStringCapturingGroup", hasStringPattern ? property.get(7) : null);
                 propertyMap.put("description", property.size() > 8 ? property.get(8) : null);
@@ -105,7 +112,8 @@ public class PropertyGroupMediator {
         data.put("description", node.getDescription());
         List<List<Object>> properties = new ArrayList<>();
         for (Property property : node.getProperty()) {
-            boolean isNameExpression = property.getName() != null && property.getName().startsWith("{") && property.getName().endsWith("}");
+            boolean isNameExpression = property.getName() != null &&
+                    property.getName().startsWith("{") && property.getName().endsWith("}");
             String name = isNameExpression
                     ? property.getName().substring(1, property.getName().length() - 1)
                     : property.getName();

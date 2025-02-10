@@ -28,8 +28,8 @@ import java.util.Map;
 
 public class OauthServiceMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           OauthService oauthService,
-                                                                                           List<String> dirtyFields) {
+                                                                                              OauthService oauthService,
+                                                                                              List<String> dirtyFields) {
         if (data.containsKey("remoteServiceURL") && data.get("remoteServiceURL") instanceof String) {
             String remoteServiceURL = (String) data.get("remoteServiceURL");
             if (!remoteServiceURL.endsWith("/")) {

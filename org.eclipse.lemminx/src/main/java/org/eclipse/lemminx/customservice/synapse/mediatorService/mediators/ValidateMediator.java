@@ -34,8 +34,8 @@ import java.util.Map;
 
 public class ValidateMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Validate validate,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Validate validate,
+                                                                                              List<String> dirtyFields) {
         List<Map<String, Object>> schemas = new ArrayList<>();
         Object schemasData = data.get("schemas");
         if (schemasData instanceof List<?>) {
@@ -92,7 +92,9 @@ public class ValidateMediator {
         return Either.forRight(getEdits(data, validate, dirtyFields));
     }
 
-    private static Map<Range, Map<String, Object>> getEdits(Map<String, Object> data, Validate validate, List<String> dirtyFields) {
+    private static Map<Range, Map<String, Object>> getEdits(Map<String, Object> data,
+                                                            Validate validate,
+                                                            List<String> dirtyFields) {
         Map<Range, Map<String, Object>> edits = new HashMap<>();
 
         if (!dirtyFields.isEmpty()) {

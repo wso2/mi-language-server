@@ -31,21 +31,24 @@ import java.util.Map;
 
 public class CallTemplateMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           CallTemplate callTemplate,
-                                                                                           List<String> dirtyFields) {
-        List<Object> parameterNameTable = data.get("parameterNameTable") instanceof List<?> ? (List<Object>) data.get("parameterNameTable") : new ArrayList<>();
+                                                                                              CallTemplate callTemplate,
+                                                                                              List<String> dirtyFields) {
+        List<Object> parameterNameTable = data.get("parameterNameTable") instanceof List<?> ?
+                (List<Object>) data.get("parameterNameTable") : new ArrayList<>();
         List<Map<String, Object>> parameterName = new ArrayList<>();
         for (Object propertyObj : parameterNameTable) {
             if (propertyObj instanceof List<?>) {
                 List<Object> property = (List<Object>) propertyObj;
-                Map<String, Object> value = property.get(1) instanceof Map<?, ?> ? (Map<String, Object>) property.get(1) : null;
+                Map<String, Object> value = property.get(1) instanceof Map<?, ?> ?
+                        (Map<String, Object>) property.get(1) : null;
                 if (value != null) {
                     boolean isExpressionValue = (boolean) value.get("isExpression");
                     List<Object> namespaces = isExpressionValue && value.get("namespaces") instanceof List<?> ?
                             (List<Object>) value.get("namespaces") : null;
                     Map<String, Object> propertyValue = new HashMap<>();
                     propertyValue.put("parameterName", property.get(0));
-                    propertyValue.put("parameterValue", isExpressionValue ? "{" + value.get("value") + "}" : value.get("value"));
+                    propertyValue.put("parameterValue", isExpressionValue ? "{" +
+                            value.get("value") + "}" : value.get("value"));
                     if (namespaces != null) {
                         propertyValue.put("namespaces", namespaces);
                     }

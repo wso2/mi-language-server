@@ -37,20 +37,22 @@ public class IterateMediator {
     private static final List<String> targetTagAttributes = List.of("sequenceKey");
 
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Iterate iterate,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Iterate iterate,
+                                                                                              List<String> dirtyFields) {
         if ("Anonymous".equals(data.get("sequenceType"))) {
             data.remove("sequenceKey");
             data.put("isAnnonymousSequence", true);
         }
 
-        Map<String, Object> iterateExpression = data.get("iterateExpression") instanceof Map<?, ?> ? (Map<String, Object>) data.get("iterateExpression") : null;
+        Map<String, Object> iterateExpression = data.get("iterateExpression") instanceof Map<?, ?> ?
+                (Map<String, Object>) data.get("iterateExpression") : null;
         if (iterateExpression != null) {
             data.put("namespaces", iterateExpression.get("namespaces"));
             data.put("iterateExpression", iterateExpression.get("value"));
         }
 
-        Map<String, Object> attachPath = data.get("attachPath") instanceof Map<?, ?> ? (Map<String, Object>) data.get("attachPath") : null;
+        Map<String, Object> attachPath = data.get("attachPath") instanceof Map<?, ?> ?
+                (Map<String, Object>) data.get("attachPath") : null;
         if (attachPath != null) {
             data.put("attachPath", attachPath.get("value"));
         }
@@ -64,7 +66,9 @@ public class IterateMediator {
 
     }
 
-    private static Map<Range, Map<String, Object>> getEdits(Map<String, Object> data, Iterate iterate, List<String> dirtyFields) {
+    private static Map<Range, Map<String, Object>> getEdits(Map<String, Object> data,
+                                                            Iterate iterate,
+                                                            List<String> dirtyFields) {
         Map<Range, Map<String, Object>> editsData = new HashMap<>();
 
         if (MediatorUtils.anyMatch(dirtyFields, iterateTagAttributes)) {

@@ -31,8 +31,8 @@ import static org.eclipse.lemminx.customservice.synapse.mediatorService.Mediator
 
 public class CalloutMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Callout callout,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Callout callout,
+                                                                                              List<String> dirtyFields) {
         boolean xpathPayload = "XPATH".equals(data.get("payloadType"));
         boolean propertyPayload = "PROPERTY".equals(data.get("payloadType"));
         boolean envelopePayload = "ENVELOPE".equals(data.get("payloadType"));

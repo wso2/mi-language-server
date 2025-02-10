@@ -33,12 +33,13 @@ import java.util.Map;
 public class PropertyMediator {
 
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Property mediatorname,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Property mediatorname,
+                                                                                              List<String> dirtyFields) {
 
         List<Map<String, Object>> namespaces = new ArrayList<>();
 
-        Map<String, Object> propertyName = data.get("propertyName") instanceof Map<?,?> ? (Map<String, Object>) data.get("propertyName") : null;
+        Map<String, Object> propertyName = data.get("propertyName") instanceof Map<?, ?> ?
+                (Map<String, Object>) data.get("propertyName") : null;
         if (propertyName != null && Boolean.TRUE.equals(propertyName.get("isExpression"))) {
             namespaces.addAll((List<Map<String, Object>>) propertyName.getOrDefault("namespaces", new ArrayList<>()));
             data.put("propertyName", "{" + propertyName.get("value") + "}");
@@ -48,7 +49,8 @@ public class PropertyMediator {
 
         if ("OM".equals(data.get("propertyDataType"))) {
             data.remove("value");
-            Map<String, Object> omValue = data.get("OMValue") instanceof Map<?,?> ? (Map<String, Object>) data.get("OMValue") : null;
+            Map<String, Object> omValue = data.get("OMValue") instanceof Map<?, ?> ?
+                    (Map<String, Object>) data.get("OMValue") : null;
             if (omValue != null && Boolean.TRUE.equals(omValue.get("isExpression"))) {
                 namespaces.addAll((List<Map<String, Object>>) omValue.getOrDefault("namespaces", new ArrayList<>()));
                 data.put("expression", omValue.get("value"));
@@ -77,7 +79,8 @@ public class PropertyMediator {
             data.remove("valueStringCapturingGroup");
         }
 
-        Map<String, Object> value = data.get("value") instanceof Map<?,?> ? (Map<String, Object>) data.get("value") : null;
+        Map<String, Object> value = data.get("value") instanceof Map<?, ?> ?
+                (Map<String, Object>) data.get("value") : null;
         if (value != null && Boolean.TRUE.equals(value.get("isExpression"))) {
             namespaces.addAll((List<Map<String, Object>>) value.getOrDefault("namespaces", new ArrayList<>()));
             data.put("expression", value.get("value"));

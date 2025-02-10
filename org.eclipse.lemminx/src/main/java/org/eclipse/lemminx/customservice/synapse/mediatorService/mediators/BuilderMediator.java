@@ -30,25 +30,28 @@ import java.util.Map;
 
 public class BuilderMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Builder builder,
-                                                                                           List<String> dirtyFields) {
-        List<Object> messageBuildersData = data.get("messageBuilders") instanceof List<?> ? (List<Object>) data.get("messageBuilders") : new ArrayList<>();
-        List<Map<String,String>> messageBuilders = new ArrayList<>();
+                                                                                              Builder builder,
+                                                                                              List<String> dirtyFields) {
+        List<Object> messageBuildersData = data.get("messageBuilders") instanceof List<?> ?
+                (List<Object>) data.get("messageBuilders") : new ArrayList<>();
+        List<Map<String, String>> messageBuilders = new ArrayList<>();
 
         for (Object messageBuilderDataObj : messageBuildersData) {
             if (messageBuilderDataObj instanceof List<?>) {
-                Map<String,String> messageBuilder = new HashMap<>();
+                Map<String, String> messageBuilder = new HashMap<>();
                 List<Object> messageBuilderData = (List<Object>) messageBuilderDataObj;
-                messageBuilder.put("contentType", messageBuilderData.get(0) instanceof String ? (String) messageBuilderData.get(0) : "");
-                messageBuilder.put("builderClass", messageBuilderData.get(1) instanceof String ? (String) messageBuilderData.get(1) : "");
-                messageBuilder.put("formatterClass", messageBuilderData.get(2) instanceof String ? (String) messageBuilderData.get(2) : "");
+                messageBuilder.put("contentType", messageBuilderData.get(0) instanceof String ?
+                        (String) messageBuilderData.get(0) : "");
+                messageBuilder.put("builderClass", messageBuilderData.get(1) instanceof String ?
+                        (String) messageBuilderData.get(1) : "");
+                messageBuilder.put("formatterClass", messageBuilderData.get(2) instanceof String ?
+                        (String) messageBuilderData.get(2) : "");
                 messageBuilders.add(messageBuilder);
             }
         }
-        data.put("messageBuilders",messageBuilders);
+        data.put("messageBuilders", messageBuilders);
 
         return Either.forLeft(data);
-
     }
 
     public static Map<String, Object> getDataFromST430(Builder node) {

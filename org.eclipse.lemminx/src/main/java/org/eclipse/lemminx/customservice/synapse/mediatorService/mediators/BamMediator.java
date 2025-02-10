@@ -28,8 +28,8 @@ import java.util.Map;
 
 public class BamMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Bam bam,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Bam bam,
+                                                                                              List<String> dirtyFields) {
         return Either.forLeft(data);
 
     }

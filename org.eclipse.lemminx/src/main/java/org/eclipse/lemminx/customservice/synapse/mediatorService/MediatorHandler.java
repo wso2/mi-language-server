@@ -190,7 +190,7 @@ public class MediatorHandler {
                 if (dataValueItem.get(Constant.PROPERTY_NAME) != null && dataValueItem.get(Constant.PROPERTY_VALUE) != null) {
                     Object propertyValue;
                     if (dataValueItem.get(Constant.PROPERTY_VALUE) instanceof LinkedTreeMap) {
-                        LinkedTreeMap dataValueLinkedTree =  (LinkedTreeMap) dataValueItem.get(Constant.PROPERTY_VALUE);
+                        LinkedTreeMap dataValueLinkedTree = (LinkedTreeMap) dataValueItem.get(Constant.PROPERTY_VALUE);
                         propertyValue = dataValueLinkedTree.get(Constant.VALUE);
                     } else {
                         propertyValue = dataValueItem.get(Constant.PROPERTY_VALUE);
@@ -413,7 +413,7 @@ public class MediatorHandler {
     private boolean isAddedAbove(DOMNode currentNode, DOMNode nextNode, int offset) {
         if (currentNode instanceof DOMElement) {
             DOMElement tagElement = (DOMElement) currentNode;
-            if ((!tagElement.isSelfClosed()) && tagElement.isInInsideStartEndTag(offset)) {
+            if (!tagElement.isSelfClosed() && tagElement.isInInsideStartEndTag(offset)) {
                 return currentNode.hasChildNodes();
             } else {
                 return nextNode != null;

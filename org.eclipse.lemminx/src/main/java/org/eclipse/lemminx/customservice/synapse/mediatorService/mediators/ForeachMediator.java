@@ -37,8 +37,8 @@ public class ForeachMediator {
     private static final String COLLECTION = "collection";
 
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Foreach foreach,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Foreach foreach,
+                                                                                              List<String> dirtyFields) {
         if ("Anonymous".equals(data.get("sequenceType"))) {
             data.put("isAnnonymousSequence", true);
         }
@@ -64,7 +64,7 @@ public class ForeachMediator {
                         range.getEndTagRange() != null && range.getEndTagRange().getEnd() != null ?
                                 range.getEndTagRange().getEnd() : range.getStartTagRange().getEnd()
                 );
-            } else if (foreach.getSequenceAttribute() != null  && "Anonymous".equals(data.get("sequenceType"))) {
+            } else if (foreach.getSequenceAttribute() != null && "Anonymous".equals(data.get("sequenceType"))) {
                 data.put("isAnnonymousSequence", true);
                 data.put("addSequence", true);
                 editRange = new Range(
@@ -112,7 +112,8 @@ public class ForeachMediator {
         // If the version is v2, then the mediator is a v2 mediator
         // Otherwise, return the use 430 mediator to preserve the backward compatibility
         if ("v2".equals(data.get(Constant.VERSION))) {
-            if (data.get(Constant.CONTINUE_WITHOUT_AGGREGATION) != null && (Boolean) data.get(Constant.CONTINUE_WITHOUT_AGGREGATION)) {
+            if (data.get(Constant.CONTINUE_WITHOUT_AGGREGATION) != null &&
+                    (Boolean) data.get(Constant.CONTINUE_WITHOUT_AGGREGATION)) {
                 data.remove(UPDATE_ORIGINAL_CONTENT);
                 data.remove(RESULT_TYPE);
                 data.remove(ROOT_ELEMENT);

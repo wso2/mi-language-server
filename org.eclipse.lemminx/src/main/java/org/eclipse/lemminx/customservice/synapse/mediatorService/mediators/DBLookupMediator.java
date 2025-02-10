@@ -32,8 +32,8 @@ import java.util.regex.Pattern;
 
 public class DBLookupMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           DbMediator dbLookup,
-                                                                                           List<String> dirtyFields) {
+                                                                                              DbMediator dbLookup,
+                                                                                              List<String> dirtyFields) {
         boolean isDbConnection = "DB_CONNECTION".equals(data.get("connectionType"));
         boolean isCarbonDs = "CARBON".equals(data.get("connectionType"));
 
@@ -49,22 +49,26 @@ public class DBLookupMediator {
 
                     String queryString = statement.get(0) instanceof String ? (String) statement.get(0) : "";
 
-                    List<Object> parametersList = statement.get(1) instanceof List<?> ? (List<Object>) statement.get(1) : new ArrayList<>();
+                    List<Object> parametersList = statement.get(1) instanceof List<?> ?
+                            (List<Object>) statement.get(1) : new ArrayList<>();
                     List<Map<String, Object>> parameters = new ArrayList<>();
                     for (Object parameterObj : parametersList) {
                         if (parameterObj instanceof List<?>) {
                             List<Object> parameter = (List<Object>) parameterObj;
                             Map<String, Object> parameterData = new HashMap<>();
                             parameterData.put("dataType", parameter.get(0));
-                            parameterData.put("valueLiteral", "LITERAL".equals(parameter.get(1)) ? parameter.get(2) : null);
-                            parameterData.put("valueExpression", "EXPRESSION".equals(parameter.get(1)) && parameter.get(3) instanceof Map<?, ?>
+                            parameterData.put("valueLiteral", "LITERAL".equals(parameter.get(1)) ?
+                                    parameter.get(2) : null);
+                            parameterData.put("valueExpression", "EXPRESSION".equals(parameter.get(1)) &&
+                                    parameter.get(3) instanceof Map<?, ?>
                                     ? ((Map<?, ?>) parameter.get(3)).get("value")
                                     : null);
                             parameters.add(parameterData);
                         }
                     }
 
-                    List<Object> resultsList = statement.get(2) instanceof List<?> ? (List<Object>) statement.get(2) : new ArrayList<>();
+                    List<Object> resultsList = statement.get(2) instanceof List<?> ?
+                            (List<Object>) statement.get(2) : new ArrayList<>();
                     List<Map<String, Object>> results = new ArrayList<>();
                     for (Object resultObj : resultsList) {
                         if (resultObj instanceof List<?>) {
@@ -161,7 +165,8 @@ public class DBLookupMediator {
                         parameter.getType() != null ? parameter.getType().toString() : "",
                         parameter.getValue() != null ? "LITERAL" : "EXPRESSION",
                         parameter.getValue() != null ? parameter.getValue() : "",
-                        Map.of("isExpression", true, "value", parameter.getExpression() != null ? parameter.getExpression() : "")
+                        Map.of("isExpression", true, "value", parameter.getExpression() != null ?
+                                parameter.getExpression() : "")
                 );
                 parameters.add(paramData);
             }

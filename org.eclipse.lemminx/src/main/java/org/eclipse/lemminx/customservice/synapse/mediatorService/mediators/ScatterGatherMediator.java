@@ -44,7 +44,7 @@ public class ScatterGatherMediator {
                                                                                            ScatterGather scatterGather,
                                                                                            List<String> dirtyFields) {
 
-        if(data.containsKey("newBranch") && Boolean.TRUE.equals(data.get("newBranch"))) {
+        if (data.containsKey("newBranch") && Boolean.TRUE.equals(data.get("newBranch"))) {
             return Either.forLeft(data);
         }
 
@@ -67,10 +67,12 @@ public class ScatterGatherMediator {
                                                             List<String> dirtyFields) {
 
         Map<Range, Map<String, Object>> edits = new HashMap<>();
-        List<String> scatterGatherAttributes = List.of(Constant.PARALLEL_EXECUTION, Constant.CONTENT_TYPE, Constant.RESULT_TARGET,
-                VARIABLE_NAME, ROOT_ELEMENT, Constant.DESCRIPTION);
-        List<String> aggregationAttributes = List.of(Constant.EXPRESSION, X_PATH_EXPRESSION, Constant.CONDITION, COMPLETE_TIMEOUT,
-                MIN_MESSAGES, MAX_MESSAGES);
+        List<String> scatterGatherAttributes =
+                List.of(Constant.PARALLEL_EXECUTION, Constant.CONTENT_TYPE, Constant.RESULT_TARGET, VARIABLE_NAME,
+                        ROOT_ELEMENT, Constant.DESCRIPTION);
+        List<String> aggregationAttributes =
+                List.of(Constant.EXPRESSION, X_PATH_EXPRESSION, Constant.CONDITION, COMPLETE_TIMEOUT, MIN_MESSAGES,
+                        MAX_MESSAGES);
 
         if (dirtyFields.contains(Constant.CONTENT_TYPE)) {
             if (JSON_CONTENT_TYPE.equals(data.get(Constant.CONTENT_TYPE))) {
@@ -111,9 +113,11 @@ public class ScatterGatherMediator {
         String contentType = scatterGather.getContentType();
         data.put(Constant.CONTENT_TYPE, contentType);
         if (JSON_CONTENT_TYPE.equals(contentType)) {
-            data.put(Constant.EXPRESSION, MediatorUtils.getExpressionData(scatterGather.getScatterGatherAggregation().getExpression()));
+            data.put(Constant.EXPRESSION,
+                    MediatorUtils.getExpressionData(scatterGather.getScatterGatherAggregation().getExpression()));
         } else {
-            data.put(X_PATH_EXPRESSION, MediatorUtils.getExpressionData(scatterGather.getScatterGatherAggregation().getExpression()));
+            data.put(X_PATH_EXPRESSION,
+                    MediatorUtils.getExpressionData(scatterGather.getScatterGatherAggregation().getExpression()));
             data.put(ROOT_ELEMENT, scatterGather.getRootElement());
         }
         String resultTarget = scatterGather.getResultTarget();
@@ -124,7 +128,8 @@ public class ScatterGatherMediator {
             data.put(VARIABLE_NAME, scatterGather.getVariableName());
         }
         if (scatterGather.getScatterGatherAggregation().getCondition() != null) {
-            data.put(Constant.CONDITION, MediatorUtils.getExpressionData(scatterGather.getScatterGatherAggregation().getCondition()));
+            data.put(Constant.CONDITION,
+                    MediatorUtils.getExpressionData(scatterGather.getScatterGatherAggregation().getCondition()));
         }
         data.put(COMPLETE_TIMEOUT, scatterGather.getScatterGatherAggregation().getCompleteTimeout());
         data.put(MIN_MESSAGES, scatterGather.getScatterGatherAggregation().getMinMessages());

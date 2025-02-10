@@ -30,8 +30,8 @@ import java.util.Map;
 
 public class JsontransformMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Jsontransform jsonTransform,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Jsontransform jsonTransform,
+                                                                                              List<String> dirtyFields) {
 
         List<Object> jsonTransformProperties = data.get("jsonTransformProperties") instanceof List<?>
                 ? (List<Object>) data.get("jsonTransformProperties")

@@ -49,22 +49,25 @@ public class DBReportMediator {
 
                     String queryString = statement.get(0) instanceof String ? (String) statement.get(0) : "";
 
-                    List<Object> parametersList = statement.get(1) instanceof List<?> ? (List<Object>) statement.get(1) : new ArrayList<>();
+                    List<Object> parametersList = statement.get(1) instanceof List<?> ?
+                            (List<Object>) statement.get(1) : new ArrayList<>();
                     List<Map<String, Object>> parameters = new ArrayList<>();
                     for (Object parameterObj : parametersList) {
                         if (parameterObj instanceof List<?>) {
                             List<Object> parameter = (List<Object>) parameterObj;
                             Map<String, Object> parameterData = new HashMap<>();
                             parameterData.put("dataType", parameter.get(0));
-                            parameterData.put("valueLiteral", "LITERAL".equals(parameter.get(1)) ? parameter.get(2) : null);
-                            parameterData.put("valueExpression", "EXPRESSION".equals(parameter.get(1)) && parameter.get(3) instanceof Map<?, ?>
-                                    ? ((Map<?, ?>) parameter.get(3)).get("value")
-                                    : null);
+                            parameterData.put("valueLiteral", "LITERAL".equals(parameter.get(1)) ?
+                                    parameter.get(2) : null);
+                            parameterData.put("valueExpression", "EXPRESSION".equals(parameter.get(1)) &&
+                                    parameter.get(3) instanceof Map<?, ?> ?
+                                    ((Map<?, ?>) parameter.get(3)).get("value") : null);
                             parameters.add(parameterData);
                         }
                     }
 
-                    List<Object> resultsList = statement.get(2) instanceof List<?> ? (List<Object>) statement.get(2) : new ArrayList<>();
+                    List<Object> resultsList = statement.get(2) instanceof List<?> ?
+                            (List<Object>) statement.get(2) : new ArrayList<>();
                     List<Map<String, Object>> results = new ArrayList<>();
                     for (Object resultObj : resultsList) {
                         if (resultObj instanceof List<?>) {
@@ -162,14 +165,16 @@ public class DBReportMediator {
                         parameter.getType() != null ? parameter.getType().toString() : "",
                         parameter.getValue() != null ? "LITERAL" : "EXPRESSION",
                         parameter.getValue() != null ? parameter.getValue() : "",
-                        Map.of("isExpression", true, "value", parameter.getExpression() != null ? parameter.getExpression() : "")
+                        Map.of("isExpression", true, "value", parameter.getExpression() != null ?
+                                parameter.getExpression() : "")
                 );
                 parameters.add(paramData);
             }
 
             List<List<Object>> results = new ArrayList<>();
             for (DbMediatorStatementResult result : statement.getResult()) {
-                results.add(List.of(result.getName() != null ? result.getName() : "", result.getColumn() != null ? result.getColumn() : ""));
+                results.add(List.of(result.getName() != null ? result.getName() : "", result.getColumn() != null ?
+                        result.getColumn() : ""));
             }
 
             sqlStatements.add(List.of(sql, parameters, results));

@@ -47,7 +47,7 @@ public class DatamapperHandler extends NonXMLRegistryHandler {
 
     @Override
     protected String formatKey(String key) {
-        return key != null ? key.replaceAll("/[^/]*.ts$","") : null;
+        return key != null ? key.replaceAll("/[^/]*.ts$", "") : null;
     }
 
     private boolean isDatamapperFile(String path) {
@@ -56,7 +56,7 @@ public class DatamapperHandler extends NonXMLRegistryHandler {
             return Boolean.FALSE;
         }
         for (String datamapperPath : datamapperPaths) {
-            if (path.contains(datamapperPath) && (!isDMUtilsFile(path))) {
+            if (path.contains(datamapperPath) && !isDMUtilsFile(path)) {
                 return Boolean.TRUE;
             }
         }

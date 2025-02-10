@@ -30,7 +30,9 @@ import java.util.Map;
 
 public class FilterMediator {
 
-    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data, Filter filter, List<String> dirtyFields) {
+    public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
+                                                                                              Filter filter,
+                                                                                              List<String> dirtyFields) {
         data.put("isNewMediator", filter == null);
 
         String conditionType = (String) data.get("conditionType");

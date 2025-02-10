@@ -94,7 +94,8 @@ public class SwitchMediator {
                         if (!caseBranch.isEmpty() && caseBranch.get(0) instanceof String) {
                             dataCopy.put("caseRegex", caseBranch.get(0));
                         }
-                        Integer oldIndex = caseBranch.size() > 1 && caseBranch.get(1) instanceof Double ? ((Double) caseBranch.get(1)).intValue() : null;
+                        Integer oldIndex = caseBranch.size() > 1 && caseBranch.get(1) instanceof Double ?
+                                ((Double) caseBranch.get(1)).intValue() : null;
 
                         if (oldIndex != null) {
                             dataCopy.put("editCase", true);

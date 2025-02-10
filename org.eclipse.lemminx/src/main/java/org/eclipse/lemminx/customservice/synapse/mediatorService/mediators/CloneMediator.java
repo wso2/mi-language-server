@@ -31,12 +31,12 @@ public class CloneMediator {
     private static final List<String> cloneAttributes = List.of("cloneId", "sequentialMediation", "continueParent", "description");
 
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Clone clone,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Clone clone,
+                                                                                              List<String> dirtyFields) {
         data.remove("soapAction");
         data.remove("toAddress");
 
-        if(data.containsKey("newBranch") && Boolean.TRUE.equals(data.get("newBranch"))) {
+        if (data.containsKey("newBranch") && Boolean.TRUE.equals(data.get("newBranch"))) {
             return Either.forLeft(data);
         }
         if (clone == null) {
@@ -215,13 +215,16 @@ public class CloneMediator {
         if (targetsData != null) {
             List<List<Object>> targets = new ArrayList<>();
             for (CloneTarget target : targetsData) {
-                String sequenceType = target.getSequenceAttribute() != null ? "REGISTRY_REFERENCE" : target.getSequence() != null ? "ANONYMOUS" : "NONE";
-                String endpointType = target.getEndpointAttribute() != null ? "REGISTRY_REFERENCE" : target.getEndpoint() != null ? "ANONYMOUS" : "NONE";
+                String sequenceType = target.getSequenceAttribute() != null ?
+                        "REGISTRY_REFERENCE" : target.getSequence() != null ? "ANONYMOUS" : "NONE";
+                String endpointType = target.getEndpointAttribute() != null ?
+                        "REGISTRY_REFERENCE" : target.getEndpoint() != null ? "ANONYMOUS" : "NONE";
                 String sequenceAttribute = target.getSequenceAttribute() != null ? target.getSequenceAttribute() : "";
                 String endpointAttribute = target.getEndpointAttribute() != null ? target.getEndpointAttribute() : "";
                 String soapAction = target.getSoapAction() != null ? target.getSoapAction() : "";
                 String to = target.getTo() != null ? target.getTo() : "";
-                targets.add(List.of(sequenceType, sequenceAttribute, endpointType, endpointAttribute, soapAction, to, Arrays.asList(targetsData).indexOf(target)));
+                targets.add(List.of(sequenceType, sequenceAttribute, endpointType, endpointAttribute, soapAction, to,
+                        Arrays.asList(targetsData).indexOf(target)));
             }
             return targets;
         }

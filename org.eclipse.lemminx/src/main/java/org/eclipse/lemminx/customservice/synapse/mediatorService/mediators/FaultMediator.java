@@ -29,8 +29,8 @@ import java.util.Map;
 
 public class FaultMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Makefault makefault,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Makefault makefault,
+                                                                                              List<String> dirtyFields) {
         if (data.containsKey("detail") && data.get("detail") instanceof Map<?, ?>) {
             Map<String, Object> detail = (Map<String, Object>) data.get("detail");
             if (Boolean.TRUE.equals(detail.get("isExpression"))) {

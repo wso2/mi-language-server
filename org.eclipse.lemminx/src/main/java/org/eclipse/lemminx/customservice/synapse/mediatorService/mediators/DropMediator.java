@@ -29,8 +29,8 @@ import java.util.Map;
 public class DropMediator {
 
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Drop drop,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Drop drop,
+                                                                                              List<String> dirtyFields) {
         return Either.forLeft(data);
 
     }

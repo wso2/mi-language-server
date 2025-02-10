@@ -33,14 +33,15 @@ import java.util.Map;
 public class LogMediator {
 
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Log log,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Log log,
+                                                                                              List<String> dirtyFields) {
 
         if (data.containsKey("level") && data.get("level") instanceof String) {
             data.put("level", ((String) data.get("level")).toLowerCase());
         }
 
-        List<Object> propertiesList = data.get("properties") instanceof List<?> ? (List<Object>) data.get("properties") : new ArrayList<>();
+        List<Object> propertiesList = data.get("properties") instanceof List<?> ?
+                (List<Object>) data.get("properties") : new ArrayList<>();
         List<Map<String, Object>> processedProperties = new ArrayList<>();
         if (data.containsKey("properties")) {
             for (Object propertyObj : propertiesList) {
