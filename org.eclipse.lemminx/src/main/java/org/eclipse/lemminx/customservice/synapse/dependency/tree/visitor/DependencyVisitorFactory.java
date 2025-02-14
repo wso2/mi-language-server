@@ -60,7 +60,10 @@ public class DependencyVisitorFactory {
                 return new LocalEntryVisitor(dependencyTree, projectPath);
             case Constant.TEMPLATE:
                 return new TemplateVisitor(dependencyTree, projectPath);
-            // TODO: Add visitors for datasource, and data service
+            case Constant.DATA:
+                return new DataServiceVisitor(dependencyTree, projectPath);
+            case Constant.DATA_SOURCE:
+                return new DataSourceVisitor(dependencyTree, projectPath);
             default:
                 throw new IllegalStateException("Invalid tag: " + tag);
         }
