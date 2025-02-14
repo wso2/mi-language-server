@@ -106,6 +106,7 @@ import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGeneratorH
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeGenerator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeResponse;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.MediatorFactoryFinder;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.ArtifactTypeResponse;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
@@ -594,6 +595,12 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         }
         ConnectorGeneratorResponse response = new ConnectorGeneratorResponse(filePath != null, filePath);
         return CompletableFuture.supplyAsync(() -> response);
+    }
+
+    @Override
+    public CompletableFuture<ArtifactTypeResponse> getArtifactType(TextDocumentIdentifier artifactIdentifier) {
+
+        return CompletableFuture.supplyAsync(() -> SyntaxTreeGenerator.getArtifactType(artifactIdentifier.getUri()));
     }
 
     public String getProjectUri() {
