@@ -339,9 +339,9 @@ public class MediatorHandler {
 
             // Replace _ with : in the UI schema name to match the UI schema map key
             String uiSchemaNameValue = uiSchemaName.getAsString().replace("_", ":");
-            return uiSchemaMap.get(uiSchemaNameValue);
+            return uiSchemaMap.get(uiSchemaNameValue).deepCopy();
         }
-        return uiSchemaMap.get(mediatorName);
+        return uiSchemaMap.get(mediatorName).deepCopy();
     }
 
     private STNode getMediatorNodeAtPosition(DOMDocument document, Position position, Boolean isUpdate)

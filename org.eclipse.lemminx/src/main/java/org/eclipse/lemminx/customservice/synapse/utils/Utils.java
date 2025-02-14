@@ -1233,7 +1233,9 @@ public class Utils {
         PomParser.getPomDetails(projectPath, overviewPageDetailsResponse);
         String currentVersion = overviewPageDetailsResponse.getBuildDetails().getAdvanceDetails().getPluginDetails()
                 .getProjectBuildPluginVersion().getValue();
-
+        if (currentVersion.contains("-SNAPSHOT")) {
+            currentVersion = currentVersion.replace("-SNAPSHOT", "");
+        }
         return compareVersions(currentVersion, Constant.CAR_PLUGIN_CHECK_VERSION) < 0;
     }
 
