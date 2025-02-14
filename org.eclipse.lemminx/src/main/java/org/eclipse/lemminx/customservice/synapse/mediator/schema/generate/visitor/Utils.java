@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.synapse.AbstractMediatorVisitor;
 import org.eclipse.lemminx.customservice.synapse.expression.ExpressionConstants;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutRequest;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Properties;
 import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeGenerator;
@@ -35,6 +36,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediat
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.template.Template;
 import org.eclipse.lemminx.customservice.synapse.utils.ConfigFinder;
+import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lsp4j.Position;
 
@@ -407,6 +409,31 @@ public class Utils {
             elements.add(element.toString());
         }
         return elements;
+    }
+
+    /**
+     * Visits the sequence referred by the key and stores the result in the info.
+     *
+     * @param key         key of the sequence
+     * @param projectPath project path
+     * @param info        mediator tryout info to store the result
+     * @param request     mediator tryout request
+     * @throws IOException if an error occurs while visiting the sequence
+     */
+    public static void visitSequenceByKey(String key, String projectPath, MediatorTryoutInfo info,
+                                          MediatorTryoutRequest request) throws IOException {
+
+        String seqPath = ConfigFinder.findEsbComponentPath(key, Constant.SEQUENCES, projectPath);
+        if (seqPath != null) {
+            File seqFile = new File(seqPath);
+            DOMDocument document = org.eclipse.lemminx.customservice.synapse.utils.Utils.getDOMDocument(seqFile);
+            if (document == null) {
+                return;
+            }
+            NamedSequence sequenceNode = (NamedSequence) SyntaxTreeGenerator.buildTree(document.getDocumentElement());
+            SequenceVisitor sequenceVisitor = new SequenceVisitor(projectPath);
+            sequenceVisitor.visit(sequenceNode, info, request);
+        }
     }
 
     private Utils() {
