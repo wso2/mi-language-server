@@ -59,6 +59,9 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static org.eclipse.lemminx.customservice.synapse.mediatorService.MediatorUtils.generateResponseVariableDefaultValue;
+import static org.eclipse.lemminx.customservice.synapse.utils.UISchemaMapper.mapInputToUISchema;
+
 public class MediatorHandler {
 
     private static final Logger logger = Logger.getLogger(MediatorHandler.class.getName());
@@ -302,7 +305,7 @@ public class MediatorHandler {
     private JsonObject getSchemaWithValuesForConnector(STNode node) {
 
         Connector connector = (Connector) node;
-        JsonObject uiSchema = getConnectorUiSchema(connector.getTag());
+        JsonObject uiSchema = getConnectorUiSchema(connector.getTag(), null, null);
         return UISchemaMapper.mapInputToUISchemaForConnector(connector, uiSchema);
     }
 
@@ -422,18 +425,18 @@ public class MediatorHandler {
         return false;
     }
 
-    public JsonObject getUiSchema(String mediatorName) {
+    public JsonObject getUiSchema(String mediatorName, TextDocumentIdentifier documentIdentifier, Position position) {
 
         if (uiSchemaMap.containsKey(mediatorName)) {
             return uiSchemaMap.get(mediatorName);
         }
         if (mediatorName.contains(".")) {
-            return getConnectorUiSchema(mediatorName);
+            return getConnectorUiSchema(mediatorName, documentIdentifier, position);
         }
         return null;
     }
 
-    private JsonObject getConnectorUiSchema(String mediatorName) {
+    private JsonObject getConnectorUiSchema(String mediatorName, TextDocumentIdentifier documentIdentifier, Position position) {
 
         String connectorName = mediatorName.split("\\.")[0];
         String operationName = mediatorName.split("\\.")[1];
@@ -444,7 +447,12 @@ public class MediatorHandler {
             if (operation != null) {
                 String uiSchemaPath = operation.getUiSchemaPath();
                 try {
-                    return Utils.getJsonObject(Utils.readFile(new File(uiSchemaPath)));
+                    JsonObject uiSchemaObject = Utils.getJsonObject(Utils.readFile(new File(uiSchemaPath)));
+                    JsonObject resultObject = new JsonObject();
+                    if (documentIdentifier != null && position != null) {
+                        resultObject.addProperty(Constant.RESPONSE_VARIABLE, generateResponseVariableDefaultValue(documentIdentifier, position, connectorName, operationName));
+                    }
+                    return mapInputToUISchema(resultObject, uiSchemaObject);
                 } catch (IOException e) {
                     logger.log(Level.SEVERE, "Error occurred while retrieving UI schema for connector operation.", e);
                 }

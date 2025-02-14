@@ -18,7 +18,12 @@
 
 package org.eclipse.lemminx.customservice.synapse.mediatorService.pojo;
 
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
+
 public class UISchemaRequest {
 
     public String mediatorType;
+    public TextDocumentIdentifier documentIdentifier;
+    public Position position;
 }
