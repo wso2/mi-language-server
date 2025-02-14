@@ -40,6 +40,10 @@ public class SchemaVisitorFactory {
             visitor = new SequenceTemplateVisitor(projectPath);
         } else if (Constant.PROXY.equals(nodeType)) {
             visitor = new ProxyVisitor(projectPath);
+        } else if (Constant.INBOUND_ENDPOINT.equals(nodeType)) {
+            visitor = new InboundEndpointVisitor(projectPath);
+        } else if (Constant.TASK.equals(nodeType)) {
+            visitor = new TaskSchemaVisitor(projectPath);
         } else {
             LOGGER.warning("No visitor found for the node type: " + nodeType);
         }
