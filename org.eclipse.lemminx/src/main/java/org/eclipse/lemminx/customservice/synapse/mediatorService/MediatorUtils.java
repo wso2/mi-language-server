@@ -1,11 +1,40 @@
 package org.eclipse.lemminx.customservice.synapse.mediatorService;
 
+import org.eclipse.lemminx.customservice.synapse.expression.ExpressionHelperProvider;
+import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionParam;
+import org.eclipse.lemminx.customservice.synapse.expression.pojo.HelperPanelData;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.Namespace;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
 
+import java.io.IOException;
 import java.util.*;
 
 public class MediatorUtils {
+
+    public static String generateResponseVariableDefaultValue(TextDocumentIdentifier documentIdentifier, Position position, String connectorName, String operationName)
+            throws IOException {
+
+        ExpressionHelperProvider expressionHelperProvider = new ExpressionHelperProvider("");
+        ExpressionParam expressionParam = new ExpressionParam(documentIdentifier.getUri(), position);
+        HelperPanelData lastMediatorHelperData = expressionHelperProvider.getLastMediatorHelperData(expressionParam);
+        List<CompletionItem> variables = lastMediatorHelperData.getVariables();
+        int usedMaxDigit = 1;
+        for (CompletionItem variable : variables) {
+            String variableName = variable.getLabel();
+            if (variableName.startsWith(String.format("%s_%s_", connectorName, operationName))) {
+                String digitPart = variableName.split("_")[2];
+                try {
+                    usedMaxDigit = Math.max(usedMaxDigit, Integer.parseInt(digitPart));
+                } catch (NumberFormatException ignored) {
+                    continue;
+                }
+            }
+        }
+        return String.format("%s_%s_%s", connectorName, operationName, usedMaxDigit + 1);
+    }
 
     public static List<Namespace> transformNamespaces(Map<String, String> namespaces) {
 

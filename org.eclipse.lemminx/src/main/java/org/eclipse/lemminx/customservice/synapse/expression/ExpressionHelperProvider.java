@@ -42,6 +42,8 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -105,10 +107,11 @@ public class ExpressionHelperProvider {
             return getBasicHelperData();
         }
         try {
+            URI documentTruePath = new URI(param.getDocumentUri());
             Position position =
-                    ExpressionCompletionUtils.getLastMediatorPosition(param.getDocumentUri(), param.getPosition());
-            return getExpressionHelperData(new ExpressionParam(param.getDocumentUri(), position));
-        } catch (IOException e) {
+                    ExpressionCompletionUtils.getLastMediatorPosition(documentTruePath.getPath(), param.getPosition());
+            return getExpressionHelperData(new ExpressionParam(documentTruePath.getPath(), position));
+        } catch (IOException | URISyntaxException e) {
             return getBasicHelperData();
         }
     }
