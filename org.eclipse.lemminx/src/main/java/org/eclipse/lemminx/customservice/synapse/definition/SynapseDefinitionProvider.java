@@ -100,15 +100,17 @@ public class SynapseDefinitionProvider {
                 type = "message-stores";
                 key = node.getAttribute(Constant.MESSAGE_STORE);
             } else {
-                DOMAttr attr = document.findAttrAt(offset);
-                if (sequenceAttributes.contains(attr.getNodeName())) {
+                if (sequenceAttributes.contains(clickedAttr.getNodeName())) {
                     type = "sequences";
-                    key = attr.getNodeValue();
-                } else if (endpointAttributes.contains(attr.getNodeName())) {
+                    key = clickedAttr.getNodeValue();
+                } else if (endpointAttributes.contains(clickedAttr.getNodeName())) {
                     type = "endpoints";
-                    key = attr.getNodeValue();
+                    key = clickedAttr.getNodeValue();
+                } else if ("configKey".equals(clickedAttr.getNodeName())) {
+                    key = clickedAttr.getNodeValue();
+                    type = "local-entries";
                 } else {
-                    String attKey = attr.getNodeValue();
+                    String attKey = clickedAttr.getNodeValue();
                     if (attKey != null) {
                         if (attKey.contains(Constant.GOV_REGISTRY_PREFIX) || attKey.contains(Constant.CONF_REGISTRY_PREFIX)) {
                             key = attKey;

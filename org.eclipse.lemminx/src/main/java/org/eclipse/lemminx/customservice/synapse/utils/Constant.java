@@ -524,7 +524,7 @@ public class Constant {
     public static final String MAIN = "main";
     public static final String WSO2MI = "wso2mi";
     public static final String WSO2_MI = ".wso2-mi";
-    public static final String M2 = "m2";
+    public static final String M2 = ".m2";
     public static final String DOWNLOADED = "Downloaded";
     public static final String EXTRACTED = "Extracted";
     public static final String PARALLEL_EXECUTION = "parallelExecution";
@@ -558,4 +558,5 @@ public class Constant {
     public static final String MI_440_VERSION = "4.4.0";
     public static final String UI_SCHEMA_NAME = "UI_SCHEMA_NAME";
     public static final String SEQUENCE_NAME = "sequenceName";
+    public static final String CAN_TRY_OUT = "canTryOut";
 }
