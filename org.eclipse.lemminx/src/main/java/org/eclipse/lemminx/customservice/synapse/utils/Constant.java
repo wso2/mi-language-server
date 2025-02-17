@@ -524,7 +524,7 @@ public class Constant {
     public static final String MAIN = "main";
     public static final String WSO2MI = "wso2mi";
     public static final String WSO2_MI = ".wso2-mi";
-    public static final String M2 = "m2";
+    public static final String M2 = ".m2";
     public static final String DOWNLOADED = "Downloaded";
     public static final String EXTRACTED = "Extracted";
     public static final String PARALLEL_EXECUTION = "parallelExecution";
