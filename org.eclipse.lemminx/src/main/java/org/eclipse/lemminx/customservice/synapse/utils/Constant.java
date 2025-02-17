@@ -558,4 +558,5 @@ public class Constant {
     public static final String MI_440_VERSION = "4.4.0";
     public static final String UI_SCHEMA_NAME = "UI_SCHEMA_NAME";
     public static final String SEQUENCE_NAME = "sequenceName";
+    public static final String CAN_TRY_OUT = "canTryOut";
 }
