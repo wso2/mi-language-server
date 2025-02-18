@@ -21,7 +21,7 @@ public class MediatorUtils {
         ExpressionParam expressionParam = new ExpressionParam(documentIdentifier.getUri(), position);
         HelperPanelData lastMediatorHelperData = expressionHelperProvider.getLastMediatorHelperData(expressionParam);
         List<CompletionItem> variables = lastMediatorHelperData.getVariables();
-        int usedMaxDigit = 1;
+        int usedMaxDigit = 0;
         for (CompletionItem variable : variables) {
             String variableName = variable.getLabel();
             if (variableName.startsWith(String.format("%s_%s_", connectorName, operationName))) {
