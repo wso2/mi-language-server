@@ -27,6 +27,28 @@
     {
       "type": "attribute",
       "value": {
+        "name": "logMessageID",
+        "displayName": "Append Message ID",
+        "inputType": "checkbox",
+        "defaultValue": "false",
+        "helpTip": "Logs the Message ID alongside other selected details.",
+        "required": "false"
+      }
+    },
+    {
+      "type": "attribute",
+      "value": {
+        "name": "logFullPayload",
+        "displayName": "Append Payload",
+        "inputType": "checkbox",
+        "defaultValue": "false",
+        "helpTip": "Logs the full message payload alongside other selected details.",
+        "required": "false"
+      }
+    },
+    {
+      "type": "attribute",
+      "value": {
         "name": "message",
         "displayName": "Message",
         "inputType": "expressionTextArea",

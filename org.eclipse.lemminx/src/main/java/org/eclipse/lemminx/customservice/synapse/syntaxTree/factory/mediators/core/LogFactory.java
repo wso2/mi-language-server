@@ -78,6 +78,18 @@ public class LogFactory extends AbstractMediatorFactory {
             if (description != null) {
                 ((Log) node).setDescription(description);
             }
+            String logMessageIDAttr = element.getAttribute(Constant.LOG_MESSAGE_ID);
+            if (logMessageIDAttr != null) {
+                ((Log) node).setLogMessageID(Boolean.parseBoolean(logMessageIDAttr));
+            } else {
+                ((Log) node).setLogMessageID(false);
+            }
+            String logFullPayloadAttr = element.getAttribute(Constant.LOG_FULL_PAYLOAD);
+            if (logFullPayloadAttr != null) {
+                ((Log) node).setLogFullPayload(Boolean.parseBoolean(logFullPayloadAttr));
+            } else {
+                ((Log) node).setLogFullPayload(false);
+            }
         } catch (IllegalArgumentException e) {
             // ignore
         }

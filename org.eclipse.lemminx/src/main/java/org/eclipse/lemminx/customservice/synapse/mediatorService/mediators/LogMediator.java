@@ -114,6 +114,8 @@ public class LogMediator {
         data.put("message", node.getMessage());
         data.put("description", node.getDescription());
         data.put("separator", node.getSeparator());
+        data.put(Constant.LOG_FULL_PAYLOAD, node.isLogFullPayload());
+        data.put(Constant.LOG_MESSAGE_ID, node.isLogMessageID());
         if (node.getProperty() != null) {
             List<List<Object>> properties = new ArrayList<>();
             for (MediatorProperty property : node.getProperty()) {
