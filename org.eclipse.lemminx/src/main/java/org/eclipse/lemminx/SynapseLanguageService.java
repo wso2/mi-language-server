@@ -589,7 +589,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         String filePath = null;
         try {
             filePath = ConnectorGenerator.generateConnector(connectorGenReq.openAPIPath,
-                    connectorGenReq.connectorProjectPath);
+                    connectorGenReq.connectorProjectPath, projectServerVersion, projectUri);
         } catch (Exception e) {
             log.log(Level.SEVERE, "Error occurred while generating the connector", e);
         }
