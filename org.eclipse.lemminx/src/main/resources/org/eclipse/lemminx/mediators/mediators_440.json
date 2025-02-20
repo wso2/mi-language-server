@@ -211,7 +211,7 @@
     {
       "title": "ScatterGather",
       "operationName": "MEDIATORS.SCATTERGATHER",
-      "tooltip": "Clones a message into several messages and aggregate the responses back into a single message",
+      "tooltip": "Broadcast the same message to multiple flows, and aggregate their responses back into a single message.",
       "form": "<ScatterGatherForm nodePosition={nodePosition} documentUri={documentUri} trailingSpace={trailingSpace}></ScatterGatherForm>",
       "tag": "scatter-gather",
       "mediatorClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.ScatterGather",
