@@ -35,8 +35,8 @@ import java.util.stream.Collectors;
 
 public class RuleMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Rule rule,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Rule rule,
+                                                                                              List<String> dirtyFields) {
         if (data.containsKey("targetNamespaces") && data.get("targetNamespaces") instanceof List<?>) {
             List<Object> targetNamespaces = (List<Object>) data.get("targetNamespaces");
             List<Map<String, String>> processedNamespaces = new ArrayList<>();
@@ -128,11 +128,13 @@ public class RuleMediator {
         data.put("sourceXPath", Map.of(
                 "isExpression", true,
                 "value", node.getSource() != null ? node.getSource().getXpath() : "",
-                "namespaces", MediatorUtils.transformNamespaces(node.getSource() != null ? node.getSource().getNamespaces() : null)
+                "namespaces", MediatorUtils.transformNamespaces(node.getSource() != null ?
+                        node.getSource().getNamespaces() : null)
         ));
         data.put("sourceValue", node.getSource() != null ? node.getSource().getValue() : null);
         data.put("targetAction", node.getTarget() != null ? capitalize(node.getTarget().getAction()) : null);
-        data.put("targetNamespaces", MediatorUtils.transformNamespaces(node.getTarget() != null ? node.getTarget().getNamespaces() : null)
+        data.put("targetNamespaces", MediatorUtils.transformNamespaces(node.getTarget() != null ?
+                        node.getTarget().getNamespaces() : null)
                 .stream().map(namespace -> List.of(namespace.getPrefix(), namespace.getUri())).collect(Collectors.toList()));
         data.put("targetResultXPath", Map.of(
                 "isExpression", true,
@@ -143,8 +145,10 @@ public class RuleMediator {
                 "value", node.getTarget() != null ? node.getTarget().getXpath() : ""
         ));
         data.put("targetValue", node.getTarget() != null ? node.getTarget().getValue() : null);
-        data.put("ruleSetType", capitalize(node.getRuleSet() != null && node.getRuleSet().getRule() != null ? node.getRuleSet().getRule().getResourceType() : null));
-        data.put("ruleSetSourceType", node.getRuleSet() != null && node.getRuleSet().getRule() != null ? node.getRuleSet().getRule().getSourceType().toUpperCase() : null);
+        data.put("ruleSetType", capitalize(node.getRuleSet() != null && node.getRuleSet().getRule() != null ?
+                node.getRuleSet().getRule().getResourceType() : null));
+        data.put("ruleSetSourceType", node.getRuleSet() != null && node.getRuleSet().getRule() != null ?
+                node.getRuleSet().getRule().getSourceType().toUpperCase() : null);
 
         String ruleSetSourceType = (String) data.get("ruleSetSourceType");
         if ("INLINE".equals(ruleSetSourceType)) {
@@ -166,10 +170,10 @@ public class RuleMediator {
         List<Map<String, Object>> factsConfiguration = new ArrayList<>();
         if (node.getInput() != null) {
             for (RuleInputFact fact : node.getInput().getFact()) {
-                String type = fact.getType() ;
+                String type = fact.getType();
                 String customType = null;
                 if (!factTypes.contains(type)) {
-                    customType = type ;
+                    customType = type;
                     type = "CUSTOM";
                 }
 

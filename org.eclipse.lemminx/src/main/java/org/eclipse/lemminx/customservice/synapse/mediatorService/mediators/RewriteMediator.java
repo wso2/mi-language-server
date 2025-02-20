@@ -33,8 +33,8 @@ import java.util.Map;
 
 public class RewriteMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Rewrite rewrite,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Rewrite rewrite,
+                                                                                              List<String> dirtyFields) {
         if (data.containsKey("urlRewriteRules") && data.get("urlRewriteRules") instanceof List<?>) {
             List<Object> urlRewriteRulesList = (List<Object>) data.get("urlRewriteRules");
             List<Map<String, Object>> processedRules = new ArrayList<>();
@@ -59,9 +59,11 @@ public class RewriteMediator {
                                 List<Object> action = (List<Object>) actionObj;
 
                                 Map<String, Object> actionMap = new HashMap<>();
-                                actionMap.put("ruleAction", action.get(0) != null ? ((String) action.get(0)).toLowerCase() : null);
+                                actionMap.put("ruleAction", action.get(0) != null ?
+                                        ((String) action.get(0)).toLowerCase() : null);
                                 actionMap.put("ruleFragment", action.size() > 1 ? action.get(1) : null);
-                                actionMap.put("actionValue", action.size() > 2 && "Literal".equals(action.get(2)) ? action.get(3) : null);
+                                actionMap.put("actionValue", action.size() > 2 &&
+                                        "Literal".equals(action.get(2)) ? action.get(3) : null);
                                 actionMap.put("actionExpression", action.size() > 2 && "Expression".equals(action.get(2))
                                         ? ((Map<?, ?>) action.get(4)).get("value") : null);
                                 actionMap.put("namespaces", action.size() > 2 && "Expression".equals(action.get(2))
@@ -114,7 +116,8 @@ public class RewriteMediator {
                 actions.add(ruleAction);
             }
 
-            urlRewriteRules.add(List.of(actions, rewriteRule.getCondition() != null ? rewriteRule.getCondition().getCondition() : ""));
+            urlRewriteRules.add(List.of(actions, rewriteRule.getCondition() != null ?
+                    rewriteRule.getCondition().getCondition() : ""));
         }
 
         data.put("urlRewriteRules", urlRewriteRules);

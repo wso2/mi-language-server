@@ -31,8 +31,8 @@ import java.util.stream.Collectors;
 
 public class HeaderMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Header header,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Header header,
+                                                                                              List<String> dirtyFields) {
 
         if ("remove".equals(data.get("headerAction"))) {
             data.remove("valueExpression");

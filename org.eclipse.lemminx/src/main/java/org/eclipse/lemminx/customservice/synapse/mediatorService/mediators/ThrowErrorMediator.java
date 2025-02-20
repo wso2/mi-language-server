@@ -46,7 +46,8 @@ public class ThrowErrorMediator {
     public static Map<String, Object> getDataFromST(ThrowError throwError) {
         Map<String, Object> data = new HashMap<>();
 
-        boolean isExpression = throwError.getErrorMessage() != null && throwError.getErrorMessage().startsWith("{") && throwError.getErrorMessage().endsWith("}");
+        boolean isExpression = throwError.getErrorMessage() != null && throwError.getErrorMessage().startsWith("{") &&
+                throwError.getErrorMessage().endsWith("}");
         String value = throwError.getErrorMessage();
         if (isExpression && value != null) {
             value = value.substring(1, value.length() - 1);

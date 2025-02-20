@@ -50,8 +50,8 @@ public class ThrottleMediator {
             "onRejectBranchsequenceType", "onRejectBranchsequenceKey");
 
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Throttle throttle,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Throttle throttle,
+                                                                                              List<String> dirtyFields) {
 
         data.put("newMediator", throttle == null);
         String policyType = (String) data.get("policyType");

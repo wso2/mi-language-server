@@ -28,8 +28,8 @@ import java.util.Map;
 
 public class TransactionMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Transaction transaction,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Transaction transaction,
+                                                                                              List<String> dirtyFields) {
         if (data.containsKey("action") && data.get("action") instanceof String) {
             String action = (String) data.get("action");
             switch (action) {

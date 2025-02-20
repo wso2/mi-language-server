@@ -31,8 +31,8 @@ import java.util.Map;
 public class CallMediator {
 
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Call call,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Call call,
+                                                                                              List<String> dirtyFields) {
 
         data.put("sourceOrTargetOrEndpoint", true);
 

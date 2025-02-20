@@ -29,9 +29,9 @@ import java.util.Map;
 public class RespondMediator {
 
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Respond respond,
-                                                                                           List<String> dirtyFields) {
-    return Either.forLeft(data);
+                                                                                              Respond respond,
+                                                                                              List<String> dirtyFields) {
+        return Either.forLeft(data);
 
     }
 

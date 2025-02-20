@@ -33,8 +33,8 @@ import java.util.Map;
 
 public class DataServiceCallMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           DataServiceCall dataServiceCall,
-                                                                                           List<String> dirtyFields) {
+                                                                                              DataServiceCall dataServiceCall,
+                                                                                              List<String> dirtyFields) {
         if (data.containsKey("operationType") && data.get("operationType") instanceof String) {
             data.put("operationType", ((String) data.get("operationType")).toLowerCase());
         }
@@ -68,7 +68,8 @@ public class DataServiceCallMediator {
                         Map<String, Object> operationData = new HashMap<>();
                         operationData.put("operationName", operation.get(0) instanceof String ? operation.get(0) : "");
 
-                        List<Object> properties = operation.get(1) instanceof List<?> ? (List<Object>) operation.get(1) : new ArrayList<>();
+                        List<Object> properties = operation.get(1) instanceof List<?> ?
+                                (List<Object>) operation.get(1) : new ArrayList<>();
                         List<Map<String, Object>> dssProperties = new ArrayList<>();
 
                         for (Object propertyObj : properties) {
@@ -77,7 +78,8 @@ public class DataServiceCallMediator {
                                 Map<String, Object> propertyData = new HashMap<>();
                                 propertyData.put("propertyName", property.get(0) instanceof String ? property.get(0) : "");
                                 propertyData.put("propertyValue", property.get(2) instanceof String ? property.get(2) : "");
-                                propertyData.put("propertyExpression", property.get(3) instanceof Map<?, ?> && ((Map<?, ?>) property.get(3)).get("value") instanceof String
+                                propertyData.put("propertyExpression", property.get(3) instanceof Map<?, ?> &&
+                                        ((Map<?, ?>) property.get(3)).get("value") instanceof String
                                         ? ((Map<?, ?>) property.get(3)).get("value")
                                         : null);
                                 dssProperties.add(propertyData);
@@ -97,7 +99,7 @@ public class DataServiceCallMediator {
 
     public static Map<String, Object> getDataFromST430(DataServiceCall node) {
         Map<String, Object> data = new HashMap<>();
-        data.put("serviceName",node.getServiceName());
+        data.put("serviceName", node.getServiceName());
         data.put("description", node.getDescription());
         if (node.getSource() != null && node.getSource().getType() != null) {
             data.put("sourceType", node.getSource().getType() == DataServiceCallSourceType.inline ? "INLINE" : "BODY");
@@ -107,7 +109,8 @@ public class DataServiceCallMediator {
         }
 
         data.put("targetProperty", node.getTarget() != null ? node.getTarget().getName() : null);
-        data.put("operationType", node.getOperations() != null && node.getOperations().getType() != null ? node.getOperations().getType().getValue().toUpperCase() : null);
+        data.put("operationType", node.getOperations() != null && node.getOperations().getType() != null ?
+                node.getOperations().getType().getValue().toUpperCase() : null);
 
         // Process operations
         if (node.getOperations() != null && node.getOperations().getOperation() != null) {

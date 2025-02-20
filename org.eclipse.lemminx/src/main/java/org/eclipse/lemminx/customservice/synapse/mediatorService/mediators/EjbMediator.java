@@ -33,8 +33,8 @@ import java.util.regex.Pattern;
 
 public class EjbMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Ejb ejb,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Ejb ejb,
+                                                                                              List<String> dirtyFields) {
         if ("EXPRESSION".equals(data.get("sessionIdType"))) {
             Map<String, Object> sessionIdExpression = data.get("sessionIdExpression") instanceof Map<?, ?>
                     ? (Map<String, Object>) data.get("sessionIdExpression")

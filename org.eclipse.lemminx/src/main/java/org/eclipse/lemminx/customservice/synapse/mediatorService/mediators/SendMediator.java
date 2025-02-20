@@ -30,8 +30,8 @@ import java.util.Map;
 
 public class SendMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Send send,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Send send,
+                                                                                              List<String> dirtyFields) {
         if ("Static".equals(data.get("receivingSequenceType"))) {
             data.put("receivingSequence", data.get("staticReceivingSequence"));
         } else if ("Dynamic".equals(data.get("receivingSequenceType"))) {
@@ -52,7 +52,7 @@ public class SendMediator {
 
         if (data.get("endpoint") == null || "".equals(data.get("endpoint")) || "NONE".equals(data.get("endpoint"))) {
             data.remove("endpoint");
-        }else if("INLINE".equals(data.get("endpoint"))){
+        } else if ("INLINE".equals(data.get("endpoint"))) {
             data.put("isInline", true);
         }
 

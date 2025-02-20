@@ -31,22 +31,26 @@ import java.util.Map;
 
 public class ClassMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Class aClass,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Class aClass,
+                                                                                              List<String> dirtyFields) {
         List<Map<String, Object>> properties = new ArrayList<>();
-        List<Object> propertiesData = data.get("properties") instanceof List ? (List<Object>) data.get("properties") : new ArrayList<>();
+        List<Object> propertiesData = data.get("properties") instanceof List ?
+                (List<Object>) data.get("properties") : new ArrayList<>();
         for (Object propertyObj : propertiesData) {
             if (propertyObj instanceof List<?>) {
                 List<Object> property = (List<Object>) propertyObj;
                 if (property.size() >= 2) {
-                    Map<String, Object> propertyData = property.get(1) instanceof Map ? (Map<String, Object>) property.get(1) : null;
+                    Map<String, Object> propertyData = property.get(1) instanceof Map ?
+                            (Map<String, Object>) property.get(1) : null;
                     if (propertyData != null) {
                         String propertyName = property.get(0) instanceof String ? (String) property.get(0) : "";
-                        List<String> namespaces = propertyData.get("namespaces") instanceof List ? (List<String>) propertyData.get("namespaces") : null;
+                        List<String> namespaces = propertyData.get("namespaces") instanceof List ?
+                                (List<String>) propertyData.get("namespaces") : null;
                         Map<String, Object> propertyValue = new HashMap<>(Map.of(
-                                "propertyName",propertyName,
+                                "propertyName", propertyName,
                                 "value", propertyData.get("value") != null ? propertyData.get("value") : "",
-                                "isExpression", propertyData.get("isExpression") != null ? propertyData.get("isExpression") : false
+                                "isExpression", propertyData.get("isExpression") != null ?
+                                        propertyData.get("isExpression") : false
                         ));
                         if (namespaces != null) {
                             propertyValue.put("namespaces", namespaces);
@@ -65,7 +69,7 @@ public class ClassMediator {
 
     public static Map<String, Object> getDataFromST430(Class node) {
         Map<String, Object> data = new HashMap<>();
-        data.put("description",node.getDescription());
+        data.put("description", node.getDescription());
         data.put("className", node.getName());
         if (node.getProperty() != null) {
             List<List<Object>> properties = new ArrayList<>();

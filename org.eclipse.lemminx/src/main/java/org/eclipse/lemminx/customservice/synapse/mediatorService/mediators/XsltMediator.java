@@ -33,8 +33,8 @@ import java.util.Map;
 
 public class XsltMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Xslt xslt,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Xslt xslt,
+                                                                                              List<String> dirtyFields) {
         if (data.containsKey("properties") && data.get("properties") instanceof List<?>) {
             List<Object> propertiesList = (List<Object>) data.get("properties");
             List<Map<String, Object>> processedProperties = new ArrayList<>();
@@ -103,7 +103,8 @@ public class XsltMediator {
 
         if (data.containsKey("sourceXPath") && data.get("sourceXPath") instanceof Map<?, ?>) {
             Map<String, Object> sourceXPath = (Map<String, Object>) data.get("sourceXPath");
-            boolean hasExpression = sourceXPath.containsKey("expression") && !((String) sourceXPath.get("expression")).isEmpty();
+            boolean hasExpression = sourceXPath.containsKey("expression") &&
+                    !((String) sourceXPath.get("expression")).isEmpty();
             boolean hasValue = sourceXPath.containsKey("value") && !((String) sourceXPath.get("value")).isEmpty();
             if (!hasExpression && !hasValue) {
                 data.remove("sourceXPath");
@@ -186,6 +187,7 @@ public class XsltMediator {
         }
         return data;
     }
+
     private static List<Map<String, Object>> getNamespaces(Map<String, Object> data) {
 
         List<Map<String, Object>> combinedNamespaces = new ArrayList<>();

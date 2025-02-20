@@ -29,17 +29,20 @@ import java.util.List;
 import java.util.Map;
 
 public class CacheMediator {
-    private static final List<String> cacheTagAttributes = List.of("cacheMediatorImplementation", "cacheType", "cacheTimeout",
+    private static final List<String> cacheTagAttributes =
+            List.of("cacheMediatorImplementation", "cacheType", "cacheTimeout",
             "maxMessageSize", "scope", "hashGeneratorAttribute", "description");
-    private static final List<String> protocolTagAttributes = List.of("cacheMediatorImplementation", "cacheProtocolType",
+    private static final List<String> protocolTagAttributes =
+            List.of("cacheMediatorImplementation", "cacheProtocolType",
             "cacheProtocolMethods", "headersToIncludeInHash", "headersToExcludeInHash", "responseCodes",
             "enableCacheControl", "includeAgeHeader", "hashGenerator");
     private static final List<String> onCacheHitTagAttributes = List.of("sequenceType", "sequenceKey");
-    private static final List<String> implementationTagAttributes = List.of("maxEntryCount", "implementationType", "cacheType");
+    private static final List<String> implementationTagAttributes =
+            List.of("maxEntryCount", "implementationType", "cacheType");
 
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Cache cache,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Cache cache,
+                                                                                              List<String> dirtyFields) {
         data.replaceAll((key, value) -> {
             if (value instanceof Double) {
                 return String.valueOf(((Double) value).longValue());
@@ -162,7 +165,8 @@ public class CacheMediator {
 
         Map<String, Object> data = new HashMap<>();
         data.put("description", node.getDescription());
-        data.put("scope", node.getScope() != null ? ("per-mediator".equals(node.getScope()) ? "Per-Mediator" : "Per-Host") : null);
+        data.put("scope", node.getScope() != null ? ("per-mediator".equals(node.getScope()) ?
+                "Per-Mediator" : "Per-Host") : null);
         data.put("id", node.getId());
         data.put("hashGeneratorAttribute", node.getHashGenerator());
         data.put("hashGenerator", node.getProtocol() != null && node.getProtocol().getHashGenerator() != null ?
@@ -174,9 +178,11 @@ public class CacheMediator {
         data.put("cacheProtocolType", node.getProtocol() != null ? node.getProtocol().getType() : null);
         data.put("cacheProtocolMethods", node.getProtocol() != null && node.getProtocol().getMethods() != null ?
                 node.getProtocol().getMethods().getTextNode() : null);
-        data.put("headersToIncludeInHash", node.getProtocol() != null && node.getProtocol().getHeadersToIncludeInHash() != null ?
+        data.put("headersToIncludeInHash", node.getProtocol() != null &&
+                node.getProtocol().getHeadersToIncludeInHash() != null ?
                 node.getProtocol().getHeadersToIncludeInHash().getTextNode() : null);
-        data.put("headersToExcludeInHash", node.getProtocol() != null && node.getProtocol().getHeadersToExcludeInHash() != null ?
+        data.put("headersToExcludeInHash", node.getProtocol() != null &&
+                node.getProtocol().getHeadersToExcludeInHash() != null ?
                 node.getProtocol().getHeadersToExcludeInHash().getTextNode() : null);
         data.put("responseCodes", node.getProtocol() != null && node.getProtocol().getResponseCodes() != null ?
                 node.getProtocol().getResponseCodes().getTextNode() : null);
@@ -187,15 +193,18 @@ public class CacheMediator {
         data.put("maxEntryCount", node.getImplementation() != null ? node.getImplementation().getMaxSize() : null);
         data.put("cacheType", node.isCollector() ? "COLLECTOR" : "FINDER");
         data.put("cacheMediatorImplementation", node.isCollector() ?
-                (node.getScope() != null ? "611 Compatible" : "Default") : (node.getProtocol() != null ? "Default" : "611 Compatible"));
-        data.put("sequenceType", node.getOnCacheHit() != null && node.getOnCacheHit().getSequence() != null ? "REGISTRY_REFERENCE" : "ANONYMOUS");
+                (node.getScope() != null ?
+                        "611 Compatible" : "Default") : (node.getProtocol() != null ? "Default" : "611 Compatible"));
+        data.put("sequenceType", node.getOnCacheHit() != null && node.getOnCacheHit().getSequence() != null ?
+                "REGISTRY_REFERENCE" : "ANONYMOUS");
         Map<String, Object> ranges = new HashMap<>();
         ranges.put("cache", node.getRange());
         ranges.put("onCacheHit", node.getOnCacheHit() != null ? node.getOnCacheHit().getRange() : null);
         ranges.put("implementation", node.getImplementation() != null ? node.getImplementation().getRange() : null);
         ranges.put("protocol", node.getProtocol() != null ? node.getProtocol().getRange() : null);
         data.put("ranges", ranges);
-        data.put("isAnonymousSequence", node.getOnCacheHit() != null && node.getOnCacheHit().getMediatorList() != null && !node.getOnCacheHit().getMediatorList().isEmpty());
+        data.put("isAnonymousSequence", node.getOnCacheHit() != null &&
+                node.getOnCacheHit().getMediatorList() != null && !node.getOnCacheHit().getMediatorList().isEmpty());
         data.put("implementationType", node.getImplementation() != null ? node.getImplementation().getType() : null);
         return data;
     }

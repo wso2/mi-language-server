@@ -28,8 +28,8 @@ import java.util.Map;
 
 public class NtlmMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Ntlm ntlm,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Ntlm ntlm,
+                                                                                              List<String> dirtyFields) {
         // Process username
         if (data.containsKey("username") && data.get("username") instanceof Map<?, ?>) {
             Map<String, Object> usernameMap = (Map<String, Object>) data.get("username");

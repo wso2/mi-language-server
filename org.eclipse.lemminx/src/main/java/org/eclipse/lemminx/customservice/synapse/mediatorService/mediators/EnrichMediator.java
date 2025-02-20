@@ -30,8 +30,8 @@ import java.util.Map;
 
 public class EnrichMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Enrich enrich,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Enrich enrich,
+                                                                                              List<String> dirtyFields) {
 
         boolean isSourceInlined = "inline".equals(data.get("sourceType"));
 
@@ -86,7 +86,7 @@ public class EnrichMediator {
         Map<String, Object> data = new HashMap<>();
 
         data.put("description", node.getDescription());
-        if (node.getSource() != null){
+        if (node.getSource() != null) {
             SourceEnrichType sourceType = node.getSource().getType();
             switch (sourceType) {
                 case custom:
@@ -135,7 +135,8 @@ public class EnrichMediator {
             Map<String, Object> targetXPathJsonPath = new HashMap<>();
             targetXPathJsonPath.put("isExpression", true);
             targetXPathJsonPath.put("value", node.getTarget() != null ? node.getTarget().getXpath() : null);
-            targetXPathJsonPath.put("namespaces", MediatorUtils.transformNamespaces(node.getTarget() != null ? node.getTarget().getNamespaces() : null));
+            targetXPathJsonPath.put("namespaces", MediatorUtils.transformNamespaces(node.getTarget() != null ?
+                    node.getTarget().getNamespaces() : null));
             data.put("targetXPathJsonPath", targetXPathJsonPath);
         } else if (node.getTarget() != null && node.getTarget().getXpath() != null) {
             data.put("targetType", "custom");

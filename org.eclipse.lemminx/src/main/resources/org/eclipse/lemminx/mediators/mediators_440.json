@@ -57,8 +57,8 @@
       "mediatorClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.Datamapper",
       "factoryClass": "org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.transformation.DatamapperFactory",
       "processingClass": "org.eclipse.lemminx.customservice.synapse.mediatorService.mediators.DatamapperMediator",
-      "storeMethod": "processData440",
-      "retrieveMethod": "getDataFromST440"
+      "storeMethod": "processData430",
+      "retrieveMethod": "getDataFromST430"
     }
   ],
   "generic": [

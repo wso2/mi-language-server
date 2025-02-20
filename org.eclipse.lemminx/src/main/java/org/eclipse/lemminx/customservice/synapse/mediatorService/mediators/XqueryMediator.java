@@ -32,8 +32,8 @@ import java.util.Map;
 
 public class XqueryMediator {
     public static Either<Map<String, Object>, Map<Range, Map<String, Object>>> processData430(Map<String, Object> data,
-                                                                                           Xquery xquery,
-                                                                                           List<String> dirtyFields) {
+                                                                                              Xquery xquery,
+                                                                                              List<String> dirtyFields) {
         if ("Static".equals(data.get("scriptKeyType"))) {
             data.remove("dynamicScriptKey");
         } else {
