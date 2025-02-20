@@ -559,4 +559,6 @@ public class Constant {
     public static final String UI_SCHEMA_NAME = "UI_SCHEMA_NAME";
     public static final String SEQUENCE_NAME = "sequenceName";
     public static final String CAN_TRY_OUT = "canTryOut";
+    public static final String LOG_MESSAGE_ID = "logMessageID";
+    public static final String LOG_FULL_PAYLOAD = "logFullPayload";
 }
