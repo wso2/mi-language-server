@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+    <xs:simpleType name="RatingType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Excellent"/>
+            <xs:enumeration value="Good"/>
+            <xs:enumeration value="Average"/>
+            <xs:enumeration value="Poor"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:element name="Review">
+        <xs:complexType>
+            <xs:simpleContent>
+                <xs:extension base="xs:string">
+                    <xs:attribute name="rating" type="RatingType" use="required"/>
+                </xs:extension>
+            </xs:simpleContent>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

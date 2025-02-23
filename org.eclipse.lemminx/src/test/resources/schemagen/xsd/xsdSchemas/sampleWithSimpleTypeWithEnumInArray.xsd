@@ -1,0 +1,19 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:simpleType name="ColorType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Green"/>
+            <xs:enumeration value="Red"/>
+            <xs:enumeration value="Blue"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="PersonType">
+        <xs:sequence>
+            <xs:element name="FirstName" type="xs:string"/>
+            <xs:element name="LastName" type="xs:string"/>
+            <xs:element name="FavoriteColor" type="ColorType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="Person" type="PersonType"/>
+</xs:schema>

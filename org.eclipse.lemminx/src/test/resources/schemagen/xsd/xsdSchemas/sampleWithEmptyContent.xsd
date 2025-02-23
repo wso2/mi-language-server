@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:element name="emptyElement">
+        <xs:annotation>
+            <xs:documentation>
+                Empty Element Placeholder - This element is intentionally left empty
+                and serves as a marker or flag within the XML document.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence/>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

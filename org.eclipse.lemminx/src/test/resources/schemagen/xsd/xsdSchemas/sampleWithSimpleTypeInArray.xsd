@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+    <xs:complexType name="UserProfileType">
+        <xs:sequence>
+            <xs:element name="UserID" type="xs:integer"/>
+            <xs:element name="UserName" type="xs:string"/>
+            <xs:element name="Age" type="xs:integer"/>
+            <xs:element name="IsVerified" type="xs:boolean"/>
+            <xs:element name="Tags" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="UserProfile" type="UserProfileType"/>
+
+</xs:schema>

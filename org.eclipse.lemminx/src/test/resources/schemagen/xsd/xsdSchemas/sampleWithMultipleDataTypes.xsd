@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:element name="SampleData">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="StringValue" type="xs:string"/>
+                <xs:element name="DecimalValue" type="xs:decimal"/>
+                <xs:element name="IntegerValue" type="xs:integer"/>
+                <xs:element name="BooleanValue" type="xs:boolean"/>
+                <xs:element name="DateValue" type="xs:date"/>
+                <xs:element name="TimeValue" type="xs:time"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

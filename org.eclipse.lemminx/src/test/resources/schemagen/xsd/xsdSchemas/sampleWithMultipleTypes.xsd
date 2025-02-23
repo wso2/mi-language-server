@@ -1,0 +1,16 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="Person">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="UserID" type="xs:ID"/>
+                <xs:element name="Age" type="xs:positiveInteger"/>
+                <xs:element name="IsActive" type="xs:boolean"/>
+                <xs:element name="Salary" type="xs:double"/>
+                <xs:element name="LoginTime" type="xs:time"/>
+                <xs:element name="MembershipDuration" type="xs:duration"/>
+                <xs:element name="BirthDate" type="xs:date"/>
+                <xs:element name="LastLogin" type="xs:dateTime"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified">
+
+    <!-- Third Layer: Employee complex type -->
+    <xs:complexType name="EmployeeType">
+        <xs:sequence>
+            <xs:element name="firstName" type="xs:string"/>
+            <xs:element name="lastName" type="xs:string"/>
+            <xs:element name="position" type="xs:string"/>
+        </xs:sequence>
+        <xs:attribute name="employeeID" type="xs:positiveInteger" use="required"/>
+    </xs:complexType>
+
+    <!-- Second Layer: Department complex type -->
+    <xs:complexType name="DepartmentType">
+        <xs:sequence>
+            <xs:element name="departmentName" type="xs:string"/>
+            <xs:element name="Employee" type="EmployeeType" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="deptID" type="xs:positiveInteger" use="required"/>
+    </xs:complexType>
+
+    <!-- First Layer: Company complex type -->
+    <xs:complexType name="CompanyType">
+        <xs:sequence>
+            <xs:element name="CompanyName" type="xs:string"/>
+            <xs:element name="Department" type="DepartmentType" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="companyID" type="xs:positiveInteger" use="required"/>
+    </xs:complexType>
+
+    <!-- Root Element -->
+    <xs:element name="Company" type="CompanyType"/>
+
+</xs:schema>

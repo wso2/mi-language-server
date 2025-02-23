@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:notation name="jpeg" public="image/jpeg" system="view.exe"/>
+    <xs:notation name="png" public="image/png" system="view.exe"/>
+
+    <xs:element name="images">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="image" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:simpleContent>
+                            <xs:extension base="xs:string">
+                                <xs:attribute name="file" type="xs:string" use="required"/>
+                                <xs:attribute name="type" use="required">
+                                    <xs:simpleType>
+                                        <xs:restriction base="xs:NOTATION">
+                                            <xs:enumeration value="jpeg"/>
+                                            <xs:enumeration value="png"/>
+                                        </xs:restriction>
+                                    </xs:simpleType>
+                                </xs:attribute>
+                            </xs:extension>
+                        </xs:simpleContent>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

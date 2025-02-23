@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="PaymentMethod">
+        <xs:complexType>
+            <xs:choice>
+                <xs:element name="CreditCard" type="xs:string"/>
+                <xs:element name="DigitalWallet">
+                    <xs:complexType>
+                        <xs:choice>
+                            <xs:element name="PayPal" type="xs:string"/>
+                            <xs:element name="CryptoWallet">
+                                <xs:complexType>
+                                    <xs:choice>
+                                        <xs:element name="Bitcoin" type="xs:string"/>
+                                        <xs:element name="Ethereum">
+                                            <xs:complexType>
+                                                <xs:choice>
+                                                    <xs:element name="ERC20Token" type="xs:string"/>
+                                                    <xs:element name="NativeETH" type="xs:decimal"/>
+                                                </xs:choice>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:choice>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

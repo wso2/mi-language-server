@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+    <xs:complexType name="PaymentInfoType">
+        <xs:choice>
+            <xs:element name="CreditCard" type="CreditCardType"/>
+            <xs:element name="PayPal" type="PayPalType"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="CreditCardType">
+        <xs:sequence>
+            <xs:element name="cardNumber" type="xs:string"/>
+            <xs:element name="expiryDate" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="PayPalType">
+        <xs:sequence>
+            <xs:element name="paypalEmail" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="Transaction">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="transactionID" type="xs:string"/>
+                <xs:element name="PaymentDetails" type="PaymentInfoType"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

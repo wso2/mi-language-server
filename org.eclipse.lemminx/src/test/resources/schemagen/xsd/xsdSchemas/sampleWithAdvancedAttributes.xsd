@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+    <!-- Define a base complex type -->
+    <xs:complexType name="baseProduct">
+        <xs:sequence>
+            <!-- Base element content; could be empty if not needed -->
+            <xs:element name="description" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Define the product element using complexContent extension -->
+    <xs:element name="product">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="baseProduct">
+                    <xs:attribute name="prodid" type="xs:positiveInteger" use="required"/>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

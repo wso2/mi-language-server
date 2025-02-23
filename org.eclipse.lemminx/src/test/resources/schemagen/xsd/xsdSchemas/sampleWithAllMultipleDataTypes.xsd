@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="SampleData">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="StringValue" type="xs:string"/>
+                <xs:element name="NormalizedStringValue" type="xs:normalizedString"/>
+                <xs:element name="TokenValue" type="xs:token"/>
+                <xs:element name="IDValue" type="xs:ID"/>
+                <xs:element name="IDREFValue" type="xs:IDREF"/>
+                <xs:element name="NCNameValue" type="xs:NCName"/>
+                <xs:element name="NMTOKENValue" type="xs:NMTOKEN"/>
+                <xs:element name="IntegerValue" type="xs:integer"/>
+                <xs:element name="UnsignedIntValue" type="xs:unsignedInt"/>
+                <xs:element name="LongValue" type="xs:long"/>
+                <xs:element name="BooleanValue" type="xs:boolean"/>
+                <xs:element name="DecimalValue" type="xs:decimal"/>
+                <xs:element name="FloatValue" type="xs:float"/>
+                <xs:element name="DoubleValue" type="xs:double"/>
+                <xs:element name="DateValue" type="xs:date"/>
+                <xs:element name="TimeValue" type="xs:time"/>
+                <xs:element name="DateTimeValue" type="xs:dateTime"/>
+                <xs:element name="DurationValue" type="xs:duration"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

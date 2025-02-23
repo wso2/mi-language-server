@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+    <!-- Define an element group for person details -->
+    <xs:group name="personElements">
+        <xs:sequence>
+            <xs:element name="firstName" type="xs:string"/>
+            <xs:element name="lastName" type="xs:string"/>
+            <xs:element name="email" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+    </xs:group>
+
+    <!-- Define an attribute group for common attributes -->
+    <xs:attributeGroup name="personAttributes">
+        <xs:attribute name="id" type="xs:positiveInteger" use="required"/>
+        <xs:attribute name="status" type="xs:string" use="optional"/>
+    </xs:attributeGroup>
+
+    <!-- Define a complex type using the element group and attribute group -->
+    <xs:complexType name="PersonType">
+        <xs:sequence>
+            <xs:group ref="personElements"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="personAttributes"/>
+    </xs:complexType>
+
+    <!-- Use the PersonType in an element -->
+    <xs:element name="person" type="PersonType"/>
+
+</xs:schema>

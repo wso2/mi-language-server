@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:complexType name="BaseProductType">
+        <xs:simpleContent>
+            <xs:extension base="xs:int">
+                <xs:attribute name="category" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="ProductType">
+        <xs:simpleContent>
+            <xs:extension base="BaseProductType">
+                <xs:attribute name="id" type="xs:int" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="ExtendedProductType">
+        <xs:simpleContent>
+            <xs:extension base="ProductType">
+                <xs:attribute name="price" type="xs:decimal"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:element name="Product" type="ExtendedProductType"/>
+
+</xs:schema>

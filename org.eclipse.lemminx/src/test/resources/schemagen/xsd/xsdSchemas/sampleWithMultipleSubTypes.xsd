@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+    <!-- Root Element -->
+    <xs:element name="Company">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="CompanyName" type="xs:string"/>
+                <xs:element name="Address" type="AddressType"/>
+                <xs:element name="Employees" type="EmployeesType"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Address Complex Type -->
+    <xs:complexType name="AddressType">
+        <xs:sequence>
+            <xs:element name="Street" type="xs:string"/>
+            <xs:element name="City" type="xs:string"/>
+            <xs:element name="ZipCode" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Employees Complex Type -->
+    <xs:complexType name="EmployeesType">
+        <xs:sequence>
+            <xs:element name="Employee" type="EmployeeType" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Employee Complex Type -->
+    <xs:complexType name="EmployeeType">
+        <xs:sequence>
+            <xs:element name="ID" type="xs:int"/>
+            <xs:element name="Name" type="xs:string"/>
+            <xs:element name="Position" type="xs:string"/>
+            <xs:element name="Salary" type="xs:decimal"/>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>
