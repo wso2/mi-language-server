@@ -3,7 +3,7 @@
   "type": "mediator",
   "title": "Scatter Gather Mediator",
   "canTryOut": true,
-  "help": "Clones a message into several messages and aggregate the responses back into a single message.",
+  "help": "Broadcast the same message to multiple flows, and aggregate their responses back into a single message.",
   "elements": [
     {
       "type": "attribute",
@@ -19,7 +19,8 @@
     {
       "type": "attributeGroup",
       "value": {
-        "groupName": "Output configurations",
+        "groupName": "Aggregate configurations",
+        "isCollapsed": true,
         "elements": [
           {
             "type": "attribute",
@@ -39,13 +40,44 @@
           {
             "type": "attribute",
             "value": {
-              "name": "expression",
-              "displayName": "Expression",
-              "inputType": "expression",
-              "required": false,
-              "defaultValue": "${payload}",
-              "helpTip": "Provide the expression that specifies the data to be aggregated from each message.",
+              "name": "rootElement",
+              "displayName": "Result Enclosing Element Name",
+              "inputType": "string",
+              "defaultValue": "ScatterGatherResult",
+              "required": true,
+              "helpTip": "The aggregated result will be wrapped in this root element.",
               "enableCondition": [
+                {
+                  "contentType": "XML"
+                }
+              ]
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "aggregateFullPayloads",
+              "displayName": "Aggregate Entire Payloads",
+              "inputType": "checkbox",
+              "defaultValue": "true",
+              "helpTip": "By default, the entire message payload is aggregated from all flows. You can customize this selection if you wish to aggregate only specific parts of the payload.",
+              "required": "false"
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "expression",
+              "displayName": "Partial payload to Aggregate",
+              "inputType": "expression",
+              "required": true,
+              "defaultValue": "${payload}",
+              "helpTip": "Provide the expression that specifies which part of the message payload should be aggregated.",
+              "enableCondition": [
+                "AND",
+                {
+                  "aggregateFullPayloads": false
+                },
                 {
                   "contentType": "JSON"
                 }
@@ -56,60 +88,44 @@
             "type": "attribute",
             "value": {
               "name": "xPathExpression",
-              "displayName": "Expression",
+              "displayName": "Partial payload to Aggregate",
+              "inputType": "expression",
+              "required": true,
+              "defaultValue": "${xpath('$body/node()')}",
+              "helpTip": "Provide the expression that specifies which part of the message payload should be aggregated.",
+              "enableCondition": [
+                "AND",
+                {
+                  "aggregateFullPayloads": false
+                },
+                {
+                  "contentType": "XML"
+                }
+              ]
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "filterMessagesForAggregation",
+              "displayName": "Filter Messages for Aggregation",
+              "inputType": "checkbox",
+              "defaultValue": "false",
+              "helpTip": "By default, all messages are aggregated. If you wish to filter messages based on a condition, enable this option.",
+              "required": "false"
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "condition",
+              "displayName": "Condition",
               "inputType": "expression",
               "required": false,
-              "defaultValue": "${xpath('$body/node()')}",
-              "helpTip": "Provide the expression that specifies the data to be aggregated from each message.",
+              "helpTip": "Specify the condition to filter which responses should be included in the final aggregation. A completion timeout is required if this condition is used.",
               "enableCondition": [
                 {
-                  "contentType": "XML"
-                }
-              ]
-            }
-          },
-          {
-            "type": "attribute",
-            "value": {
-              "name": "rootElement",
-              "displayName": "Result Enclosing Element Name",
-              "inputType": "string",
-              "defaultValue": "ScatterGatherResult",
-              "required": true,
-              "helpTip": "The aggregation result will be wrapped in this root element.",
-              "enableCondition": [
-                {
-                  "contentType": "XML"
-                }
-              ]
-            }
-          },
-          {
-            "type": "attribute",
-            "value": {
-              "name": "resultTarget",
-              "displayName": "Save Result to",
-              "inputType": "combo",
-              "defaultValue": "Body",
-              "comboValues": [
-                "Body",
-                "Variable"
-              ],
-              "required": false,
-              "helpTip": "Specify where to save the aggregated result. Choose between saving it in the message body or a variable."
-            }
-          },
-          {
-            "type": "attribute",
-            "value": {
-              "name": "variableName",
-              "displayName": "Variable Name",
-              "inputType": "string",
-              "required": true,
-              "helpTip": "The name of the variable where the result will be saved.",
-              "enableCondition": [
-                {
-                  "resultTarget": "Variable"
+                "filterMessagesForAggregation": true
                 }
               ]
             }
@@ -120,19 +136,9 @@
     {
       "type": "attributeGroup",
       "value": {
-        "groupName": "Aggregation configurations",
+        "groupName": "Advanced configurations",
         "isCollapsed": true,
         "elements": [
-          {
-            "type": "attribute",
-            "value": {
-              "name": "condition",
-              "displayName": "Condition to aggregate the message",
-              "inputType": "expression",
-              "required": false,
-              "helpTip": "Define a condition that determines when the messages should be aggregated."
-            }
-          },
           {
             "type": "attribute",
             "value": {
@@ -140,27 +146,61 @@
               "displayName": "Completion Timeout",
               "inputType": "string",
               "required": false,
-              "helpTip": "Specify the maximum amount of time (in milliseconds) to wait for the messages to complete aggregation."
+              "helpTip": "Specify the maximum amount of time (in milliseconds) to wait for the flows to complete aggregation."
             }
           },
           {
             "type": "attribute",
             "value": {
               "name": "minMessages",
-              "displayName": "Minimum messages to complete",
+              "displayName": "Minimum flows to complete",
               "inputType": "string",
               "required": false,
-              "helpTip": "Set the minimum number of messages that must be received before aggregation can occur."
+              "helpTip": "Set the minimum number of flows that must be completed before aggregation can occur."
             }
           },
           {
             "type": "attribute",
             "value": {
               "name": "maxMessages",
-              "displayName": "Maximum messages to complete",
+              "displayName": "Maximum flows to complete",
               "inputType": "string",
               "required": false,
-              "helpTip": "Set the maximum number of messages that should be processed for aggregation."
+              "helpTip": "Set the maximum number of flows that should be processed for aggregation."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "Output",
+        "elements": [
+          {
+            "type": "attribute",
+            "value": {
+              "name": "overwriteBody",
+              "displayName": "Overwrite Message Body",
+              "inputType": "checkbox",
+              "defaultValue": "true",
+              "helpTip": "Replace the Message Body with the response of the Scatter Gather Mediator.",
+              "required": "false"
+            }
+          },
+          {
+            "type": "attribute",
+            "value": {
+              "name": "variableName",
+              "displayName": "Output Variable Name",
+              "inputType": "string",
+              "required": "true",
+              "helpTip": "Name of the variable to which the output of the Scatter Gather Mediator should be assigned",
+              "enableCondition": [
+                {
+                  "overwriteBody": false
+                }
+              ]
             }
           }
         ]

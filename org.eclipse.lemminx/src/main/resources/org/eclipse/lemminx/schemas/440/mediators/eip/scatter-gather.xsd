@@ -30,7 +30,7 @@
     <xs:element name="scatter-gather">
         <xs:annotation>
             <xs:documentation source="description">
-                Clones a message into several messages and aggregate the responses back into a single message.
+                Broadcast the same message to multiple flows, and aggregate their responses back into a single message.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType>
