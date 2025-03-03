@@ -176,6 +176,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
             this.projectUri = projectUri;
             this.isLegacyProject = Utils.isLegacyProject(projectUri);
             this.projectServerVersion = Utils.getServerVersion(projectUri, Constant.DEFAULT_MI_VERSION);
+            inboundConnectorHolder.init(projectUri, projectServerVersion);
             initializeConnectorLoader();
             mediatorHandler.init(projectServerVersion, connectorHolder);
             connectionHandler.init(connectorHolder);
@@ -191,7 +192,6 @@ public class SynapseLanguageService implements ISynapseLanguageService {
             log.log(Level.SEVERE, "Project path is null. Language server initialization failed.");
         }
         resourceFinder = ResourceFinderFactory.getResourceFinder(isLegacyProject);
-        inboundConnectorHolder.init(projectUri);
     }
 
     private void initializeConnectorLoader() {
@@ -284,7 +284,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
     public void updateConnectors() {
 
-        connectorLoader.loadConnector();
+        connectorLoader.loadConnector(inboundConnectorHolder);
         if (mediatorHandler.isInitialized()) {
             mediatorHandler.reloadMediatorList(projectServerVersion);
         }
@@ -416,12 +416,18 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     public CompletableFuture<InboundConnectorResponse> getInboundConnectorSchema(InboundConnectorParam param) {
 
         return CompletableFuture.supplyAsync(() -> {
-            if (param.connectorName != null) {
-                return inboundConnectorHolder.getInboundConnectorSchema(param.connectorName);
+            if (param.connectorId != null) {
+                return inboundConnectorHolder.getInboundConnectorSchemaFromId(param.connectorId);
             } else {
                 return inboundConnectorHolder.getInboundConnectorSchema(new File(param.documentPath));
             }
         });
+    }
+
+    @Override
+    public CompletableFuture<JsonObject> getLocalInboundConnectors() {
+
+        return CompletableFuture.supplyAsync(() -> inboundConnectorHolder.getLocalInboundConnectorList());
     }
 
     @Override

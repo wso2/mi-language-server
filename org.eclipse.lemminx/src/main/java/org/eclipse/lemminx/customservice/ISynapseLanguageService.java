@@ -158,6 +158,9 @@ public interface ISynapseLanguageService {
     CompletableFuture<InboundConnectorResponse> getInboundConnectorSchema(InboundConnectorParam param);
 
     @JsonRequest
+    CompletableFuture<JsonObject> getLocalInboundConnectors();
+
+    @JsonRequest
     CompletableFuture<JsonObject> getConnectionUISchema(ConnectionUIParam param);
 
     @JsonRequest
