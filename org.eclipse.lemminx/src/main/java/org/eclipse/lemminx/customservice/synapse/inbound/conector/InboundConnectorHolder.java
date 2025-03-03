@@ -75,8 +75,8 @@ public class InboundConnectorHolder {
                         + projectRuntimeVersion.replace(".", "") + ".json");
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         this.inboundConnectorListJson = JsonParser.parseReader(reader).getAsJsonObject();
-        this.localInboundConnectors = Utils.getUISchemaMap("/org/eclipse/lemminx/inbound-endpoints/" +
-                "inbound_endpoints_" + projectRuntimeVersion.replace(".", ""));
+        this.localInboundConnectors = Utils.getUISchemaMap("org/eclipse/lemminx/inbound-endpoints/"
+                + projectRuntimeVersion.replace(".", ""));
         loadInboundConnectors();
     }
 
