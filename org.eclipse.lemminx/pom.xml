@@ -14,7 +14,7 @@
 		<dev.build.timestamp>${maven.build.timestamp}</dev.build.timestamp>
 		<cbi.jarsigner.skip>true</cbi.jarsigner.skip>
 		<native.maven.plugin.version>0.9.16</native.maven.plugin.version>
-		<mi.connector.generator.version>1.0.0</mi.connector.generator.version>
+		<mi.connector.generator.version>0.9.0</mi.connector.generator.version>
 		<graalvm.static />
 	</properties>
 	<build>
@@ -35,28 +35,6 @@
 			</resource>
 		</resources>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-install-plugin</artifactId>
-				<version>3.1.1</version>
-				<configuration>
-					<file>${project.basedir}/lib/mi-connector-generator-1.0.0.jar</file>
-					<groupId>org.wso2.mi.connector.tools</groupId>
-					<artifactId>mi-connector-generator</artifactId>
-					<version>1.0.0</version>
-					<packaging>jar</packaging>
-					<generatePom>true</generatePom>
-				</configuration>
-				<executions>
-					<execution>
-						<id>install-jar-lib</id>
-						<goals>
-							<goal>install-file</goal>
-						</goals>
-						<phase>initialize</phase>
-					</execution>
-				</executions>
-			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
@@ -375,7 +353,7 @@
 			<version>0.9.14</version>
 		</dependency>
 		<dependency>
-			<groupId>org.wso2.mi.connector.tools</groupId>
+			<groupId>org.wso2.integration.tools</groupId>
 			<artifactId>mi-connector-generator</artifactId>
 			<version>${mi.connector.generator.version}</version>
 			<exclusions>
