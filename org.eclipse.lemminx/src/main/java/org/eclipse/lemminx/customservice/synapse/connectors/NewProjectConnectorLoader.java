@@ -106,6 +106,15 @@ public class NewProjectConnectorLoader extends AbstractConnectorLoader {
                         new File(connectorExtractFolder.getAbsolutePath() + File.separator + connectorName);
                 connectorHolder.removeConnector(getConnectorName(connectorFolder));
                 try {
+                    if (connectorFolder.getName().contains("mi-inbound-") ) {
+                        String schema = Utils.readFile(connectorFolder.toPath().resolve(Constant.RESOURCES)
+                                .resolve("uischema.json").toFile());
+                        String fileName = Utils.getJsonObject(schema).get(Constant.NAME).getAsString() + ".json";
+                        String projectFolderName = connectorExtractFolder.getParentFile().getName();
+                        File schemaToRemove = connectorExtractFolder.toPath().getParent().getParent().getParent()
+                                .resolve("inbound.connectors").resolve(projectFolderName).resolve(fileName).toFile();
+                        FileUtils.delete(schemaToRemove);
+                    }
                     FileUtils.deleteDirectory(connectorFolder);
                     notifyRemoveConnector(connectorName, true, "Connector deleted successfully");
                 } catch (IOException e) {

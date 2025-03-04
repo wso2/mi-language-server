@@ -69,7 +69,7 @@ public class InboundConnectorHolder {
         this.projectPath = projectPath;
         this.projectId = Utils.getHash(projectPath);
         this.tempFolderPath = System.getProperty("user.home") + File.separator + ".wso2-mi" + File.separator +
-                "inbound.connectors" + File.separator + new File(projectPath).getName() + projectId;
+                "inbound.connectors" + File.separator + new File(projectPath).getName() + "_" +projectId;
         InputStream inputStream = JsonLoader.class
                 .getResourceAsStream("/org/eclipse/lemminx/inbound-endpoints/inbound_endpoints_"
                         + projectRuntimeVersion.replace(".", "") + ".json");
