@@ -20,12 +20,6 @@ jobs:
         java-version: '11'
         distribution: 'adopt'
         cache: 'maven'
-    - name: Install dependencies on Windows
-      if: runner.os == 'Windows'
-      run: ./mvnw.cmd -B initialize
-    - name: Install dependencies on Linux
-      if: runner.os == 'Linux'
-      run: ./mvnw -B initialize
     - name: Run Tests on Windows
       if: runner.os == 'Windows'
       run: ./mvnw.cmd -B '-Dlemminx.cacheInRepoDir' clean verify
