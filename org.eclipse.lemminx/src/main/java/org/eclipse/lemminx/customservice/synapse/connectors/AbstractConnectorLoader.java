@@ -71,7 +71,7 @@ public abstract class AbstractConnectorLoader {
             cleanOldConnectors(connectorExtractFolder, connectorZips);
             copyToProjectIfNeeded(connectorZips);
             extractZips(connectorZips, connectorExtractFolder);
-            readConnectors(connectorExtractFolder);
+            readConnectors(connectorExtractFolder, projectUri);
         }
     }
 
@@ -128,13 +128,13 @@ public abstract class AbstractConnectorLoader {
         }
     }
 
-    private void readConnectors(File connectorFolder) {
+    private void readConnectors(File connectorFolder, String projectUri) {
 
         File[] files = connectorFolder.listFiles(File::isDirectory);
         for (File f : files) {
             String connectorName = getConnectorName(f);
             if (!connectorHolder.exists(connectorName)) {
-                Connector connector = connectorReader.readConnector(f.getAbsolutePath());
+                Connector connector = connectorReader.readConnector(f.getAbsolutePath(), projectUri);
                 if (connector != null) {
                     connector.setConnectorZipPath(
                             getConnectorZip(connectorHolder.getConnectorZips(), connector.getExtractedConnectorPath()));

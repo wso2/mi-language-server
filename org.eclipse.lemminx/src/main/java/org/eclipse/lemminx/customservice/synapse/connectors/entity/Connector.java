@@ -37,6 +37,7 @@ public class Connector {
     private String iconPath;
     private String uiSchemaPath;
     private String outputSchemaPath;
+    private String ballerinaModulePath;
 
     public Connector() {
 
@@ -206,5 +207,13 @@ public class Connector {
                 action.setOutputSchemaPath(absolutePath);
             }
         }
+    }
+
+    public String getBallerinaModulePath() {
+        return ballerinaModulePath;
+    }
+
+    public void setBallerinaModulePath(String ballerinaModulePath) {
+        this.ballerinaModulePath = ballerinaModulePath;
     }
 }

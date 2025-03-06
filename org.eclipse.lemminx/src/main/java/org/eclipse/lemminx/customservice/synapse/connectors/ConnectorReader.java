@@ -21,6 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.connectors;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorAction;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.OperationParameter;
@@ -31,7 +32,9 @@ import org.eclipse.lemminx.dom.DOMNode;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,7 +49,7 @@ public class ConnectorReader {
     private static final Pattern ARTIFACT_VERSION_REGEX = Pattern.compile("(.+)-(\\d+\\.\\d+\\.\\d+(-SNAPSHOT)?)");
     private HashMap<String, List<String>> allowedConnectionTypesMap = new HashMap<>();
 
-    public Connector readConnector(String connectorPath) {
+    public Connector readConnector(String connectorPath, String projectUri) {
 
         Connector connector = null;
         if (connectorPath != null) {
@@ -60,7 +63,12 @@ public class ConnectorReader {
                     String name = componentElement.getAttribute(Constant.NAME);
                     connector = new Connector();
                     connector.setName(name);
+                    connector.setBallerinaModulePath(StringUtils.EMPTY);
                     String packageName = componentElement.getAttribute(Constant.PACKAGE);
+                    if ("io.ballerina.stdlib.mi".equals(packageName)) {
+                        connector.setBallerinaModulePath(getBallerinaModulePath(name,
+                                Paths.get(projectUri, Constant.SRC, Constant.MAIN, Constant.BALLERINA).toString()));
+                    }
                     connector.setPackageName(packageName);
                     if (displayNameElement != null && displayNameElement.isElement()) {
                         String displayName = Utils.getInlineString(displayNameElement.getFirstChild());
@@ -80,6 +88,49 @@ public class ConnectorReader {
             }
         }
         return connector;
+    }
+
+    private String getBallerinaModulePath(String moduleName, String ballerinaFolder) {
+
+        List<String> ballerinaTomlPaths = new ArrayList<>();
+        try {
+            Files.walk(Paths.get(ballerinaFolder))
+                    .filter(path -> Files.isRegularFile(path) && path.getFileName().toString().equals("Ballerina.toml"))
+                    .forEach(path -> ballerinaTomlPaths.add(path.toString()));
+            for (String path : ballerinaTomlPaths) {
+                try {
+                    List<String> lines = Files.readAllLines(Paths.get(path));
+                    String name = StringUtils.EMPTY;
+                    boolean isPackageSection = false;
+                    for (String line : lines) {
+                        if (line.trim().startsWith("[package]")) {
+                            isPackageSection = true;
+                        }
+                        if (isPackageSection) {
+                            if (line.trim().startsWith("name =")) {
+                                name = extractModuleName(line);
+                            }
+                        }
+                    }
+                    if (moduleName.equals(name)) {
+                        return Paths.get(path).getParent().toString();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return StringUtils.EMPTY;
+        } catch (IOException e) {
+            return StringUtils.EMPTY;
+        }
+    }
+
+    private static String extractModuleName(String line) {
+        String[] parts = line.split("=");
+        if (parts.length > 1) {
+            return parts[1].trim().replaceAll("\"", StringUtils.EMPTY);
+        }
+        return StringUtils.EMPTY;
     }
 
     private void populateAllowedConnectionTypesMap(Connector connector) {
