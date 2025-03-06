@@ -421,8 +421,7 @@ public class Utils {
 
     public static File newFile(File destinationDir, String zipName) throws IOException {
 
-        File destFile = new File(destinationDir, zipName.indexOf("Extracted") != -1 ?
-                zipName.substring(0, zipName.indexOf("Extracted") + "Extracted".length()) : zipName);
+        File destFile = new File(destinationDir, zipName);
 
         String destDirPath = destinationDir.getCanonicalPath();
         String destFilePath = destFile.getCanonicalPath();
