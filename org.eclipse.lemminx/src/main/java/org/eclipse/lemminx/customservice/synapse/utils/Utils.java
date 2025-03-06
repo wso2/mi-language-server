@@ -335,7 +335,7 @@ public class Utils {
         byte[] buffer = new byte[1024];
         ZipInputStream zis = new ZipInputStream(new FileInputStream(zip));
         ZipEntry zipEntry = zis.getNextEntry();
-        String zipName = zip.getName().replace(".zip", "");
+        String zipName = zip.getName().replace(Constant.ZIP_EXTENSION, StringUtils.EMPTY);
         boolean removeUpperFolder = false;
         while (zipEntry != null) {
             String entryName = zipEntry.getName();

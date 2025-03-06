@@ -122,9 +122,9 @@ public abstract class AbstractConnectorLoader {
                 File extractToFolder = new File(extractTo);
                 try {
                     Utils.extractZip(zip, extractToFolder);
-                    if (zipName.contains("mi-inbound-")) {
+                    if (zipName.contains(Constant.INBOUND_CONNECTOR_PREFIX)) {
                         String schema = Utils.readFile(extractToFolder.toPath().resolve(Constant.RESOURCES)
-                                .resolve("uischema.json").toFile());
+                                .resolve(Constant.UI_SCHEMA_JSON).toFile());
                         inboundConnectorHolder.saveInboundConnector(Utils.getJsonObject(schema)
                                 .get(Constant.NAME).getAsString(), schema);
                     }

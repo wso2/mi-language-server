@@ -21,6 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.inbound.conector;
 import com.github.fge.jackson.JsonLoader;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeGenerator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.inbound.InboundEndpoint;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
@@ -69,14 +70,14 @@ public class InboundConnectorHolder {
         this.projectPath = projectPath;
         this.projectId = Utils.getHash(projectPath);
         this.tempFolderPath = System.getProperty("user.home") + File.separator + ".wso2-mi" + File.separator +
-                "inbound.connectors" + File.separator + new File(projectPath).getName() + "_" +projectId;
+                Constant.INBOUND_CONNECTORS + File.separator + new File(projectPath).getName() + "_" +projectId;
         InputStream inputStream = JsonLoader.class
                 .getResourceAsStream("/org/eclipse/lemminx/inbound-endpoints/inbound_endpoints_"
-                        + projectRuntimeVersion.replace(".", "") + ".json");
+                        + projectRuntimeVersion.replace(".", StringUtils.EMPTY) + Constant.JSON_FILE_EXT);
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         this.inboundConnectorListJson = JsonParser.parseReader(reader).getAsJsonObject();
         this.localInboundConnectors = Utils.getUISchemaMap("org/eclipse/lemminx/inbound-endpoints/"
-                + projectRuntimeVersion.replace(".", ""));
+                + projectRuntimeVersion.replace(".", StringUtils.EMPTY));
         loadInboundConnectors();
     }
 
