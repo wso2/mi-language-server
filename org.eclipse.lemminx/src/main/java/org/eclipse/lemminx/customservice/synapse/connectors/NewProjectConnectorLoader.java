@@ -111,8 +111,8 @@ public class NewProjectConnectorLoader extends AbstractConnectorLoader {
                                 .resolve(Constant.UI_SCHEMA_JSON).toFile());
                         String fileName = Utils.getJsonObject(schema).get(Constant.NAME).getAsString() + Constant.JSON_FILE_EXT;
                         String projectFolderName = connectorExtractFolder.getParentFile().getName();
-                        File schemaToRemove = connectorExtractFolder.toPath().getParent().getParent().getParent()
-                                .resolve(Constant.INBOUND_CONNECTORS).resolve(projectFolderName).resolve(fileName).toFile();
+                        File schemaToRemove = Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI,
+                                Constant.INBOUND_CONNECTORS).resolve(projectFolderName).resolve(fileName).toFile();
                         FileUtils.delete(schemaToRemove);
                     }
                     FileUtils.deleteDirectory(connectorFolder);
