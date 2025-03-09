@@ -71,7 +71,7 @@ public abstract class AbstractConnectorLoader {
             cleanOldConnectors(connectorExtractFolder, connectorZips);
             copyToProjectIfNeeded(connectorZips);
             extractZips(connectorZips, connectorExtractFolder);
-            readConnectors(connectorExtractFolder, projectUri);
+            readConnectors(connectorExtractFolder);
         }
     }
 
@@ -128,7 +128,7 @@ public abstract class AbstractConnectorLoader {
         }
     }
 
-    private void readConnectors(File connectorFolder, String projectUri) {
+    private void readConnectors(File connectorFolder) {
 
         File[] files = connectorFolder.listFiles(File::isDirectory);
         for (File f : files) {

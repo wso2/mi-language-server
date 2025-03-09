@@ -48,6 +48,7 @@ public class ConnectorReader {
     private static final Logger log = Logger.getLogger(ConnectorReader.class.getName());
     private static final Pattern ARTIFACT_VERSION_REGEX = Pattern.compile("(.+)-(\\d+\\.\\d+\\.\\d+(-SNAPSHOT)?)");
     private HashMap<String, List<String>> allowedConnectionTypesMap = new HashMap<>();
+    private static final String BALLERINA_PACKAGE_NAME = "io.ballerina.stdlib.mi";
 
     public Connector readConnector(String connectorPath, String projectUri) {
 
@@ -65,7 +66,7 @@ public class ConnectorReader {
                     connector.setName(name);
                     connector.setBallerinaModulePath(StringUtils.EMPTY);
                     String packageName = componentElement.getAttribute(Constant.PACKAGE);
-                    if ("io.ballerina.stdlib.mi".equals(packageName)) {
+                    if (BALLERINA_PACKAGE_NAME.equals(packageName)) {
                         connector.setBallerinaModulePath(getBallerinaModulePath(name,
                                 Paths.get(projectUri, Constant.SRC, Constant.MAIN, Constant.BALLERINA).toString()));
                     }
