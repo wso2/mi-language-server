@@ -48,6 +48,7 @@ public class IntegrationDirectoryTree implements Tree {
     List<Node> connections;
     Resource resources;
     FolderNode java;
+    FolderNode ballerina;
     TestFolder tests;
 
     public IntegrationDirectoryTree(String projectPath, String projectType) {
@@ -149,6 +150,11 @@ public class IntegrationDirectoryTree implements Tree {
     public void setJava(FolderNode java) {
 
         this.java = java;
+    }
+
+    public void setBallerina(FolderNode ballerina) {
+
+        this.ballerina = ballerina;
     }
 
     public void setTests(TestFolder tests) {

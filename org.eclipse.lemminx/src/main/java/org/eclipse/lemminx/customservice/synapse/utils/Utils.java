@@ -795,6 +795,8 @@ public class Utils {
             connectorObject.addProperty(Constant.ARTIFACT_ID, connector.getArtifactId());
             connectorObject.addProperty(Constant.VERSION, connector.getVersion());
             connectorObject.addProperty(Constant.CONNECTOR_PATH, connector.getConnectorZipPath());
+            connectorObject.addProperty(Constant.IS_BALLERINA_MODULE, StringUtils.isNotBlank(connector.getBallerinaModulePath()));
+            connectorObject.addProperty(Constant.BALLERINA_MODULE_PATH, connector.getBallerinaModulePath());
             mediatorList.add(
                     StringUtils.isEmpty(connector.getDisplayName()) ? connector.getName() : connector.getDisplayName(),
                     connectorObject);
