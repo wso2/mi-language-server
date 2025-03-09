@@ -252,7 +252,7 @@ public class DirectoryTreeBuilder {
         analyzeArtifacts(directoryTree);
         analyzeResources(directoryTree);
         analyzeJavaProjects(directoryTree);
-        analyzeBalProjects(directoryTree);
+        analyzeBallerinaProjects(directoryTree);
         analyzeTestsFolder(directoryTree);
     }
 
@@ -431,7 +431,7 @@ public class DirectoryTreeBuilder {
         }
     }
 
-    private static void analyzeBalProjects(IntegrationDirectoryTree directoryTree) {
+    private static void analyzeBallerinaProjects(IntegrationDirectoryTree directoryTree) {
 
         String ballerinaPath = projectPath + File.separator + Constant.SRC + File.separator + MAIN +
                         File.separator + Constant.BALLERINA;

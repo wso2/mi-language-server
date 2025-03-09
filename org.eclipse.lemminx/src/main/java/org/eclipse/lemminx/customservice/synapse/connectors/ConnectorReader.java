@@ -116,16 +116,18 @@ public class ConnectorReader {
                         return Paths.get(path).getParent().toString();
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.log(Level.SEVERE, "Error occurred while reading Ballerina.toml file.", e);
                 }
             }
             return StringUtils.EMPTY;
         } catch (IOException e) {
+            log.log(Level.WARNING, "Ballerina folder not found in the project.", e);
             return StringUtils.EMPTY;
         }
     }
 
-    private static String extractModuleName(String line) {
+    private String extractModuleName(String line) {
+
         String[] parts = line.split("=");
         if (parts.length > 1) {
             return parts[1].trim().replaceAll("\"", StringUtils.EMPTY);
