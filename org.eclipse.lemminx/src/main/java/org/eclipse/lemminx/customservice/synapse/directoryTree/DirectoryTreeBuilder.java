@@ -436,13 +436,11 @@ public class DirectoryTreeBuilder {
         String ballerinaPath = projectPath + File.separator + Constant.SRC + File.separator + MAIN +
                         File.separator + Constant.BALLERINA;
         File folder = new File(ballerinaPath);
-        if (folder != null && folder.exists()) {
-            if (!folder.isHidden()) {
-                String folderName = folder.getName();
-                FolderNode ballerinaFolderNode = new FolderNode(folderName, ballerinaPath);
-                traverseFolder(ballerinaFolderNode, null);
-                directoryTree.setBallerina(ballerinaFolderNode);
-            }
+        if (folder.exists() && !folder.isHidden()) {
+            String folderName = folder.getName();
+            FolderNode ballerinaFolderNode = new FolderNode(folderName, ballerinaPath);
+            traverseFolder(ballerinaFolderNode, null);
+            directoryTree.setBallerina(ballerinaFolderNode);
         }
     }
 

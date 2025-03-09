@@ -100,20 +100,7 @@ public class ConnectorReader {
                     .forEach(path -> ballerinaTomlPaths.add(path.toString()));
             for (String path : ballerinaTomlPaths) {
                 try {
-                    List<String> lines = Files.readAllLines(Paths.get(path));
-                    String name = StringUtils.EMPTY;
-                    boolean isPackageSection = false;
-                    for (String line : lines) {
-                        if (line.trim().startsWith("[package]")) {
-                            isPackageSection = true;
-                        }
-                        if (isPackageSection) {
-                            if (line.trim().startsWith("name =")) {
-                                name = extractModuleName(line);
-                            }
-                        }
-                    }
-                    if (moduleName.equals(name)) {
+                    if (moduleName.equals(readBallerinaToml(path))) {
                         return Paths.get(path).getParent().toString();
                     }
                 } catch (IOException e) {
@@ -125,6 +112,23 @@ public class ConnectorReader {
             log.log(Level.WARNING, "Ballerina folder not found in the project.", e);
             return StringUtils.EMPTY;
         }
+    }
+
+    private String readBallerinaToml(String path) throws IOException {
+        List<String> lines = Files.readAllLines(Paths.get(path));
+        String name = StringUtils.EMPTY;
+        boolean isPackageSection = false;
+        for (String line : lines) {
+            if (line.trim().startsWith("[package]")) {
+                isPackageSection = true;
+            }
+            if (isPackageSection) {
+                if (line.trim().startsWith("name =")) {
+                    name = extractModuleName(line);
+                }
+            }
+        }
+        return name;
     }
 
     private String extractModuleName(String line) {
