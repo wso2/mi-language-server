@@ -21,6 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.connectors;
 import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
 import org.eclipse.lemminx.customservice.synapse.ConnectorStatusNotification;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
+import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 
@@ -63,14 +64,14 @@ public abstract class AbstractConnectorLoader {
 
     protected abstract void setConnectorsZipFolderPath(String projectRoot);
 
-    public void loadConnector() {
+    public void loadConnector(InboundConnectorHolder inboundConnectorHolder) {
 
         if (canContinue(connectorExtractFolder)) {
             List<File> connectorZips = getConnectorZips();
             connectorHolder.setConnectorZips(Collections.unmodifiableList(connectorZips));
             cleanOldConnectors(connectorExtractFolder, connectorZips);
             copyToProjectIfNeeded(connectorZips);
-            extractZips(connectorZips, connectorExtractFolder);
+            extractZips(connectorZips, connectorExtractFolder, inboundConnectorHolder);
             readConnectors(connectorExtractFolder);
         }
     }
@@ -108,7 +109,7 @@ public abstract class AbstractConnectorLoader {
 
     }
 
-    private void extractZips(List<File> connectorZips, File extractFolder) {
+    private void extractZips(List<File> connectorZips, File extractFolder, InboundConnectorHolder inboundConnectorHolder) {
 
         File[] tempFiles = extractFolder.listFiles();
         List<String> tempConnectorNames =
@@ -121,6 +122,12 @@ public abstract class AbstractConnectorLoader {
                 File extractToFolder = new File(extractTo);
                 try {
                     Utils.extractZip(zip, extractToFolder);
+                    if (zipName.contains(Constant.INBOUND_CONNECTOR_PREFIX)) {
+                        String schema = Utils.readFile(extractToFolder.toPath().resolve(Constant.RESOURCES)
+                                .resolve(Constant.UI_SCHEMA_JSON).toFile());
+                        inboundConnectorHolder.saveInboundConnector(Utils.getJsonObject(schema)
+                                .get(Constant.NAME).getAsString(), schema);
+                    }
                 } catch (IOException e) {
                     log.log(Level.WARNING, "Failed to extract connector zip:" + zipName, e);
                 }

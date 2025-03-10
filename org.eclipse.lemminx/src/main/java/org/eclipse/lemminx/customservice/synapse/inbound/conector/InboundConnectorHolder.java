@@ -18,7 +18,10 @@
 
 package org.eclipse.lemminx.customservice.synapse.inbound.conector;
 
+import com.github.fge.jackson.JsonLoader;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeGenerator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.inbound.InboundEndpoint;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
@@ -26,12 +29,16 @@ import org.eclipse.lemminx.customservice.synapse.utils.UISchemaMapper;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,6 +52,8 @@ public class InboundConnectorHolder {
     private HashMap<String, String> connectorIdMap;
     // <Connector ID, UI schema path> map
     private HashMap<String, String> inboundConnectors;
+    private Map<String, JsonObject> localInboundConnectors;
+    private JsonObject inboundConnectorListJson;
 
     public InboundConnectorHolder() {
 
@@ -52,7 +61,7 @@ public class InboundConnectorHolder {
         this.connectorIdMap = new HashMap<>();
     }
 
-    public void init(String projectPath) {
+    public void init(String projectPath, String projectRuntimeVersion) {
 
         if (projectPath == null) {
             LOGGER.log(Level.SEVERE, "Project path is null. Cannot initialize inbound connector holder.");
@@ -61,7 +70,14 @@ public class InboundConnectorHolder {
         this.projectPath = projectPath;
         this.projectId = Utils.getHash(projectPath);
         this.tempFolderPath = System.getProperty("user.home") + File.separator + ".wso2-mi" + File.separator +
-                "inbound.connectors" + File.separator + projectId;
+                Constant.INBOUND_CONNECTORS + File.separator + new File(projectPath).getName() + "_" +projectId;
+        InputStream inputStream = JsonLoader.class
+                .getResourceAsStream("/org/eclipse/lemminx/inbound-endpoints/inbound_endpoints_"
+                        + projectRuntimeVersion.replace(".", StringUtils.EMPTY) + Constant.JSON_FILE_EXT);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        this.inboundConnectorListJson = JsonParser.parseReader(reader).getAsJsonObject();
+        this.localInboundConnectors = Utils.getUISchemaMap("org/eclipse/lemminx/inbound-endpoints/"
+                + projectRuntimeVersion.replace(".", StringUtils.EMPTY));
         loadInboundConnectors();
     }
 
@@ -149,6 +165,11 @@ public class InboundConnectorHolder {
         return id;
     }
 
+    public JsonObject getLocalInboundConnectorList() {
+
+        return inboundConnectorListJson;
+    }
+
     public InboundConnectorResponse getInboundConnectorSchema(String connectorName) {
 
         InboundConnectorResponse inboundConnector = new InboundConnectorResponse();
@@ -157,9 +178,15 @@ public class InboundConnectorHolder {
         return getInboundConnectorSchemaFromId(connectorId);
     }
 
-    private InboundConnectorResponse getInboundConnectorSchemaFromId(String connectorId) {
+    public InboundConnectorResponse getInboundConnectorSchemaFromId(String connectorId) {
 
         InboundConnectorResponse inboundConnector = new InboundConnectorResponse();
+
+        if (localInboundConnectors.containsKey(connectorId)) {
+            inboundConnector.uiSchema = localInboundConnectors.get(connectorId);
+            return inboundConnector;
+        }
+
         String uiSchemaPath = inboundConnectors.get(connectorId);
         if (uiSchemaPath == null) {
             return inboundConnector;

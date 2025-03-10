@@ -335,8 +335,24 @@ public class Utils {
         byte[] buffer = new byte[1024];
         ZipInputStream zis = new ZipInputStream(new FileInputStream(zip));
         ZipEntry zipEntry = zis.getNextEntry();
+        String zipName = zip.getName().replace(Constant.ZIP_EXTENSION, StringUtils.EMPTY);
+        boolean removeUpperFolder = false;
         while (zipEntry != null) {
-            File newFile = newFile(extractTo, zipEntry);
+            String entryName = zipEntry.getName();
+            if (removeUpperFolder) {
+                if (entryName.startsWith(zipName + "/")) {
+                    entryName = entryName.substring(zipName.length() + 1);
+                    if (entryName.isEmpty()) {
+                        zipEntry = zis.getNextEntry();
+                        continue;
+                    }
+                }
+            } else if (entryName.equals(zipName + "/") && zipEntry.isDirectory()) {
+                removeUpperFolder = true;
+                zipEntry = zis.getNextEntry();
+                continue;
+            }
+            File newFile = newFile(extractTo, entryName);
             if (zipEntry.isDirectory()) {
                 if (!newFile.isDirectory() && !newFile.mkdirs()) {
                     throw new IOException("Failed to create directory " + newFile);
@@ -403,15 +419,15 @@ public class Utils {
         }
     }
 
-    public static File newFile(File destinationDir, ZipEntry zipEntry) throws IOException {
+    public static File newFile(File destinationDir, String zipName) throws IOException {
 
-        File destFile = new File(destinationDir, zipEntry.getName());
+        File destFile = new File(destinationDir, zipName);
 
         String destDirPath = destinationDir.getCanonicalPath();
         String destFilePath = destFile.getCanonicalPath();
 
         if (!destFilePath.startsWith(destDirPath + File.separator)) {
-            throw new IOException("Entry is outside of the target dir: " + zipEntry.getName());
+            throw new IOException("Entry is outside of the target dir: " + zipName);
         }
 
         return destFile;
