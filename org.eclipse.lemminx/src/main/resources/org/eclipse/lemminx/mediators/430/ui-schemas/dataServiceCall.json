@@ -47,6 +47,11 @@
                 "BATCH",
                 "REQUEST-BOX"
               ],
+              "enableCondition": [
+                {
+                  "sourceType": "INLINE"
+                }
+              ],
               "required": false,
               "helpTip": ""
             }
