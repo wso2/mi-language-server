@@ -141,6 +141,11 @@ public class DirectoryTreeBuilder {
             extractClassMediators(mediatorFolders, classMediatorArray);
             otherArtifacts.set("Class Mediators", classMediatorArray);
 
+            ArrayNode ballerinaModulesArray = mapper.createArrayNode();
+            JsonNode moduleFolders = root.path(Constant.SRC).path(MAIN).path(Constant.BALLERINA).path(Constant.FOLDERS);
+            extractBallerinaModules(moduleFolders, ballerinaModulesArray);
+            otherArtifacts.set("Ballerina Modules", ballerinaModulesArray);
+
             otherArtifacts.set("Endpoints", artifacts.path(Constant.ENDPOINTS));
             otherArtifacts.set("Proxy Services", artifacts.path(Constant.PROXYSERVICES));
             otherArtifacts.set("Message Stores", artifacts.path(Constant.MESSAGE_STORES));
@@ -247,6 +252,7 @@ public class DirectoryTreeBuilder {
         analyzeArtifacts(directoryTree);
         analyzeResources(directoryTree);
         analyzeJavaProjects(directoryTree);
+        analyzeBallerinaProjects(directoryTree);
         analyzeTestsFolder(directoryTree);
     }
 
@@ -422,6 +428,19 @@ public class DirectoryTreeBuilder {
                 traverseFolder(javaFolderNode, null);
                 directoryTree.setJava(javaFolderNode);
             }
+        }
+    }
+
+    private static void analyzeBallerinaProjects(IntegrationDirectoryTree directoryTree) {
+
+        String ballerinaPath = projectPath + File.separator + Constant.SRC + File.separator + MAIN +
+                        File.separator + Constant.BALLERINA;
+        File folder = new File(ballerinaPath);
+        if (folder.exists() && !folder.isHidden()) {
+            String folderName = folder.getName();
+            FolderNode ballerinaFolderNode = new FolderNode(folderName, ballerinaPath);
+            traverseFolder(ballerinaFolderNode, null);
+            directoryTree.setBallerina(ballerinaFolderNode);
         }
     }
 
@@ -754,6 +773,18 @@ public class DirectoryTreeBuilder {
 
             if (classMediatorFolder.has(Constant.FOLDERS)) {
                 extractClassMediators(classMediatorFolder.path(Constant.FOLDERS), classMediatorArray);
+            }
+        }
+    }
+
+    private static void extractBallerinaModules(JsonNode moduleFolders, ArrayNode ballerinaModuleArray) {
+        for (JsonNode ballerinaModuleFolder : moduleFolders) {
+            if (ballerinaModuleFolder.has(Constant.FILES)) {
+                ballerinaModuleArray.addAll((ArrayNode) ballerinaModuleFolder.path(Constant.FILES));
+            }
+
+            if (ballerinaModuleFolder.has(Constant.FOLDERS)) {
+                extractBallerinaModules(ballerinaModuleFolder.path(Constant.FOLDERS), ballerinaModuleArray);
             }
         }
     }

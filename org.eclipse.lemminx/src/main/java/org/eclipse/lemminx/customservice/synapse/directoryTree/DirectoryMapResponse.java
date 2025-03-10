@@ -88,6 +88,9 @@ public class DirectoryMapResponse {
         JsonElement java = jsonObject.get("java");
         main.add("java", java);
 
+        JsonElement bal = jsonObject.get(Constant.BALLERINA);
+        main.add(Constant.BALLERINA, bal);
+
         src.add("main", main);
         JsonElement tests = jsonObject.get("tests");
         src.add("tests", tests);

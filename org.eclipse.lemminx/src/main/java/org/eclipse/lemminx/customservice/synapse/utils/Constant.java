@@ -561,6 +561,9 @@ public class Constant {
     public static final String CAN_TRY_OUT = "canTryOut";
     public static final String LOG_MESSAGE_ID = "logMessageID";
     public static final String LOG_FULL_PAYLOAD = "logFullPayload";
+    public static final String IS_BALLERINA_MODULE = "isBallerinaModule";
+    public static final String BALLERINA_MODULE_PATH = "ballerinaModulePath";
+    public static final String BALLERINA = "ballerina";
     public static final String UI_SCHEMA_JSON = "uischema.json";
     public static final String JSON_FILE_EXT = ".json";
     public static final String INBOUND_CONNECTOR_PREFIX = "mi-inbound-";
