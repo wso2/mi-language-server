@@ -23,7 +23,10 @@ import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
 import org.eclipse.lemminx.customservice.synapse.AbstractMediatorVisitor;
 import org.eclipse.lemminx.customservice.synapse.debugger.visitor.VisitorUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.AIAgent;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Connector;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.AIChat;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.KnowledgeBase;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.SequenceMediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.Clone.Clone;
@@ -756,6 +759,24 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
 
     @Override
     protected void visitThrowError(ThrowError node) {
+        visitSimpleMediator(node);
+    }
+
+    @Override
+    protected void visitAIChat(AIChat node) {
+
+        visitSimpleMediator(node);
+    }
+
+    @Override
+    protected void visitAIAgent(AIAgent node) {
+
+        visitSimpleMediator(node);
+    }
+
+    @Override
+    protected void visitAIKnowledgeBase(KnowledgeBase node) {
+
         visitSimpleMediator(node);
     }
 

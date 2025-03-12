@@ -18,12 +18,19 @@
 
 package org.eclipse.lemminx.customservice.synapse.dependency.tree.visitor;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.synapse.AbstractMediatorVisitor;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connection;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.ArtifactType;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.DependencyLookUp;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.DependencyVisitorUtils;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.Dependency;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.AIAgent;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.AIChat;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.AIConnector;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.AgentTool;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Connector;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.KnowledgeBase;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.NamedEndpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.SequenceMediator;
@@ -95,6 +102,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -695,6 +703,45 @@ public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
         if (node.getKey() != null) {
             addSequenceDependency(node.getKey());
         }
+    }
+
+    private void visitAIConnector(AIConnector node) {
+
+        Map<String, Connection> connectionMap = node.getConnections();
+        if (connectionMap == null) {
+            return;
+        }
+        for (Map.Entry<String, Connection> entry : connectionMap.entrySet()) {
+            Connection connection = entry.getValue();
+            if (connection != null && StringUtils.isNotEmpty(connection.getName())) {
+                addSimpleDependency(connection.getName(), "connector", ArtifactType.CONNECTION);
+            }
+        }
+    }
+
+    @Override
+    protected void visitAIChat(AIChat node) {
+
+        visitAIConnector(node);
+    }
+
+    @Override
+    protected void visitAIAgent(AIAgent node) {
+
+        visitAIConnector(node);
+        if (node.getTools() != null && node.getTools().getTools() != null) {
+            for (AgentTool tool : node.getTools().getTools()) {
+                if (tool.getTemplate() != null) {
+                    addSimpleDependency(tool.getTemplate(), "connector", ArtifactType.TEMPLATE);
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void visitAIKnowledgeBase(KnowledgeBase node) {
+
+        visitAIConnector(node);
     }
 
     @Override

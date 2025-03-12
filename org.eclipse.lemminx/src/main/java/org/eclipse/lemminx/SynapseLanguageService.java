@@ -178,9 +178,9 @@ public class SynapseLanguageService implements ISynapseLanguageService {
             this.projectServerVersion = Utils.getServerVersion(projectUri, Constant.DEFAULT_MI_VERSION);
             inboundConnectorHolder.init(projectUri, projectServerVersion);
             initializeConnectorLoader();
-            mediatorHandler.init(projectServerVersion, connectorHolder);
+            mediatorHandler.init(projectUri, projectServerVersion, connectorHolder);
             connectionHandler.init(connectorHolder);
-            MediatorFactoryFinder.init(projectServerVersion, connectorHolder);
+            MediatorFactoryFinder.init(projectServerVersion, projectUri, connectorHolder);
             try {
                 DynamicClassLoader.updateClassLoader(Path.of(projectUri, "deployment", "libs").toFile());
                 this.tryOutManager = new TryOutManager(projectUri, miServerPath, connectorHolder);
@@ -526,7 +526,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     public CompletableFuture<JsonObject> getMediatorUISchemaWithValues(MediatorRequest mediatorRequest) {
 
         return CompletableFuture.supplyAsync(
-                () -> mediatorHandler.getSchemaWithValues(mediatorRequest.documentIdentifier,
+                () -> mediatorHandler.getUISchemaWithValues(mediatorRequest.documentIdentifier,
                         mediatorRequest.position));
     }
 

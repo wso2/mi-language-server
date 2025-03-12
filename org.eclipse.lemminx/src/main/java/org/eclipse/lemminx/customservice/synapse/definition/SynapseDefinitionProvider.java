@@ -96,6 +96,9 @@ public class SynapseDefinitionProvider {
             } else if (Constant.CALL_TEMPLATE.equalsIgnoreCase(node.getNodeName())) {
                 type = "templates";
                 key = node.getAttribute(Constant.TARGET);
+            } else if ("tool".equals(node.getNodeName())) {
+                type = "templates";
+                key = node.getAttribute(Constant.TEMPLATE);
             } else if (Constant.STORE.equalsIgnoreCase(node.getNodeName())) {
                 type = "message-stores";
                 key = node.getAttribute(Constant.MESSAGE_STORE);

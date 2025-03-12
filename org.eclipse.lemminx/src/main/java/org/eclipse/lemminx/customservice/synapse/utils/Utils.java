@@ -175,6 +175,22 @@ public class Utils {
         return value;
     }
 
+    /**
+     * Returns the {@link DOMDocument} for the given file path.
+     *
+     * @param path the xml file path
+     * @return the {@link DOMDocument} for the given file path
+     * @throws IOException if an error occurs while reading the file
+     */
+    public static DOMDocument getDOMDocumentFromPath(String path) throws IOException {
+
+        if (path == null) {
+            return null;
+        }
+        File file = new File(getAbsolutePath(path));
+        return getDOMDocument(file);
+    }
+
     public static DOMDocument getDOMDocument(File file) throws IOException {
 
         Path path = file.toPath();
@@ -694,12 +710,22 @@ public class Utils {
                 .replace("\"", "&quot;");
     }
 
-    public static String removeFilePrefix(String artifactPath) {
+    /**
+     * Returns the absolute path of the given file by sanitizing the file path.
+     *
+     * @param path the file path
+     * @return the absolute path of the given file
+     */
+    public static String getAbsolutePath(String path) {
 
-        if (artifactPath.contains(Constant.FILE_PREFIX)) {
-            artifactPath = artifactPath.substring(7);
+        if (path.contains(Constant.FILE_PREFIX)) {
+            try {
+                return Paths.get(new URI(path)).toString();
+            } catch (URISyntaxException e) {
+                return path;
+            }
         }
-        return artifactPath;
+        return path;
     }
 
     public static boolean isRegistryPropertiesFile(File file) {
@@ -752,8 +778,23 @@ public class Utils {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         JsonObject mediatorList = JsonParser.parseReader(reader).getAsJsonObject();
         processMediatorList(mediatorList);
-        addConnectorsToMediatorList(mediatorList, connectorHolder);
+        addConnectorsToMediatorList(mediatorList, connectorHolder, false);
         return mediatorList;
+    }
+
+    /**
+     * Constructs the AI agent tool list by adding supported mediators and connector operations.
+     *
+     * @param mediatorList    list of all the mediators
+     * @param connectorHolder connector holder
+     * @return the AI agent tool list
+     */
+    public static JsonObject getAgentToolList(JsonObject mediatorList, ConnectorHolder connectorHolder) {
+
+        JsonObject toolList = new JsonObject();
+        toolList.add("extension", mediatorList.get("extension"));
+        addConnectorsToMediatorList(toolList, connectorHolder, true);
+        return toolList;
     }
 
     private static void processMediatorList(JsonObject mediatorList) {
@@ -785,15 +826,16 @@ public class Utils {
         }
     }
 
-    private static void addConnectorsToMediatorList(JsonObject mediatorList, ConnectorHolder connectorHolder) {
+    private static void addConnectorsToMediatorList(JsonObject mediatorList, ConnectorHolder connectorHolder, boolean forAgentTool) {
 
         List<Connector> connectors = connectorHolder.getConnectors();
         JsonElement otherCategoryMediators = mediatorList.remove(Constant.OTHER);
         for (Connector connector : connectors) {
             JsonArray operationsArray = new JsonArray();
+            JsonObject categoriesObject = new JsonObject(); // Categories object to store operations under categories
             List<ConnectorAction> operations = connector.getActions();
             for (ConnectorAction operation : operations) {
-                if (!operation.getHidden()) {
+                if (!operation.getHidden() && !(forAgentTool && !operation.isCanActAsAgentTool())) {
                     JsonObject operationObject = new JsonObject();
                     String operationName = StringUtils.isEmpty(operation.getDisplayName()) ? operation.getName() :
                             operation.getDisplayName();
@@ -802,11 +844,26 @@ public class Utils {
                     operationObject.addProperty(Constant.TAG, operation.getTag());
                     operationObject.addProperty(Constant.TOOLTIP, operation.getDescription());
                     operationObject.addProperty(Constant.ICON_PATH, connector.getIconPath());
-                    operationsArray.add(operationObject);
+                    if (StringUtils.isNotEmpty(operation.getGroupName())) {
+                        if (categoriesObject.has(operation.getGroupName())) {
+                            categoriesObject.getAsJsonArray(operation.getGroupName()).add(operationObject);
+                        } else {
+                            JsonArray operationArray = new JsonArray();
+                            operationArray.add(operationObject);
+                            categoriesObject.add(operation.getGroupName(), operationArray);
+                        }
+                    } else {
+                        operationsArray.add(operationObject);
+                    }
                 }
             }
             JsonObject connectorObject = new JsonObject();
-            connectorObject.add(Constant.ITEMS, operationsArray);
+            if (categoriesObject.size() > 0) {
+                connectorObject.add(Constant.ITEMS, categoriesObject);
+                connectorObject.addProperty(Constant.IS_SUPPORT_CATEGORIES, true);
+            } else {
+                connectorObject.add(Constant.ITEMS, operationsArray);
+            }
             connectorObject.addProperty(Constant.IS_CONNECTOR, true);
             connectorObject.addProperty(Constant.ARTIFACT_ID, connector.getArtifactId());
             connectorObject.addProperty(Constant.VERSION, connector.getVersion());
@@ -1280,5 +1337,23 @@ public class Utils {
             if (v1 > v2) return 1;
         }
         return 0;
+    }
+
+    public static String sanitizeTag(String tag) {
+
+        String sanitizedTag = tag;
+        if (tag.contains("-")) {
+            String[] split = tag.split("-");
+            sanitizedTag = split[0] + split[1].substring(0, 1).toUpperCase() + split[1].substring(1);
+        } else if (tag.contains(":")) {
+            String[] split = tag.split(":");
+            sanitizedTag = split[1];
+        } else if (tag.contains(".")) {
+            if(tag.startsWith("ai.")) {
+                return Constant.AI_CONNECTOR_VISITOR_FUNCTION.get(tag);
+            }
+            sanitizedTag = "connector";
+        }
+        return sanitizedTag;
     }
 }

@@ -24,7 +24,10 @@ import org.eclipse.lemminx.customservice.synapse.debugger.entity.debuginfo.IDebu
 import org.eclipse.lemminx.customservice.synapse.AbstractMediatorVisitor;
 import org.eclipse.lemminx.customservice.synapse.debugger.visitor.VisitorUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.AIAgent;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Connector;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.AIChat;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.KnowledgeBase;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.SequenceMediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.Clone.Clone;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.Clone.CloneTarget;
@@ -767,6 +770,24 @@ public class BreakpointMediatorVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitThrowError(ThrowError node) {
         visitSimpleMediator(node);
+    }
+
+    @Override
+    protected void visitAIChat(AIChat node) {
+
+        visitConnector((Connector) node);
+    }
+
+    @Override
+    protected void visitAIAgent(AIAgent node) {
+
+        visitConnector((Connector) node);
+    }
+
+    @Override
+    protected void visitAIKnowledgeBase(KnowledgeBase node) {
+
+        visitConnector((Connector) node);
     }
 
     private void markAsInvalid(String error) {

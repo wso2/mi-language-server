@@ -80,7 +80,7 @@ public class Dependency {
             return false;
         }
         Dependency that = (Dependency) obj;
-        return name.equals(that.name) && type == that.type && path.equals(that.path);
+        return name.equals(that.name) && type == that.type && path != null && path.equals(that.path);
     }
 
     @Override

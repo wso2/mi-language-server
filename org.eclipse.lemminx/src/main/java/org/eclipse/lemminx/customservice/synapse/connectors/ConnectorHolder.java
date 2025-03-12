@@ -18,6 +18,7 @@
 
 package org.eclipse.lemminx.customservice.synapse.connectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorAction;
 
@@ -73,6 +74,26 @@ public class ConnectorHolder {
             }
         }
         return null;
+    }
+
+    /**
+     * Returns the {@link ConnectorAction} object for the given connector operation tag.
+     *
+     * @param operationTag the xml tag name for the connector operation
+     * @return the {@link ConnectorAction} object for the given connector operation tag
+     */
+    public ConnectorAction getConnectorAction(String operationTag) {
+
+        if (StringUtils.isEmpty(operationTag) || !operationTag.contains(".")) {
+            return null;
+        }
+        String connectorName = operationTag.split("\\.")[0];
+        String actionName = operationTag.split("\\.")[1];
+        Connector connector = getConnector(connectorName);
+        if (connector == null) {
+            return null;
+        }
+        return connector.getAction(actionName);
     }
 
     private boolean isConnectorMatched(String name, Connector connector) {

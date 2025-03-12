@@ -18,12 +18,16 @@
 
 package org.eclipse.lemminx.customservice.synapse.utils;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMNamespace;
 
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Constant {
 
@@ -498,7 +502,7 @@ public class Constant {
     public static final String DATA_MAPPER = "datamapper";
     public static final String FILES = "files";
     public static final String FOLDERS = "folders";
-    public static final String DEFAULT_MI_VERSION = "4.3.0";
+    public static final String DEFAULT_MI_VERSION = Constant.MI_440_VERSION;
     public static final String MI_430_VERSION = "4.3.0";
     public static final String CATALOGS = "catalogs";
     public static final String SETTINGS = "settings";
@@ -578,4 +582,31 @@ public class Constant {
     public static final String IS_MAIN_SEQUENCE = "isMainSequence";
     public static final String PROFILES = "profiles";
     public static final String MAIN_SEQUENCE = "mainSequence";
+    public static final String IS_SUPPORT_CATEGORIES = "isSupportCategories";
+    public static final String MEMORY_CONFIG_KEY = "memoryConfigKey";
+    public static final String TOOLS = "tools";
+    public static final String TOOL = "tool";
+    public static final String AI_AGENT_TAG = "ai.agent";
+    public static final String ATTRIBUTE_GROUP = "attributeGroup";
+    public static final String CURRENT_VALUE = "currentValue";
+    public static final String LLM_CONFIG_KEY = "llmConfigKey";
+    public static final String EMBEDDING_CONFIG_KEY = "embeddingConfigKey";
+    public static final String VECTOR_STORE_CONFIG_KEY = "vectorStoreConfigKey";
+    public static final BiMap<String, String> AI_CONNECTION_TO_DISPLAY_NAME_MAP = HashBiMap.create();
+    public static final Map<String, String> AI_CONNECTOR_VISITOR_FUNCTION = new HashMap<>();
+
+    static {
+        // AI Connection to Display Name bi-Mapping
+        AI_CONNECTION_TO_DISPLAY_NAME_MAP.put("llmConfigKey", "LLM Connection");
+        AI_CONNECTION_TO_DISPLAY_NAME_MAP.put("memoryConfigKey", "Memory Connection");
+        AI_CONNECTION_TO_DISPLAY_NAME_MAP.put("vectorStoreConfigKey", "Vector Store Connection");
+        AI_CONNECTION_TO_DISPLAY_NAME_MAP.put("embeddingConfigKey", "Embedding Connection");
+
+        // AI Connector Visitor Function Name Mapping
+        AI_CONNECTOR_VISITOR_FUNCTION.put("ai.chat", "AIChat");
+        AI_CONNECTOR_VISITOR_FUNCTION.put("ai.agent", "AIAgent");
+        AI_CONNECTOR_VISITOR_FUNCTION.put("ai.ragChat", "AIChat");
+        AI_CONNECTOR_VISITOR_FUNCTION.put("ai.addToKnowledge", "AIKnowledgeBase");
+        AI_CONNECTOR_VISITOR_FUNCTION.put("ai.getFromKnowledge", "AIKnowledgeBase");
+    }
 }

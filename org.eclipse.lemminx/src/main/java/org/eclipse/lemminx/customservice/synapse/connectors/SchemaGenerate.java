@@ -95,6 +95,10 @@ public class SchemaGenerate {
         for (Connector conn : connectors) {
             List<ConnectorAction> actions = conn.getActions();
             for (ConnectorAction action : actions) {
+                if (action.getTag().startsWith("ai.")) {
+                    // Skip AI connector operations as it has a separate schema
+                    continue;
+                }
                 if (!action.getHidden()) {
                     sb.append("            <xs:element name=\"" + action.getTag() + "\">\n");
                     sb.append("                <xs:complexType>\n" +

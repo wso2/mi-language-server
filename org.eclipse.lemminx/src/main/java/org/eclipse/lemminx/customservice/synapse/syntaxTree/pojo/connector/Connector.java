@@ -89,4 +89,14 @@ public class Connector extends Mediator {
 
         this.configKey = configKey;
     }
+
+    public void removeParameter(String name) {
+
+        for (ConnectorParameter parameter : parameters) {
+            if (parameter.getName().equals(name)) {
+                parameters.remove(parameter);
+                break;
+            }
+        }
+    }
 }

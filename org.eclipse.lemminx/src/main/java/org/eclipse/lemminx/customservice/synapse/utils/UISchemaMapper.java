@@ -23,16 +23,19 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connection;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.MediatorUtils;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.Namespace;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Connector;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ConnectorParameter;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.AIConnector;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.inbound.InboundEndpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.inbound.InboundEndpointParameters;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Parameter;
 import org.json.JSONArray;
 
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import static org.eclipse.lemminx.customservice.synapse.utils.Utils.isExpression;
@@ -125,8 +128,27 @@ public class UISchemaMapper {
                 data.addProperty(name, parameter.getValue());
             }
         });
-        data.addProperty(Constant.CONFIG_REF, connector.getConfigKey());
+        if (connector instanceof AIConnector) {
+            addAIConnectionsData(data, (AIConnector) connector);
+        } else {
+            data.addProperty(Constant.CONFIG_REF, connector.getConfigKey());
+        }
         return mapInputToUISchema(data, uiSchema);
+    }
+
+    private static void addAIConnectionsData(JsonObject data, AIConnector connector) {
+
+        Map<String, Connection> connectionMap = connector.getConnections();
+        if (connectionMap == null && connectionMap.isEmpty()) {
+            return;
+        }
+        for (Map.Entry<String, Connection> entry : connectionMap.entrySet()) {
+            String fieldKey = Constant.AI_CONNECTION_TO_DISPLAY_NAME_MAP.inverse().get(entry.getKey());
+            Connection connection = entry.getValue();
+            if (fieldKey != null && connection != null) {
+                data.addProperty(fieldKey, connection.getName());
+            }
+        }
     }
 
     private static JsonObject getConnectorExpressionParam(ConnectorParameter parameter) {

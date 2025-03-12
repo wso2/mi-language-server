@@ -385,14 +385,21 @@ public class ConnectorReader {
         try {
             DOMDocument dependencyDocument = Utils.getDOMDocument(dependencyFile);
             DOMNode componentElement = Utils.getChildNodeByName(dependencyDocument, "component");
+            String groupName = componentElement.getAttribute(Constant.DISPLAY_NAME);
             DOMNode subComponents = Utils.getChildNodeByName(componentElement, "subComponents");
             List<DOMNode> children = subComponents.getChildren();
             for (DOMNode child : children) {
                 if (child.getNodeName().equals(Constant.COMPONENT)) {
                     ConnectorAction action = new ConnectorAction();
+                    if (StringUtils.isNotEmpty(groupName)) {
+                        action.setGroupName(groupName);
+                    }
                     String name = child.getAttribute(Constant.NAME);
                     action.setName(name);
                     String tag = connector.getName() + Constant.DOT + name;
+                    if ("ai.chat".equals(tag)) { //TODO: This is a temporary fix. Need to move this to the connector.
+                        action.setCanActAsAgentTool(false);
+                    }
                     action.setTag(tag);
                     DOMNode displayNameNode = Utils.getChildNodeByName(child, Constant.DISPLAY_NAME);
                     if (displayNameNode != null) {
@@ -437,13 +444,18 @@ public class ConnectorReader {
                 DOMNode templateNode = Utils.getChildNodeByName(actionDom, "template");
                 if (templateNode != null) {
                     List<DOMNode> children = templateNode.getChildren();
+                    boolean hasResponseVariable = false;
+                    boolean hasOverwriteBody = false;
                     for (DOMNode child : children) {
                         if ("parameter".equalsIgnoreCase(child.getNodeName())) {
                             String name = child.getAttribute("name");
                             String description = child.getAttribute("description");
                             action.addParameter(new OperationParameter(name, description));
+                            hasResponseVariable = hasResponseVariable || Constant.RESPONSE_VARIABLE.equals(name);
+                            hasOverwriteBody = hasOverwriteBody || Constant.OVERWRITE_BODY.equals(name);
                         }
                     }
+                    action.setSupportsResponseModel(hasResponseVariable && hasOverwriteBody);
                 }
             } catch (IOException e) {
                 log.log(Level.WARNING, "Error while reading " + action.getName() + " connector action", e);

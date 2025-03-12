@@ -39,6 +39,21 @@ public class Connection {
         this.parameters = parameters;
     }
 
+    public String getConnectorName() {
+
+        return connectorName;
+    }
+
+    public String getName() {
+
+        return name;
+    }
+
+    public String getConnectionType() {
+
+        return connectionType;
+    }
+
     public List<ConnectionParameter> getParameters() {
 
         return parameters;
