@@ -191,6 +191,9 @@ public interface ISynapseLanguageService {
     CompletableFuture<DirectoryMapResponse> getProjectExplorerModel(WorkspaceFolder param);
 
     @JsonRequest
+    CompletableFuture<List<String>> getProjectIntegrationType(WorkspaceFolder param);
+
+    @JsonRequest
     CompletableFuture<JsonObject> getMediators(MediatorRequest mediatorRequest);
 
     @JsonRequest

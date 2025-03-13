@@ -232,15 +232,21 @@ public class DirectoryTreeBuilder {
         if (pomFile.exists()) {
             try {
                 DOMDocument pom = Utils.getDOMDocument(pomFile);
-                if (pom != null && pom.getDocumentElement() != null) {
-                    DOMNode properties = Utils.getChildNodeByName(pom.getDocumentElement(), Constant.PROPERTIES);
-                    if (properties != null) {
-                        DOMNode mainSequenceElt = Utils.getChildNodeByName(properties, "mainSequence");
-                        if (mainSequenceElt != null) {
-                            mainSequence = Utils.getInlineString(mainSequenceElt.getFirstChild());
+                DOMNode profiles = Utils.getChildNodeByName(pom.getDocumentElement(), Constant.PROFILES);
+                List<DOMNode> profileList = profiles.getChildren();
+                profileList.forEach(profile -> {
+                    DOMNode profileId = Utils.getChildNodeByName(profile, Constant.ID);
+                    if (profileId != null && Constant.DEFAULT.equals(Utils.getInlineString(profileId.getFirstChild()))) {
+                        DOMNode properties = Utils.getChildNodeByName(profile, Constant.PROPERTIES);
+                        if (properties != null) {
+                            DOMNode mainSequenceNode = Utils.getChildNodeByName(properties, Constant.MAIN_SEQUENCE);
+                            if (mainSequenceNode != null) {
+                                mainSequence = Utils.getInlineString(mainSequenceNode.getFirstChild());
+                                return;
+                            }
                         }
                     }
-                }
+                });
             } catch (IOException e) {
                 LOGGER.log(Level.WARNING, "Could not read project pom file");
             }

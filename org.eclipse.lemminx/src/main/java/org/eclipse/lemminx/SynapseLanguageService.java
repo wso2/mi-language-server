@@ -495,6 +495,13 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     }
 
     @Override
+    public CompletableFuture<List<String>> getProjectIntegrationType(WorkspaceFolder param) {
+
+        List<String> response = OverviewPage.getProjectIntegrationType(param);
+        return CompletableFuture.supplyAsync(() -> response);
+    }
+
+    @Override
     public CompletableFuture<JsonObject> getMediators(MediatorRequest mediatorRequest) {
 
         return CompletableFuture.supplyAsync(() -> mediatorHandler.getSupportedMediators(mediatorRequest.documentIdentifier, mediatorRequest.position));
