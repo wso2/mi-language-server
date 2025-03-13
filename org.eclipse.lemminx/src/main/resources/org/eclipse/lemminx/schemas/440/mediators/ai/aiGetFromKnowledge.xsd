@@ -41,7 +41,7 @@
                 </xs:element>
                 <xs:element name="input" type="xs:string"/>
                 <xs:element name="needEmbedding" type="xs:boolean"/>
-                <xs:element name="embeddingModel" type="xs:string"/>
+                <xs:element name="embeddingModel" type="xs:string" minOccurs="0"/>
                 <xs:element name="maxResults" type="xs:int"/>
                 <xs:element name="minScore" type="xs:double"/>
                 <xs:element name="responseVariable" type="xs:string"/>

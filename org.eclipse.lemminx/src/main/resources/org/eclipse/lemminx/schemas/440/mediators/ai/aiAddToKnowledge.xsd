@@ -41,13 +41,13 @@
                 </xs:element>
                 <xs:element name="input" type="xs:string"/>
                 <xs:element name="needParse" type="xs:boolean"/>
-                <xs:element name="parseType" type="xs:string"/>
+                <xs:element name="parseType" type="xs:string" minOccurs="0"/>
                 <xs:element name="needSplit" type="xs:boolean"/>
-                <xs:element name="splitStrategy" type="xs:string"/>
-                <xs:element name="maxSegmentSize" type="xs:int"/>
-                <xs:element name="maxOverlapSize" type="xs:int"/>
+                <xs:element name="splitStrategy" type="xs:string" minOccurs="0"/>
+                <xs:element name="maxSegmentSize" type="xs:int" minOccurs="0"/>
+                <xs:element name="maxOverlapSize" type="xs:int" minOccurs="0"/>
                 <xs:element name="needEmbedding" type="xs:boolean"/>
-                <xs:element name="embeddingModel" type="xs:string"/>
+                <xs:element name="embeddingModel" type="xs:string" minOccurs="0"/>
                 <xs:element name="responseVariable" type="xs:string"/>
                 <xs:element name="overwriteBody" type="xs:boolean"/>
             </xs:all>

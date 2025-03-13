@@ -112,7 +112,7 @@ public class AIConnectorHandler {
             connectorData.put(Constant.TAG, operation.getTag());
             List<Map<String, String>> connections = addConnectionsDataForXML(data);
             connectorData.put(Constant.CONNECTIONS, connections);
-            connectorData.put("supportTools", node instanceof AIAgent || "ai.agent".equals(mediator));
+            connectorData.put("supportTools", node instanceof AIAgent || Constant.AI_AGENT_TAG.equals(mediator));
             List<Object> parameterData = new ArrayList<>();
             for (OperationParameter parameter : parameters) {
                 if (data.containsKey(parameter.getName())) {

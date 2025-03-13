@@ -97,6 +97,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transf
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.xslt.Xslt;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.xslt.XsltResource;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
+import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -714,7 +715,7 @@ public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
         for (Map.Entry<String, Connection> entry : connectionMap.entrySet()) {
             Connection connection = entry.getValue();
             if (connection != null && StringUtils.isNotEmpty(connection.getName())) {
-                addSimpleDependency(connection.getName(), "connector", ArtifactType.CONNECTION);
+                addSimpleDependency(connection.getName(), Constant.CONNECTOR, ArtifactType.CONNECTION);
             }
         }
     }
@@ -732,7 +733,7 @@ public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
         if (node.getTools() != null && node.getTools().getTools() != null) {
             for (AgentTool tool : node.getTools().getTools()) {
                 if (tool.getTemplate() != null) {
-                    addSimpleDependency(tool.getTemplate(), "connector", ArtifactType.TEMPLATE);
+                    addSimpleDependency(tool.getTemplate(), Constant.CONNECTOR, ArtifactType.TEMPLATE);
                 }
             }
         }

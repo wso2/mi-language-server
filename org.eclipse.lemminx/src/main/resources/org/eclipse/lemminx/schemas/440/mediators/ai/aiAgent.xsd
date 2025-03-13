@@ -39,6 +39,7 @@
                         </xs:all>
                     </xs:complexType>
                 </xs:element>
+                <xs:element name="userID" type="xs:string"/>
                 <xs:element name="system" type="xs:string"/>
                 <xs:element name="prompt" type="xs:string"/>
                 <xs:element name="responseVariable" type="xs:string"/>

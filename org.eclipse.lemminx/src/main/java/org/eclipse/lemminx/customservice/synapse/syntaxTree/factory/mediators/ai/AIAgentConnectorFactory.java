@@ -42,8 +42,7 @@ import java.util.logging.Logger;
 public class AIAgentConnectorFactory extends AIConnectorFactory {
 
     private static final Logger LOGGER = Logger.getLogger(AIAgentConnectorFactory.class.getName());
-    private static final String AI_AGENT = "ai.agent";
-    private static final List<String> ALLOWED_CONNECTION_TAGS = List.of("llmConfigKey");
+    private static final List<String> ALLOWED_CONNECTION_TAGS = List.of("llmConfigKey", "memoryConfigKey");
 
     @Override
     protected Mediator createSpecificMediator(DOMElement element) {
@@ -102,6 +101,6 @@ public class AIAgentConnectorFactory extends AIConnectorFactory {
     @Override
     public String getTagName() {
 
-        return AI_AGENT;
+        return Constant.AI_AGENT_TAG;
     }
 }
