@@ -17,16 +17,64 @@
  */
 package org.eclipse.lemminx.customservice.synapse.parser;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryMapResponse;
+import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryTreeBuilder;
 import org.eclipse.lemminx.customservice.synapse.parser.config.ConfigParser;
+import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lsp4j.WorkspaceFolder;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.eclipse.lemminx.customservice.synapse.parser.pom.PomParser.getPomDetails;
 
 public class OverviewPage {
+
+    private static final Logger LOGGER = Logger.getLogger(OverviewPage.class.getName());
 
     public static OverviewPageDetailsResponse getDetails(String projectUri) {
         OverviewPageDetailsResponse pomDetailsResponse = new OverviewPageDetailsResponse();
         getPomDetails(projectUri, pomDetailsResponse);
         pomDetailsResponse.setConfigurables(ConfigParser.getConfigDetails(projectUri));
         return pomDetailsResponse;
+    }
+
+    public static List<String> getProjectIntegrationType(WorkspaceFolder projectFolder) {
+        List<String> integrationTypes = new ArrayList<>();
+        DirectoryMapResponse directoryMap = DirectoryTreeBuilder.getProjectExplorerModel(projectFolder);
+        if (directoryMap != null) {
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode root = mapper.readTree(directoryMap.getDirectoryMap().getAsJsonObject().toString());
+                JsonNode artifacts = root.path(Constant.SRC).path(Constant.MAIN).path(Constant.WSO2MI).path(Constant.ARTIFACTS);
+
+                if (artifacts.has(Constant.API_ARTIFACTS) && !artifacts.path(Constant.API_ARTIFACTS).isEmpty()) {
+                    integrationTypes.add(Constant.DEVANT_API);
+                }
+
+                if (artifacts.has(Constant.EVENT_INTEGRATIONS) && !artifacts.path(Constant.EVENT_INTEGRATIONS).isEmpty()) {
+                    integrationTypes.add(Constant.DEVANT_EVENT);
+                }
+
+                if (artifacts.has(Constant.OTHER_ARTIFACTS) && artifacts.path(Constant.OTHER_ARTIFACTS).has(Constant.SEQUENCE_ARTIFACTS)) {
+                    JsonNode sequences = artifacts.path(Constant.OTHER_ARTIFACTS).path(Constant.SEQUENCE_ARTIFACTS);
+                    if (sequences.isArray()) {
+                        for (JsonNode sequence : sequences) {
+                            if (sequence.has(Constant.IS_MAIN_SEQUENCE) && sequence.path(Constant.IS_MAIN_SEQUENCE).asBoolean()) {
+                                integrationTypes.add(Constant.DEVANT_AUTOMATION);
+                                break;
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Error occurred while checking project integration type.", e);
+            }
+        }
+        return integrationTypes;
     }
 }

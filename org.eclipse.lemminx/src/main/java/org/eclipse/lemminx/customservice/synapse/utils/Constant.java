@@ -568,4 +568,14 @@ public class Constant {
     public static final String JSON_FILE_EXT = ".json";
     public static final String INBOUND_CONNECTOR_PREFIX = "mi-inbound-";
     public static final String INBOUND_CONNECTORS = "inbound.connectors";
+    public static final String DEVANT_API = "INTEGRATION_AS_API";
+    public static final String DEVANT_AUTOMATION = "AUTOMATION";
+    public static final String DEVANT_EVENT = "EVENT_INTEGRATION";
+    public static final String EVENT_INTEGRATIONS = "Event Integrations";
+    public static final String OTHER_ARTIFACTS = "Other Artifacts";
+    public static final String SEQUENCE_ARTIFACTS = "Sequences";
+    public static final String API_ARTIFACTS = "APIs";
+    public static final String IS_MAIN_SEQUENCE = "isMainSequence";
+    public static final String PROFILES = "profiles";
+    public static final String MAIN_SEQUENCE = "mainSequence";
 }
