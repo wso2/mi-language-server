@@ -49,7 +49,7 @@
                 <xs:element name="maxTokens" type="xs:int" minOccurs="0"/>
                 <xs:element name="topP" type="xs:double" minOccurs="0"/>
                 <xs:element name="frequencyPenalty" type="xs:double" minOccurs="0"/>
-                <xs:element name="seed" type="xs:long" minOccurs="0"/>
+                <xs:element name="seed" type="xs:string" minOccurs="0"/>
                 <xs:element name="maxHistory" type="xs:int" minOccurs="0"/>
             </xs:all>
         </xs:complexType>

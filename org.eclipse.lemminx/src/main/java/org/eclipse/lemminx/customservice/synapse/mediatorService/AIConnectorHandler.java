@@ -21,6 +21,7 @@ package org.eclipse.lemminx.customservice.synapse.mediatorService;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
@@ -230,16 +231,34 @@ public class AIConnectorHandler {
         for (Map.Entry<String, Object> entry : data.entrySet()) {
             if (isExpectingAIValue(entry.getValue())) {
                 String parameterName = entry.getKey();
-                String parameterDescriptionName = String.format("%s_description", parameterName);
-                String parameterDescription = data.containsKey(parameterDescriptionName) ?
-                        data.get(parameterDescriptionName).toString() : StringUtils.EMPTY;
+                String parameterDescription = extractParameterDescriptionFromFormValues(entry.getValue());
                 templateParameters.put(parameterName, parameterDescription);
+
                 Map<String, Object> expression = new HashMap<>();
                 expression.put(Constant.VALUE, String.format("${params.functionParams.%s}", parameterName));
                 expression.put(Constant.IS_EXPRESSION, true);
                 data.put(parameterName, expression);
             }
         }
+    }
+
+    /**
+     * Extracts the parameter description from the form values.
+     *
+     * @param data form value for the parameter
+     * @return the parameter description
+     */
+    private String extractParameterDescriptionFromFormValues(Object data) {
+
+        if (!(data instanceof Map)) {
+            return StringUtils.EMPTY;
+        }
+        Map<?, ?> map = (Map<?, ?>) data;
+        if (!map.containsKey(Constant.DESCRIPTION) || !(map.get(Constant.DESCRIPTION) instanceof Map<?, ?>)) {
+            return StringUtils.EMPTY;
+        }
+        Object description = ((Map<?, ?>) map.get(Constant.DESCRIPTION)).get(Constant.CURRENT_VALUE);
+        return description instanceof String ? description.toString() : StringUtils.EMPTY;
     }
 
     /**
@@ -374,7 +393,7 @@ public class AIConnectorHandler {
             }
             newElements.add(toolSchema);
 
-            processMediatorUISchemaElements(elements, null);
+            markAIValueSupportedFields(elements, null);
 
             // Wrap the mediator/connector configuration fields with an attributeGroup to separate from tool fields
             JsonObject wrappedMediatorSchema = wrapMediatorSchema(elements, isConnector);
@@ -387,7 +406,7 @@ public class AIConnectorHandler {
     private void removeResultExpressionField(JsonObject toolSchema) {
 
         toolSchema.get(Constant.VALUE).getAsJsonObject().getAsJsonArray(Constant.ELEMENTS)
-                .remove(2); // index 2 is of the resultExpression field (ui-schemas/tool.json)
+                .remove(2); // index 2 is the resultExpression field. @{link ui-schemas/tool.json}
     }
 
     /**
@@ -423,7 +442,7 @@ public class AIConnectorHandler {
      *
      * @param elements - The schema elements to modify.
      */
-    private void processMediatorUISchemaElements(JsonArray elements, Template template) {
+    private void markAIValueSupportedFields(JsonArray elements, Template template) {
 
         JsonArray descriptionElements = new JsonArray();
         for (JsonElement element : elements) {
@@ -435,16 +454,16 @@ public class AIConnectorHandler {
                 JsonObject valueObj = elementObj.getAsJsonObject(Constant.VALUE);
                 if (valueObj.get(Constant.INPUT_TYPE).getAsString().matches("(?i).*expression")) {
                     valueObj.addProperty(SUPPORTS_AI_VALUES, true);
+                    addParameterDescriptionField(valueObj, template);
+                }
 
-                    String parameterName = valueObj.get(Constant.NAME).getAsString();
-                    String helpTip =
-                            valueObj.has(Constant.HELP_TIP) ? valueObj.get(Constant.HELP_TIP).getAsString() :
-                                    parameterName;
-                    String currentValue = getParameterDescription(template, parameterName, helpTip);
-                    addParameterDescriptionField(descriptionElements, parameterName, helpTip, currentValue);
+                // Hide the overwrite body field as it is not needed for AI tools
+                JsonElement value = valueObj.get(Constant.NAME);
+                if (value instanceof JsonPrimitive && Constant.OVERWRITE_BODY.equals(value.getAsString())) {
+                    valueObj.addProperty("hidden", true);
                 }
             } else if (Constant.ATTRIBUTE_GROUP.equals(elementObj.get(Constant.TYPE).getAsString())) {
-                processMediatorUISchemaElements(
+                markAIValueSupportedFields(
                         elementObj.getAsJsonObject(Constant.VALUE).getAsJsonArray(Constant.ELEMENTS), template);
             }
         }
@@ -463,31 +482,37 @@ public class AIConnectorHandler {
         return elementObj;
     }
 
-    private String getParameterDescription(Template template, String parameterName, String helpTip) {
+    private JsonObject getParameterDescriptionObject(Template template, String parameterName, String helpTip) {
 
+        JsonObject description = new JsonObject();
+        description.addProperty(Constant.DEFAULT_VALUE, helpTip);
         if (template != null && template.hasParameter(parameterName)) {
             TemplateParameter parameter = template.getParameter(parameterName);
-            return StringUtils.isNotEmpty(parameter.getDescription()) ? parameter.getDescription() : helpTip;
+            description.addProperty(Constant.CURRENT_VALUE, parameter.getDescription());
+        } else {
+            description.addProperty(Constant.CURRENT_VALUE, helpTip);
         }
-        return helpTip;
+        return description;
     }
 
-    private void addParameterDescriptionField(JsonArray descriptionElements, String parameterName, String helpTip,
-                                              String currentValue) {
+    private void addParameterDescriptionField(JsonObject valueObj, Template template) {
 
-        JsonObject descriptionElement = new JsonObject(); //root element
-        descriptionElement.addProperty(Constant.TYPE, Constant.ATTRIBUTE);
+        String parameterName = valueObj.get(Constant.NAME).getAsString();
+        String helpTip =
+                valueObj.has(Constant.HELP_TIP) ? valueObj.get(Constant.HELP_TIP).getAsString() :
+                        parameterName;
+        JsonObject descriptionElement = getParameterDescriptionObject(template, parameterName, helpTip);
 
-        JsonObject descriptionValue = new JsonObject(); // value element
-        descriptionValue.addProperty(Constant.NAME, String.format("%s_description", parameterName));
-        descriptionValue.addProperty(Constant.DISPLAY_NAME, String.format("%s Description", parameterName));
-        descriptionValue.addProperty(Constant.INPUT_TYPE, "string");
-        descriptionValue.addProperty(Constant.DEFAULT_VALUE, helpTip);
-
-        descriptionValue.addProperty("hidden", true);
-        descriptionValue.addProperty(Constant.CURRENT_VALUE, currentValue);
-        descriptionElement.add(Constant.VALUE, descriptionValue);
-        descriptionElements.add(descriptionElement);
+        JsonElement currentValue = valueObj.get(Constant.CURRENT_VALUE);
+        if (currentValue instanceof JsonObject) {
+            ((JsonObject) currentValue).add(Constant.DESCRIPTION, descriptionElement);
+        } else {
+            JsonObject currentValueObj = new JsonObject();
+            currentValueObj.addProperty(Constant.VALUE, currentValue.getAsString());
+            currentValueObj.addProperty(Constant.IS_EXPRESSION, false);
+            currentValueObj.add(Constant.DESCRIPTION, descriptionElement);
+            valueObj.add(Constant.CURRENT_VALUE, currentValueObj);
+        }
     }
 
     /**
@@ -510,8 +535,8 @@ public class AIConnectorHandler {
             if (isValidTool(template)) {
                 Mediator mediator = template.getSequence().getMediatorList().get(0);
                 JsonObject schema = mediatorHandler.getUISchemaForSTNode(mediator);
-                processMediatorSchemaWithValues(schema, template);
-                processMediatorUISchemaElements(schema.getAsJsonArray(Constant.ELEMENTS), template);
+                markValueExpectedFromAI(schema, template);
+                markAIValueSupportedFields(schema.getAsJsonArray(Constant.ELEMENTS), template);
                 addToolConfigurations(schema, node, mediator);
                 return schema;
             }
@@ -572,7 +597,7 @@ public class AIConnectorHandler {
      * be marked as a value expected from AI and added to the parameter description elements for those fields.
      * </p>
      */
-    private void processMediatorSchemaWithValues(JsonObject schema, Template template) {
+    private void markValueExpectedFromAI(JsonObject schema, Template template) {
 
         JsonElement elements = schema.get(Constant.ELEMENTS);
         if (elements != null && elements.isJsonArray()) {
@@ -580,21 +605,17 @@ public class AIConnectorHandler {
             JsonArray parameterDescriptionElements = new JsonArray();
             for (JsonElement childElement : elementsArray) {
                 if (Constant.ATTRIBUTE_GROUP.equals(childElement.getAsJsonObject().get(Constant.TYPE).getAsString())) {
-                    processMediatorSchemaWithValues(
+                    markValueExpectedFromAI(
                             childElement.getAsJsonObject().getAsJsonObject(Constant.VALUE).getAsJsonObject(), template);
                 } else if (Constant.ATTRIBUTE.equals(childElement.getAsJsonObject().get(Constant.TYPE).getAsString())) {
-                    processMediatorAttributeElement(childElement, template, parameterDescriptionElements);
+                    markAIValueForAttributeElement(childElement);
                 }
             }
             elementsArray.addAll(parameterDescriptionElements);
-            /** TODO: fix this to add next to its corresponding element. same for new schema too. This can be done by using iterator and adding a new element after the current element.
-             * or add the description to the value element itself.
-             */
         }
     }
 
-    private void processMediatorAttributeElement(JsonElement childElement, Template template,
-                                                 JsonArray parameterDescriptionElements) {
+    private void markAIValueForAttributeElement(JsonElement childElement) {
 
         JsonObject valueObj = childElement.getAsJsonObject().getAsJsonObject(Constant.VALUE);
 
@@ -609,16 +630,6 @@ public class AIConnectorHandler {
             currentValue.addProperty(FROM_AI, true);
             currentValue.addProperty(Constant.IS_EXPRESSION, false);
             valueObj.add(Constant.CURRENT_VALUE, currentValue);
-
-            // Add the parameter description field for the functional param
-            String parameterName = valueObj.get(Constant.NAME).getAsString();
-            String helpTip =
-                    valueObj.has(Constant.HELP_TIP) ? valueObj.get(Constant.HELP_TIP).getAsString() :
-                            parameterName;
-            TemplateParameter parameter = template.getParameter(parameterName);
-            String currentDescription = parameter != null ? parameter.getDescription() : helpTip;
-            addParameterDescriptionField(parameterDescriptionElements, parameterName, helpTip,
-                    currentDescription);
         }
     }
 
