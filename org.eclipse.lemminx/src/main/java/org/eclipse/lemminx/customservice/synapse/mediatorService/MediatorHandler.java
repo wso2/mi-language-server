@@ -24,6 +24,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.commons.BadLocationException;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorAction;
@@ -32,6 +33,7 @@ import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.SynapseCon
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.MediatorFactoryFinder;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Connector;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.AIConnector;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.InvalidMediator;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.UISchemaMapper;
@@ -51,6 +53,8 @@ import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -64,26 +68,30 @@ import static org.eclipse.lemminx.customservice.synapse.utils.UISchemaMapper.map
 
 public class MediatorHandler {
 
-    private static final Logger logger = Logger.getLogger(MediatorHandler.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(MediatorHandler.class.getName());
     private JsonObject mediatorList;
+    private JsonObject agentToolList;
     private Map<String, JsonObject> uiSchemaMap;
     private Map<String, Mustache> templateMap;
     private ConnectorHolder connectorHolder;
     private boolean isInitialized;
     private Gson gson;
     private String miServerVersion;
+    private AIConnectorHandler aiConnectorHandler;
 
-    public void init(String projectServerVersion, ConnectorHolder connectorHolder) {
+    public void init(String projectUri, String projectServerVersion, ConnectorHolder connectorHolder) {
 
         try {
             this.miServerVersion = projectServerVersion;
             this.connectorHolder = connectorHolder;
             this.mediatorList = Utils.getMediatorList(projectServerVersion, connectorHolder);
+            this.agentToolList = Utils.getAgentToolList(mediatorList, connectorHolder);
             gson = new Gson();
+            this.aiConnectorHandler = new AIConnectorHandler(this, projectUri);
         } catch (IOException e) {
-            logger.log(Level.SEVERE,
+            LOGGER.log(Level.SEVERE,
                     String.format("Failed to load mediators for the MI server version: %s", projectServerVersion), e);
-            logger.warning(String.format("Falling back to default mediators (MI %s).", Constant.DEFAULT_MI_VERSION));
+            LOGGER.warning(String.format("Falling back to default mediators (MI %s).", Constant.DEFAULT_MI_VERSION));
             try {
                 this.mediatorList = Utils.getMediatorList(Constant.DEFAULT_MI_VERSION, connectorHolder);
             } catch (IOException ex) {
@@ -100,6 +108,9 @@ public class MediatorHandler {
     public JsonObject getSupportedMediators(TextDocumentIdentifier documentIdentifier, Position position) {
 
         try {
+            if (isRequestedForAgentTool(documentIdentifier.getUri(), position)) {
+                return agentToolList;
+            }
             DOMDocument document = Utils.getDOMDocument(new File(new URI(documentIdentifier.getUri())));
             List<String> lastMediators = Arrays.asList("send", "drop", "loopback", "respond");
             List<String> iterateMediators = Arrays.asList("iterate", "foreach");
@@ -115,7 +126,7 @@ public class MediatorHandler {
                 return mediatorList;
             }
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error occurred while retrieving supported mediators.", e);
+            LOGGER.log(Level.SEVERE, "Error occurred while retrieving supported mediators.", e);
         }
         return null;
     }
@@ -125,18 +136,31 @@ public class MediatorHandler {
 
         try {
             boolean isUpdate = !range.getEnd().equals(range.getStart());
-            STNode node =
-                    getMediatorNodeAtPosition(Utils.getDOMDocument(new File(documentUri)), range.getStart(), isUpdate);
-            if (isConnector(node, mediator)) {
+            STNode node = null;
+            if (StringUtils.isNotEmpty(documentUri) && Files.exists(Path.of(documentUri))) {
+                node = getMediatorNodeAtPosition(Utils.getDOMDocument(new File(documentUri)), range.getStart(),
+                        isUpdate);
+            }
+            if (isRequestedForAgentTool(documentUri, range.getStart())) {
+                return aiConnectorHandler.generateAgentToolConfig(documentUri, range, mediator, data, dirtyFields,
+                        isUpdate);
+            } else if (isAIConnector(node, mediator)) {
+                return aiConnectorHandler.generateAIConnectorConfig(node, mediator, data, range);
+            } else if (isConnector(node, mediator)) {
                 return generateConnectorSynapseConfig(node, mediator, data, range);
             } else {
                 return generateMediatorSynapseConfig(node, mediator, data, dirtyFields, range);
             }
 
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error occurred while generating Synapse configuration.", e);
+            LOGGER.log(Level.SEVERE, "Error occurred while generating Synapse configuration.", e);
         }
         return null;
+    }
+
+    private boolean isAIConnector(STNode node, String mediator) {
+
+        return node instanceof AIConnector || (StringUtils.isNotEmpty(mediator) && mediator.startsWith("ai."));
     }
 
     private boolean isConnector(STNode node, String mediator) {
@@ -169,7 +193,7 @@ public class MediatorHandler {
         return null;
     }
 
-    private Map<String, Object> processConnectorParameter(Object data) {
+    protected Map<String, Object> processConnectorParameter(Object data) {
 
         Map<String, Object> dataValue = new HashMap<>();
         if (data instanceof String) {
@@ -218,7 +242,7 @@ public class MediatorHandler {
         return dataValue;
     }
 
-    private ConnectorAction getConnectorOperation(STNode node, String mediator) {
+    protected ConnectorAction getConnectorOperation(STNode node, String mediator) {
 
         String connectorName;
         String operation;
@@ -259,6 +283,7 @@ public class MediatorHandler {
                     if (!Class.forName(mediatorClass).isInstance(node)) {
                         node = null;
                     }
+                    @SuppressWarnings("unchecked")
                     Either<Map<String, Object>, Map<Range, Map<String, Object>>>
                             processedData =
                             (Either<Map<String, Object>, Map<Range, Map<String, Object>>>) processorMethod.invoke(
@@ -287,31 +312,40 @@ public class MediatorHandler {
         return null;
     }
 
-    public JsonObject getSchemaWithValues(TextDocumentIdentifier documentIdentifier, Position position) {
+    public JsonObject getUISchemaWithValues(TextDocumentIdentifier documentIdentifier, Position position) {
 
         try {
-            DOMDocument document = Utils.getDOMDocument(new File(new URI(documentIdentifier.getUri())));
-            STNode node = getMediatorNodeAtPosition(document, position, Boolean.TRUE);
-            if (node != null) {
-                if (node instanceof Connector) {
-                    return getSchemaWithValuesForConnector(node);
-                }
-                return getSchemaWithValuesForMediator(node);
+            DOMDocument document = Utils.getDOMDocumentFromPath(documentIdentifier.getUri());
+            if (isRequestedForAgentTool(documentIdentifier.getUri(), position)) {
+                return aiConnectorHandler.getToolSchemaWithValues(document, position);
             }
+            STNode node = getMediatorNodeAtPosition(document, position, Boolean.TRUE);
+            return getUISchemaForSTNode(node);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error occurred while updating UI schema with existing values.", e);
+            LOGGER.log(Level.SEVERE, "Error occurred while updating UI schema with existing values.", e);
         }
         return null;
     }
 
-    private JsonObject getSchemaWithValuesForConnector(STNode node) {
+    protected JsonObject getUISchemaForSTNode(STNode node) throws Exception {
+
+        if (node != null) {
+            if (node instanceof Connector) {
+                return getUISchemaWithValuesForConnector(node);
+            }
+            return getUISchemaWithValuesForMediator(node);
+        }
+        return null;
+    }
+
+    private JsonObject getUISchemaWithValuesForConnector(STNode node) {
 
         Connector connector = (Connector) node;
         JsonObject uiSchema = getConnectorUiSchema(connector.getTag(), null, null);
         return UISchemaMapper.mapInputToUISchemaForConnector(connector, uiSchema);
     }
 
-    private JsonObject getSchemaWithValuesForMediator(STNode node)
+    private JsonObject getUISchemaWithValuesForMediator(STNode node)
             throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, ClassNotFoundException,
             InstantiationException {
 
@@ -338,7 +372,7 @@ public class MediatorHandler {
         return uiSchemaMap.get(mediatorName);
     }
 
-    private JsonObject findUISchema(String mediatorName, JsonElement uiSchemaName) {
+    protected JsonObject findUISchema(String mediatorName, JsonElement uiSchemaName) {
 
         if (uiSchemaName != null) {
 
@@ -429,13 +463,58 @@ public class MediatorHandler {
 
     public JsonObject getUiSchema(String mediatorName, TextDocumentIdentifier documentIdentifier, Position position) {
 
-        if (uiSchemaMap.containsKey(mediatorName)) {
+        if (documentIdentifier != null && isRequestedForAgentTool(documentIdentifier.getUri(), position)) {
+            return aiConnectorHandler.getToolSchema(mediatorName);
+        } else if (uiSchemaMap.containsKey(mediatorName)) {
             return uiSchemaMap.get(mediatorName);
-        }
-        if (mediatorName.contains(".")) {
+        } else if (mediatorName.contains(".")) {
             return getConnectorUiSchema(mediatorName, documentIdentifier, position);
         }
         return null;
+    }
+
+    public JsonObject getUiSchema(String mediatorName) {
+
+        return getUiSchema(mediatorName, null, null);
+    }
+
+    private boolean isRequestedForAgentTool(String documentUri, Position position) {
+
+        if (documentUri == null || position == null) {
+            return false;
+        }
+        try {
+            String documentPath = Utils.getAbsolutePath(documentUri);
+            if (StringUtils.isEmpty(documentPath) || Files.notExists(Path.of(documentPath))) {
+                return false;
+            }
+            DOMDocument document = Utils.getDOMDocument(new File(documentPath));
+            int offset = document.offsetAt(position);
+            DOMNode currentNode = document.findNodeAt(offset);
+            if (isInsideAiAgent(currentNode)) {
+                return true;
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error occurred while checking if the tool schema is requested.", e);
+        }
+        return false;
+    }
+
+    private boolean isInsideAiAgent(DOMNode currentNode) {
+
+        // Need to check for <ai.agent><tools><tool/></tools></ai.agent> structure
+        if (currentNode == null || currentNode.getParentNode() == null) {
+            return true;
+        }
+
+        // Check if the parent is <ai.agent/>
+        if (Constant.AI_AGENT_TAG.equals(currentNode.getParentNode().getNodeName())) {
+            return true;
+        }
+
+        // Check if the grand-parent is <ai.agent/>
+        return currentNode.getParentNode().getParentNode() != null &&
+                Constant.AI_AGENT_TAG.equals(currentNode.getParentNode().getParentNode().getNodeName());
     }
 
     private JsonObject getConnectorUiSchema(String mediatorName, TextDocumentIdentifier documentIdentifier, Position position) {
@@ -458,7 +537,7 @@ public class MediatorHandler {
                     }
                     return mapInputToUISchema(resultObject, uiSchemaObject);
                 } catch (IOException e) {
-                    logger.log(Level.SEVERE, "Error occurred while retrieving UI schema for connector operation.", e);
+                    LOGGER.log(Level.SEVERE, "Error occurred while retrieving UI schema for connector operation.", e);
                 }
             }
 
@@ -475,8 +554,20 @@ public class MediatorHandler {
 
         try {
             this.mediatorList = Utils.getMediatorList(projectServerVersion, connectorHolder);
+            this.agentToolList = Utils.getAgentToolList(mediatorList, connectorHolder);
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "Failed to reload mediators.", e);
+            LOGGER.log(Level.SEVERE, "Failed to reload mediators.", e);
         }
+    }
+
+    /**
+     * Retrieves the Mustache template for the given mediator.
+     *
+     * @param key the key of the template
+     * @return
+     */
+    protected Mustache getMustacheTemplate(String key) {
+
+        return templateMap.get(key);
     }
 }

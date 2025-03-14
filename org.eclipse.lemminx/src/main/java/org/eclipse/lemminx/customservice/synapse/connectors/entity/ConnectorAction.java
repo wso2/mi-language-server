@@ -44,11 +44,15 @@ public class ConnectorAction {
     private String uiSchemaPath;
     private String outputSchemaPath;
     private Property outputSchema;
+    private String groupName;
+    private boolean supportsResponseModel; // Represents whether the operation supports response model or not
+    private boolean canActAsAgentTool;
 
     public ConnectorAction() {
 
         parameters = new ArrayList<>();
         allowedConnectionTypes = new ArrayList<>();
+        canActAsAgentTool = true;
     }
 
     public String getName() {
@@ -197,5 +201,35 @@ public class ConnectorAction {
             }
         }
         return outputSchema != null ? outputSchema.deepCopy() : null;
+    }
+
+    public String getGroupName() {
+
+        return groupName;
+    }
+
+    public void setGroupName(String groupName) {
+
+        this.groupName = groupName;
+    }
+
+    public boolean isSupportsResponseModel() {
+
+        return supportsResponseModel;
+    }
+
+    public void setSupportsResponseModel(boolean supportsResponseModel) {
+
+        this.supportsResponseModel = supportsResponseModel;
+    }
+
+    public boolean isCanActAsAgentTool() {
+
+        return canActAsAgentTool;
+    }
+
+    public void setCanActAsAgentTool(boolean canActAsAgentTool) {
+
+        this.canActAsAgentTool = canActAsAgentTool;
     }
 }

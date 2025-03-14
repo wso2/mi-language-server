@@ -27,6 +27,11 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.ad
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.advanced.EnqueueFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.advanced.EventFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.advanced.TransactionFactory;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.ai.AIAddToKnowledgeFactory;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.ai.AIAgentConnectorFactory;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.ai.AIChatConnectorFactory;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.ai.AIGetFromKnowledgeFactory;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.ai.AIRAGChatConnectorFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.core.CallFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.core.CallOutFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.core.CallTemplateFactory;
@@ -143,7 +148,12 @@ public class MediatorFactoryFinder {
             ConnectorFactory.class,
             VariableFactory.class,
             ScatterGatherFactory.class,
-            ThrowErrorFactory.class
+            ThrowErrorFactory.class,
+            AIAgentConnectorFactory.class,
+            AIChatConnectorFactory.class,
+            AIRAGChatConnectorFactory.class,
+            AIGetFromKnowledgeFactory.class,
+            AIAddToKnowledgeFactory.class
     };
 
     private final static MediatorFactoryFinder instance = new MediatorFactoryFinder();
@@ -151,12 +161,16 @@ public class MediatorFactoryFinder {
     private ConnectorHolder connectorHolder;
     private boolean initialized = false;
     private String miVersion;
+    private String projectPath;
 
-    public static synchronized void init(String miVersion, ConnectorHolder connectorHolder) {
+    public static synchronized void init(String miVersion, String projectPath, ConnectorHolder connectorHolder) {
 
-        instance.setMiVersion(miVersion);
-        instance.setConnectorHolder(connectorHolder);
-        instance.loadMediatorFactories();
+        if (!instance.initialized) {
+            instance.setMiVersion(miVersion);
+            instance.setProjectPath(projectPath);
+            instance.setConnectorHolder(connectorHolder);
+            instance.loadMediatorFactories();
+        }
     }
 
     public static synchronized MediatorFactoryFinder getInstance() {
@@ -177,6 +191,7 @@ public class MediatorFactoryFinder {
             try {
                 AbstractMediatorFactory fac = (AbstractMediatorFactory) c.newInstance();
                 fac.setMiVersion(miVersion);
+                fac.setProjectPath(projectPath);
                 factoryMap.put(fac.getTagName().toLowerCase(), fac);
             } catch (Exception e) {
                 log.log(Level.SEVERE, "Error instantiating " + c.getName(), e);
@@ -188,11 +203,7 @@ public class MediatorFactoryFinder {
     public Mediator getMediator(DOMNode node) {
 
         if (node != null && node instanceof DOMElement && node.getNodeName() != null) {
-            String mediatorName = node.getNodeName().toLowerCase();
-            if (mediatorName.contains(Constant.DOT) && connectorHolder.isValidConnector(mediatorName)) {
-                mediatorName = Constant.CONNECTOR;
-            }
-            AbstractMediatorFactory factory = factoryMap.get(mediatorName);
+            AbstractMediatorFactory factory = getMediatorFactory(node.getNodeName().toLowerCase());
             if (factory != null) {
                 Mediator mediator = (Mediator) factory.create((DOMElement) node);
                 mediator.elementNode((DOMElement) node);
@@ -205,6 +216,17 @@ public class MediatorFactoryFinder {
         return null;
     }
 
+    private AbstractMediatorFactory getMediatorFactory(String mediatorName) {
+
+        if (factoryMap.containsKey(mediatorName)) {
+            return factoryMap.get(mediatorName);
+        }
+        if (mediatorName.contains(Constant.DOT) && connectorHolder.isValidConnector(mediatorName)) {
+            return factoryMap.get(Constant.CONNECTOR);
+        }
+        return null;
+    }
+
     public void setConnectorHolder(ConnectorHolder connectorHolder) {
 
         this.connectorHolder = connectorHolder;
@@ -213,5 +235,10 @@ public class MediatorFactoryFinder {
     public void setMiVersion(String miVersion) {
 
         this.miVersion = miVersion;
+    }
+
+    public void setProjectPath(String projectPath) {
+
+        this.projectPath = projectPath;
     }
 }

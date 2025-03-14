@@ -23,6 +23,7 @@ import org.eclipse.lemminx.dom.DOMElement;
 
 public abstract class AbstractFactory {
 
+    private String projectPath;
     private String miVersion;
     public abstract STNode create(DOMElement element);
 
@@ -36,5 +37,15 @@ public abstract class AbstractFactory {
     public void setMiVersion(String miVersion) {
 
         this.miVersion = miVersion;
+    }
+
+    public String getProjectPath() {
+
+        return projectPath;
+    }
+
+    public void setProjectPath(String projectPath) {
+
+        this.projectPath = projectPath;
     }
 }

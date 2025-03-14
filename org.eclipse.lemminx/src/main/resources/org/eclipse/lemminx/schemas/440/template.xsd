@@ -40,6 +40,7 @@
             </xs:documentation>
         </xs:annotation>
         <xs:sequence>
+            <xs:element name="description" type="xs:string" minOccurs="0"/>
             <xs:element name="parameter" minOccurs="0" maxOccurs="unbounded">
                 <xs:annotation>
                     <xs:documentation source="description">

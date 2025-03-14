@@ -28,6 +28,7 @@ public class TemplateParameter extends STNode {
     boolean isMandatory;
     String defaultValue;
     String paramNamespacePrefix;
+    private String description;
 
     public Object getOtherAttributes() {
 
@@ -87,5 +88,15 @@ public class TemplateParameter extends STNode {
     public void setParamNamespacePrefix(String paramNamespacePrefix) {
 
         this.paramNamespacePrefix = paramNamespacePrefix;
+    }
+
+    public String getDescription() {
+
+        return description;
+    }
+
+    public void setDescription(String description) {
+
+        this.description = description;
     }
 }

@@ -24,8 +24,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.synapse.AbstractMediatorVisitor;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorAction;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.AIAgent;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Connector;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ConnectorParameter;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.AIChat;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.KnowledgeBase;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.SequenceMediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.Clone.Clone;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.DataServiceCall.DataServiceCall;
@@ -550,5 +553,23 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     @Override
     protected void visitThrowError(ThrowError node) {
 
+    }
+
+    @Override
+    protected void visitAIChat(AIChat node) {
+
+        visitConnector(node);
+    }
+
+    @Override
+    protected void visitAIAgent(AIAgent node) {
+
+        visitConnector(node);
+    }
+
+    @Override
+    protected void visitAIKnowledgeBase(KnowledgeBase node) {
+
+        visitConnector(node);
     }
 }

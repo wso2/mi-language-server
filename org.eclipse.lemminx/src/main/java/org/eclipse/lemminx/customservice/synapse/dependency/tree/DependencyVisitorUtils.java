@@ -30,6 +30,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediat
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
 import org.eclipse.lemminx.customservice.synapse.utils.ConfigFinder;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -110,7 +111,7 @@ public class DependencyVisitorUtils {
      */
     public static void visitMediator(Mediator node, MediatorDependencyVisitor visitor) {
 
-        String tag = sanitizeTag(node.getTag());
+        String tag = Utils.sanitizeTag(node.getTag());
         if (Constant.INVALID.equalsIgnoreCase(tag)) {
             return;
         }
@@ -124,20 +125,6 @@ public class DependencyVisitorUtils {
         } catch (InvocationTargetException | IllegalAccessException e) {
             LOGGER.log(Level.SEVERE, "Error while invoking visit method for mediator: " + tag, e);
         }
-    }
-
-    public static String sanitizeTag(String tag) {
-
-        if (tag.contains("-")) {
-            String[] split = tag.split("-");
-            return split[0] + split[1].substring(0, 1).toUpperCase() + split[1].substring(1);
-        } else if (tag.contains(":")) {
-            String[] split = tag.split(":");
-            return split[1];
-        } else if (tag.contains(".")) {
-            return Constant.CONNECTOR;
-        }
-        return tag;
     }
 
     /**

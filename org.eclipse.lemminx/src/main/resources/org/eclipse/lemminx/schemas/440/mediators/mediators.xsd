@@ -79,6 +79,7 @@
     <xs:include schemaLocation="other/publishEvent.xsd"/>
     <xs:include schemaLocation="other/ntlm.xsd"/>
     <xs:include schemaLocation="connectors.xsd"/>
+    <xs:include schemaLocation="ai/ai.xsd"/>
 
     <xs:group name="mediatorList">
         <xs:annotation>
@@ -155,8 +156,7 @@
             <xs:element ref="NTLM"/>
             <xs:element ref="throwError"/>
             <xs:group ref="connectors"/>
+            <xs:group ref="aiOperationList"/>
         </xs:choice>
     </xs:group>
-
 </xs:schema>
-

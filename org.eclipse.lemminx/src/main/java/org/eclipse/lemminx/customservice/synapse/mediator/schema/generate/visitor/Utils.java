@@ -155,7 +155,7 @@ public class Utils {
     public static void visitMediator(Mediator node, AbstractMediatorVisitor visitor) {
 
         String tag = node.getTag();
-        tag = sanitizeTag(tag);
+        tag = org.eclipse.lemminx.customservice.synapse.utils.Utils.sanitizeTag(tag);
 
         String visitFn;
         visitFn = "visit" + tag.substring(0, 1).toUpperCase() + tag.substring(1);
@@ -170,22 +170,6 @@ public class Utils {
         } catch (IllegalAccessException e) {
             LOGGER.log(Level.SEVERE, "Error while accessing visit method for mediator: " + tag, e);
         }
-    }
-
-    private static String sanitizeTag(String tag) {
-
-        String sanitizedTag = tag;
-        if (tag.contains("-")) {
-            String[] split = tag.split("-");
-            sanitizedTag = split[0] + split[1].substring(0, 1).toUpperCase() + split[1].substring(1);
-        } else if (tag.contains(":")) {
-            String[] split = tag.split(":");
-            sanitizedTag = split[1];
-        } else if (tag.contains(".")) {
-            sanitizedTag = "connector";
-        }
-        return sanitizedTag;
-
     }
 
     public static boolean checkNodeInRange(STNode node, Position position) {

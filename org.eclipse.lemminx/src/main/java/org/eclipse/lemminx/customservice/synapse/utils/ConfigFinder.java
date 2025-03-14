@@ -27,6 +27,19 @@ import java.nio.file.Path;
 
 public class ConfigFinder {
 
+    /**
+     * Finds the path of the template file that is defined by the key
+     *
+     * @param key         template key
+     * @param projectPath project path
+     * @return template file path
+     * @throws IOException
+     */
+    public static String getTemplatePath(String key, String projectPath) throws IOException {
+
+        return findEsbComponentPath(key, "templates", projectPath);
+    }
+
     public static String findEsbComponentPath(String key, String type, String projectPath) throws IOException {
 
         String foundPath = null;
