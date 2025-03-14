@@ -595,6 +595,7 @@ public class Constant {
     public static final BiMap<String, String> AI_CONNECTION_TO_DISPLAY_NAME_MAP = HashBiMap.create();
     public static final Map<String, String> AI_CONNECTOR_VISITOR_FUNCTION = new HashMap<>();
     public static final String CHECK_BOX = "checkbox";
+    public static final String AI = "AI";
 
     static {
         // AI Connection to Display Name bi-Mapping

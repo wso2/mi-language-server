@@ -268,6 +268,10 @@ public class MediatorHandler {
             IllegalAccessException {
 
         for (Map.Entry<String, JsonElement> entry : mediatorList.entrySet()) {
+            if (Constant.AI.equalsIgnoreCase(entry.getKey())) {
+                // Skip AI mediators as that is handled by {@link AIConnectorHandler}
+                continue;
+            }
             JsonArray mediatorsArray = entry.getValue().getAsJsonObject().getAsJsonArray(Constant.ITEMS);
             for (JsonElement mediatorElement : mediatorsArray) {
                 JsonObject mediatorObject = mediatorElement.getAsJsonObject();

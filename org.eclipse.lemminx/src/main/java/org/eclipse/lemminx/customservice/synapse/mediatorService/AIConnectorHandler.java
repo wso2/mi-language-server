@@ -118,7 +118,10 @@ public class AIConnectorHandler {
                 if (data.containsKey(parameter.getName())) {
                     Map<String, Object> dataValue =
                             mediatorHandler.processConnectorParameter(data.get(parameter.getName()));
-                    parameterData.add(Map.of(Constant.NAME, parameter.getName(), Constant.VALUE, dataValue));
+                    if (dataValue != null && dataValue.containsKey(Constant.VALUE) &&
+                            StringUtils.isNotEmpty(dataValue.get(Constant.VALUE).toString())) {
+                        parameterData.add(Map.of(Constant.NAME, parameter.getName(), Constant.VALUE, dataValue));
+                    }
                 }
             }
             connectorData.put(Constant.PARAMETERS, parameterData);
