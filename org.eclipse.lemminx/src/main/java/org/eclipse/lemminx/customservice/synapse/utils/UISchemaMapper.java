@@ -83,11 +83,21 @@ public class UISchemaMapper {
                     if (currentValue.isJsonPrimitive() && currentValue.getAsString().startsWith("'{") && currentValue.getAsString().endsWith("}'")) {
                         currentValue = new JsonPrimitive(
                                 currentValue.getAsString().substring(1, currentValue.getAsString().length() - 1));
+                    } else if (isCheckBox(value)) {
+                        currentValue = new JsonPrimitive(currentValue.getAsBoolean());
                     }
                     value.add("currentValue", currentValue);
                 }
             }
         }
+    }
+
+    private static boolean isCheckBox(JsonObject value) {
+
+        if (value.has(Constant.INPUT_TYPE)) {
+            return Constant.CHECK_BOX.equals(value.get(Constant.INPUT_TYPE).getAsString());
+        }
+        return false;
     }
 
     private static JsonArray generateTableDataForConnector(String tableFieldValue) {

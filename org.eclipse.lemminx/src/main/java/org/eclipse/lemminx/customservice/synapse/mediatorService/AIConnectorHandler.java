@@ -506,13 +506,36 @@ public class AIConnectorHandler {
         JsonElement currentValue = valueObj.get(Constant.CURRENT_VALUE);
         if (currentValue instanceof JsonObject) {
             ((JsonObject) currentValue).add(Constant.DESCRIPTION, descriptionElement);
-        } else {
-            JsonObject currentValueObj = new JsonObject();
-            currentValueObj.addProperty(Constant.VALUE, currentValue.getAsString());
-            currentValueObj.addProperty(Constant.IS_EXPRESSION, false);
-            currentValueObj.add(Constant.DESCRIPTION, descriptionElement);
-            valueObj.add(Constant.CURRENT_VALUE, currentValueObj);
+        } else if (!valueObj.get(Constant.INPUT_TYPE).getAsString().contains("boolean")) {
+            valueObj.add(Constant.CURRENT_VALUE,
+                    createNewValueObjectForToolField(currentValue, valueObj, descriptionElement));
         }
+    }
+
+    private JsonElement createNewValueObjectForToolField(JsonElement currentValue, JsonObject valueObj,
+                                                         JsonObject descriptionElement) {
+
+        String inputType = valueObj.get(Constant.INPUT_TYPE).getAsString();
+        JsonPrimitive value = getCurrentValueForToolField(currentValue, valueObj);
+        JsonObject currentValueObj = new JsonObject();
+        currentValueObj.add(Constant.VALUE, value);
+        currentValueObj.addProperty(Constant.IS_EXPRESSION, Constant.EXPRESSION.equals(inputType));
+        currentValueObj.add(Constant.DESCRIPTION, descriptionElement);
+        return currentValueObj;
+    }
+
+    private JsonPrimitive getCurrentValueForToolField(JsonElement currentValue, JsonObject valueObj) {
+
+        JsonPrimitive value;
+        JsonElement defaultValue = valueObj.get(Constant.DEFAULT_VALUE);
+        if (currentValue != null) {
+            value = currentValue.getAsJsonPrimitive();
+        } else if (defaultValue != null) {
+            value = defaultValue.getAsJsonPrimitive();
+        } else {
+            value = new JsonPrimitive(StringUtils.EMPTY);
+        }
+        return value;
     }
 
     /**
