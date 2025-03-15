@@ -268,7 +268,11 @@ public class MediatorHandler {
             IllegalAccessException {
 
         for (Map.Entry<String, JsonElement> entry : mediatorList.entrySet()) {
-            JsonArray mediatorsArray = entry.getValue().getAsJsonObject().getAsJsonArray(Constant.ITEMS);
+            if (Constant.AI.equalsIgnoreCase(entry.getKey())) {
+                // Skip AI mediators as that is handled by {@link AIConnectorHandler}
+                continue;
+            }
+            JsonArray mediatorsArray = getMediatorsArrayForCategory(entry.getValue());
             for (JsonElement mediatorElement : mediatorsArray) {
                 JsonObject mediatorObject = mediatorElement.getAsJsonObject();
                 if (mediator.equals(mediatorObject.get(Constant.TAG).getAsString())) {
@@ -312,6 +316,22 @@ public class MediatorHandler {
         return null;
     }
 
+    private JsonArray getMediatorsArrayForCategory(JsonElement value) {
+
+        JsonElement listElements = value.getAsJsonObject().get(Constant.ITEMS);
+        JsonArray mediatorsArray;
+        if (listElements.isJsonArray()) {
+            mediatorsArray = listElements.getAsJsonArray();
+        } else {
+            // Straighten the categorized connectors to a single array
+            mediatorsArray = new JsonArray();
+            listElements.getAsJsonObject().keySet().forEach(key -> {
+                mediatorsArray.addAll(listElements.getAsJsonObject().getAsJsonArray(key));
+            });
+        }
+        return mediatorsArray;
+    }
+
     public JsonObject getUISchemaWithValues(TextDocumentIdentifier documentIdentifier, Position position) {
 
         try {
@@ -351,7 +371,11 @@ public class MediatorHandler {
 
         String mediatorName = node.getTag();
         for (Map.Entry<String, JsonElement> entry : mediatorList.entrySet()) {
-            JsonArray mediatorsArray = entry.getValue().getAsJsonObject().getAsJsonArray(Constant.ITEMS);
+            if (Constant.AI.equalsIgnoreCase(entry.getKey())) {
+                // Skip AI mediators as that is handled by {@link AIConnectorHandler}
+                continue;
+            }
+            JsonArray mediatorsArray = getMediatorsArrayForCategory(entry.getValue());
             for (JsonElement mediatorElement : mediatorsArray) {
                 JsonObject mediator = mediatorElement.getAsJsonObject();
                 if (mediatorName.equals(mediator.get(Constant.TAG).getAsString())) {

@@ -40,11 +40,14 @@
                         </xs:all>
                     </xs:complexType>
                 </xs:element>
-                <xs:element name="system" type="xs:string"/>
+                <xs:element name="system" type="xs:string" minOccurs="0"/>
                 <xs:element name="prompt" type="xs:string"/>
                 <xs:element name="outputType" type="xs:string"/>
                 <xs:element name="responseVariable" type="xs:string"/>
                 <xs:element name="overwriteBody" type="xs:boolean"/>
+                <xs:element name="embeddingModel" type="xs:string"/>
+                <xs:element name="maxResults" type="xs:int"/>
+                <xs:element name="minScore" type="xs:double"/>
                 <xs:element name="modelName" type="xs:string"/>
                 <xs:element name="temperature" type="xs:double" minOccurs="0"/>
                 <xs:element name="maxTokens" type="xs:int" minOccurs="0"/>
@@ -52,8 +55,6 @@
                 <xs:element name="frequencyPenalty" type="xs:double" minOccurs="0"/>
                 <xs:element name="seed" type="xs:string" minOccurs="0"/>
                 <xs:element name="maxHistory" type="xs:int" minOccurs="0"/>
-                <xs:element name="maxResults" type="xs:int"/>
-                <xs:element name="minScore" type="xs:double"/>
             </xs:all>
         </xs:complexType>
     </xs:element>

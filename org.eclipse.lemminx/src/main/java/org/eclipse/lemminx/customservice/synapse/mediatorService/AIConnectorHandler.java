@@ -118,7 +118,10 @@ public class AIConnectorHandler {
                 if (data.containsKey(parameter.getName())) {
                     Map<String, Object> dataValue =
                             mediatorHandler.processConnectorParameter(data.get(parameter.getName()));
-                    parameterData.add(Map.of(Constant.NAME, parameter.getName(), Constant.VALUE, dataValue));
+                    if (dataValue != null && dataValue.containsKey(Constant.VALUE) &&
+                            StringUtils.isNotEmpty(dataValue.get(Constant.VALUE).toString())) {
+                        parameterData.add(Map.of(Constant.NAME, parameter.getName(), Constant.VALUE, dataValue));
+                    }
                 }
             }
             connectorData.put(Constant.PARAMETERS, parameterData);
@@ -301,8 +304,9 @@ public class AIConnectorHandler {
             if (value instanceof String && StringUtils.isNotEmpty(value.toString())) {
                 toolData.put(RESULT_EXPRESSION, value.toString());
             }
-        } else if(data.containsKey(Constant.RESPONSE_VARIABLE)) {
-            toolData.put(RESULT_EXPRESSION, data.get(Constant.RESPONSE_VARIABLE).toString());
+        } else if (data.containsKey(Constant.RESPONSE_VARIABLE)) {
+            String resultExpression = String.format("${vars.%s}", data.get(Constant.RESPONSE_VARIABLE).toString());
+            toolData.put(RESULT_EXPRESSION, resultExpression);
         }
         toolData.put(Constant.DESCRIPTION, data.get(TOOL_DESCRIPTION).toString());
         return toolData;
