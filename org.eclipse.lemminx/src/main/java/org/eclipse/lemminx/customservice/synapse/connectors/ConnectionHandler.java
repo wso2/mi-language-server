@@ -80,10 +80,8 @@ public class ConnectionHandler {
 
     public JsonObject getConnectionUiSchema(String documentUri) throws IOException {
 
-        if (documentUri.startsWith(Constant.FILE_PREFIX)) {
-            documentUri = documentUri.substring(Constant.FILE_PREFIX.length());
-        }
-        File file = new File(documentUri);
+        String documentPath = Utils.getAbsolutePath(documentUri);
+        File file = new File(documentPath);
         if (file.exists()) {
             DOMDocument document = Utils.getDOMDocument(file);
             if (document != null) {
