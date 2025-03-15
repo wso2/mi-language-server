@@ -718,11 +718,10 @@ public class Utils {
      */
     public static String getAbsolutePath(String path) {
 
-        if (path.contains(Constant.FILE_PREFIX)) {
+        if (path != null && path.contains(Constant.FILE_PREFIX)) {
             try {
-                return Paths.get(new URI(path)).toString();
+                return Paths.get(new URI(path)).toAbsolutePath().toString();
             } catch (URISyntaxException e) {
-                return path;
             }
         }
         return path;
