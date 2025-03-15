@@ -49,6 +49,7 @@ public class ConnectorReader {
     private static final Pattern ARTIFACT_VERSION_REGEX = Pattern.compile("(.+)-(\\d+\\.\\d+\\.\\d+(-SNAPSHOT)?)");
     private HashMap<String, List<String>> allowedConnectionTypesMap = new HashMap<>();
     private static final String BALLERINA_PACKAGE_NAME = "io.ballerina.stdlib.mi";
+    private static final List<String> EXCLUDED_AGENT_TOOLS = List.of("ai.chat", "ai.ragChat", "ai.agent");
 
     public Connector readConnector(String connectorPath, String projectUri) {
 
@@ -397,7 +398,8 @@ public class ConnectorReader {
                     String name = child.getAttribute(Constant.NAME);
                     action.setName(name);
                     String tag = connector.getName() + Constant.DOT + name;
-                    if ("ai.chat".equals(tag)) { //TODO: This is a temporary fix. Need to move this to the connector.
+                    if (EXCLUDED_AGENT_TOOLS.contains(
+                            tag)) { //TODO: This is a temporary fix. Need to move this to the connector.
                         action.setCanActAsAgentTool(false);
                     }
                     action.setTag(tag);
