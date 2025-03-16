@@ -26,6 +26,7 @@ public class AgentTool extends STNode {
     private String name;
     private String template;
     private String description;
+    private String resultExpression;
     private Mediator mediator;
     private String templatePath;
 
@@ -77,5 +78,15 @@ public class AgentTool extends STNode {
     public void setTemplatePath(String templatePath) {
 
         this.templatePath = templatePath;
+    }
+
+    public String getResultExpression() {
+
+        return resultExpression;
+    }
+
+    public void setResultExpression(String resultExpression) {
+
+        this.resultExpression = resultExpression;
     }
 }

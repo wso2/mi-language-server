@@ -79,6 +79,7 @@ public class AIAgentConnectorFactory extends AIConnectorFactory {
                         agentTool.setTemplate(templateName);
                         agentTool.setTemplatePath(templatePath);
                         agentTool.setDescription(toolElement.getAttribute(Constant.DESCRIPTION));
+                        agentTool.setResultExpression(toolElement.getAttribute(Constant.RESULT_EXPRESSION));
                         agentTool.setMediator(mediator);
                         agentTools.addTool(agentTool);
                     } catch (IOException e) {

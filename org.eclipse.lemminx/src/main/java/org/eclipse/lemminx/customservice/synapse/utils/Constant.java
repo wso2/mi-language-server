@@ -597,6 +597,7 @@ public class Constant {
     public static final String CHECK_BOX = "checkbox";
     public static final String AI = "AI";
     public static final String AGENT_ID = "agentID";
+    public static final String RESULT_EXPRESSION = "resultExpression";
 
     static {
         // AI Connection to Display Name bi-Mapping

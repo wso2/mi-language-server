@@ -137,6 +137,7 @@ public class AIConnectorHandler {
                     Map<String, String> toolData = new HashMap<>();
                     toolData.put(Constant.NAME, tool.getName());
                     toolData.put(Constant.TEMPLATE, tool.getTemplate());
+                    toolData.put(Constant.RESULT_EXPRESSION, tool.getResultExpression());
                     toolData.put(Constant.DESCRIPTION, tool.getDescription());
                     tools.add(toolData);
                 }
