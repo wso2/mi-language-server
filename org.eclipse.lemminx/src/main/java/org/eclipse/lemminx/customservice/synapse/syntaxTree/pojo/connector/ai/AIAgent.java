@@ -20,7 +20,18 @@ package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai;
 
 public class AIAgent extends AIConnector {
 
+    private String agentID;
     private AgentTools tools;
+
+    public String getAgentID() {
+
+        return agentID;
+    }
+
+    public void setAgentID(String agentID) {
+
+        this.agentID = agentID;
+    }
 
     public AgentTools getTools() {
 

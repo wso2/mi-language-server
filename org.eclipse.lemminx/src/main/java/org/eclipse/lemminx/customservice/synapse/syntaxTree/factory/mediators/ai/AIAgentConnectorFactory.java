@@ -50,6 +50,12 @@ public class AIAgentConnectorFactory extends AIConnectorFactory {
         AIConnector aiAgent = new AIAgent();
         populateConnectorConfigs(aiAgent, element);
         populateConnections(aiAgent, element, ALLOWED_CONNECTION_TAGS);
+
+        DOMNode agentIDNode = Utils.getChildNodeByName(element, Constant.AGENT_ID);
+        if (agentIDNode != null) {
+            ((AIAgent) aiAgent).setAgentID(Utils.getInlineString(agentIDNode.getFirstChild()));
+        }
+
         populateTools((AIAgent) aiAgent, element);
         return aiAgent;
     }
@@ -73,6 +79,7 @@ public class AIAgentConnectorFactory extends AIConnectorFactory {
                         agentTool.setTemplate(templateName);
                         agentTool.setTemplatePath(templatePath);
                         agentTool.setDescription(toolElement.getAttribute(Constant.DESCRIPTION));
+                        agentTool.setResultExpression(toolElement.getAttribute(Constant.RESULT_EXPRESSION));
                         agentTool.setMediator(mediator);
                         agentTools.addTool(agentTool);
                     } catch (IOException e) {
