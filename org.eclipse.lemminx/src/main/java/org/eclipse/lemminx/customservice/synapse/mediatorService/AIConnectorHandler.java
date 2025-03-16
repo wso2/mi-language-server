@@ -61,6 +61,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -124,6 +125,11 @@ public class AIConnectorHandler {
                     }
                 }
             }
+            String agentId = getAgentID(mediator, node);
+            if (StringUtils.isNotEmpty(agentId)) {
+                parameterData.add(
+                        Map.of(Constant.NAME, Constant.AGENT_ID, Constant.VALUE, Map.of(Constant.VALUE, agentId)));
+            }
             connectorData.put(Constant.PARAMETERS, parameterData);
             if (node instanceof AIAgent && ((AIAgent) node).getTools() != null) {
                 List<Map<String, String>> tools = new ArrayList<>();
@@ -141,6 +147,16 @@ public class AIConnectorHandler {
                     .execute(writer, connectorData).toString();
             TextEdit textEdit = new TextEdit(range, edit);
             return new SynapseConfigResponse(textEdit);
+        }
+        return null;
+    }
+
+    private String getAgentID(String mediator, STNode node) {
+
+        if (node instanceof AIAgent && ((AIAgent) node).getAgentID() != null) {
+            return ((AIAgent) node).getAgentID();
+        } else if (node instanceof AIAgent || Constant.AI_AGENT_TAG.equals(mediator)) {
+            return String.valueOf(UUID.randomUUID());
         }
         return null;
     }

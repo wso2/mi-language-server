@@ -596,6 +596,7 @@ public class Constant {
     public static final Map<String, String> AI_CONNECTOR_VISITOR_FUNCTION = new HashMap<>();
     public static final String CHECK_BOX = "checkbox";
     public static final String AI = "AI";
+    public static final String AGENT_ID = "agentID";
 
     static {
         // AI Connection to Display Name bi-Mapping

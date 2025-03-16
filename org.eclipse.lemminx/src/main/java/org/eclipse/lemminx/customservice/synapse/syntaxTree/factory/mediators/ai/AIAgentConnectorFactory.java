@@ -50,6 +50,12 @@ public class AIAgentConnectorFactory extends AIConnectorFactory {
         AIConnector aiAgent = new AIAgent();
         populateConnectorConfigs(aiAgent, element);
         populateConnections(aiAgent, element, ALLOWED_CONNECTION_TAGS);
+
+        DOMNode agentIDNode = Utils.getChildNodeByName(element, Constant.AGENT_ID);
+        if (agentIDNode != null) {
+            ((AIAgent) aiAgent).setAgentID(Utils.getInlineString(agentIDNode.getFirstChild()));
+        }
+
         populateTools((AIAgent) aiAgent, element);
         return aiAgent;
     }
