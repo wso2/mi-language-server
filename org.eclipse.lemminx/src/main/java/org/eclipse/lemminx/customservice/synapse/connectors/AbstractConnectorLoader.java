@@ -143,7 +143,7 @@ public abstract class AbstractConnectorLoader {
         for (File f : files) {
             String connectorName = getConnectorName(f);
             String connectorPath = f.getAbsolutePath();
-            if (!connectorHolder.exists(connectorName) && !connectorPath.contains(INBOUND_CONNECTOR_PREFIX)) {
+            if (!(connectorHolder.exists(connectorName) || connectorPath.contains(INBOUND_CONNECTOR_PREFIX))) {
                 Connector connector = connectorReader.readConnector(connectorPath, projectUri);
                 if (connector != null) {
                     connector.setConnectorZipPath(
