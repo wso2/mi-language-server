@@ -18,6 +18,7 @@
 
 package org.eclipse.lemminx.customservice.synapse.connectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorAction;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.OperationParameter;
@@ -73,7 +74,7 @@ public class ConnectionTester {
         if (!connectorHolder.exists(connectorName)) {
             return new TestConnectionResponse("Connector not found");
         }
-
+        String connectionType = request.getConnectionType();
         LocalEntry localEntry = new LocalEntry();
         String key = getLocalEntryKey(request);
         localEntry.setKey(key);
@@ -84,7 +85,7 @@ public class ConnectionTester {
             return new TestConnectionResponse("Connection operation not found");
         }
 
-        String connectionXml = getConnectionXml(connector, initOperation, request.getParameters());
+        String connectionXml = getConnectionXml(connector, initOperation, request.getParameters(), connectionType);
         localEntry.setContent(connectionXml);
         String localEntryXml = LocalEntrySerializer.serializeLocalEntry(localEntry);
 
@@ -171,27 +172,30 @@ public class ConnectionTester {
     }
 
     private String getConnectionXml(Connector connector, ConnectorAction initOperation,
-                                    Map<String, Object> parameters) {
+                                    Map<String, Object> parameters, String connectionType) {
 
         org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Connector connection =
                 new org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Connector();
         connection.setConnectorName(connector.getName());
         connection.setTag(initOperation.getTag());
         connection.setMethod(Constant.INIT);
+        if (StringUtils.isNotEmpty(connectionType)) {
+            connection.addParameter(new ConnectorParameter(Constant.CONNECTION_TYPE, connectionType));
+        }
         if (parameters != null) {
             for (OperationParameter parameter : initOperation.getParameters()) {
-                if (parameters.containsKey(parameter)) {
+                if (parameters.containsKey(parameter.getName())) {
                     ConnectorParameter connectorParameter = new ConnectorParameter();
                     connectorParameter.setName(parameter.getName());
-                    if (parameters.get(parameter) instanceof Map) {
-                        Map parameterMap = (Map) parameters.get(parameter);
+                    if (parameters.get(parameter.getName()) instanceof Map) {
+                        Map parameterMap = (Map) parameters.get(parameter.getName());
                         if (Boolean.parseBoolean(parameterMap.get(Constant.IS_EXPRESSION).toString())) {
                             connectorParameter.setExpression(parameterMap.get(Constant.VALUE).toString());
                         } else {
                             connectorParameter.setValue(parameterMap.get(Constant.VALUE).toString());
                         }
                     } else {
-                        connectorParameter.setValue(parameters.get(parameter).toString());
+                        connectorParameter.setValue(parameters.get(parameter.getName()).toString());
                     }
                     connection.addParameter(connectorParameter);
                 }
