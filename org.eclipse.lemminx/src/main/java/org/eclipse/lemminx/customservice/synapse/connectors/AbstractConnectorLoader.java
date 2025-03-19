@@ -35,6 +35,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static org.eclipse.lemminx.customservice.synapse.utils.Constant.INBOUND_CONNECTOR_PREFIX;
+
 /**
  * Abstract class to load connectors.
  */
@@ -122,7 +124,7 @@ public abstract class AbstractConnectorLoader {
                 File extractToFolder = new File(extractTo);
                 try {
                     Utils.extractZip(zip, extractToFolder);
-                    if (zipName.contains(Constant.INBOUND_CONNECTOR_PREFIX)) {
+                    if (zipName.contains(INBOUND_CONNECTOR_PREFIX)) {
                         String schema = Utils.readFile(extractToFolder.toPath().resolve(Constant.RESOURCES)
                                 .resolve(Constant.UI_SCHEMA_JSON).toFile());
                         inboundConnectorHolder.saveInboundConnector(Utils.getJsonObject(schema)
@@ -140,8 +142,9 @@ public abstract class AbstractConnectorLoader {
         File[] files = connectorFolder.listFiles(File::isDirectory);
         for (File f : files) {
             String connectorName = getConnectorName(f);
-            if (!connectorHolder.exists(connectorName)) {
-                Connector connector = connectorReader.readConnector(f.getAbsolutePath(), projectUri);
+            String connectorPath = f.getAbsolutePath();
+            if (!(connectorHolder.exists(connectorName) || connectorPath.contains(INBOUND_CONNECTOR_PREFIX))) {
+                Connector connector = connectorReader.readConnector(connectorPath, projectUri);
                 if (connector != null) {
                     connector.setConnectorZipPath(
                             getConnectorZip(connectorHolder.getConnectorZips(), connector.getExtractedConnectorPath()));
