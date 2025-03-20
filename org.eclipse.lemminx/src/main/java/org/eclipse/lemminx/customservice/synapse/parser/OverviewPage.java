@@ -19,6 +19,7 @@ package org.eclipse.lemminx.customservice.synapse.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.DependencyScanner;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.ConnectorDependency;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.Dependency;
@@ -91,7 +92,7 @@ public class OverviewPage {
     private static boolean hasAIAgent(WorkspaceFolder projectFolder, JsonNode artifacts) {
 
         String projectPath = Utils.getAbsolutePath(projectFolder.getUri());
-        if (projectPath == null) {
+        if (StringUtils.isEmpty(projectPath)) {
             return false;
         }
         DependencyScanner dependencyScanner = new DependencyScanner(projectPath);

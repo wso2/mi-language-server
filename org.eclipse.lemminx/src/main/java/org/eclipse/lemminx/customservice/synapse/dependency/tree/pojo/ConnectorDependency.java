@@ -24,8 +24,7 @@ public class ConnectorDependency extends Dependency {
 
     private String operationName;
 
-    public ConnectorDependency(String name, ArtifactType type,
-                               String path) {
+    public ConnectorDependency(String name, ArtifactType type, String path) {
 
         super(name, type, path);
     }
