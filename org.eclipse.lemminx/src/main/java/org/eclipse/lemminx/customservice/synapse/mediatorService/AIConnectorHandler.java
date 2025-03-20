@@ -211,11 +211,11 @@ public class AIConnectorHandler {
 
         String sequenceTemplatePath =
                 Path.of(projectUri).resolve(TEMPLATE_FOLDER_PATH).resolve(sequenceTemplateName + ".xml").toString();
-        Map<String, String> templateParameters = new HashMap<>();
+        Map<String, Map<String, String>> templateParameters = new HashMap<>();
 
         processAIValues(data, templateParameters);
 
-        // Remove overwrite body as we need the mediator response in the variable. TODO: Remove this field from tool UI
+        // Remove overwrite body as we need the mediator response in the variable.
         data.remove(Constant.OVERWRITE_BODY);
 
         // Generate mediator/connector (tool) xml
@@ -246,13 +246,20 @@ public class AIConnectorHandler {
      * parameter will be marked to be added to the sequence template.
      * </p>
      */
-    private void processAIValues(Map<String, Object> data, Map<String, String> templateParameters) {
+    private void processAIValues(Map<String, Object> data, Map<String, Map<String, String>> templateParameters) {
 
         for (Map.Entry<String, Object> entry : data.entrySet()) {
             if (isExpectingAIValue(entry.getValue())) {
                 String parameterName = entry.getKey();
                 String parameterDescription = extractParameterDescriptionFromFormValues(entry.getValue());
-                templateParameters.put(parameterName, parameterDescription);
+
+                Map<String, String> parameter = new HashMap<>();
+                parameter.put(Constant.DESCRIPTION, parameterDescription);
+                boolean isMandatory = entry.getValue() instanceof Map &&
+                        ((Map) entry.getValue()).containsKey(Constant.IS_MANDATORY) &&
+                        Boolean.TRUE.equals(((Map) entry.getValue()).get(Constant.IS_MANDATORY));
+                parameter.put(Constant.IS_MANDATORY, String.valueOf(isMandatory));
+                templateParameters.put(parameterName, parameter);
 
                 Map<String, Object> expression = new HashMap<>();
                 expression.put(Constant.VALUE, String.format("${params.functionParams.%s}", parameterName));
@@ -356,7 +363,8 @@ public class AIConnectorHandler {
     /**
      * Generates the sequence template for the tool by adding the new mediator as a child in the sequence.
      */
-    private String generateSequenceTemplate(SynapseConfigResponse mediatorEdits, Map<String, String> templateParameters,
+    private String generateSequenceTemplate(SynapseConfigResponse mediatorEdits,
+                                            Map<String, Map<String, String>> templateParameters,
                                             String sequenceTemplateName, Map<String, Object> data) {
 
         // There will be only one edit for a new mediator/connector. So, get the first edit from the list.
@@ -366,11 +374,11 @@ public class AIConnectorHandler {
         templateData.put(Constant.NAME, sequenceTemplateName);
         templateData.put(Constant.DESCRIPTION, data.get(TOOL_DESCRIPTION));
         List<Map<String, String>> parameters = new ArrayList<>();
-        for (Map.Entry<String, String> entry : templateParameters.entrySet()) {
+        for (Map.Entry<String, Map<String, String>> entry : templateParameters.entrySet()) {
             Map<String, String> parameter = new HashMap<>();
             parameter.put(Constant.NAME, entry.getKey());
-            parameter.put(Constant.IS_MANDATORY, "true");
-            parameter.put(Constant.DESCRIPTION, entry.getValue());
+            parameter.put(Constant.IS_MANDATORY, entry.getValue().get(Constant.IS_MANDATORY));
+            parameter.put(Constant.DESCRIPTION, entry.getValue().get(Constant.DESCRIPTION));
             parameters.add(parameter);
         }
         templateData.put(Constant.PARAMETERS, parameters);
@@ -473,7 +481,7 @@ public class AIConnectorHandler {
             }
             if (Constant.ATTRIBUTE.equals(elementObj.get(Constant.TYPE).getAsString())) {
                 JsonObject valueObj = elementObj.getAsJsonObject(Constant.VALUE);
-                if (valueObj.get(Constant.INPUT_TYPE).getAsString().matches("(?i).*expression")) {
+                if (valueObj.get(Constant.INPUT_TYPE).getAsString().matches("^(?!.*combo.*)(?i).*expression$")) {
                     valueObj.addProperty(SUPPORTS_AI_VALUES, true);
                     addParameterDescriptionField(valueObj, template);
                 }
@@ -522,25 +530,28 @@ public class AIConnectorHandler {
         String helpTip =
                 valueObj.has(Constant.HELP_TIP) ? valueObj.get(Constant.HELP_TIP).getAsString() :
                         parameterName;
+        boolean isRequired = valueObj.has(Constant.REQUIRED) && valueObj.get(Constant.REQUIRED).getAsBoolean();
         JsonObject descriptionElement = getParameterDescriptionObject(template, parameterName, helpTip);
 
         JsonElement currentValue = valueObj.get(Constant.CURRENT_VALUE);
         if (currentValue instanceof JsonObject) {
             ((JsonObject) currentValue).add(Constant.DESCRIPTION, descriptionElement);
+            ((JsonObject) currentValue).addProperty(Constant.IS_MANDATORY, isRequired);
         } else if (!valueObj.get(Constant.INPUT_TYPE).getAsString().contains("boolean")) {
             valueObj.add(Constant.CURRENT_VALUE,
-                    createNewValueObjectForToolField(currentValue, valueObj, descriptionElement));
+                    createNewValueObjectForToolField(currentValue, valueObj, descriptionElement, isRequired));
         }
     }
 
     private JsonElement createNewValueObjectForToolField(JsonElement currentValue, JsonObject valueObj,
-                                                         JsonObject descriptionElement) {
+                                                         JsonObject descriptionElement, boolean isRequired) {
 
         String inputType = valueObj.get(Constant.INPUT_TYPE).getAsString();
         JsonPrimitive value = getCurrentValueForToolField(currentValue, valueObj);
         JsonObject currentValueObj = new JsonObject();
         currentValueObj.add(Constant.VALUE, value);
         currentValueObj.addProperty(Constant.IS_EXPRESSION, Constant.EXPRESSION.equals(inputType));
+        currentValueObj.addProperty(Constant.IS_MANDATORY, isRequired);
         currentValueObj.add(Constant.DESCRIPTION, descriptionElement);
         return currentValueObj;
     }
@@ -807,7 +818,7 @@ public class AIConnectorHandler {
         // Remove overwrite body as we need the mediator response in the variable. TODO: Remove this field from tool UI
         data.remove(Constant.OVERWRITE_BODY);
 
-        Map<String, String> templateParameters = new HashMap<>();
+        Map<String, Map<String, String>> templateParameters = new HashMap<>();
         processAIValues(data, templateParameters);
         SynapseConfigResponse mediatorEdits =
                 mediatorHandler.generateSynapseConfig(sequenceTemplatePath, toolMediatorRange, mediator, data,
@@ -821,9 +832,10 @@ public class AIConnectorHandler {
         // Generate template parameter xml
         Range templateParameterRange = getTemplateParameterRange(template);
         StringBuilder parameterXmlBuilder = new StringBuilder();
-        for (Map.Entry<String, String> entry : templateParameters.entrySet()) {
-            String newParameter = String.format("<parameter name=\"%s\" isMandatory=\"true\" description=\"%s\"/>%n",
-                    entry.getKey(), entry.getValue());
+        for (Map.Entry<String, Map<String, String>> entry : templateParameters.entrySet()) {
+            String newParameter = String.format("<parameter name=\"%s\" isMandatory=\"%s\" description=\"%s\"/>%n",
+                    entry.getKey(), entry.getValue().get(Constant.IS_MANDATORY),
+                    entry.getValue().get(Constant.DESCRIPTION));
             parameterXmlBuilder.append(newParameter);
         }
         TextEdit parameterEdit =
