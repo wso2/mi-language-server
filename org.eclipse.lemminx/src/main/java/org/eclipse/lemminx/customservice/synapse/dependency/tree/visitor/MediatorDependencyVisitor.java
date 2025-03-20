@@ -24,6 +24,7 @@ import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connection;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.ArtifactType;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.DependencyLookUp;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.DependencyVisitorUtils;
+import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.ConnectorDependency;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.Dependency;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.AIAgent;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.AIChat;
@@ -181,6 +182,14 @@ public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
         if (node.getConfigKey() != null) {
             addSimpleDependency(node.getConfigKey(), "connector", ArtifactType.CONNECTION);
         }
+        addConnectorUsageDependency(node);
+    }
+
+    private void addConnectorUsageDependency(Connector node) {
+
+        ConnectorDependency dependency = new ConnectorDependency(node.getConnectorName(), ArtifactType.CONNECTOR, null);
+        dependency.setOperationName(node.getMethod());
+        dependencies.add(dependency);
     }
 
     @Override
@@ -737,6 +746,7 @@ public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
                 }
             }
         }
+        addConnectorUsageDependency(node);
     }
 
     @Override

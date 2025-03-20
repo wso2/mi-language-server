@@ -19,10 +19,15 @@ package org.eclipse.lemminx.customservice.synapse.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.eclipse.lemminx.customservice.synapse.dependency.tree.DependencyScanner;
+import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.ConnectorDependency;
+import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.Dependency;
+import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.DependencyTree;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryMapResponse;
 import org.eclipse.lemminx.customservice.synapse.directoryTree.DirectoryTreeBuilder;
 import org.eclipse.lemminx.customservice.synapse.parser.config.ConfigParser;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lsp4j.WorkspaceFolder;
 
 import java.util.ArrayList;
@@ -35,6 +40,7 @@ import static org.eclipse.lemminx.customservice.synapse.parser.pom.PomParser.get
 public class OverviewPage {
 
     private static final Logger LOGGER = Logger.getLogger(OverviewPage.class.getName());
+    private static final List<String> AI_AGENT_SUPPORTED_ARTIFACTS = List.of(Constant.API_ARTIFACTS, Constant.SEQUENCE);
 
     public static OverviewPageDetailsResponse getDetails(String projectUri) {
         OverviewPageDetailsResponse pomDetailsResponse = new OverviewPageDetailsResponse();
@@ -71,10 +77,56 @@ public class OverviewPage {
                         }
                     }
                 }
+
+                if (hasAIAgent(projectFolder, artifacts)) {
+                    integrationTypes.add(Constant.AI_AGENT);
+                }
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, "Error occurred while checking project integration type.", e);
             }
         }
         return integrationTypes;
+    }
+
+    private static boolean hasAIAgent(WorkspaceFolder projectFolder, JsonNode artifacts) {
+
+        String projectPath = Utils.getAbsolutePath(projectFolder.getUri());
+        if (projectPath == null) {
+            return false;
+        }
+        DependencyScanner dependencyScanner = new DependencyScanner(projectPath);
+
+        for (String artifactType : AI_AGENT_SUPPORTED_ARTIFACTS) {
+            if (hasAIAgent(dependencyScanner, artifacts, artifactType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean hasAIAgent(DependencyScanner dependencyScanner, JsonNode artifacts, String artifactType) {
+
+        if (!artifacts.has(artifactType) || artifacts.path(artifactType).isEmpty()) {
+            return false;
+        }
+        JsonNode artifactList = artifacts.path(artifactType);
+        for (JsonNode apiArtifact : artifactList) {
+            String path = apiArtifact.path(Constant.PATH).asText();
+            DependencyTree dependencyTree = dependencyScanner.analyzeArtifact(path);
+            boolean result = dependencyTree.getDependencyList()
+                    .stream()
+                    .anyMatch(OverviewPage::isAIAgent);
+            if (result) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isAIAgent(Dependency dependency) {
+
+        return dependency instanceof ConnectorDependency &&
+                Constant.AI.equalsIgnoreCase(dependency.getName()) &&
+                Constant.AGENT.equalsIgnoreCase(((ConnectorDependency) dependency).getOperationName());
     }
 }
