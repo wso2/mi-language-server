@@ -48,5 +48,6 @@ public enum ArtifactType {
     XSLT_RESOURCE,
     XQUERY_VARIABLE,
     SWAGGER,
+    CONNECTOR,
     CONNECTION
 }

@@ -598,6 +598,8 @@ public class Constant {
     public static final String AI = "AI";
     public static final String AGENT_ID = "agentID";
     public static final String RESULT_EXPRESSION = "resultExpression";
+    public static final String AI_AGENT = "AI_AGENT";
+    public static final String AGENT = "agent";
 
     static {
         // AI Connection to Display Name bi-Mapping
