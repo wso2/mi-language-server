@@ -108,8 +108,10 @@ public class SimpleTypeProcessor implements TypeProcessor {
         StringList lexicalEnumeration = simpleType.getLexicalEnumeration();
         if (lexicalEnumeration.getLength() > 0) {
             ArrayNode enumArray = JsonNodeFactory.instance.arrayNode();
-            for (int i = 0; i < lexicalEnumeration.getLength(); i++) {
-                enumArray.add(lexicalEnumeration.item(i));
+            for (Object enumValue : lexicalEnumeration) {
+                if (enumValue instanceof String) {
+                    enumArray.add((String) enumValue);
+                }
             }
             schemaNode.set(Utils.ENUM, enumArray);
         }

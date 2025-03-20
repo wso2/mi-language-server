@@ -196,12 +196,13 @@ public class ComplexTypeProcessor implements TypeProcessor {
         XSModelGroup choiceGroup = (XSModelGroup) elementStructure.getTerm();
         XSObjectList choices = choiceGroup.getParticles();
         ArrayNode oneOfArray = JsonNodeFactory.instance.arrayNode();
-        for (int i = 0; i < choices.getLength(); i++) {
-            XSParticle choice = (XSParticle) choices.item(i);
-            JsonSchemaObjectNode choiceSchemaNode = new JsonSchemaObjectNode(id);
-            processParticle(choice, choiceSchemaNode);
-            choiceSchemaNode.update(false);
-            oneOfArray.add(choiceSchemaNode.getNode());
+        for (Object choice : choices) {
+            if (choice instanceof XSParticle) {
+                JsonSchemaObjectNode choiceSchemaNode = new JsonSchemaObjectNode(id);
+                processParticle((XSParticle) choice, choiceSchemaNode);
+                choiceSchemaNode.update(false);
+                oneOfArray.add(choiceSchemaNode.getNode());
+            }
         }
         schemaNode.setOneOf(oneOfArray);
     }
@@ -216,26 +217,30 @@ public class ComplexTypeProcessor implements TypeProcessor {
     public static void handleAttributes(XSComplexTypeDefinition complexType, JsonSchemaObjectNode schemaObjectNode) {
 
         if (complexType.getAttributeUses().getLength() > 0) {
-            for (int i = 0; i < complexType.getAttributeUses().getLength(); i++) {
-                XSAttributeUse attributeUse = (XSAttributeUse) complexType.getAttributeUses().item(i);
-                XSAttributeDeclaration attributeDeclaration = attributeUse.getAttrDeclaration();
+            for (Object attributeUseObj : complexType.getAttributeUses()) {
+                if (attributeUseObj instanceof XSAttributeUse) {
+                    XSAttributeUse attributeUse = (XSAttributeUse) attributeUseObj;
+                    XSAttributeDeclaration attributeDeclaration = attributeUse.getAttrDeclaration();
 
-                String attributeName = Utils.ATTRIBUTE_PREFIX + attributeDeclaration.getName();
-                XSSimpleTypeDefinition simpleType = attributeDeclaration.getTypeDefinition();
-                String attributeType = Utils.mapXsdTypeToJsonType(Utils.getTypeName(simpleType));
-                JsonSchemaNode attributeNode =
-                        new JsonSchemaNode(schemaObjectNode.getId() + Utils.ID_VALUE_SEPERATOR + attributeName,
-                                attributeType);
+                    String attributeName = Utils.ATTRIBUTE_PREFIX + attributeDeclaration.getName();
+                    XSSimpleTypeDefinition simpleType = attributeDeclaration.getTypeDefinition();
+                    String attributeType = Utils.mapXsdTypeToJsonType(Utils.getTypeName(simpleType));
+                    JsonSchemaNode attributeNode =
+                            new JsonSchemaNode(schemaObjectNode.getId() + Utils.ID_VALUE_SEPERATOR + attributeName,
+                                    attributeType);
 
-                StringList lexicalEnumeration = simpleType.getLexicalEnumeration();
-                if (lexicalEnumeration.getLength() > 0) {
-                    ArrayNode enumArray = JsonNodeFactory.instance.arrayNode();
-                    for (int j = 0; j < lexicalEnumeration.getLength(); j++) {
-                        enumArray.add(lexicalEnumeration.item(j));
+                    StringList lexicalEnumeration = simpleType.getLexicalEnumeration();
+                    if (lexicalEnumeration.getLength() > 0) {
+                        ArrayNode enumArray = JsonNodeFactory.instance.arrayNode();
+                        for (Object enumValue : lexicalEnumeration) {
+                            if (enumValue instanceof String) {
+                                enumArray.add((String) enumValue);
+                            }
+                        }
+                        attributeNode.set(Utils.ENUM, enumArray);
                     }
-                    attributeNode.set(Utils.ENUM, enumArray);
+                    schemaObjectNode.addProperty(attributeName, attributeNode.getNode());
                 }
-                schemaObjectNode.addProperty(attributeName, attributeNode.getNode());
             }
         }
     }
@@ -268,9 +273,11 @@ public class ComplexTypeProcessor implements TypeProcessor {
             if (term instanceof XSModelGroup) {
                 XSModelGroup modelGroup = (XSModelGroup) term;
                 XSObjectList childStructures = modelGroup.getParticles();
-                for (int i = 0; i < childStructures.getLength(); i++) {
-                    XSParticle childStructure = (XSParticle) childStructures.item(i);
-                    processParticle(childStructure, jsonSchemaObject);
+                for (Object childStructureObj : childStructures) {
+                    if (childStructureObj instanceof XSParticle) {
+                        XSParticle childStructure = (XSParticle) childStructureObj;
+                        processParticle(childStructure, jsonSchemaObject);
+                    }
                 }
             } else if (term instanceof XSElementDeclaration) {
                 XSElementDeclaration element = (XSElementDeclaration) term;

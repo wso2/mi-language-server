@@ -18,6 +18,7 @@
 
 package org.eclipse.lemminx.customservice.synapse.schemagen.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -38,9 +39,6 @@ import org.eclipse.lemminx.customservice.synapse.schemagen.xsd.Utils;
 import java.io.File;
 import java.io.IOException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-
 public class SchemaGeneratorForXSD extends SchemaGeneratorForXML implements ISchemaGenerator {
 
     private static final String SCHEMA_ID = "$schema";
@@ -55,16 +53,11 @@ public class SchemaGeneratorForXSD extends SchemaGeneratorForXML implements ISch
 
     @Override
     public String getSchemaContent(String content, FileType type, String delimiter) throws IOException {
-        try {
-            return generateJsonSchemaFromXsd(content);
-        } catch (ParserConfigurationException | TransformerException e) {
-            throw new IOException(e.getMessage());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+
+        return generateJsonSchemaFromXsd(content);
     }
 
-    public String generateJsonSchemaFromXsd(String xsdContent) throws Exception {
+    public String generateJsonSchemaFromXsd(String xsdContent) throws JsonProcessingException {
         XMLSchemaLoader schemaLoader = new XMLSchemaLoader();
         XSModel xsModel = schemaLoader.load(new DOMInputImpl(null, null, null, xsdContent, null));
         JsonNode jsonSchemaElements = convertXsModelToJsonSchemaElements(xsModel);
@@ -94,14 +87,16 @@ public class SchemaGeneratorForXSD extends SchemaGeneratorForXML implements ISch
 
     private void processMultipleRootElements(XSNamedMap elements, ObjectNode rootNode) {
         ArrayNode oneOfArray = JsonNodeFactory.instance.arrayNode();
-        for (int i = 0; i < elements.getLength(); i++) {
-            XSElementDeclaration element = (XSElementDeclaration) elements.item(i);
-            ObjectNode elementNode = JsonNodeFactory.instance.objectNode();
+        for (Object elementObj : elements.values()) {
+            if (elementObj instanceof XSElementDeclaration) {
+                XSElementDeclaration element = (XSElementDeclaration) elementObj;
+                ObjectNode elementNode = JsonNodeFactory.instance.objectNode();
 
-            TypeProcessor processor = TypeProcessorFactory.getTypeProcessor(element);
-            processor.processType(element, null, elementNode, ROOT_ID + Utils.ID_VALUE_SEPERATOR + element.getName(), false);
-            elementNode.put(Utils.TITLE, element.getName());
-            oneOfArray.add(elementNode);
+                TypeProcessor processor = TypeProcessorFactory.getTypeProcessor(element);
+                processor.processType(element, null, elementNode, ROOT_ID + Utils.ID_VALUE_SEPERATOR + element.getName(), false);
+                elementNode.put(Utils.TITLE, element.getName());
+                oneOfArray.add(elementNode);
+            }
         }
         rootNode.set(Utils.ONE_OF, oneOfArray);
     }
