@@ -91,16 +91,14 @@ public class CAPPCacheManager {
     private static void validateAllCAPPs(String projectUri) {
 
         try {
-            Future<?> future1 = executor.submit(() -> validateClassMediatorCAPP(projectUri));
-            Future<?> future2 = executor.submit(() -> validateConnectorCAPP(projectUri));
-            Future<?> future3 = executor.submit(() -> validateDataMapperCAPP(projectUri));
-            Future<?> future4 = executor.submit(() -> validateResourcesCAPP(projectUri));
+            Future<?> future1 = executor.submit(() -> validateConnectorAndClassMediatorCAPP(projectUri));
+            Future<?> future2 = executor.submit(() -> validateDataMapperCAPP(projectUri));
+            Future<?> future3 = executor.submit(() -> validateResourcesCAPP(projectUri));
 
             // Wait for completion
             future1.get();
             future2.get();
             future3.get();
-            future4.get();
         } catch (ExecutionException e) {
             LOGGER.log(Level.SEVERE, "Error validating CAPP cache", e);
         } catch (InterruptedException e) {
@@ -119,18 +117,12 @@ public class CAPPCacheManager {
         validateCAPPByType(projectUri, includePaths, CAPPType.DATA_MAPPER);
     }
 
-    private static void validateConnectorCAPP(String projectUri) {
+    private static void validateConnectorAndClassMediatorCAPP(String projectUri) {
 
         String connectorPath = TryOutConstants.PROJECT_RESOURCES_RELATIVE_PATH.resolve(Constant.CONNECTORS).toString();
-        List<String> includePaths = List.of(connectorPath);
-        validateCAPPByType(projectUri, includePaths, CAPPType.CONNECTOR);
-    }
-
-    private static void validateClassMediatorCAPP(String projectUri) {
-
         String classMediatorPath = Path.of(Constant.SRC).resolve(Constant.MAIN).resolve("java").toString();
-        List<String> includePaths = List.of(classMediatorPath);
-        validateCAPPByType(projectUri, includePaths, CAPPType.CLASS_MEDIATOR);
+        List<String> includePaths = List.of(classMediatorPath, connectorPath);
+        validateCAPPByType(projectUri, includePaths, CAPPType.CONNECTOR_AND_CLASS_MEDIATOR);
     }
 
     private static void validateResourcesCAPP(String projectUri) {
@@ -339,7 +331,7 @@ public class CAPPCacheManager {
 
         DATA_MAPPER,
         CONNECTOR,
-        CLASS_MEDIATOR,
+        CONNECTOR_AND_CLASS_MEDIATOR,
         RESOURCES
     }
 }

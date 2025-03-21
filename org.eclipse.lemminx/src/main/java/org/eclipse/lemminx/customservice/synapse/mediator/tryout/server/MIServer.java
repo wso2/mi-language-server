@@ -137,7 +137,7 @@ public class MIServer {
             String batchFile = new File(serverBinPath.toFile(), "micro-integrator.bat")
                     .getAbsolutePath();
             processBuilder = new ProcessBuilder();
-            processBuilder.command("cmd", "/c", batchFile, "-Desb.debug=true");
+            processBuilder.command("cmd", "/c", batchFile, "-Desb.debug=true", "-DgracefulShutdown=false");
         } else {
             // Unix-like systems
             processBuilder = new ProcessBuilder("./micro-integrator.sh", "-Desb.debug=true");
@@ -212,7 +212,7 @@ public class MIServer {
         try {
             ProcessHandle parentProcess = ProcessHandle.of(parentPid).orElseThrow();
             Stream<ProcessHandle> descendants = parentProcess.descendants();
-            descendants.forEach(process -> process.destroy());
+            descendants.forEach(ProcessHandle::destroy);
             parentProcess.destroy();
             boolean isAlive = parentProcess.onExit().toCompletableFuture().join().isAlive();
             if (!isAlive) {
@@ -299,7 +299,6 @@ public class MIServer {
 
         try {
             copyDependencyCappToMI(projectUri);
-            copyRegistryResourcesToMI(tempFolderPath);
             copyArtifactsToMI(tempFolderPath);
         } catch (IOException e) {
             throw new ArtifactDeploymentException("Error copying artifacts to MI", e);
