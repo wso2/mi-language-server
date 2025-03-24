@@ -20,7 +20,7 @@ package org.eclipse.lemminx.customservice.synapse.resourceFinder;
 
 public class ResourceUsagesRequest {
 
-    private String resourceFilePath;
+    private final String resourceFilePath;
 
     public ResourceUsagesRequest(String resourceFilePath) {
 
