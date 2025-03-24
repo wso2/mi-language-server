@@ -72,7 +72,7 @@ public class SimpleTypeProcessor implements TypeProcessor {
      * @param rootNode    the root JSON Schema object node to update
      * @param rootId      the identifier for the root JSON Schema node
      */
-    public static void processRootSimpleType(XSElementDeclaration rootElement, ObjectNode rootNode, String rootId) {
+    private static void processRootSimpleType(XSElementDeclaration rootElement, ObjectNode rootNode, String rootId) {
 
         JsonSchemaObjectNode rootObject = new JsonSchemaObjectNode(rootNode, rootId, Utils.ROOT);
         JsonSchemaNode property = new JsonSchemaNode(rootId + Utils.ID_VALUE_SEPERATOR + rootElement.getName());
@@ -89,7 +89,7 @@ public class SimpleTypeProcessor implements TypeProcessor {
      * @param elementStructure the XML Schema particle structure
      * @param schemaNode       the JSON Schema node to update
      */
-    public static void processSimpleType(XSElementDeclaration element, XSParticle elementStructure,
+    private static void processSimpleType(XSElementDeclaration element, XSParticle elementStructure,
                                          JsonSchemaNode schemaNode) {
 
         boolean isArray = isElementArray(elementStructure);

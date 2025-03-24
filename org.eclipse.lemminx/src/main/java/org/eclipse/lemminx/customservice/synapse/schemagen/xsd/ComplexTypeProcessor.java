@@ -79,16 +79,13 @@ public class ComplexTypeProcessor implements TypeProcessor {
      * @param id               The ID of the node.
      * @param addTitle         Flag indicating whether to add a title to the JSON Schema node.
      */
-    public static void processComplexType(XSElementDeclaration element, XSParticle elementStructure, ObjectNode node,
+    private static void processComplexType(XSElementDeclaration element, XSParticle elementStructure, ObjectNode node,
                                           String id, boolean addTitle) {
 
         String name = element.getName();
-        boolean isArray = isElementArray(elementStructure);
-
         XSComplexTypeDefinition complexType = (XSComplexTypeDefinition) element.getTypeDefinition();
         XSParticle childElementStructure = complexType.getParticle();
-
-        if (isArray) {
+        if (isElementArray(elementStructure)) {
             processArrayType(node, id, childElementStructure, complexType);
         } else {
             processObjectType(node, id, childElementStructure, complexType, addTitle, name);
@@ -214,7 +211,7 @@ public class ComplexTypeProcessor implements TypeProcessor {
      * @param complexType      The complex type definition containing the attributes to be processed.
      * @param schemaObjectNode The JSON Schema object node to which the attributes will be added.
      */
-    public static void handleAttributes(XSComplexTypeDefinition complexType, JsonSchemaObjectNode schemaObjectNode) {
+    private static void handleAttributes(XSComplexTypeDefinition complexType, JsonSchemaObjectNode schemaObjectNode) {
 
         if (complexType.getAttributeUses().getLength() > 0) {
             for (Object attributeUseObj : complexType.getAttributeUses()) {
@@ -251,7 +248,7 @@ public class ComplexTypeProcessor implements TypeProcessor {
      * @param complexType         the XML Schema complex type definition
      * @param simpleContentObject the JSON Schema object node to update
      */
-    public static void processSimpleContent(XSComplexTypeDefinition complexType,
+    private static void processSimpleContent(XSComplexTypeDefinition complexType,
                                             JsonSchemaObjectNode simpleContentObject) {
 
         XSSimpleTypeDefinition simpleType = complexType.getSimpleType();
@@ -266,7 +263,7 @@ public class ComplexTypeProcessor implements TypeProcessor {
      * @param elementStructure the XML Schema particle to process
      * @param jsonSchemaObject the JSON Schema object node to update
      */
-    public static void processParticle(XSParticle elementStructure, JsonSchemaObjectNode jsonSchemaObject) {
+    private static void processParticle(XSParticle elementStructure, JsonSchemaObjectNode jsonSchemaObject) {
 
         if (elementStructure != null) {
             XSTerm term = elementStructure.getTerm();
