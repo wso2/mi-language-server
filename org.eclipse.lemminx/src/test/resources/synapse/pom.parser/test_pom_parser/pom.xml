@@ -405,17 +405,41 @@
     <maven.test.skip>false</maven.test.skip>
   </properties>
   <dependencies>
-        <dependency>
-            <groupId>org.wso2.integration.connector</groupId>
-            <artifactId>mi-connector-http</artifactId>
-            <version>0.1.8</version>
-            <type>zip</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+      <dependency>
+          <groupId>org.wso2.integration.connector</groupId>
+          <artifactId>mi-connector-http</artifactId>
+          <version>0.1.8</version>
+          <type>zip</type>
+          <exclusions>
+              <exclusion>
+                  <groupId>*</groupId>
+                  <artifactId>*</artifactId>
+              </exclusion>
+          </exclusions>
+      </dependency>
+      <dependency>
+          <groupId>org.wso2.integration.connector</groupId>
+          <artifactId>mi-connector-amazonsqs</artifactId>
+          <version>2.0.2</version>
+          <type>zip</type>
+          <exclusions>
+              <exclusion>
+                  <groupId>*</groupId>
+                  <artifactId>*</artifactId>
+              </exclusion>
+          </exclusions>
+      </dependency>
+      <dependency>
+          <groupId>mysql</groupId>
+          <artifactId>mysql-connector-java</artifactId>
+          <version>8.0.33</version>
+      </dependency>
+      <dependency>
+          <groupId>com.microsoft.sqlserver</groupId>
+          <artifactId>mssql-jdbc</artifactId>
+          <version>12.10.0.jre11</version>
+          <type>jar</type>
+          <scope>compile</scope>
+      </dependency>
     </dependencies>
 </project>

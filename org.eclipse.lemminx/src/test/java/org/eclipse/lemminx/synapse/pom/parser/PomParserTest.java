@@ -39,19 +39,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class PomParserTest {
 
     private static final String PROJECT_PATH = "/synapse/pom.parser/test_pom_parser";
-    private String projectPath;
-    private PrimaryDetails primaryDetails;
+    private final PrimaryDetails primaryDetails;
     AdvanceDetails advanceDetails;
     PluginDetails pluginDetails;
-    private DockerDetails dockerDetails;
-    private DependenciesDetails dependenciesDetails;
-    private UnitTestDetails unitTestDetails;
-    private List<Node> configurables;
+    private final DockerDetails dockerDetails;
+    private final DependenciesDetails dependenciesDetails;
+    private final UnitTestDetails unitTestDetails;
+    private final List<Node> configurables;
 
     public PomParserTest() {
         String path = PomParserTest.class.getResource(PROJECT_PATH).getPath();
-        projectPath = new File(path).getAbsolutePath();
-        System.out.println(projectPath);
+        String projectPath = new File(path).getAbsolutePath();
         OverviewPageDetailsResponse overviewPageDetailsResponse = OverviewPage.getDetails(projectPath);
         primaryDetails = overviewPageDetailsResponse.getPrimaryDetails();
         BuildDetails buildDetails = overviewPageDetailsResponse.getBuildDetails();
@@ -254,16 +252,51 @@ public class PomParserTest {
 
     @Test
     public void testConnectorDependencies() {
-        DependencyDetails connectorDependencies = dependenciesDetails.getConnectorDependencies().get(0);
-        Range range = connectorDependencies.getRange();
-        assertEquals("org.wso2.integration.connector", connectorDependencies.getGroupId());
-        assertEquals("mi-connector-http", connectorDependencies.getArtifact());
-        assertEquals("0.1.8", connectorDependencies.getVersion());
-        assertEquals("zip", connectorDependencies.getType());
+        List<DependencyDetails> connectorDependencies = dependenciesDetails.getConnectorDependencies();
+        DependencyDetails connectorDependency = connectorDependencies.get(0);
+        Range range = connectorDependency.getRange();
+        assertEquals("org.wso2.integration.connector", connectorDependency.getGroupId());
+        assertEquals("mi-connector-http", connectorDependency.getArtifact());
+        assertEquals("0.1.8", connectorDependency.getVersion());
+        assertEquals("zip", connectorDependency.getType());
         assertEquals(408, range.getStart().getLine());
-        assertEquals(9, range.getStart().getCharacter());
+        assertEquals(7, range.getStart().getCharacter());
         assertEquals(419, range.getEnd().getLine());
-        assertEquals(22, range.getEnd().getCharacter());
+        assertEquals(20, range.getEnd().getCharacter());
+        connectorDependency = connectorDependencies.get(1);
+        range = connectorDependency.getRange();
+        assertEquals("org.wso2.integration.connector", connectorDependency.getGroupId());
+        assertEquals("mi-connector-amazonsqs", connectorDependency.getArtifact());
+        assertEquals("2.0.2", connectorDependency.getVersion());
+        assertEquals("zip", connectorDependency.getType());
+        assertEquals(420, range.getStart().getLine());
+        assertEquals(7, range.getStart().getCharacter());
+        assertEquals(431, range.getEnd().getLine());
+        assertEquals(20, range.getEnd().getCharacter());
+    }
+
+    @Test
+    public void testOtherConnectorDependencies() {
+        List<DependencyDetails> otherDependencies = dependenciesDetails.getOtherDependencies();
+        DependencyDetails connectorDependency = otherDependencies.get(0);
+        Range range = connectorDependency.getRange();
+        assertEquals("mysql", connectorDependency.getGroupId());
+        assertEquals("mysql-connector-java", connectorDependency.getArtifact());
+        assertEquals("8.0.33", connectorDependency.getVersion());
+        assertEquals(432, range.getStart().getLine());
+        assertEquals(7, range.getStart().getCharacter());
+        assertEquals(436, range.getEnd().getLine());
+        assertEquals(20, range.getEnd().getCharacter());
+        connectorDependency = otherDependencies.get(1);
+        range = connectorDependency.getRange();
+        assertEquals("com.microsoft.sqlserver", connectorDependency.getGroupId());
+        assertEquals("mssql-jdbc", connectorDependency.getArtifact());
+        assertEquals("12.10.0.jre11", connectorDependency.getVersion());
+        assertEquals("jar", connectorDependency.getType());
+        assertEquals(437, range.getStart().getLine());
+        assertEquals(7, range.getStart().getCharacter());
+        assertEquals(443, range.getEnd().getLine());
+        assertEquals(20, range.getEnd().getCharacter());
     }
 
     @Test
