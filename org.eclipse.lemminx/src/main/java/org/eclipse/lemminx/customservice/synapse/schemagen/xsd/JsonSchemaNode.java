@@ -38,7 +38,7 @@ public class JsonSchemaNode {
      */
     public JsonSchemaNode() {
 
-        node = JsonNodeFactory.instance.objectNode();
+        this(JsonNodeFactory.instance.objectNode(), null, null, null);
     }
 
     /**
@@ -46,7 +46,7 @@ public class JsonSchemaNode {
      */
     public JsonSchemaNode(ObjectNode node) {
 
-        this.node = node;
+        this(node, null, null, null);
     }
 
     /**
@@ -56,9 +56,7 @@ public class JsonSchemaNode {
      */
     public JsonSchemaNode(String id) {
 
-        this.id = id;
-        node = JsonNodeFactory.instance.objectNode();
-        node.put(Utils.ID, id);
+        this(JsonNodeFactory.instance.objectNode(), id, null, null);
     }
 
     /**
@@ -69,9 +67,7 @@ public class JsonSchemaNode {
      */
     public JsonSchemaNode(ObjectNode node, String id) {
 
-        this.id = id;
-        this.node = node;
-        node.put(Utils.ID, id);
+        this(node, id, null, null);
     }
 
     /**
@@ -82,10 +78,7 @@ public class JsonSchemaNode {
      */
     public JsonSchemaNode(String id, String type) {
 
-        this.id = id;
-        this.node = JsonNodeFactory.instance.objectNode();
-        node.put(Utils.ID, id);
-        node.put(Utils.TYPE, type);
+        this(JsonNodeFactory.instance.objectNode(), id, type, null);
     }
 
     /**
@@ -101,8 +94,8 @@ public class JsonSchemaNode {
         this.id = id;
         this.name = name;
         this.node = node;
-        this.node.put(Utils.ID, id);
-        this.node.put(Utils.TYPE, type);
+        put(Utils.ID, id);
+        put(Utils.TYPE, type);
     }
 
     /**
@@ -177,6 +170,8 @@ public class JsonSchemaNode {
      */
     public void put(String key, String value) {
 
-        node.put(key, value);
+        if (value != null) {
+            node.put(key, value);
+        }
     }
 }
