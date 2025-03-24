@@ -38,4 +38,12 @@ public class AdvanceDetails {
     public PluginDetails getPluginDetails() {
         return this.pluginDetails;
     }
+
+    public Node getProjectGroupId() {
+        return this.projectGroupId;
+    }
+
+    public Node getProjectArtifactId() {
+        return this.projectArtifactId;
+    }
 }

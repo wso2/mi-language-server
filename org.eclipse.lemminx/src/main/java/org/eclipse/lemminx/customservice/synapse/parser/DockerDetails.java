@@ -106,4 +106,32 @@ public class DockerDetails {
             }
         }
     }
+
+    public Node getDockerFileBaseImage() {
+        return this.dockerFileBaseImage;
+    }
+
+    public Node getCipherToolEnable() {
+        return this.cipherToolEnable;
+    }
+
+    public Node getDockerName() {
+        return this.dockerName;
+    }
+
+    public Node getKeyStoreName() {
+        return this.keyStoreName;
+    }
+
+    public Node getKeyStorePassword() {
+        return this.keyStorePassword;
+    }
+
+    public Node getKeyStoreAlias() {
+        return this.keyStoreAlias;
+    }
+
+    public Node getKeyStoreType() {
+        return this.keyStoreType;
+    }
 }

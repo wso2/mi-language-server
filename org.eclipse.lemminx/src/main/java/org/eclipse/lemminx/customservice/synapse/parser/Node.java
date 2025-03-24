@@ -71,4 +71,8 @@ public class Node {
     public String getDisplayValue() {
         return this.displayValue;
     }
+
+    public Either<Range, List<Range>> getRange() {
+        return this.range;
+    }
 }

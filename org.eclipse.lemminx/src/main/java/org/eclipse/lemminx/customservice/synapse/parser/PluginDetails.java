@@ -51,7 +51,14 @@ public class PluginDetails {
     }
 
     public Node getProjectBuildPluginVersion() {
-
         return projectBuildPluginVersion;
+    }
+
+    public Node getMiContainerPluginVersion() {
+        return miContainerPluginVersion;
+    }
+
+    public Node getUnitTestPluginVersion() {
+        return unitTestPluginVersion;
     }
 }
