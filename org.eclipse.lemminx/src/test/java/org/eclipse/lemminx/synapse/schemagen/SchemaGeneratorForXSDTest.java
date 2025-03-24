@@ -31,12 +31,32 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class SchemaGeneratorForXSDTest {
 
     @Test
+    public void testGenerateSchemaWithAdvancedAttributes() throws IOException {
+        SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
+        String jsonSchema = schemaGenerator.getSchemaResourcePath(
+                "src/test/resources/synapse/schemagen/xsd/sampleWithAdvancedAttributes.xsd", FileType.XSD, ",");
+        String expectedSchema = new String(Files.readAllBytes(
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithAdvancedAttributes.json")));
+        assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
+    }
+
+    @Test
     public void testGenerateSchemaWithAllIndicator() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithAllIndicator.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithAllIndicator.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithAllIndicator.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithAllIndicator.json")));
+        assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
+    }
+
+    @Test
+    public void testGenerateSchemaWithAllMultipleDataTypes() throws IOException {
+        SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
+        String jsonSchema = schemaGenerator.getSchemaResourcePath(
+                "src/test/resources/synapse/schemagen/xsd/sampleWithAllMultipleDataTypes.xsd", FileType.XSD, ",");
+        String expectedSchema = new String(Files.readAllBytes(
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithAllMultipleDataTypes.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -44,9 +64,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithAttributes() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithAttributes.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithAttributes.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithAttributes.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithAttributes.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -54,9 +74,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithBaseTypes() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithBaseTypes.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithBaseTypes.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithBaseTypes.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithBaseTypes.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -64,9 +84,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithBasicChoices() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithBasicChoices.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithBasicChoices.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithBasicChoices.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithBasicChoices.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -74,9 +94,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithBasicTypes() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithBasicTypes.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithBasicTypes.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithBasicTypes.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithBasicTypes.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -84,9 +104,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithElementAndAttributeGroups() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithElementAndAttributeGroups.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithElementAndAttributeGroups.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithElementAndAttributeGroups.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithElementAndAttributeGroups.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -94,9 +114,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithEmptyContent() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithEmptyContent.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithEmptyContent.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithEmptyContent.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithEmptyContent.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -104,9 +124,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithEmptyContentRestriction() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithEmptyContentRestriction.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithEmptyContentRestriction.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithEmptyContentRestriction.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithEmptyContentRestriction.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -114,9 +134,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithEnum() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithEnum.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithEnum.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithEnum.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithEnum.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -124,9 +144,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithEnumFieldInObject() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithEnumFieldInObject.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithEnumFieldInObject.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithEnumFieldInObject.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithEnumFieldInObject.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -134,9 +154,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithGroupElement() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithGroupElement.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithGroupElement.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithGroupElement.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithGroupElement.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -144,9 +164,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithInDepthSubTypes() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithInDepthSubTypes.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithInDepthSubTypes.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithInDepthSubTypes.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithInDepthSubTypes.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -154,9 +174,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithList() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithList.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithList.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithList.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithList.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -164,9 +184,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithMaxOccursN() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithMaxOccursN.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithMaxOccursN.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithMaxOccursN.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithMaxOccursN.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -174,9 +194,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithMaxOccursUnbounded() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithMaxOccursUnbounded.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithMaxOccursUnbounded.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithMaxOccursUnbounded.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithMaxOccursUnbounded.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -184,9 +204,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithMaxOccursZero() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithMaxOccursZero.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithMaxOccursZero.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithMaxOccursZero.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithMaxOccursZero.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -194,9 +214,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithMinOccursN() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithMinOccursN.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithMinOccursN.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithMinOccursN.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithMinOccursN.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -204,9 +224,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithMinOccursOne() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithMinOccursOne.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithMinOccursOne.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithMinOccursOne.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithMinOccursOne.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -214,9 +234,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithMinOccursZero() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithMinOccursZero.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithMinOccursZero.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithMinOccursZero.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithMinOccursZero.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -224,9 +244,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithMixedType() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithMixedType.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithMixedType.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithMixedType.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithMixedType.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -234,9 +254,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithMultipleComplexTypesInDepth() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithMultipleComplexTypesInDepth.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithMultipleComplexTypesInDepth.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithMultipleComplexTypesInDepth.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithMultipleComplexTypesInDepth.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -244,9 +264,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithMultipleDataTypes() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithMultipleDataTypes.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithMultipleDataTypes.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithMultipleDataTypes.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithMultipleDataTypes.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -254,9 +274,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithMultipleSimpleContent() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithMultipleSimpleContent.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithMultipleSimpleContent.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithMultipleSimpleContent.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithMultipleSimpleContent.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -264,9 +284,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithSimpleContentInArray() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithSimpleContentInArray.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithSimpleContentInArray.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithSimpleContentInArray.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithSimpleContentInArray.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -274,9 +294,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithSimpleContentWithoutAttribute() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithSimpleContentWithoutAttribute.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithSimpleContentWithoutAttribute.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithSimpleContentWithoutAttribute.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithSimpleContentWithoutAttribute.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -284,9 +304,19 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithSimpleTypeInAttribute() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithSimpleTypeInAttribute.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithSimpleTypeInAttribute.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithSimpleTypeInAttribute.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithSimpleTypeInAttribute.json")));
+        assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
+    }
+
+    @Test
+    public void testGenerateSchemaWithSimpleTypeRestrictions() throws IOException {
+        SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
+        String jsonSchema = schemaGenerator.getSchemaResourcePath(
+                "src/test/resources/synapse/schemagen/xsd/sampleWithSimpleTypeRestrictions.xsd", FileType.XSD, ",");
+        String expectedSchema = new String(Files.readAllBytes(
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithSimpleTypeRestrictions.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -294,9 +324,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithSimpleTypeWithEnumInArray() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithSimpleTypeWithEnumInArray.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithSimpleTypeWithEnumInArray.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithSimpleTypeWithEnumInArray.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithSimpleTypeWithEnumInArray.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -304,9 +334,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithMultipleSubTypes() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithMultipleSubTypes.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithMultipleSubTypes.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithMultipleSubTypes.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithMultipleSubTypes.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -314,9 +344,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithMultipleTopLevelComplexElements() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithMultipleTopLevelComplexElements.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithMultipleTopLevelComplexElements.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithMultipleTopLevelComplexElements.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithMultipleTopLevelComplexElements.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -324,9 +354,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithMultipleTopLevelElements() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithMultipleTopLevelElements.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithMultipleTopLevelElements.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithMultipleTopLevelElements.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithMultipleTopLevelElements.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -334,9 +364,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithMultipleTypes() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithMultipleTypes.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithMultipleTypes.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithMultipleTypes.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithMultipleTypes.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -344,9 +374,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithNestedSimpleContent() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithNestedSimpleContent.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithNestedSimpleContent.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithNestedSimpleContent.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithNestedSimpleContent.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -354,9 +384,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithNotationElement() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithNotationElement.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithNotationElement.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithNotationElement.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithNotationElement.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -364,9 +394,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithOnlyAttributesInComplexType() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithOnlyAttributesInComplexType.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithOnlyAttributesInComplexType.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithOnlyAttributesInComplexType.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithOnlyAttributesInComplexType.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -374,9 +404,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithAnnotationAndDocumentation() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithAnnotationAndDocumentation.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithAnnotationAndDocumentation.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithAnnotationAndDocumentation.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithAnnotationAndDocumentation.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -384,9 +414,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithAnyAttribute() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithAnyAttribute.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithAnyAttribute.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithAnyAttribute.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithAnyAttribute.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -394,9 +424,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithAnyElements() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithAnyElements.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithAnyElements.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithAnyElements.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithAnyElements.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -404,9 +434,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithArray() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithArray.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithArray.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithArray.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithArray.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -414,9 +444,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithReferencedSimpleContent() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithReferencedSimpleContent.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithReferencedSimpleContent.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithReferencedSimpleContent.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithReferencedSimpleContent.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -424,9 +454,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithSelectorElement() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithSelectorElement.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithSelectorElement.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithSelectorElement.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithSelectorElement.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -434,9 +464,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithSimpleChoiceInArray() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithSimpleChoiceInArray.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithSimpleChoiceInArray.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithSimpleChoiceInArray.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithSimpleChoiceInArray.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -444,9 +474,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithSimpleContent() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithSimpleContent.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithSimpleContent.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithSimpleContent.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithSimpleContent.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -454,9 +484,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithChoiceAndSimpleContent() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithChoiceAndSimpleContent.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithChoiceAndSimpleContent.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithChoiceAndSimpleContent.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithChoiceAndSimpleContent.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -464,9 +494,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithChoiceInNestedObjects() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithChoiceInNestedObjects.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithChoiceInNestedObjects.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithChoiceInNestedObjects.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithChoiceInNestedObjects.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -474,9 +504,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithChoiceInsideChoices() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithChoiceInsideChoices.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithChoiceInsideChoices.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithChoiceInsideChoices.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithChoiceInsideChoices.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -484,9 +514,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithChoiceObjectInArray() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithChoiceObjectInArray.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithChoiceObjectInArray.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithChoiceObjectInArray.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithChoiceObjectInArray.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -494,9 +524,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithChoicesAsObjects() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithChoicesAsObjects.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithChoicesAsObjects.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithChoicesAsObjects.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithChoicesAsObjects.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -504,9 +534,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithComplexContent() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithComplexContent.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithComplexContent.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithComplexContent.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithComplexContent.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -514,9 +544,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithComplexContentInArray() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithComplexContentInArray.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithComplexContentInArray.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithComplexContentInArray.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithComplexContentInArray.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -524,9 +554,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithSimpleTypeInArray() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithSimpleTypeInArray.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithSimpleTypeInArray.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithSimpleTypeInArray.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithSimpleTypeInArray.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -534,9 +564,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithSingleElement() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithSingleElement.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithSingleElement.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithSingleElement.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithSingleElement.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -544,9 +574,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithUnionTypes() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithUnionTypes.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithUnionTypes.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithUnionTypes.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithUnionTypes.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
@@ -554,9 +584,9 @@ public class SchemaGeneratorForXSDTest {
     public void testGenerateSchemaWithUniqueElement() throws IOException {
         SchemaGeneratorForXSD schemaGenerator = new SchemaGeneratorForXSD();
         String jsonSchema = schemaGenerator.getSchemaResourcePath(
-                "src/test/resources/schemagen/xsd/xsdSchemas/sampleWithUniqueElement.xsd", FileType.XSD, ",");
+                "src/test/resources/synapse/schemagen/xsd/sampleWithUniqueElement.xsd", FileType.XSD, ",");
         String expectedSchema = new String(Files.readAllBytes(
-                Paths.get("src/test/resources/schemagen/xsd/expectedJsonSchema/sampleWithUniqueElement.json")));
+                Paths.get("src/test/resources/synapse/schemagen/xsd/expectedJsonSchema/sampleWithUniqueElement.json")));
         assertEquals(removeNewLinesAndSpaces(expectedSchema), removeNewLinesAndSpaces(jsonSchema));
     }
 
