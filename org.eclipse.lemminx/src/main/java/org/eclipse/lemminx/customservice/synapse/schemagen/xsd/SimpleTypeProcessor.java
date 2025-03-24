@@ -62,23 +62,11 @@ public class SimpleTypeProcessor implements TypeProcessor {
     @Override
     public void processRootType(XSElementDeclaration element, ObjectNode node, String id, boolean addTitle) {
 
-        SimpleTypeProcessor.processRootSimpleType(element, node, id);
-    }
-
-    /**
-     * Processes the root XML Schema simple type definition and updates the provided JSON Schema object node.
-     *
-     * @param rootElement the root XML Schema element declaration
-     * @param rootNode    the root JSON Schema object node to update
-     * @param rootId      the identifier for the root JSON Schema node
-     */
-    private static void processRootSimpleType(XSElementDeclaration rootElement, ObjectNode rootNode, String rootId) {
-
-        JsonSchemaObjectNode rootObject = new JsonSchemaObjectNode(rootNode, rootId, Utils.ROOT);
-        JsonSchemaNode property = new JsonSchemaNode(rootId + Utils.ID_VALUE_SEPERATOR + rootElement.getName());
-        rootObject.addProperty(rootElement.getName(), property.getNode());
-        rootObject.addRequiredElement(rootElement.getName());
-        processSimpleType(rootElement, null, property);
+        JsonSchemaObjectNode rootObject = new JsonSchemaObjectNode(node, id, Utils.ROOT);
+        JsonSchemaNode property = new JsonSchemaNode(id + Utils.ID_VALUE_SEPERATOR + element.getName());
+        rootObject.addProperty(element.getName(), property.getNode());
+        rootObject.addRequiredElement(element.getName());
+        processSimpleType(element, null, property);
         rootObject.update(true);
     }
 
