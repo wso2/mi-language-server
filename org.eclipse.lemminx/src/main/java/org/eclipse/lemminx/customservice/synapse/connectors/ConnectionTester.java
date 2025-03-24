@@ -92,7 +92,6 @@ public class ConnectionTester {
         Path tempProjectPath = CONNECTOR_PROJECT_TEMP_PATH.resolve(connectorName + "_" + UUID.randomUUID());
         try {
             tempProjectPath.toFile().mkdirs();
-            copyConnectorDependencies(tempProjectPath, connector);
             addPomFile(Path.of(projectRoot), tempProjectPath);
             createLocalEntryFile(tempProjectPath, localEntryXml, localEntry.getKey());
 
