@@ -46,4 +46,24 @@ public class PrimaryDetails {
     public void setProjectPackaging(Node projectPackaging) {
         this.projectPackaging = projectPackaging;
     }
+
+    public Node getRuntimeVersion() {
+        return this.runtimeVersion;
+    }
+
+    public Node getProjectVersion() {
+        return this.projectVersion;
+    }
+
+    public Node getProjectDescription() {
+        return this.projectDescription;
+    }
+
+    public Node getProjectName() {
+        return this.projectName;
+    }
+
+    public Node getProjectPackaging() {
+        return this.projectPackaging;
+    }
 }
