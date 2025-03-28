@@ -542,6 +542,7 @@ public class Constant {
     public static final Path RESOURCE_RELATIVE_PATH = Path.of("src", "main", "wso2mi", "resources");
     public static final String SET = "set";
     public static final String RESPONSE_VARIABLE = "responseVariable";
+    public static final String CONN_TARGET_VARIABLE = "targetVariable";
     public static final String OVERWRITE_BODY = "overwriteBody";
     public static final String PROPERTY_NAME = "propertyName";
     public static final String PROPERTY_VALUE = "propertyValue";

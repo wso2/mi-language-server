@@ -114,37 +114,8 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
         if (node.getConnectorName() == null) {
             return;
         }
-        ConnectorParameter responseVariableParameter = node.getParameter(Constant.RESPONSE_VARIABLE);
-        if (responseVariableParameter == null || StringUtils.isEmpty(responseVariableParameter.getValue())) {
-            return;
-        }
-        String responseVariable = responseVariableParameter.getValue();
-        org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector connector =
-                ConnectorHolder.getInstance().getConnector(node.getConnectorName());
-        if (connector != null) {
-            ConnectorAction action = connector.getAction(node.getMethod());
-            if (action != null && action.getOutputSchema() != null) {
-                org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property property =
-                        action.getOutputSchema();
-                property.setKey(responseVariable);
-                // if overwriteBody is true, then the payload will not be stored in the variable and only in the body
-                ConnectorParameter overwriteMsgInMsgCtxParam = node.getParameter(Constant.OVERWRITE_BODY);
-                if (overwriteMsgInMsgCtxParam != null) {
-                    String paramValue = overwriteMsgInMsgCtxParam.getValue();
-                    if ("true".equalsIgnoreCase(paramValue)) {
-                        org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property payload = property.getProperties()
-                                .stream().filter(p -> p.getKey().equals(Constant.PAYLOAD)).findFirst().orElse(null);
-                        if (payload != null) {
-                            JsonObject payloadObj = new JsonObject();
-                            Utils.convertToJsonObject(payload, payloadObj);
-                            info.setOutputPayload(new JsonPrimitive(payloadObj.toString()));
-                        }
-                        property.deleteProperty(Constant.PAYLOAD);
-                    }
-                }
-                info.addOutputVariable(property);
-            }
-        }
+        handleResponseVariable(node);
+        handleTargetVariable(node);
     }
 
     @Override
@@ -571,5 +542,63 @@ public class MediatorSchemaVisitor extends AbstractMediatorVisitor {
     protected void visitAIKnowledgeBase(KnowledgeBase node) {
 
         visitConnector(node);
+    }
+
+    /**
+     *  Handle the response variable of the connector. This variable will have payload, headers and attributes.
+     *  If overwriteBody is set to true, the payload will not be stored in the variable and only in the body
+     */
+    private void handleResponseVariable(Connector node) {
+        ConnectorParameter responseVariableParameter = node.getParameter(Constant.RESPONSE_VARIABLE);
+        if (responseVariableParameter == null || StringUtils.isEmpty(responseVariableParameter.getValue())) {
+            return;
+        }
+        String responseVariable = responseVariableParameter.getValue();
+        org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector connector =
+                ConnectorHolder.getInstance().getConnector(node.getConnectorName());
+        if (connector != null) {
+            ConnectorAction action = connector.getAction(node.getMethod());
+            if (action != null && action.getOutputSchema() != null) {
+                org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property property =
+                        action.getOutputSchema();
+                property.setKey(responseVariable);
+                // if overwriteBody is true, then the payload will not be stored in the variable and only in the body
+                ConnectorParameter overwriteMsgInMsgCtxParam = node.getParameter(Constant.OVERWRITE_BODY);
+                if (overwriteMsgInMsgCtxParam != null) {
+                    String paramValue = overwriteMsgInMsgCtxParam.getValue();
+                    if ("true".equalsIgnoreCase(paramValue)) {
+                        org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property payload =
+                                property.getProperties().stream().filter(p -> p.getKey().equals(Constant.PAYLOAD)).
+                                        findFirst().orElse(null);
+                        if (payload != null) {
+                            JsonObject payloadObj = new JsonObject();
+                            Utils.convertToJsonObject(payload, payloadObj);
+                            info.setOutputPayload(new JsonPrimitive(payloadObj.toString()));
+                        }
+                        property.deleteProperty(Constant.PAYLOAD);
+                    }
+                }
+                info.addOutputVariable(property);
+            }
+        }
+    }
+
+    /**
+     *  Handle the target variable of the connector. This is mostly used in modules to store the output in variables.
+     */
+    private void handleTargetVariable(Connector node) {
+        ConnectorParameter targetVariableParameter = node.getParameter(Constant.CONN_TARGET_VARIABLE);
+        if (targetVariableParameter == null || StringUtils.isEmpty(targetVariableParameter.getValue())) {
+            return;
+        }
+        String targetVariable = targetVariableParameter.getValue();
+        org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector connector =
+                ConnectorHolder.getInstance().getConnector(node.getConnectorName());
+        if (connector != null) {
+            ConnectorAction action = connector.getAction(node.getMethod());
+            if (action != null) {
+                info.addOutputVariable(targetVariable, StringUtils.EMPTY);
+            }
+        }
     }
 }
