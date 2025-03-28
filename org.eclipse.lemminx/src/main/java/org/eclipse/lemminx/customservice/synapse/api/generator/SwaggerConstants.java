@@ -183,4 +183,14 @@ public class SwaggerConstants {
      * Default port for Swagger API
      */
     public static int DEFAULT_PORT = 8290;
+
+    /**
+     *  Path param regex
+     */
+    public static final String PATH_PARAMETER_REGEX = "\\{[^}]+\\}";
+
+    /**
+     *  Path param normaized placeholder
+     */
+    public static final String NORMALIZED_PLACEHOLDER = "{}";
 }
