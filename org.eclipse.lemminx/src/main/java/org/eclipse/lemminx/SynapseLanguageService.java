@@ -22,6 +22,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.eclipse.lemminx.customservice.ISynapseLanguageService;
 import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
+import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.IsEqualSwaggersParam;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateAPIResponse;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerParam;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerResponse;
@@ -403,6 +404,13 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
         RestApiAdmin generator = new RestApiAdmin();
         return CompletableFuture.supplyAsync(() -> generator.generateSwaggerFromAPI(param));
+    }
+
+    @Override
+    public CompletableFuture<Boolean> isEqualSwaggers(IsEqualSwaggersParam param) {
+
+        RestApiAdmin generator = new RestApiAdmin();
+        return CompletableFuture.supplyAsync(() -> generator.isEqualSwaggers(param));
     }
 
     @Override

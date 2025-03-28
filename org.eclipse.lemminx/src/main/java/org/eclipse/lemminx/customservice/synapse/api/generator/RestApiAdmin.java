@@ -24,12 +24,15 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.parser.OpenAPIV3Parser;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateAPIParam;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateAPIResponse;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerParam;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerResponse;
+import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.IsEqualSwaggersParam;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.APIFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.API;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api.APIResource;
@@ -50,6 +53,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transf
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.api.APISerializer;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.serializer.endpoint.EndpointSerializer;
+import org.eclipse.lemminx.customservice.synapse.utils.SwaggerUtils;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.wso2.soaptorest.SOAPToRESTConverter;
@@ -356,6 +360,28 @@ public class RestApiAdmin {
             }
         }
         return generateSwaggerFromSynapseAPIByFormat(param.apiPath, param.isJsonOut);
+    }
+
+    /**
+     * Function to compare two swagger contents
+     *
+     * @param param Swagger compare parameters
+     * @return boolean
+     */
+    public Boolean isEqualSwaggers(IsEqualSwaggersParam param) {
+        OpenAPI existingOpenAPI = null;
+        OpenAPI generatedOpenAPI = null;
+        if (param.existingSwagger != null) {
+            existingOpenAPI = new OpenAPIV3Parser().readContents(param.existingSwagger, null, null).
+                    getOpenAPI();
+
+        }
+        if (param.generatedSwagger != null) {
+            generatedOpenAPI = new OpenAPIV3Parser().readContents(param.generatedSwagger, null, null).
+                    getOpenAPI();
+
+        }
+        return SwaggerUtils.compareOpenAPIs(generatedOpenAPI, existingOpenAPI);
     }
 
     /**
