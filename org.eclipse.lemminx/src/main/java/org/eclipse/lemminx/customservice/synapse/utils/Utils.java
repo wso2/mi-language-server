@@ -45,6 +45,7 @@ import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lsp4j.InitializeParams;
 import org.w3c.dom.Node;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -1354,5 +1355,27 @@ public class Utils {
             sanitizedTag = "connector";
         }
         return sanitizedTag;
+    }
+
+    public static void downloadConnector(String groupId, String artifactId, String version, File targetDirectory)
+            throws IOException {
+
+        if (!targetDirectory.exists()) {
+            targetDirectory.mkdirs();
+        }
+        String url = String.format("https://maven.wso2.org/nexus/content/groups/public/%s/%s/%s/%s-%s.zip",
+                groupId.replace(".", "/"), artifactId, version, artifactId, version);
+        File targetFile = new File(targetDirectory, artifactId + "-" + version + Constant.ZIP_EXTENSION);
+        try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
+             FileOutputStream fileOutputStream = new FileOutputStream(targetFile)) {
+            byte[] dataBuffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
+                fileOutputStream.write(dataBuffer, 0, bytesRead);
+            }
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Error occurred while downloading dependency: " + e.getMessage());
+            throw e;
+        }
     }
 }

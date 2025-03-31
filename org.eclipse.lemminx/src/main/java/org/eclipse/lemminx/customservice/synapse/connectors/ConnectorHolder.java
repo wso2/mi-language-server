@@ -29,7 +29,7 @@ import java.util.List;
 
 public class ConnectorHolder {
 
-    private List<Connector> connectors;
+    private static List<Connector> connectors;
     private List<File> connectorZips;
     private static ConnectorHolder instance;
 
@@ -102,7 +102,7 @@ public class ConnectorHolder {
                 (connector.getDisplayName() != null && connector.getDisplayName().equalsIgnoreCase(name));
     }
 
-    public Boolean isValidConnector(String name) {
+    public static Boolean isValidConnector(String name) {
 
         String connectorName = name.split("\\.")[0];
         for (Connector connector : connectors) {

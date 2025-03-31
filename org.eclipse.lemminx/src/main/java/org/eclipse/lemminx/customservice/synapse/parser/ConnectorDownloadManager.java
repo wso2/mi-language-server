@@ -80,7 +80,7 @@ public class ConnectorDownloadManager {
                     copyFile(existingArtifact, downloadDirectory);
                 } else {
                     LOGGER.log(Level.INFO, "Downloading dependency: " + connector.getName());
-                    downloadConnector(dependency.getGroupId(), dependency.getArtifact(),
+                    Utils.downloadConnector(dependency.getGroupId(), dependency.getArtifact(),
                             dependency.getVersion(), downloadDirectory);
                 }
             } catch (Exception e) {
@@ -133,28 +133,6 @@ public class ConnectorDownloadManager {
     private static boolean isConnectorRemoved(File file, List<String> existingConnectors) {
 
         return file.isFile() && !existingConnectors.contains(file.getName().replace(Constant.ZIP_EXTENSION, ""));
-    }
-
-    private static void downloadConnector(String groupId, String artifactId, String version, File targetDirectory)
-            throws IOException {
-
-        if (!targetDirectory.exists()) {
-            targetDirectory.mkdirs();
-        }
-        String url = String.format("https://maven.wso2.org/nexus/content/groups/public/%s/%s/%s/%s-%s.zip",
-                groupId.replace(".", "/"), artifactId, version, artifactId, version);
-        File targetFile = new File(targetDirectory, artifactId + "-" + version + Constant.ZIP_EXTENSION);
-        try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
-             FileOutputStream fileOutputStream = new FileOutputStream(targetFile)) {
-            byte[] dataBuffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
-                fileOutputStream.write(dataBuffer, 0, bytesRead);
-            }
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Error occurred while downloading dependency: " + e.getMessage());
-            throw e;
-        }
     }
 
     private static File getDependencyFromLocalRepo(String groupId, String artifactId, String version) {
