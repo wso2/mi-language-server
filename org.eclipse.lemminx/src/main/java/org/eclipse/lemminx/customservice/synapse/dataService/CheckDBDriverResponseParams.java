@@ -29,4 +29,12 @@ public class CheckDBDriverResponseParams {
         this.driverVersion = driverVersion;
         this.driverPath = driverPath;
     }
+
+    public boolean isDriverAvailable() {
+        return isDriverAvailable;
+    }
+
+    public String getDriverVersion() {
+        return driverVersion;
+    }
 }
