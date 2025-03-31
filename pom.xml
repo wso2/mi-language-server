@@ -31,9 +31,9 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:git:git@github.com:eclipse/lemminx.git</connection>
-		<developerConnection>scm:git:git@github.com:eclipse/lemminx.git</developerConnection>
-		<url>https://github.com/eclipse/lemminx</url>
+		<connection>scm:git:https://github.com/wso2/mi-language-server.git</connection>
+		<developerConnection>scm:git:https://github.com/wso2/mi-language-server.git</developerConnection>
+		<url>https://github.com/wso2/mi-language-server</url>
 		<tag>HEAD</tag>
 	</scm>
 	<modules>
@@ -41,15 +41,36 @@
 	</modules>
 	<pluginRepositories>
 		<pluginRepository>
-			<id>cbi-release</id>
-			<url>https://repo.eclipse.org/content/repositories/cbi-releases/</url>
+			<id>wso2.releases</id>
+			<name>WSO2 internal Repository</name>
+			<url>https://maven.wso2.org/nexus/content/repositories/releases/</url>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>daily</updatePolicy>
+				<checksumPolicy>ignore</checksumPolicy>
+			</releases>
 		</pluginRepository>
 		<pluginRepository>
-			<id>dash-licenses-snapshots</id>
-			<url>https://repo.eclipse.org/content/repositories/dash-licenses-snapshots/</url>
+			<id>wso2.snapshots</id>
+			<name>Apache Snapshot Repository</name>
+			<url>https://maven.wso2.org/nexus/content/repositories/snapshots/</url>
 			<snapshots>
-			    <enabled>true</enabled>
+				<enabled>true</enabled>
+				<updatePolicy>daily</updatePolicy>
 			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</pluginRepository>
+		<pluginRepository>
+			<id>wso2-nexus</id>
+			<name>WSO2 internal Repository</name>
+			<url>https://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>daily</updatePolicy>
+				<checksumPolicy>ignore</checksumPolicy>
+			</releases>
 		</pluginRepository>
 	</pluginRepositories>
 	<dependencyManagement>
@@ -261,16 +282,16 @@
 		</pluginManagement>
 	</build>
 	<distributionManagement>
-		<repository>
-			<id>repo.eclipse.org</id>
-			<name>lemminx-releases</name>
-			<url>https://repo.eclipse.org/content/repositories/lemminx-releases/</url>
-		</repository>
 		<snapshotRepository>
-			<id>repo.eclipse.org</id>
-			<name>lemminx-snapshots</name>
-			<url>https://repo.eclipse.org/content/repositories/lemminx-snapshots/</url>
+			<id>wso2.snapshots</id>
+			<name>Apache Snapshot Repository</name>
+			<url>https://maven.wso2.org/nexus/content/repositories/snapshots/</url>
 		</snapshotRepository>
+		<repository>
+			<id>nexus-releases</id>
+			<name>WSO2 Release Distribution Repository</name>
+			<url>https://maven.wso2.org/nexus/service/local/staging/deploy/maven2/</url>
+		</repository>
 	</distributionManagement>
 	<profiles>
 		<profile>
@@ -415,6 +436,28 @@
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
+		</repository>
+		<repository>
+			<id>wso2.releases</id>
+			<name>WSO2 internal Repository</name>
+			<url>https://maven.wso2.org/nexus/content/repositories/releases/</url>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>daily</updatePolicy>
+				<checksumPolicy>ignore</checksumPolicy>
+			</releases>
+		</repository>
+		<repository>
+			<id>wso2.snapshots</id>
+			<name>Apache Snapshot Repository</name>
+			<url>https://maven.wso2.org/nexus/content/repositories/snapshots/</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>daily</updatePolicy>
+			</snapshots>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
 		</repository>
 	</repositories>
 </project>
