@@ -65,7 +65,7 @@ public class QueryGeneratorTest {
     private Connection connection;
     private DatabaseMetaData metadata;
     private ResultSet resultSet;
-    private MockedStatic<DBConnectionTester>  dbConnectionTester;
+    private MockedStatic<DBConnectionTester> dbConnectionTester;
     private Path tempAddSQLDriverFilePath;
     private Path tempUpdateSQLDriverFilePath;
     private static final String ADD_DB_DRIVER = "synapse/query.generator/mysql-connector-j-8.2.0.jar";
