@@ -601,6 +601,9 @@ public class Constant {
     public static final String RESULT_EXPRESSION = "resultExpression";
     public static final String AI_AGENT = "AI_AGENT";
     public static final String AGENT = "agent";
+    public static final String REQUESTS = "requests";
+    public static final String DEFAULT_REQUEST = "defaultRequest";
+    public static final String CONTENT = "content";
 
     static {
         // AI Connection to Display Name bi-Mapping

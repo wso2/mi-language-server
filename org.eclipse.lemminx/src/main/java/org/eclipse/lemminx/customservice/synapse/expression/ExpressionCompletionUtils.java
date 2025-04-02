@@ -66,6 +66,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -483,21 +484,95 @@ public class ExpressionCompletionUtils {
      * @param projectPath project path
      * @return input payload
      */
-    public static String getInputPayload(String projectPath) {
+    public static String getInputPayload(String projectPath, String documentUri, Position position) {
 
-        Path inputFilePath = Path.of(projectPath, ".tryout", "input.json");
-        if (inputFilePath.toFile().exists()) {
-            try {
-                String payloads = Utils.readFile(inputFilePath.toFile());
-                JsonArray jsonArray = Utils.getJsonArray(payloads);
-                if (jsonArray != null && jsonArray.size() > 0) {
-                    JsonElement firstElement = jsonArray.get(0); // TODO: Handle multiple payloads
-                    if (firstElement.isJsonObject() && firstElement.getAsJsonObject().has("content")) {
-                        return firstElement.getAsJsonObject().get("content").toString();
-                    }
+        try {
+            String name = Utils.getFileName(new File(documentUri));
+            DOMDocument document = Utils.getDOMDocumentFromPath(documentUri);
+            STNode node = SyntaxTreeGenerator.buildTree(document.getDocumentElement());
+            if (node instanceof API) {
+                Optional<String> resourceKey = getAPIResourceKey((API) node, position);
+                if (resourceKey.isPresent()) {
+                    return getInputPayload(projectPath, name, resourceKey.get());
                 }
-            } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, "Error while reading the input file", e);
+            } else {
+                return getInputPayload(projectPath, name, "");
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Error while reading the document", e);
+        }
+        return StringUtils.EMPTY;
+    }
+
+    /**
+     * Return the url mapping or uri template of the API resource.
+     *
+     * @param api      the API object
+     * @param position the position of the cursor
+     * @return the url mapping or uri template of the API resource
+     */
+    private static Optional<String> getAPIResourceKey(API api, Position position) {
+
+        if (api == null) {
+            return Optional.empty();
+        }
+        APIResource[] resources = api.getResource();
+        for (APIResource resource : resources) {
+            if (isNodeInRange(resource, position)) {
+                if (resource.getUriTemplate() != null) {
+                    return Optional.of(resource.getUriTemplate());
+                } else {
+                    return Optional.ofNullable(resource.getUrlMapping());
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Get the relevant input payload from the given file.
+     *
+     * @param projectPath the projectPath of the artifact
+     * @param fileName    the name of the file which has the payloads
+     * @param key         the key of the payload if it is an API
+     * @return the input payload
+     * @throws IOException if an error occurs while reading the file
+     */
+    private static String getInputPayload(String projectPath, String fileName, String key) throws IOException {
+
+        Path inputFilePath = Path.of(projectPath, ".tryout", fileName + ".json");
+        if (inputFilePath.toFile().exists()) {
+            String fileContent = Utils.readFile(inputFilePath.toFile());
+            JsonObject allPayloads = Utils.getJsonObject(fileContent);
+            if (allPayloads != null) {
+                if (StringUtils.isNotEmpty(key)) {
+                    allPayloads = allPayloads.getAsJsonObject(key);
+                }
+                if (allPayloads == null) {
+                    return StringUtils.EMPTY;
+                }
+                return extractInputPayload(allPayloads);
+            }
+        }
+        return StringUtils.EMPTY;
+    }
+
+    /**
+     * Extract the input payload from the given JsonObject.
+     *
+     * @param allPayloads the JsonObject which contains all the payloads
+     * @return the input payload
+     */
+    private static String extractInputPayload(JsonObject allPayloads) {
+
+        JsonElement payloads = allPayloads.get(Constant.REQUESTS);
+        JsonElement defaultPayloadNameObj = allPayloads.get(Constant.DEFAULT_REQUEST);
+        if (defaultPayloadNameObj != null && payloads.isJsonArray()) {
+            JsonElement defaultPayload = payloads.getAsJsonArray().asList().stream()
+                    .filter(payload -> payload.getAsJsonObject().get(Constant.NAME).getAsString()
+                            .equals(defaultPayloadNameObj.getAsString())).findFirst().orElse(null);
+            if (defaultPayload != null && defaultPayload.getAsJsonObject().has(Constant.CONTENT)) {
+                return defaultPayload.getAsJsonObject().get(Constant.CONTENT).toString();
             }
         }
         return StringUtils.EMPTY;

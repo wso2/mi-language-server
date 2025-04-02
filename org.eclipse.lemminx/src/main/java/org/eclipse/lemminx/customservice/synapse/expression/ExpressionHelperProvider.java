@@ -82,7 +82,8 @@ public class ExpressionHelperProvider {
         }
         try {
             boolean isNewMediator = isNewMediator(param);
-            String payload = ExpressionCompletionUtils.getInputPayload(projectPath);
+            String payload =
+                    ExpressionCompletionUtils.getInputPayload(projectPath, param.getDocumentUri(), param.getPosition());
             if (param.getPosition() == null) {
                 return getBasicHelperData();
             }

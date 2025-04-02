@@ -128,7 +128,9 @@ public class ExpressionCompletionsProvider {
         }
         String projectPath = getProjectPath(request.getXMLDocument().getDocumentURI());
         ServerLessTryoutHandler serverLessTryoutHandler = new ServerLessTryoutHandler(projectPath);
-        String payload = ExpressionCompletionUtils.getInputPayload(projectPath);
+
+        String documentUri = request.getXMLDocument().getDocumentURI().substring(7);
+        String payload = ExpressionCompletionUtils.getInputPayload(projectPath, documentUri, request.getPosition());
 
         // Add a dummy mediator if the current mediator is a new mediator
         int line = request.getPosition().getLine();
@@ -143,9 +145,8 @@ public class ExpressionCompletionsProvider {
         }
 
         // Create a mediator tryout request and get the mediator properties
-        MediatorTryoutRequest propertyRequest = new MediatorTryoutRequest(
-                request.getXMLDocument().getDocumentURI().substring(7), // Remove the "file://" prefix
-                line, column, payload, editArray);
+        MediatorTryoutRequest propertyRequest =
+                new MediatorTryoutRequest(documentUri, line, column, payload, editArray);
         MediatorTryoutInfo info = serverLessTryoutHandler.handle(propertyRequest);
         List<Property> configs = ExpressionCompletionUtils.getConfigs(projectPath);
         info.setInputConfigs(configs);
