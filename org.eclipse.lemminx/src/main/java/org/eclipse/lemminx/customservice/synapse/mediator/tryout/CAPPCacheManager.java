@@ -85,7 +85,7 @@ public class CAPPCacheManager {
             return Boolean.TRUE;
         }
         File[] files = projectCAPPPath.toFile().listFiles();
-        return files == null || files.length != 4;
+        return files == null || files.length != 3;
     }
 
     private static void validateAllCAPPs(String projectUri) {
