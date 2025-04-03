@@ -119,6 +119,10 @@ public class DirectoryTreeBuilder {
      */
     public static DirectoryMapResponse getProjectExplorerModel(WorkspaceFolder projectFolder) {
         DirectoryMapResponse directoryMap = buildDirectoryTree(projectFolder);
+        if (directoryMap.getDirectoryMap() == null) {
+            LOGGER.log(Level.SEVERE, "Error occurred while building directory tree.");
+            return null;
+        }
         try {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(directoryMap.getDirectoryMap().getAsJsonObject().toString());
