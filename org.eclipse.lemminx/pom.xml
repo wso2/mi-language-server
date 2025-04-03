@@ -1,12 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.eclipse.lemminx</groupId>
-		<artifactId>lemminx-parent</artifactId>
+		<groupId>org.wso2</groupId>
+		<artifactId>mi-language-server-parent</artifactId>
 		<version>0.24.0-wso2v58-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	<artifactId>org.eclipse.lemminx</artifactId>
+	<artifactId>mi-language-server</artifactId>
 	<packaging>jar</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
