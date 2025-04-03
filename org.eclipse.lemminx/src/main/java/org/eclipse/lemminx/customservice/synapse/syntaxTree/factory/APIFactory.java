@@ -48,7 +48,7 @@ public class APIFactory extends AbstractFactory {
         if (Objects.nonNull(children)) {
             for (DOMNode node : children) {
                 if (node.getNodeName().equalsIgnoreCase(Constant.RESOURCE)) {
-                    STNode resource = createAPIResource(node);
+                    STNode resource = createAPIResource(node, apiNode.getName());
                     resources.add((APIResource) resource);
                 } else if (node.getNodeName().equalsIgnoreCase(Constant.HANDLERS)) {
                     APIHandlers apiHandler = createAPIHandlers(node);
@@ -109,9 +109,9 @@ public class APIFactory extends AbstractFactory {
         }
     }
 
-    public STNode createAPIResource(DOMNode node) {
+    public STNode createAPIResource(DOMNode node, String apiName) {
 
-        ResourceFactory resourceFactory = new ResourceFactory();
+        ResourceFactory resourceFactory = new ResourceFactory(apiName);
         STNode resource = resourceFactory.create((DOMElement) node);
         return resource;
     }
