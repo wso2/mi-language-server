@@ -26,8 +26,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -37,11 +37,13 @@ public class DebugEventClient extends Thread {
     private static final String HOST = TryOutConstants.LOCALHOST;
     private int port = TryOutConstants.DEFAULT_DEBUGGER_EVENT_PORT;
     private Socket socket;
+    private final BlockingQueue<String> eventQueue;
     private final BreakpointEventProcessor breakpointEventProcessor;
     private boolean isDebuggerActive = false;
 
     public DebugEventClient(BreakpointEventProcessor breakpointEventProcessor) {
 
+        this.eventQueue = new ArrayBlockingQueue<>(10);
         this.breakpointEventProcessor = breakpointEventProcessor;
     }
 
@@ -59,45 +61,27 @@ public class DebugEventClient extends Thread {
     @Override
     public void run() {
 
+        Thread eventListener = new Thread(new DebugEventListener());
+        eventListener.start();
         listenForEvent();
     }
 
     private void listenForEvent() {
 
         while (isDebuggerActive) {
-            String event = listen();
-            Gson gson = new Gson();
-            JsonObject eventJson = gson.fromJson(event, JsonObject.class);
-            if (eventJson.has(TryOutConstants.EVENT) && eventJson.get(TryOutConstants.EVENT) != null &&
-                    TryOutConstants.BREAKPOINT.equals(eventJson.get(TryOutConstants.EVENT).getAsString())) {
-                breakpointEventProcessor.process(eventJson);
-            }
-        }
-    }
-
-    public String listen() {
-
-        try {
-            InputStream inputStream = socket.getInputStream();
-            byte[] tempBuffer = new byte[1024];
-            StringBuilder buffer = new StringBuilder();
-            int bytesRead;
-
-            while ((bytesRead = inputStream.read(tempBuffer)) != -1) {
-                String receivedData = new String(tempBuffer, 0, bytesRead, StandardCharsets.UTF_8);
-                buffer.append(receivedData);
-
-                int delimiterIndex;
-                while ((delimiterIndex = buffer.indexOf("\n")) != -1) {
-                    String event = buffer.substring(0, delimiterIndex).trim();
-                    buffer.delete(0, delimiterIndex + 1);
-                    return event;
+            try {
+                String event = eventQueue.take();
+                Gson gson = new Gson();
+                JsonObject eventJson = gson.fromJson(event, JsonObject.class);
+                if (eventJson.has(TryOutConstants.EVENT) && eventJson.get(TryOutConstants.EVENT) != null &&
+                        TryOutConstants.BREAKPOINT.equals(eventJson.get(TryOutConstants.EVENT).getAsString())) {
+                    breakpointEventProcessor.process(eventJson);
                 }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                LOGGER.log(Level.SEVERE, "Failed to listen for events", e);
             }
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Failed to listen for events", e);
         }
-        return null;
     }
 
     public boolean isConnected() {
@@ -113,6 +97,42 @@ public class DebugEventClient extends Thread {
         isDebuggerActive = false;
         if (socket != null) {
             socket.close();
+        }
+    }
+
+    private class DebugEventListener implements Runnable {
+
+        @Override
+        public void run() {
+
+            while (isDebuggerActive) {
+                listen();
+            }
+        }
+
+        public String listen() {
+
+            try {
+                InputStream inputStream = socket.getInputStream();
+                byte[] tempBuffer = new byte[1024];
+                StringBuilder buffer = new StringBuilder();
+                int bytesRead;
+
+                while ((bytesRead = inputStream.read(tempBuffer)) != -1) {
+                    String receivedData = new String(tempBuffer, 0, bytesRead, StandardCharsets.UTF_8);
+                    buffer.append(receivedData);
+
+                    int delimiterIndex;
+                    while ((delimiterIndex = buffer.indexOf("\n")) != -1) {
+                        String event = buffer.substring(0, delimiterIndex).trim();
+                        buffer.delete(0, delimiterIndex + 1);
+                        eventQueue.offer(event);
+                    }
+                }
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, "Failed to listen for events", e);
+            }
+            return null;
         }
     }
 }

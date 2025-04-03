@@ -184,9 +184,8 @@ public class TryOutHandler {
 
                 // If it is an API, get the service URL and method
                 if (serviceUrl == null) {
-                    Position position = new Position(request.getLine(), request.getColumn());
                     currentInvocationInfo =
-                            TryOutUtils.getInvocationInfo(editFilePath, position, activeBreakpoints, MI_HOST,
+                            TryOutUtils.getInvocationInfo(editFilePath, request, activeBreakpoints, MI_HOST,
                                     server.getServerPort());
                     currentInvocationInfo.setNeedStepOver(needStepOver);
                 } else {
@@ -196,7 +195,7 @@ public class TryOutHandler {
                 resumeTryOutAndDiscard(); // Clear the previous try-out
             }
             sendRequest(currentInvocationInfo.getServiceUrl(), currentInvocationInfo.getMethod(),
-                    request.getInputPayload());
+                    request.getContentType(), request.getInputPayload());
             waitForMediatorInfo(currentInvocationInfo.isNeedStepOver(), false);
             if (breakpointEventProcessor.isFault()) {
                 return createFaultTryOutInfo();
@@ -299,12 +298,12 @@ public class TryOutHandler {
                 // Get the mediator info
                 registerBreakpoints(request, Path.of(request.getFile()));
                 registerFaultSequenceBreakpoint(server.getServerPath().resolve(DEFAULT_FAULT_SEQUENCE_PATH));
-                currentInvocationInfo = TryOutUtils.getInvocationInfo(Path.of(request.getFile()),
-                        new Position(request.getLine(), request.getColumn()), activeBreakpoints, MI_HOST,
-                        server.getServerPort());
+                currentInvocationInfo =
+                        TryOutUtils.getInvocationInfo(Path.of(request.getFile()), request, activeBreakpoints, MI_HOST,
+                                server.getServerPort());
             }
             sendRequest(currentInvocationInfo.getServiceUrl(), currentInvocationInfo.getMethod(),
-                    request.getInputPayload());
+                    request.getContentType(), request.getInputPayload());
             waitForMediatorInfo(true, false);
             if (breakpointEventProcessor.isFault()) {
                 return createFaultTryOutInfo();
@@ -572,13 +571,12 @@ public class TryOutHandler {
 
     }
 
-    public void sendRequest(String url, String methodType, String inputPayload) throws InvalidConfigurationException {
+    public void sendRequest(String url, String methodType, String contentType, String inputPayload)
+            throws InvalidConfigurationException {
 
         try (Socket socket = new Socket(MI_HOST, server.getServerPort())) {
 
             OutputStream outputStream = socket.getOutputStream();
-            // TODO: support all contentTypes
-            String contentType = "application/json";
             StringBuilder request = new StringBuilder(methodType + " " + url + " HTTP/1.1\r\n" +
                     "Host: " + MI_HOST + "\r\n" +
                     "Connection: close\r\n");

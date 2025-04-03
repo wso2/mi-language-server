@@ -18,7 +18,9 @@
 
 package org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class MediatorTryoutRequest {
 
@@ -26,18 +28,30 @@ public class MediatorTryoutRequest {
     private String tryoutId;
     private final int line;
     private final int column;
+    private final String contentType;
     private final String inputPayload;
+    private final List<Property> queryParams;
+    private final List<Property> pathParams;
     private final Edit[] edits;
     private MediatorInfo mediatorInfo;
     private boolean isIsolatedTryout;
 
     public MediatorTryoutRequest(String file, int line, int column, String inputPayload, Edit[] edits) {
 
+        this(file, line, column, "application/json", inputPayload, edits);
+    }
+
+    public MediatorTryoutRequest(String file, int line, int column, String contentType, String inputPayload,
+                                 Edit[] edits) {
+
         this.file = file;
         this.line = line;
         this.column = column;
+        this.contentType = contentType;
         this.inputPayload = inputPayload;
         this.edits = edits;
+        this.queryParams = new ArrayList<>();
+        this.pathParams = new ArrayList<>();
     }
 
     public String getFile() {
@@ -53,6 +67,11 @@ public class MediatorTryoutRequest {
     public int getColumn() {
 
         return column;
+    }
+
+    public String getContentType() {
+
+        return contentType;
     }
 
     public String getInputPayload() {
@@ -91,6 +110,16 @@ public class MediatorTryoutRequest {
     public boolean isIsolatedTryout() {
 
         return isIsolatedTryout;
+    }
+
+    public List<Property> getQueryParams() {
+
+        return queryParams;
+    }
+
+    public List<Property> getPathParams() {
+
+        return pathParams;
     }
 
     @Override

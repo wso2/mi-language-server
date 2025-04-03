@@ -338,25 +338,53 @@ public class TryOutUtils {
      * Extracts the invocation info to invoke the API for the given position.
      *
      * @param apiPath           the path of the API
-     * @param position          the position
+     * @param request          the mediator tryout request
      * @param activeBreakpoints the active breakpoints
      * @param host              the host
      * @param port              the port
      * @return the invocation info
      * @throws IOException
      */
-    public static InvocationInfo getInvocationInfo(Path apiPath, Position position, List<JsonObject> activeBreakpoints,
-                                                   String host, int port)
+    public static InvocationInfo getInvocationInfo(Path apiPath, MediatorTryoutRequest request,
+                                                   List<JsonObject> activeBreakpoints, String host, int port)
             throws IOException {
 
+        Position position = new Position(request.getLine(), request.getColumn());
         DOMDocument document = Utils.getDOMDocument(apiPath.toFile());
         if (document == null) {
             return null;
         }
         API api = (API) SyntaxTreeGenerator.buildTree(document.getDocumentElement());
-        String serviceUrl = getServiceUrl(api, host, port, activeBreakpoints);
+        String serviceUrl =
+                processURLParams(getServiceUrl(api, host, port, activeBreakpoints), request.getQueryParams(),
+                        request.getPathParams());
         String method = getServiceMethod(api, position);
         return new InvocationInfo(serviceUrl, method);
+    }
+
+    public static String processURLParams(String serviceUrl, List<Property> queryParams, List<Property> pathParams) {
+
+        if ((queryParams == null || queryParams.isEmpty()) && (pathParams == null || pathParams.isEmpty())) {
+            return serviceUrl;
+        }
+
+        int queryIndex = serviceUrl.indexOf("?");
+        String pathParamPart = queryIndex != -1 ? serviceUrl.substring(0, queryIndex) : serviceUrl;
+        String queryParamPart = queryIndex != -1 ? serviceUrl.substring(queryIndex + 1) : "";
+
+        if (pathParams != null && !pathParams.isEmpty()) {
+            for (Property param : pathParams) {
+                pathParamPart = pathParamPart.replace("{" + param.getKey() + "}", param.getValue());
+            }
+        }
+
+        // Replace query parameters
+        if (queryParams != null && !queryParams.isEmpty()) {
+            for (Property param : queryParams) {
+                queryParamPart = queryParamPart.replace("{" + param.getKey() + "}", param.getValue());
+            }
+        }
+        return queryParamPart.isEmpty() ? pathParamPart : pathParamPart + "?" + queryParamPart;
     }
 
     private static String getServiceMethod(API api, Position position) {
@@ -503,7 +531,7 @@ public class TryOutUtils {
             NodeList children = bodyNode.getChildNodes();
             for (int i = 0; i < children.getLength(); i++) {
                 Node child = children.item(i);
-                if (child.getNodeName().matches("axis2ns.+:text")) {
+                if (child.getNodeName().matches("(axis2ns.+:)?text")) {
                     return child.getTextContent();
                 } else if (child.getNodeType() == Node.ELEMENT_NODE) {
                     return Utils.nodeToString(child);
