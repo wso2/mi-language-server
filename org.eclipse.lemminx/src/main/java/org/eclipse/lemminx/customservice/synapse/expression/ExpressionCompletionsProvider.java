@@ -129,7 +129,7 @@ public class ExpressionCompletionsProvider {
         String projectPath = getProjectPath(request.getXMLDocument().getDocumentURI());
         ServerLessTryoutHandler serverLessTryoutHandler = new ServerLessTryoutHandler(projectPath);
 
-        String documentUri = request.getXMLDocument().getDocumentURI().substring(7);
+        String documentUri = Utils.getAbsolutePath(request.getXMLDocument().getDocumentURI());
         String payload = ExpressionCompletionUtils.getInputPayload(projectPath, documentUri, request.getPosition());
 
         // Add a dummy mediator if the current mediator is a new mediator

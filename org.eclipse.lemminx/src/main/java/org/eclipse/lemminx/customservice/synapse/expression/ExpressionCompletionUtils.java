@@ -496,7 +496,7 @@ public class ExpressionCompletionUtils {
                     return getInputPayload(projectPath, name, resourceKey.get());
                 }
             } else {
-                return getInputPayload(projectPath, name, "");
+                return getInputPayload(projectPath, name, StringUtils.EMPTY);
             }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Error while reading the document", e);
