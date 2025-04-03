@@ -25,6 +25,10 @@ public class Bam extends Mediator {
     BamServerProfile serverProfile;
     String description;
 
+    public Bam() {
+        setDisplayName("Bam");
+    }
+
     public BamServerProfile getServerProfile() {
 
         return serverProfile;

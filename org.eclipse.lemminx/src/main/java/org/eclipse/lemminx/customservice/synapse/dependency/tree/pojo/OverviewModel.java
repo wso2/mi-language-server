@@ -32,6 +32,18 @@ public class OverviewModel {
         this.connections = connections;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public List<Entrypoint> getEntrypoints() {
+        return entrypoints;
+    }
+
+    public List<Connection> getConnections() {
+        return connections;
+    }
+
     @Override
     public String toString() {
         return String.format("{ \"name\": \"%s\", \"entryPoints\": %s, \"connections\": %s }",

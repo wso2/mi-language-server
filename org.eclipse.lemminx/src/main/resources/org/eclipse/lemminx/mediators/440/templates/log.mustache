@@ -1,0 +1,6 @@
+<log {{#category}}category="{{category}}"{{/category}} {{#level}}level="{{level}}"{{/level}} {{#separator}}separator="{{separator}}"{{/separator}} logMessageID="{{logMessageID}}" logFullPayload="{{logFullPayload}}" {{#description}}description="{{description}}"{{/description}}>
+    <message>{{message}}</message>
+    {{#properties}}
+        <property name="{{propertyName}}" {{#value}}value="{{value}}"{{/value}} {{#expression}}expression="{{expression}}" {{#namespaces}} xmlns:{{prefix}}="{{uri}}"{{/namespaces}} {{/expression}} />
+    {{/properties}}
+</log>

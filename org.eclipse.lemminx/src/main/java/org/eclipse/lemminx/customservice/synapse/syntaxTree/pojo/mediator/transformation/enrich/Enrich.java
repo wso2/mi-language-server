@@ -26,6 +26,10 @@ public class Enrich extends Mediator {
     TargetEnrich target;
     String description;
 
+    public Enrich() {
+        setDisplayName("Enrich");
+    }
+
     public SourceEnrich getSource() {
 
         return source;

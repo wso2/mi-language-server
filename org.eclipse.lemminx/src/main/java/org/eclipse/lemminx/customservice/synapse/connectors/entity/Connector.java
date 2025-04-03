@@ -26,12 +26,18 @@ import java.util.Map;
 public class Connector {
 
     private String name;
-    private String path;
+    private String displayName;
+    private String extractedConnectorPath;
+    private String connectorZipPath;
+    private String packageName;
+    private String artifactId;
     private String version;
     private List<ConnectorAction> actions;
     private Map<String, String> connectionUiSchema;
     private String iconPath;
     private String uiSchemaPath;
+    private String outputSchemaPath;
+    private String ballerinaModulePath;
 
     public Connector() {
 
@@ -49,14 +55,44 @@ public class Connector {
         this.name = name;
     }
 
-    public String getPath() {
+    public String getDisplayName() {
 
-        return path;
+        return displayName;
     }
 
-    public void setPath(String path) {
+    public void setDisplayName(String displayName) {
 
-        this.path = path;
+        this.displayName = displayName;
+    }
+
+    public String getPackageName() {
+
+        return packageName;
+    }
+
+    public void setPackageName(String packageName) {
+
+        this.packageName = packageName;
+    }
+
+    public String getExtractedConnectorPath() {
+
+        return extractedConnectorPath;
+    }
+
+    public void setExtractedConnectorPath(String extractedConnectorPath) {
+
+        this.extractedConnectorPath = extractedConnectorPath;
+    }
+
+    public String getConnectorZipPath() {
+
+        return connectorZipPath;
+    }
+
+    public void setConnectorZipPath(String connectorZipPath) {
+
+        this.connectorZipPath = connectorZipPath;
     }
 
     public void addAction(ConnectorAction action) {
@@ -67,6 +103,16 @@ public class Connector {
     public List<ConnectorAction> getActions() {
 
         return actions;
+    }
+
+    public ConnectorAction getAction(String actionName) {
+
+        for (ConnectorAction action : actions) {
+            if (action.getName().equals(actionName)) {
+                return action;
+            }
+        }
+        return null;
     }
 
     public void setActions(List<ConnectorAction> actions) {
@@ -87,6 +133,16 @@ public class Connector {
     public void setConnectionUiSchema(Map<String, String> connectionUiSchema) {
 
         this.connectionUiSchema = connectionUiSchema;
+    }
+
+    public String getArtifactId() {
+
+        return artifactId;
+    }
+
+    public void setArtifactId(String artifactId) {
+
+        this.artifactId = artifactId;
     }
 
     public String getVersion() {
@@ -117,5 +173,47 @@ public class Connector {
     public void setUiSchemaPath(String uiSchemaPath) {
 
         this.uiSchemaPath = uiSchemaPath;
+    }
+
+    public String getOutputSchemaPath() {
+
+        return outputSchemaPath;
+    }
+
+    public void setOutputSchemaPath(String outputSchemaPath) {
+
+        this.outputSchemaPath = outputSchemaPath;
+    }
+
+    public void addOperationUiSchema(String operationName, String absolutePath) {
+
+        if (operationName == null) {
+            return;
+        }
+        for (ConnectorAction action : actions) {
+            if (action.getName().equals(operationName)) {
+                action.setUiSchemaPath(absolutePath);
+            }
+        }
+    }
+
+    public void addOperationOutputSchema(String operationName, String absolutePath) {
+
+        if (operationName == null) {
+            return;
+        }
+        for (ConnectorAction action : actions) {
+            if (action.getName().equals(operationName)) {
+                action.setOutputSchemaPath(absolutePath);
+            }
+        }
+    }
+
+    public String getBallerinaModulePath() {
+        return ballerinaModulePath;
+    }
+
+    public void setBallerinaModulePath(String ballerinaModulePath) {
+        this.ballerinaModulePath = ballerinaModulePath;
     }
 }

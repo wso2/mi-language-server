@@ -32,6 +32,10 @@ public class Makefault extends Mediator {
     Boolean response;
     String description;
 
+    public Makefault() {
+        setDisplayName("Fault");
+    }
+
     public MakefaultCode getCode() {
 
         return code;
@@ -92,12 +96,12 @@ public class Makefault extends Mediator {
         this.version = version;
     }
 
-    public boolean isResponse() {
+    public Boolean isResponse() {
 
         return response;
     }
 
-    public void setResponse(boolean response) {
+    public void setResponse(Boolean response) {
 
         this.response = response;
     }

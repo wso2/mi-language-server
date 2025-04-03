@@ -18,12 +18,20 @@
 
 package org.eclipse.lemminx.customservice.synapse.dependency.tree.visitor;
 
-import org.eclipse.lemminx.customservice.synapse.debugger.visitor.AbstractMediatorVisitor;
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.lemminx.customservice.synapse.AbstractMediatorVisitor;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connection;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.ArtifactType;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.DependencyLookUp;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.DependencyVisitorUtils;
+import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.ConnectorDependency;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.Dependency;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.AIAgent;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.AIChat;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.AIConnector;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.AgentTool;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Connector;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.KnowledgeBase;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.NamedEndpoint;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.SequenceMediator;
@@ -45,6 +53,8 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.P
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Respond;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Send;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Store;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.ThrowError;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Variable;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.call.Call;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.callout.Callout;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.callout.CalloutEnableSec;
@@ -53,6 +63,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.v
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.validate.ValidateSchema;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.Foreach;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.Iterate;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.ScatterGather;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.aggregate.Aggregate;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.aggregate.AggregateOnComplete;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.extension.Bean;
@@ -87,12 +98,19 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transf
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.xslt.Xslt;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.transformation.xslt.XsltResource;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
+import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
 
+    private static final Logger LOGGER = Logger.getLogger(MediatorDependencyVisitor.class.getName());
     private final String projectPath;
     private final List<Dependency> dependencies;
     private final DependencyLookUp dependencyLookUp;
@@ -102,6 +120,22 @@ public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
         this.projectPath = projectPath;
         this.dependencyLookUp = dependencyLookUp;
         this.dependencies = new ArrayList<>();
+    }
+
+    public void visit(Mediator mediator) {
+
+        if (mediator == null) {
+            return;
+        }
+        String tag = mediator.getTag();
+        String visitFn = "visit" + tag.substring(0, 1).toUpperCase() + tag.substring(1);
+        try {
+            Method method = AbstractMediatorVisitor.class.getDeclaredMethod(visitFn, mediator.getClass());
+            method.setAccessible(true);
+            method.invoke(this, mediator);
+        } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
+            LOGGER.log(Level.SEVERE, String.format("Error while visiting mediator: %s", tag), e);
+        }
     }
 
     private void addSimpleDependency(String name, String from, ArtifactType type) {
@@ -148,6 +182,14 @@ public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
         if (node.getConfigKey() != null) {
             addSimpleDependency(node.getConfigKey(), "connector", ArtifactType.CONNECTION);
         }
+        addConnectorUsageDependency(node);
+    }
+
+    private void addConnectorUsageDependency(Connector node) {
+
+        ConnectorDependency dependency = new ConnectorDependency(node.getConnectorName(), ArtifactType.CONNECTOR, null);
+        dependency.setOperationName(node.getMethod());
+        dependencies.add(dependency);
     }
 
     @Override
@@ -533,6 +575,25 @@ public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
     }
 
     @Override
+    protected void visitVariable(Variable node) {
+
+        // DO NOTHING
+    }
+
+    @Override
+    protected void visitScatterGather(ScatterGather node) {
+
+        CloneTarget[] targets = node.getTargets();
+        if (targets != null) {
+            for (CloneTarget target : targets) {
+                if (target.getSequence() != null) {
+                    addAnonymousOrAttributeSequence(target.getSequence(), target.getSequenceAttribute());
+                }
+            }
+        }
+    }
+
+    @Override
     protected void visitForeach(Foreach node) {
 
         addAnonymousOrAttributeSequence(node.getSequence(), node.getSequenceAttribute());
@@ -652,5 +713,50 @@ public class MediatorDependencyVisitor extends AbstractMediatorVisitor {
         if (node.getKey() != null) {
             addSequenceDependency(node.getKey());
         }
+    }
+
+    private void visitAIConnector(AIConnector node) {
+
+        Map<String, Connection> connectionMap = node.getConnections();
+        if (connectionMap == null) {
+            return;
+        }
+        for (Map.Entry<String, Connection> entry : connectionMap.entrySet()) {
+            Connection connection = entry.getValue();
+            if (connection != null && StringUtils.isNotEmpty(connection.getName())) {
+                addSimpleDependency(connection.getName(), Constant.CONNECTOR, ArtifactType.CONNECTION);
+            }
+        }
+    }
+
+    @Override
+    protected void visitAIChat(AIChat node) {
+
+        visitAIConnector(node);
+    }
+
+    @Override
+    protected void visitAIAgent(AIAgent node) {
+
+        visitAIConnector(node);
+        if (node.getTools() != null && node.getTools().getTools() != null) {
+            for (AgentTool tool : node.getTools().getTools()) {
+                if (tool.getTemplate() != null) {
+                    addSimpleDependency(tool.getTemplate(), Constant.CONNECTOR, ArtifactType.TEMPLATE);
+                }
+            }
+        }
+        addConnectorUsageDependency(node);
+    }
+
+    @Override
+    protected void visitAIKnowledgeBase(KnowledgeBase node) {
+
+        visitAIConnector(node);
+    }
+
+    @Override
+    protected void visitThrowError(ThrowError node) {
+            // DO NOTHING
     }
 }

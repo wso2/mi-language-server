@@ -30,6 +30,10 @@ public class Header extends Mediator {
     String value;
     String expression;
 
+    public Header() {
+        setDisplayName("Header");
+    }
+
     public Object getAny() {
 
         return any;

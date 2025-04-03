@@ -18,11 +18,16 @@
 
 package org.eclipse.lemminx.customservice.synapse.utils;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMNamespace;
 
+import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Constant {
 
@@ -158,7 +163,7 @@ public class Constant {
     public static final String OUT_PROPERTY = "outProperty";
     public static final String REWRITE_RULE = "rewriterule";
     public static final String FRAGMENT = "fragment";
-    public static final String CONFIG_KEY = "config-key";
+    public static final String CONFIG_HYPHEN_KEY = "config-key";
     public static final String INPUT = "input";
     public static final String OUTPUT = "output";
     public static final String VARIABLE = "variable";
@@ -465,6 +470,7 @@ public class Constant {
     public static final String CONNECTOR_RESOURCES = "connector-resources";
     public static final String FILE_NAME = "file-name";
     public static final String ARTIFACT = "artifact";
+    public static final String ARTIFACT_XML = "artifact.xml";
     public static final String REGISTRY_PATH = "registry-path";
     public static final String MOCK_SERVICE_NAME = "service-name";
     public static final String RESOURCES = "resources";
@@ -483,6 +489,7 @@ public class Constant {
     public static final String SCHEDULED_TASK = "schedule-task";
     public static final String TASKS = "tasks";
     public static final String TEMPLATES = "templates";
+    public static final String NEW_RESOURCES = "newResources";
     public static final String APIS = "apis";
     public static final String PROXYSERVICES = "proxyServices";
     public static final String INBOUNDENDPOINTS = "inboundEndpoints";
@@ -495,13 +502,121 @@ public class Constant {
     public static final String DATA_MAPPER = "datamapper";
     public static final String FILES = "files";
     public static final String FOLDERS = "folders";
+    public static final String DEFAULT_MI_VERSION = Constant.MI_440_VERSION;
+    public static final String MI_430_VERSION = "4.3.0";
+    public static final String CATALOGS = "catalogs";
+    public static final String SETTINGS = "settings";
+    public static final String JAR = "jar";
+    public static final String TAG = "tag";
+    public static final String TITLE = "title";
+    public static final String OPERATION_NAME = "operationName";
+    public static final String TOOLTIP = "tooltip";
+    public static final String CONFIG_REF = "configRef";
+    public static final String CONFIG_KEY = "configKey";
+    public static final String MEDIATOR_CLASS = "mediatorClass";
+    public static final String PROCESSING_CLASS = "processingClass";
+    public static final String STORE_METHOD = "storeMethod";
+    public static final String RETRIEVE_METHOD = "retrieveMethod";
+    public static final String ICON_PATH = "iconPath";
+    public static final String CONNECTION_TYPE = "connectionType";
+    public static final String IS_EXPRESSION = "isExpression";
+    public static final String NAMESPACES = "namespaces";
+    public static final String CONNECTION_NAME = "connectionName";
     public static final String ZIP_EXTENSION = ".zip";
     public static final String CONNECTORS = "connectors";
     public static final String USER_HOME = "user.home";
     public static final String MAIN = "main";
     public static final String WSO2MI = "wso2mi";
     public static final String WSO2_MI = ".wso2-mi";
-    public static final String M2 = "m2";
+    public static final String M2 = ".m2";
     public static final String DOWNLOADED = "Downloaded";
     public static final String EXTRACTED = "Extracted";
+    public static final String PARALLEL_EXECUTION = "parallelExecution";
+    public static final String CONTINUE_WITHOUT_AGGREGATION = "continueWithoutAggregation";
+    public static final String RESULT_TARGET = "resultTarget";
+    public static final String INIT = "init";
+    public static final String TEST_CONNECTION_OPERATION = "testconnection";
+    public static final String IS_VALID_CONNECTION = "isValidConnection";
+    public static final String PACKAGE = "package";
+    public static final String ERROR_MESSAGE = "errorMessage";
+    public static final Path RESOURCE_RELATIVE_PATH = Path.of("src", "main", "wso2mi", "resources");
+    public static final String SET = "set";
+    public static final String RESPONSE_VARIABLE = "responseVariable";
+    public static final String CONN_TARGET_VARIABLE = "targetVariable";
+    public static final String OVERWRITE_BODY = "overwriteBody";
+    public static final String PROPERTY_NAME = "propertyName";
+    public static final String PROPERTY_VALUE = "propertyValue";
+    public static final String DISPLAY_NAME = "displayName";
+    public static final String IS_CONNECTOR = "isConnector";
+    public static final String ITEMS = "items";
+    public static final String FAVOURITES = "favourites";
+    public static final String ARTIFACT_ID = "artifactId";
+    public static final String CONNECTOR_NAME = "connectorName";
+    public static final String HELP = "help";
+    public static final String REQUIRED = "required";
+    public static final String HELP_TIP = "helpTip";
+    public static final String TARGET_VARIABLE = "target-variable";
+    public static final String RESULT_CONTENT_TYPE = "result-content-type";
+    public static final String RESULT_ENCLOSING_ELEMENT = "result-enclosing-element";
+    public static final String CAR_PLUGIN_CHECK_VERSION = "5.2.88";
+    public static final String CONNECTOR_PATH = "connectorPath";
+    public static final String MI_440_VERSION = "4.4.0";
+    public static final String UI_SCHEMA_NAME = "UI_SCHEMA_NAME";
+    public static final String SEQUENCE_NAME = "sequenceName";
+    public static final String CAN_TRY_OUT = "canTryOut";
+    public static final String LOG_MESSAGE_ID = "logMessageID";
+    public static final String LOG_FULL_PAYLOAD = "logFullPayload";
+    public static final String IS_BALLERINA_MODULE = "isBallerinaModule";
+    public static final String BALLERINA_MODULE_PATH = "ballerinaModulePath";
+    public static final String BALLERINA = "ballerina";
+    public static final String UI_SCHEMA_JSON = "uischema.json";
+    public static final String JSON_FILE_EXT = ".json";
+    public static final String INBOUND_CONNECTOR_PREFIX = "mi-inbound-";
+    public static final String INBOUND_CONNECTORS = "inbound.connectors";
+    public static final String DEVANT_API = "INTEGRATION_AS_API";
+    public static final String DEVANT_AUTOMATION = "AUTOMATION";
+    public static final String DEVANT_EVENT = "EVENT_INTEGRATION";
+    public static final String EVENT_INTEGRATIONS = "Event Integrations";
+    public static final String OTHER_ARTIFACTS = "Other Artifacts";
+    public static final String SEQUENCE_ARTIFACTS = "Sequences";
+    public static final String API_ARTIFACTS = "APIs";
+    public static final String IS_MAIN_SEQUENCE = "isMainSequence";
+    public static final String PROFILES = "profiles";
+    public static final String MAIN_SEQUENCE = "mainSequence";
+    public static final String IS_SUPPORT_CATEGORIES = "isSupportCategories";
+    public static final String MEMORY_CONFIG_KEY = "memoryConfigKey";
+    public static final String TOOLS = "tools";
+    public static final String TOOL = "tool";
+    public static final String AI_AGENT_TAG = "ai.agent";
+    public static final String ATTRIBUTE_GROUP = "attributeGroup";
+    public static final String CURRENT_VALUE = "currentValue";
+    public static final String LLM_CONFIG_KEY = "llmConfigKey";
+    public static final String EMBEDDING_CONFIG_KEY = "embeddingConfigKey";
+    public static final String VECTOR_STORE_CONFIG_KEY = "vectorStoreConfigKey";
+    public static final BiMap<String, String> AI_CONNECTION_TO_DISPLAY_NAME_MAP = HashBiMap.create();
+    public static final Map<String, String> AI_CONNECTOR_VISITOR_FUNCTION = new HashMap<>();
+    public static final String CHECK_BOX = "checkbox";
+    public static final String AI = "AI";
+    public static final String AGENT_ID = "agentID";
+    public static final String RESULT_EXPRESSION = "resultExpression";
+    public static final String AI_AGENT = "AI_AGENT";
+    public static final String AGENT = "agent";
+    public static final String REQUESTS = "requests";
+    public static final String DEFAULT_REQUEST = "defaultRequest";
+    public static final String CONTENT = "content";
+
+    static {
+        // AI Connection to Display Name bi-Mapping
+        AI_CONNECTION_TO_DISPLAY_NAME_MAP.put("llmConfigKey", "LLM Connection");
+        AI_CONNECTION_TO_DISPLAY_NAME_MAP.put("memoryConfigKey", "Memory Connection");
+        AI_CONNECTION_TO_DISPLAY_NAME_MAP.put("vectorStoreConfigKey", "Vector Store Connection");
+        AI_CONNECTION_TO_DISPLAY_NAME_MAP.put("embeddingConfigKey", "Embedding Connection");
+
+        // AI Connector Visitor Function Name Mapping
+        AI_CONNECTOR_VISITOR_FUNCTION.put("ai.chat", "AIChat");
+        AI_CONNECTOR_VISITOR_FUNCTION.put("ai.agent", "AIAgent");
+        AI_CONNECTOR_VISITOR_FUNCTION.put("ai.ragChat", "AIChat");
+        AI_CONNECTOR_VISITOR_FUNCTION.put("ai.addToKnowledge", "AIKnowledgeBase");
+        AI_CONNECTOR_VISITOR_FUNCTION.put("ai.getFromKnowledge", "AIKnowledgeBase");
+    }
 }

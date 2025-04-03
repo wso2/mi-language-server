@@ -47,7 +47,7 @@ public class DependencyScanner {
     public DependencyTree analyzeArtifact(String artifactPath) {
 
         DependencyTree dependencyTree = new DependencyTree();
-        artifactPath = Utils.removeFilePrefix(artifactPath);
+        artifactPath = Utils.getAbsolutePath(artifactPath);
         dependencyTree.setPath(artifactPath);
         try {
             DOMDocument document = Utils.getDOMDocument(new File(artifactPath));

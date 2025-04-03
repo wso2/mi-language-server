@@ -27,6 +27,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.L
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.MediatorProperty;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.utils.SyntaxTreeUtils;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMElement;
 import org.eclipse.lemminx.dom.DOMNode;
 
@@ -49,6 +50,8 @@ public class LogFactory extends AbstractMediatorFactory {
             if (node.getNodeName().equalsIgnoreCase(Constant.PROPERTY)) {
                 MediatorProperty property = SyntaxTreeUtils.createMediatorProperty(node);
                 properties.add(property);
+            } else if (node.getNodeName().equalsIgnoreCase(Constant.MESSAGE)) {
+                log.setMessage(Utils.getInlineString(node.getFirstChild()));
             }
         }
         log.setProperty(properties.toArray(new MediatorProperty[properties.size()]));
@@ -74,6 +77,18 @@ public class LogFactory extends AbstractMediatorFactory {
             String description = element.getAttribute(Constant.DESCRIPTION);
             if (description != null) {
                 ((Log) node).setDescription(description);
+            }
+            String logMessageIDAttr = element.getAttribute(Constant.LOG_MESSAGE_ID);
+            if (logMessageIDAttr != null) {
+                ((Log) node).setLogMessageID(Boolean.parseBoolean(logMessageIDAttr));
+            } else {
+                ((Log) node).setLogMessageID(false);
+            }
+            String logFullPayloadAttr = element.getAttribute(Constant.LOG_FULL_PAYLOAD);
+            if (logFullPayloadAttr != null) {
+                ((Log) node).setLogFullPayload(Boolean.parseBoolean(logFullPayloadAttr));
+            } else {
+                ((Log) node).setLogFullPayload(false);
             }
         } catch (IllegalArgumentException e) {
             // ignore

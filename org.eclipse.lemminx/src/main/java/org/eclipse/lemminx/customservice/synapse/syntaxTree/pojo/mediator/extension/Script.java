@@ -29,6 +29,10 @@ public class Script extends Mediator {
     String function;
     String description;
 
+    public Script() {
+        setDisplayName("Script");
+    }
+
     public Object[] getContent() {
 
         return content;

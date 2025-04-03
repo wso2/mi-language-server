@@ -27,6 +27,10 @@ public class Jsontransform extends Mediator {
     String schema;
     String description;
 
+    public Jsontransform() {
+        setDisplayName("Json Transform");
+    }
+
     public MediatorProperty[] getProperty() {
 
         return property;

@@ -29,6 +29,10 @@ public class Filter extends Mediator {
     String xpath;
     String description;
 
+    public Filter() {
+        setDisplayName("If Else");
+    }
+
     public FilterThen getThen() {
 
         return then;

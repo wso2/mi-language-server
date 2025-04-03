@@ -21,8 +21,10 @@ package org.eclipse.lemminx.customservice.synapse.connectors;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorAction;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.OperationParameter;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
@@ -30,18 +32,26 @@ import org.eclipse.lemminx.dom.DOMNode;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ConnectorReader {
 
     private static final Logger log = Logger.getLogger(ConnectorReader.class.getName());
+    private static final Pattern ARTIFACT_VERSION_REGEX = Pattern.compile("(.+)-(\\d+\\.\\d+\\.\\d+(-SNAPSHOT)?)");
     private HashMap<String, List<String>> allowedConnectionTypesMap = new HashMap<>();
+    private static final String BALLERINA_PACKAGE_NAME = "io.ballerina.stdlib.mi";
+    private static final List<String> EXCLUDED_AGENT_TOOLS = List.of("ai.chat", "ai.ragChat", "ai.agent");
 
-    public Connector readConnector(String connectorPath) {
+    public Connector readConnector(String connectorPath, String projectUri) {
 
         Connector connector = null;
         if (connectorPath != null) {
@@ -51,13 +61,26 @@ public class ConnectorReader {
                     DOMDocument connectorDocument = Utils.getDOMDocument(connectorFile);
                     DOMNode connectorElement = Utils.getChildNodeByName(connectorDocument, "connector");
                     DOMNode componentElement = Utils.getChildNodeByName(connectorElement, "component");
+                    DOMNode displayNameElement = Utils.getChildNodeByName(connectorElement, Constant.DISPLAY_NAME);
                     String name = componentElement.getAttribute(Constant.NAME);
                     connector = new Connector();
                     connector.setName(name);
-                    connector.setPath(connectorPath);
-                    connector.setVersion(getConnectorVersion(connectorPath));
+                    connector.setBallerinaModulePath(StringUtils.EMPTY);
+                    String packageName = componentElement.getAttribute(Constant.PACKAGE);
+                    if (BALLERINA_PACKAGE_NAME.equals(packageName)) {
+                        connector.setBallerinaModulePath(getBallerinaModulePath(name,
+                                Paths.get(projectUri, Constant.SRC, Constant.MAIN, Constant.BALLERINA).toString()));
+                    }
+                    connector.setPackageName(packageName);
+                    if (displayNameElement != null && displayNameElement.isElement()) {
+                        String displayName = Utils.getInlineString(displayNameElement.getFirstChild());
+                        connector.setDisplayName(displayName);
+                    }
+                    connector.setExtractedConnectorPath(connectorPath);
+                    setConnectorArtifactIdAndVersion(connector, connectorPath);
                     connector.setIconPath(connectorPath + File.separator + "icon");
                     connector.setUiSchemaPath(connectorPath + File.separator + "uischema");
+                    connector.setOutputSchemaPath(connectorPath + File.separator + "outputschema");
                     populateAllowedConnectionTypesMap(connector);
                     populateConnectorActions(connector, componentElement);
                     populateConnectionUiSchema(connector);
@@ -67,6 +90,55 @@ public class ConnectorReader {
             }
         }
         return connector;
+    }
+
+    private String getBallerinaModulePath(String moduleName, String ballerinaFolder) {
+
+        List<String> ballerinaTomlPaths = new ArrayList<>();
+        try {
+            Files.walk(Paths.get(ballerinaFolder))
+                    .filter(path -> Files.isRegularFile(path) && path.getFileName().toString().equals("Ballerina.toml"))
+                    .forEach(path -> ballerinaTomlPaths.add(path.toString()));
+            for (String path : ballerinaTomlPaths) {
+                try {
+                    if (moduleName.equals(readBallerinaToml(path))) {
+                        return Paths.get(path).getParent().toString();
+                    }
+                } catch (IOException e) {
+                    log.log(Level.SEVERE, "Error occurred while reading Ballerina.toml file.", e);
+                }
+            }
+            return StringUtils.EMPTY;
+        } catch (IOException e) {
+            log.log(Level.WARNING, "Ballerina folder not found in the project.", e);
+            return StringUtils.EMPTY;
+        }
+    }
+
+    private String readBallerinaToml(String path) throws IOException {
+        List<String> lines = Files.readAllLines(Paths.get(path));
+        String name = StringUtils.EMPTY;
+        boolean isPackageSection = false;
+        for (String line : lines) {
+            if (line.trim().startsWith("[package]")) {
+                isPackageSection = true;
+            }
+            if (isPackageSection) {
+                if (line.trim().startsWith("name =")) {
+                    name = extractModuleName(line);
+                }
+            }
+        }
+        return name;
+    }
+
+    private String extractModuleName(String line) {
+
+        String[] parts = line.split("=");
+        if (parts.length > 1) {
+            return parts[1].trim().replaceAll("\"", StringUtils.EMPTY);
+        }
+        return StringUtils.EMPTY;
     }
 
     private void populateAllowedConnectionTypesMap(Connector connector) {
@@ -134,20 +206,121 @@ public class ConnectorReader {
         return null;
     }
 
-    private String getConnectorVersion(String connectorPath) {
+    private void setConnectorArtifactIdAndVersion(Connector connector, String connectorPath) {
 
-        String connectorName = connectorPath.substring(connectorPath.lastIndexOf(File.separator) + 1);
-        int versionStartIndex = connectorName.lastIndexOf("-");
-        if (versionStartIndex == -1) {
-            return "";
+        String connectorName = Path.of(connectorPath).getFileName().toString();
+        Matcher matcher = ARTIFACT_VERSION_REGEX.matcher(connectorName);
+        if (matcher.find()) {
+            connector.setArtifactId(matcher.group(1));
+            connector.setVersion(matcher.group(2));
         }
-        return connectorName.substring(versionStartIndex + 1);
     }
 
     private void populateConnectorActions(Connector connector, DOMNode componentElement) {
 
         List<String> dependencies = getDependencies(componentElement);
         readDependencies(connector, dependencies);
+        readUISchema(connector);
+        readOutputSchema(connector);
+    }
+
+    private void readUISchema(Connector connector) {
+
+        addUISchemasFromConnector(connector);
+        generateUISchemasIfNeeded(connector);
+    }
+
+    private void addUISchemasFromConnector(Connector connector) {
+
+        String uiSchemaPath = connector.getUiSchemaPath();
+        File uiSchemaFolder = new File(uiSchemaPath);
+        if (uiSchemaFolder.exists()) {
+            File[] files = uiSchemaFolder.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    processUISchemaFile(file, connector);
+                }
+            }
+        }
+    }
+
+    private void generateUISchemasIfNeeded(Connector connector) {
+
+        for (ConnectorAction action : connector.getActions()) {
+            if (action.getUiSchemaPath() == null && !action.getHidden()) {
+                try {
+                    generateUISchema(action, connector);
+                } catch (IOException e) {
+                    log.log(Level.SEVERE, "Error while generating ui schema", e);
+                }
+            }
+        }
+    }
+
+    private void generateUISchema(ConnectorAction action, Connector connector) throws IOException {
+
+        JsonObject uiSchema = new JsonObject();
+        uiSchema.addProperty(Constant.CONNECTOR_NAME, connector.getName());
+        uiSchema.addProperty(Constant.OPERATION_NAME, action.getName());
+        uiSchema.addProperty(Constant.TITLE, action.getDisplayName());
+        uiSchema.addProperty(Constant.HELP, action.getDescription());
+        JsonArray elements = new JsonArray();
+        for (OperationParameter parameter : action.getParameters()) {
+            JsonObject element = new JsonObject();
+            element.addProperty(Constant.TYPE, Constant.ATTRIBUTE);
+            JsonObject value = new JsonObject();
+            value.addProperty(Constant.NAME, parameter.getName());
+            value.addProperty(Constant.DISPLAY_NAME, parameter.getName());
+            value.addProperty(Constant.INPUT_TYPE, "stringOrExpression");
+            value.addProperty(Constant.REQUIRED, false);
+            value.addProperty(Constant.HELP_TIP, parameter.getDescription());
+            element.add(Constant.VALUE, value);
+            elements.add(element);
+        }
+        uiSchema.add(Constant.ELEMENTS, elements);
+        Path uiSchemaPath = Path.of(connector.getUiSchemaPath(), action.getName() + ".json");
+        Utils.writeToFile(uiSchemaPath.toString(), uiSchema.toString());
+        action.setUiSchemaPath(uiSchemaPath.toString());
+    }
+
+    private void processUISchemaFile(File file, Connector connector) {
+
+        try {
+            String fileName = Utils.getFileName(file);
+            if (connector.getAction(fileName) != null) {
+                connector.addOperationUiSchema(fileName, file.getAbsolutePath());
+            } else {
+                JsonElement operation = getOperationNameFromUISchema(file);
+                if (operation != null) {
+                    connector.addOperationUiSchema(operation.getAsString(), file.getAbsolutePath());
+                }
+            }
+        } catch (IOException e) {
+            log.log(Level.SEVERE, "Error while reading connector ui schema file", e);
+        }
+    }
+
+    private JsonElement getOperationNameFromUISchema(File file) throws IOException {
+
+        String schema = Utils.readFile(file);
+        JsonObject uiJson = Utils.getJsonObject(schema);
+        return uiJson.get(Constant.OPERATION_NAME);
+    }
+
+    private void readOutputSchema(Connector connector) {
+
+        String outputSchemaPath = connector.getOutputSchemaPath();
+        File outputSchemaFolder = new File(outputSchemaPath);
+        if (outputSchemaFolder.exists()) {
+            File[] files = outputSchemaFolder.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    String fileName = file.getName();
+                    String operationName = fileName.substring(0, fileName.indexOf("."));
+                    connector.addOperationOutputSchema(operationName, file.getAbsolutePath());
+                }
+            }
+        }
     }
 
     private void populateConnectionUiSchema(Connector connector) {
@@ -159,7 +332,7 @@ public class ConnectorReader {
                 for (File file : files) {
                     String connectionName = getConnectionSchemaName(file);
                     if (connectionName != null) {
-                        connector.addConnectionUiSchema(connectionName, file.getAbsolutePath());
+                        connector.addConnectionUiSchema(connectionName.toUpperCase(), file.getAbsolutePath());
                     }
                 }
             }
@@ -200,8 +373,8 @@ public class ConnectorReader {
     private void readDependencies(Connector connector, List<String> dependencies) {
 
         for (String dependency : dependencies) {
-            File dependencyFile = new File(connector.getPath() + File.separator + dependency + File.separator +
-                    "component.xml");
+            File dependencyFile = Path.of(connector.getExtractedConnectorPath(), dependency, "component.xml")
+                    .toFile();
             if (dependencyFile.exists()) {
                 readSubComponents(connector, dependencyFile);
             }
@@ -213,15 +386,28 @@ public class ConnectorReader {
         try {
             DOMDocument dependencyDocument = Utils.getDOMDocument(dependencyFile);
             DOMNode componentElement = Utils.getChildNodeByName(dependencyDocument, "component");
+            String groupName = componentElement.getAttribute(Constant.DISPLAY_NAME);
             DOMNode subComponents = Utils.getChildNodeByName(componentElement, "subComponents");
             List<DOMNode> children = subComponents.getChildren();
             for (DOMNode child : children) {
                 if (child.getNodeName().equals(Constant.COMPONENT)) {
                     ConnectorAction action = new ConnectorAction();
+                    if (StringUtils.isNotEmpty(groupName)) {
+                        action.setGroupName(groupName);
+                    }
                     String name = child.getAttribute(Constant.NAME);
                     action.setName(name);
                     String tag = connector.getName() + Constant.DOT + name;
+                    if (EXCLUDED_AGENT_TOOLS.contains(
+                            tag)) { //TODO: This is a temporary fix. Need to move this to the connector.
+                        action.setCanActAsAgentTool(false);
+                    }
                     action.setTag(tag);
+                    DOMNode displayNameNode = Utils.getChildNodeByName(child, Constant.DISPLAY_NAME);
+                    if (displayNameNode != null) {
+                        String displayName = Utils.getInlineString(displayNameNode.getFirstChild());
+                        action.setDisplayName(displayName);
+                    }
                     DOMNode descriptionNode = Utils.getChildNodeByName(child, Constant.DESCRIPTION);
                     if (descriptionNode != null) {
                         String description = Utils.getInlineString(descriptionNode.getFirstChild());
@@ -260,12 +446,18 @@ public class ConnectorReader {
                 DOMNode templateNode = Utils.getChildNodeByName(actionDom, "template");
                 if (templateNode != null) {
                     List<DOMNode> children = templateNode.getChildren();
+                    boolean hasResponseVariable = false;
+                    boolean hasOverwriteBody = false;
                     for (DOMNode child : children) {
                         if ("parameter".equalsIgnoreCase(child.getNodeName())) {
                             String name = child.getAttribute("name");
-                            action.addParameter(name);
+                            String description = child.getAttribute("description");
+                            action.addParameter(new OperationParameter(name, description));
+                            hasResponseVariable = hasResponseVariable || Constant.RESPONSE_VARIABLE.equals(name);
+                            hasOverwriteBody = hasOverwriteBody || Constant.OVERWRITE_BODY.equals(name);
                         }
                     }
+                    action.setSupportsResponseModel(hasResponseVariable && hasOverwriteBody);
                 }
             } catch (IOException e) {
                 log.log(Level.WARNING, "Error while reading " + action.getName() + " connector action", e);

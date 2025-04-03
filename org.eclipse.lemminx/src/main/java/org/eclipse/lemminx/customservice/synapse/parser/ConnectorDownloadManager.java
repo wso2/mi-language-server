@@ -18,7 +18,7 @@
 
 package org.eclipse.lemminx.customservice.synapse.parser;
 
-import org.eclipse.lemminx.customservice.synapse.connectors.AbstractConnectorLoader;
+import org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 
@@ -32,10 +32,11 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static org.eclipse.lemminx.customservice.synapse.parser.pom.PomParser.getPomDetails;
 
@@ -43,10 +44,11 @@ public class ConnectorDownloadManager {
 
     private static final Logger LOGGER = Logger.getLogger(ConnectorDownloadManager.class.getName());
 
-    public static String updateConnectors(String projectPath, AbstractConnectorLoader loader) {
+    public static String downloadConnectors(String projectPath) {
 
+        String projectId = new File(projectPath).getName() + "_" + Utils.getHash(projectPath);
         File directory = Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI, Constant.CONNECTORS,
-                Utils.getHash(projectPath)).toFile();
+                projectId).toFile();
         File downloadDirectory = Path.of(directory.getAbsolutePath(), Constant.DOWNLOADED).toFile();
         File extractDirectory = Path.of(directory.getAbsolutePath(), Constant.EXTRACTED).toFile();
 
@@ -60,15 +62,11 @@ public class ConnectorDownloadManager {
             downloadDirectory.mkdirs();
         }
 
-        try {
-            clearDirectory(extractDirectory);
-        } catch (IOException e) {
-            return "Error occurred while clearing existing connectors.";
-        }
-
         OverviewPageDetailsResponse pomDetailsResponse = new OverviewPageDetailsResponse();
         getPomDetails(projectPath, pomDetailsResponse);
         List<DependencyDetails> dependencies = pomDetailsResponse.getDependenciesDetails().getConnectorDependencies();
+        deleteRemovedConnectors(downloadDirectory, dependencies, projectPath);
+        List<String> failedDependencies = new ArrayList<>();
         for (DependencyDetails dependency : dependencies) {
             try {
                 File connector = Path.of(downloadDirectory.getAbsolutePath(),
@@ -82,39 +80,59 @@ public class ConnectorDownloadManager {
                     copyFile(existingArtifact, downloadDirectory);
                 } else {
                     LOGGER.log(Level.INFO, "Downloading dependency: " + connector.getName());
-                    downloadConnector(dependency.getGroupId(), dependency.getArtifact(),
+                    Utils.downloadConnector(dependency.getGroupId(), dependency.getArtifact(),
                             dependency.getVersion(), downloadDirectory);
                 }
             } catch (Exception e) {
-                LOGGER.log(Level.SEVERE, "Error occurred while downloading dependencies: " + e.getMessage());
-                return "Error occurred while downloading connectors.";
+                String failedDependency = dependency.getGroupId() + "-" + dependency.getArtifact() + "-" + dependency.getVersion();
+                LOGGER.log(Level.WARNING, "Error occurred while downloading dependency " + failedDependency + ": " + e.getMessage());
+                failedDependencies.add(failedDependency);
             }
         }
-
-        loader.loadConnector();
+        if (!failedDependencies.isEmpty()) {
+            LOGGER.log(Level.SEVERE, "Some connectors were not downloaded: " + String.join(", ", failedDependencies));
+            return "Some connectors were not downloaded: " + String.join(", ", failedDependencies);
+        }
         return "Success";
     }
 
-    private static void downloadConnector(String groupId, String artifactId, String version, File targetDirectory)
-            throws IOException {
+    private static void deleteRemovedConnectors(File downloadDirectory, List<DependencyDetails> dependencies,
+                                                String projectPath) {
 
-        if (!targetDirectory.exists()) {
-            targetDirectory.mkdirs();
+        List<String> existingConnectors =
+                dependencies.stream().map(dependency -> dependency.getArtifact() + "-" + dependency.getVersion())
+                        .collect(Collectors.toList());
+        File[] files = downloadDirectory.listFiles();
+        if (files == null) {
+            return;
         }
-        String url = String.format("https://maven.wso2.org/nexus/content/groups/public/%s/%s/%s/%s-%s.zip",
-                groupId.replace(".", "/"), artifactId, version, artifactId, version);
-        File targetFile = new File(targetDirectory, artifactId + "-" + version + Constant.ZIP_EXTENSION);
-        try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
-             FileOutputStream fileOutputStream = new FileOutputStream(targetFile)) {
-            byte[] dataBuffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
-                fileOutputStream.write(dataBuffer, 0, bytesRead);
+        for (File file : files) {
+            if (isConnectorRemoved(file, existingConnectors)) {
+                try {
+                    Files.delete(file.toPath());
+                    removeFromProjectIfUsingOldCARPlugin(projectPath, file.getName());
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE, "Error occurred while deleting removed connector: " + file.getName());
+                }
             }
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Error occurred while downloading dependency: " + e.getMessage());
-            throw e;
         }
+    }
+
+    private static void removeFromProjectIfUsingOldCARPlugin(String projectPath, String name) throws IOException {
+
+        if (!Utils.isOlderCARPlugin(projectPath)) {
+            return;
+        }
+        File connectorInProject =
+                Path.of(projectPath).resolve(TryOutConstants.PROJECT_CONNECTOR_PATH).resolve(name).toFile();
+        if (connectorInProject.exists()) {
+            Files.delete(connectorInProject.toPath());
+        }
+    }
+
+    private static boolean isConnectorRemoved(File file, List<String> existingConnectors) {
+
+        return file.isFile() && !existingConnectors.contains(file.getName().replace(Constant.ZIP_EXTENSION, ""));
     }
 
     private static File getDependencyFromLocalRepo(String groupId, String artifactId, String version) {
@@ -148,22 +166,6 @@ public class ConnectorDownloadManager {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error occurred while copying dependency from local repository: " + e.getMessage());
             throw e;
-        }
-    }
-
-    private static void clearDirectory(File extractedDirectory) throws IOException {
-        for (File file : extractedDirectory.listFiles()) {
-            if (file.isDirectory()) {
-                try {
-                    Files.walk(file.toPath())
-                            .sorted(Comparator.reverseOrder())
-                            .map(Path::toFile)
-                            .forEach(File::delete);
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, "Error occurred while clearing extracted dependencies: " + e.getMessage());
-                    throw e;
-                }
-            }
         }
     }
 }

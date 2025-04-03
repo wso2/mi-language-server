@@ -25,6 +25,9 @@ public class Builder extends Mediator {
     BuilderMessageBuilder[] messageBuilders;
     String description;
 
+    public Builder() {
+        setDisplayName("Builder");
+    }
     public BuilderMessageBuilder[] getMessageBuilders() {
 
         return messageBuilders;

@@ -29,25 +29,34 @@ public class ArtifactFileScanner {
 
     public static List<String> scanArtifactFiles(String projectPath) {
 
+        return scanArtifactFiles(projectPath, false);
+    }
+
+    public static List<String> scanArtifactFiles(String projectPath, boolean needFilePath) {
+
         List<String> artifactFiles = new ArrayList<>();
         if (projectPath != null) {
             String artifactPath = Path.of(projectPath, "src", "main", "wso2mi", "artifacts").toString();
-            traverseFiles(artifactPath, artifactFiles);
+            traverseFiles(artifactPath, artifactFiles, needFilePath);
         }
         return artifactFiles;
     }
 
-    private static void traverseFiles(String projectPath, List<String> artifactFiles) {
+    private static void traverseFiles(String projectPath, List<String> artifactFiles, boolean needFilePath) {
 
         File folder = new File(projectPath);
         File[] listOfFiles = folder.listFiles();
         if (listOfFiles != null) {
             for (File file : listOfFiles) {
                 if (file.isFile() && !file.isHidden()) {
-                    String artifactFilePath = extractArtifactFile(file);
-                    artifactFiles.add(artifactFilePath);
+                    if (needFilePath) {
+                        artifactFiles.add(file.getAbsolutePath());
+                    } else {
+                        String artifactFilePath = extractArtifactFile(file);
+                        artifactFiles.add(artifactFilePath);
+                    }
                 } else if (file.isDirectory()) {
-                    traverseFiles(file.getAbsolutePath(), artifactFiles);
+                    traverseFiles(file.getAbsolutePath(), artifactFiles, needFilePath);
                 }
             }
         }

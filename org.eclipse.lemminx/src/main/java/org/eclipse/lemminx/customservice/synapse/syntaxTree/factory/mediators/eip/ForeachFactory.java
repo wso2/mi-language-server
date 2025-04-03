@@ -18,6 +18,7 @@
 
 package org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.eip;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.AbstractMediatorFactory;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
@@ -53,6 +54,15 @@ public class ForeachFactory extends AbstractMediatorFactory {
     @Override
     public void populateAttributes(STNode node, DOMElement element) {
 
+        String description = element.getAttribute(Constant.DESCRIPTION);
+        if (description != null) {
+            ((Foreach) node).setDescription(description);
+        }
+        String collection = element.getAttribute("collection");
+        if (StringUtils.isNotBlank(collection)) {
+            populateV2Attributes(node, element);
+            return;
+        }
         String expression = element.getAttribute(Constant.EXPRESSION);
         if (expression != null) {
             ((Foreach) node).setExpression(expression);
@@ -65,9 +75,41 @@ public class ForeachFactory extends AbstractMediatorFactory {
         if (id != null) {
             ((Foreach) node).setId(id);
         }
-        String description = element.getAttribute(Constant.DESCRIPTION);
-        if (description != null) {
-            ((Foreach) node).setDescription(description);
+    }
+
+    private void populateV2Attributes(STNode node, DOMElement element) {
+
+        String collection = element.getAttribute("collection");
+        if (StringUtils.isNotBlank(collection)) {
+            ((Foreach) node).setCollection(collection);
+        }
+        String counterVariableName = element.getAttribute("counter-variable");
+        if (StringUtils.isNotBlank(counterVariableName)) {
+            ((Foreach) node).setCounterVariableName(counterVariableName);
+        }
+        String contentType = element.getAttribute(Constant.RESULT_CONTENT_TYPE);
+        if (StringUtils.isNotBlank(contentType)) {
+            ((Foreach) node).setResultType(contentType);
+        }
+        String enclosingElement = element.getAttribute(Constant.RESULT_ENCLOSING_ELEMENT);
+        if (StringUtils.isNotBlank(enclosingElement)) {
+            ((Foreach) node).setEnclosingElement(enclosingElement);
+        }
+        String updateOriginal = element.getAttribute("update-original");
+        if (StringUtils.isNotBlank(updateOriginal)) {
+            ((Foreach) node).setUpdateOriginal(Boolean.parseBoolean(updateOriginal));
+        }
+        String targetVariableName = element.getAttribute(Constant.TARGET_VARIABLE);
+        if (StringUtils.isNotBlank(targetVariableName)) {
+            ((Foreach) node).setVariableName(targetVariableName);
+        }
+        String executeParallel = element.getAttribute("parallel-execution");
+        if (StringUtils.isNotBlank(executeParallel)) {
+            ((Foreach) node).setExecuteParallel(Boolean.parseBoolean(executeParallel));
+        }
+        String continueWithoutAggregation = element.getAttribute("continue-without-aggregation");
+        if (StringUtils.isNotBlank(continueWithoutAggregation)) {
+            ((Foreach) node).setContinueWithoutAggregation(Boolean.parseBoolean(continueWithoutAggregation));
         }
     }
 

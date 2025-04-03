@@ -20,7 +20,6 @@ package org.eclipse.lemminx.customservice.synapse.parser.config;
 import org.eclipse.lemminx.customservice.synapse.parser.ConfigDetails;
 import org.eclipse.lemminx.customservice.synapse.parser.Constants;
 import org.eclipse.lemminx.customservice.synapse.parser.Node;
-import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
 import org.eclipse.lemminx.customservice.synapse.parser.UpdateConfigRequest;
 import org.eclipse.lemminx.customservice.synapse.parser.UpdateResponse;
 import org.eclipse.lsp4j.Position;
@@ -43,7 +42,9 @@ public class ConfigParser {
 
     private static final Logger LOGGER = Logger.getLogger(ConfigParser.class.getName());
 
-    public static void getConfigDetails(String projectUri, OverviewPageDetailsResponse detailsResponse) {
+    public static List<Node> getConfigDetails(String projectUri) {
+
+        List<Node> result = new ArrayList<>();
         File propertyFilePath = getFilePath(projectUri);
         if (isConfigFileExist(propertyFilePath)) {
             try (BufferedReader reader = new BufferedReader(new FileReader(propertyFilePath))) {
@@ -58,11 +59,10 @@ public class ConfigParser {
                     int delimiterIndex = line.indexOf(':');
                     if (delimiterIndex != -1) {
                         String key = line.substring(0, delimiterIndex).trim();
-                        detailsResponse.setConfig(
-                                new Node(key, line.substring(delimiterIndex + 1).trim(),
-                                        Either.forLeft(new Range(
-                                                new Position(lineNumber, line.indexOf(key) + 1),
-                                                new Position(lineNumber, line.length() + 1)))));
+                        result.add(new Node(key, line.substring(delimiterIndex + 1).trim(),
+                                Either.forLeft(new Range(
+                                        new Position(lineNumber, line.indexOf(key) + 1),
+                                        new Position(lineNumber, line.length() + 1)))));
                     }
                     lineNumber++;
                 }
@@ -70,6 +70,7 @@ public class ConfigParser {
                 LOGGER.log(Level.SEVERE, "Error processing the config file: " + e.getMessage());
             }
         }
+        return result;
     }
 
     public static UpdateResponse updateConfigFile(String projectUri, UpdateConfigRequest request) {
@@ -97,6 +98,18 @@ public class ConfigParser {
             }
         }
         return null;
+    }
+
+    public static List<ConfigurableEntry> scanConfigurableEntries(String projectPath)
+            throws IOException {
+
+        List<Node> configDetails = getConfigDetails(projectPath);
+        List<ConfigurableEntry> configurableEntries = new ArrayList<>();
+        for (Node configDetail : configDetails) {
+            ConfigurableEntry configurableEntry = new ConfigurableEntry(configDetail.getKey(), configDetail.getValue());
+            configurableEntries.add(configurableEntry);
+        }
+        return configurableEntries;
     }
 
     private static File getFilePath(String projectUri) {

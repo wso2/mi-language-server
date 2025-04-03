@@ -27,6 +27,10 @@ public class CallTemplate extends Mediator {
     String onError;
     String description;
 
+    public CallTemplate() {
+        setDisplayName("Call Template");
+    }
+
     public WithParam[] getWithParam() {
 
         return withParam;

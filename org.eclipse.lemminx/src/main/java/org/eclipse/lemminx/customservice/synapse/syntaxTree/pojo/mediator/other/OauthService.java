@@ -27,6 +27,10 @@ public class OauthService extends Mediator {
     String password;
     String description;
 
+    public OauthService() {
+        setDisplayName("OAuth");
+    }
+
     public String getRemoteServiceUrl() {
 
         return remoteServiceUrl;

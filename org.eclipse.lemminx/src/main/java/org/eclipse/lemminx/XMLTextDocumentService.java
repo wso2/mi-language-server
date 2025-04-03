@@ -390,6 +390,7 @@ public class XMLTextDocumentService implements TextDocumentService {
 	 */
 	@Override
 	public void didChange(DidChangeTextDocumentParams params) {
+		xmlLanguageServer.getSynapseLanguageService();
 		ModelTextDocument<DOMDocument> document = documents.onDidChangeTextDocument(params);
 		triggerValidationFor(document, TriggeredBy.didChange, params.getContentChanges());
 	}

@@ -40,6 +40,10 @@ public class EntitlementService extends Mediator {
     String obligationsAttribute;
     String description;
 
+    public EntitlementService() {
+        setDisplayName("Entitlement Service");
+    }
+
     public Sequence getOnReject() {
 
         return onReject;

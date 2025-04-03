@@ -20,10 +20,13 @@ package org.eclipse.lemminx.customservice.synapse.debugger.visitor.stepover;
 
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
-import org.eclipse.lemminx.customservice.synapse.debugger.visitor.AbstractMediatorVisitor;
+import org.eclipse.lemminx.customservice.synapse.AbstractMediatorVisitor;
 import org.eclipse.lemminx.customservice.synapse.debugger.visitor.VisitorUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.AIAgent;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Connector;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.AIChat;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.KnowledgeBase;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.SequenceMediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.Mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.Clone.Clone;
@@ -45,12 +48,15 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.P
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Respond;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Send;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Store;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.ThrowError;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Variable;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.call.Call;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.callout.Callout;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.validate.Validate;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.validate.ValidateOnFail;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.Foreach;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.Iterate;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.ScatterGather;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.aggregate.Aggregate;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.aggregate.AggregateOnComplete;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.extension.Bean;
@@ -614,6 +620,44 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
     }
 
     @Override
+    protected void visitVariable(Variable node) {
+
+        visitSimpleMediator(node);
+    }
+
+    @Override
+    protected void visitScatterGather(ScatterGather node) {
+
+        if (isFound) {
+            stepOverInfo.add(getBreakpointForNode(node));
+            done = true;
+        } else {
+            if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
+                CloneTarget[] targets = node.getTargets();
+                if (targets != null && targets.length > 0) {
+                    if (VisitorUtils.checkValidBreakpoint(node, breakpoint)) {
+                        for (CloneTarget target : targets) {
+                            addToNextBreakpoints(getFirstMediatorBreakpoint(target.getSequence()));
+                        }
+                        if (!stepOverInfo.isEmpty() && stepOverInfo.size() == targets.length) {
+                            done = true;
+                        }
+                    } else {
+                        for (CloneTarget target : targets) {
+                            if (target != null && VisitorUtils.checkNodeInRange(target, breakpoint)) {
+                                VisitorUtils.visitMediators(target.getSequence().getMediatorList(), this);
+                            }
+                        }
+                    }
+                }
+                if (!done) {
+                    isFound = true;
+                }
+            }
+        }
+    }
+
+    @Override
     protected void visitForeach(Foreach node) {
 
         if (isFound) {
@@ -709,6 +753,29 @@ public class StepOverMediatorVisitor extends AbstractMediatorVisitor {
 
     @Override
     protected void visitSequence(SequenceMediator node) {
+
+        visitSimpleMediator(node);
+    }
+
+    @Override
+    protected void visitThrowError(ThrowError node) {
+        visitSimpleMediator(node);
+    }
+
+    @Override
+    protected void visitAIChat(AIChat node) {
+
+        visitSimpleMediator(node);
+    }
+
+    @Override
+    protected void visitAIAgent(AIAgent node) {
+
+        visitSimpleMediator(node);
+    }
+
+    @Override
+    protected void visitAIKnowledgeBase(KnowledgeBase node) {
 
         visitSimpleMediator(node);
     }

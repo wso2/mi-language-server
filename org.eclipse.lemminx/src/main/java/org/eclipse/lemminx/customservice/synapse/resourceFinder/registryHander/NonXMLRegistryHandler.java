@@ -54,31 +54,23 @@ public abstract class NonXMLRegistryHandler {
 
     protected abstract boolean canHandle(File file);
 
+    protected String formatKey(String key){
+        return key;
+    }
     private Resource createNonXmlResource(File file) {
 
-        Resource resource = new RegistryResource();
+        RegistryResource resource = new RegistryResource();
         resource.setName(file.getName());
         resource.setType(Utils.getFileExtension(file));
-        resource.setFrom(Constant.REGISTRY);
-        ((RegistryResource) resource).setRegistryPath(file.getAbsolutePath());
-        ((RegistryResource) resource).setRegistryKey(getRegistryKey(file));
-        return resource;
-    }
-
-    private String getRegistryKey(File file) {
-
-        String pattern = "(.*)(\\b(gov|conf)\\b)(.*)";
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(file.getAbsolutePath());
-
-        if (m.find()) {
-            String type = m.group(3);
-            String path = m.group(4).replaceAll("\\\\", "/");
-            path = path.replaceAll("^/+", "");
-            return type + ":" + path;
+        resource.setRegistryPath(file.getAbsolutePath());
+        if (Utils.isFileInRegistry(file)) {
+            resource.setFrom(Constant.REGISTRY);
+            resource.setRegistryKey(formatKey(Utils.getRegistryKey(file)));
         } else {
-            return null;
+            resource.setFrom(Constant.RESOURCES);
+            resource.setRegistryKey(formatKey(Utils.getResourceKey(file)));
         }
+        return resource;
     }
 
     public NonXMLRegistryHandler getNextHandler() {

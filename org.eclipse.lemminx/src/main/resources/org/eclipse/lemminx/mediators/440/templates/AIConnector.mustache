@@ -1,0 +1,15 @@
+<{{tag}}>
+    <connections>
+        {{#connections}}
+        <{{name}}>{{value}}</{{name}}>
+        {{/connections}}
+    </connections>
+    {{#parameters}}
+    <{{{name}}} {{#value}}{{#namespaces}} xmlns:{{{prefix}}}="{{{uri}}}"{{/namespaces}}>{{#isCDATA}}<![CDATA[{{{value}}}]]>{{/isCDATA}}{{^isCDATA}}{{value}}{{/isCDATA}}{{/value}}</{{{name}}}>
+    {{/parameters}}
+    {{#supportTools}}<tools>
+        {{#tools}}
+        <tool name="{{name}}" template="{{template}}" resultExpression="{{resultExpression}}" description="{{description}}"/>
+        {{/tools}}
+    </tools>{{/supportTools}}
+</{{tag}}>

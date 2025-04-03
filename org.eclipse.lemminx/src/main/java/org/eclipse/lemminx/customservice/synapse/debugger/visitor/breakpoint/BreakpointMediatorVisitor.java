@@ -21,10 +21,13 @@ package org.eclipse.lemminx.customservice.synapse.debugger.visitor.breakpoint;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.Breakpoint;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.debuginfo.DebugInfo;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.debuginfo.IDebugInfo;
-import org.eclipse.lemminx.customservice.synapse.debugger.visitor.AbstractMediatorVisitor;
+import org.eclipse.lemminx.customservice.synapse.AbstractMediatorVisitor;
 import org.eclipse.lemminx.customservice.synapse.debugger.visitor.VisitorUtils;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.AIAgent;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.Connector;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.AIChat;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.connector.ai.KnowledgeBase;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.SequenceMediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.Clone.Clone;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advanced.Clone.CloneTarget;
@@ -44,11 +47,14 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.P
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Respond;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Send;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Store;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.ThrowError;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.Variable;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.call.Call;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.callout.Callout;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.core.validate.Validate;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.Foreach;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.Iterate;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.ScatterGather;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.eip.aggregate.Aggregate;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.extension.Bean;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.extension.Class;
@@ -627,6 +633,44 @@ public class BreakpointMediatorVisitor extends AbstractMediatorVisitor {
     }
 
     @Override
+    protected void visitVariable(Variable node) {
+
+        visitSimpleMediator(node);
+    }
+
+    @Override
+    protected void visitScatterGather(ScatterGather node) {
+
+        if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
+            mediatorPosition = Integer.toString(mediatorCount);
+            this.done = true;
+            if (VisitorUtils.checkValidBreakpoint(node, breakpoint)) {
+                debugInfo.setMediatorPosition(mediatorPosition);
+            } else {
+                BreakpointMediatorVisitor visitor = new BreakpointMediatorVisitor(breakpoint);
+                CloneTarget[] targets = node.getTargets();
+                if (targets != null) {
+                    for (int i = 0; i < targets.length; i++) {
+                        if (VisitorUtils.checkNodeInRange(targets[i], breakpoint)) {
+                            mediatorPosition += " " + i;
+                            VisitorUtils.visitMediators(targets[i].getSequence().getMediatorList(), visitor);
+                            break;
+                        }
+                    }
+                }
+                if (visitor.mediatorPosition != null) {
+                    mediatorPosition += " " + visitor.mediatorPosition;
+                    debugInfo.setMediatorPosition(mediatorPosition);
+                } else {
+                    markAsInvalid("Invalid breakpoint in Scatter Gather Mediator");
+                }
+            }
+        } else {
+            mediatorCount += 1;
+        }
+    }
+
+    @Override
     protected void visitForeach(Foreach node) {
 
         if (VisitorUtils.checkNodeInRange(node, breakpoint)) {
@@ -721,6 +765,29 @@ public class BreakpointMediatorVisitor extends AbstractMediatorVisitor {
     protected void visitSequence(SequenceMediator node) {
 
         visitSimpleMediator(node);
+    }
+
+    @Override
+    protected void visitThrowError(ThrowError node) {
+        visitSimpleMediator(node);
+    }
+
+    @Override
+    protected void visitAIChat(AIChat node) {
+
+        visitConnector((Connector) node);
+    }
+
+    @Override
+    protected void visitAIAgent(AIAgent node) {
+
+        visitConnector((Connector) node);
+    }
+
+    @Override
+    protected void visitAIKnowledgeBase(KnowledgeBase node) {
+
+        visitConnector((Connector) node);
     }
 
     private void markAsInvalid(String error) {

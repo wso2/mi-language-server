@@ -30,6 +30,10 @@ public class Rule extends Mediator {
     RuleChildMediators childMediators;
     String description;
 
+    public Rule() {
+        setDisplayName("Rule");
+    }
+
     public RuleSource getSource() {
 
         return source;

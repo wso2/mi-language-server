@@ -22,5 +22,9 @@ public enum LogLevel {
     simple,
     headers,
     full,
-    custom,
+    custom;
+
+    public String toUpperCase() {
+        return this.name().toUpperCase();
+    }
 }

@@ -26,6 +26,10 @@ public class Aggregate extends Mediator {
     String description;
     String id;
 
+    public Aggregate() {
+        setDisplayName("Aggregate");
+    }
+
     public CorrelateOnOrCompleteConditionOrOnComplete getCorrelateOnOrCompleteConditionOrOnComplete() {
 
         return correlateOnOrCompleteConditionOrOnComplete;

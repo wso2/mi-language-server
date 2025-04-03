@@ -18,19 +18,32 @@
 
 package org.eclipse.lemminx.customservice.synapse.connectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorAction;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ConnectorHolder {
 
-    private List<Connector> connectors;
+    private static List<Connector> connectors;
+    private List<File> connectorZips;
+    private static ConnectorHolder instance;
 
-    public ConnectorHolder() {
+    private ConnectorHolder() {
 
         this.connectors = new ArrayList<>();
+    }
+
+    public static synchronized ConnectorHolder getInstance() {
+
+        if (instance == null) {
+            instance = new ConnectorHolder();
+        }
+        return instance;
     }
 
     public void addConnector(Connector connector) {
@@ -38,17 +51,7 @@ public class ConnectorHolder {
         connectors.add(connector);
     }
 
-    private Boolean isAlreadyExist(Connector connector) {
-
-        for (Connector con : connectors) {
-            if (con.getName().equals(connector.getName())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean isAlreadyExist(String connectorName) {
+    public boolean exists(String connectorName) {
 
         for (Connector connector : connectors) {
             if (connector.getName().equalsIgnoreCase(connectorName)) {
@@ -60,20 +63,46 @@ public class ConnectorHolder {
 
     public List<Connector> getConnectors() {
 
-        return connectors;
+        return Collections.unmodifiableList(connectors);
     }
 
     public Connector getConnector(String name) {
 
         for (Connector connector : connectors) {
-            if (connector.getName().equalsIgnoreCase(name)) {
+            if (isConnectorMatched(name, connector)) {
                 return connector;
             }
         }
         return null;
     }
 
-    public Boolean isValidConnector(String name) {
+    /**
+     * Returns the {@link ConnectorAction} object for the given connector operation tag.
+     *
+     * @param operationTag the xml tag name for the connector operation
+     * @return the {@link ConnectorAction} object for the given connector operation tag
+     */
+    public ConnectorAction getConnectorAction(String operationTag) {
+
+        if (StringUtils.isEmpty(operationTag) || !operationTag.contains(".")) {
+            return null;
+        }
+        String connectorName = operationTag.split("\\.")[0];
+        String actionName = operationTag.split("\\.")[1];
+        Connector connector = getConnector(connectorName);
+        if (connector == null) {
+            return null;
+        }
+        return connector.getAction(actionName);
+    }
+
+    private boolean isConnectorMatched(String name, Connector connector) {
+
+        return connector.getName().equalsIgnoreCase(name) ||
+                (connector.getDisplayName() != null && connector.getDisplayName().equalsIgnoreCase(name));
+    }
+
+    public static Boolean isValidConnector(String name) {
 
         String connectorName = name.split("\\.")[0];
         for (Connector connector : connectors) {
@@ -99,6 +128,16 @@ public class ConnectorHolder {
                 }
             }
         }
+    }
+
+    public List<File> getConnectorZips() {
+
+        return connectorZips;
+    }
+
+    public void setConnectorZips(List<File> connectorZips) {
+
+        this.connectorZips = connectorZips;
     }
 
     public void clearConnectors() {

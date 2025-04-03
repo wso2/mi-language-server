@@ -29,6 +29,10 @@ public class Ntlm extends Mediator {
     String ntlmVersion;
     String description;
 
+    public Ntlm() {
+        setDisplayName("NTLM");
+    }
+
     public String getDomain() {
 
         return domain;
