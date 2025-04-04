@@ -57,6 +57,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -117,51 +119,57 @@ public class DirectoryTreeBuilder {
      */
     public static DirectoryMapResponse getProjectExplorerModel(WorkspaceFolder projectFolder) {
         DirectoryMapResponse directoryMap = buildDirectoryTree(projectFolder);
+        if (directoryMap.getDirectoryMap() == null) {
+            LOGGER.log(Level.SEVERE, "Error occurred while building directory tree.");
+            return null;
+        }
         try {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(directoryMap.getDirectoryMap().getAsJsonObject().toString());
             JsonNode artifacts = root.path(Constant.SRC).path(MAIN).path(WSO2MI).path(Constant.ARTIFACTS);
+            JsonNode resources = root.path(Constant.SRC).path(MAIN).path(WSO2MI).path(Constant.RESOURCES);
             ObjectNode newArtifacts = mapper.createObjectNode();
 
             newArtifacts.set("APIs", artifacts.path(Constant.APIS));
-            newArtifacts.set("Triggers", artifacts.path(Constant.INBOUNDENDPOINTS));
-            newArtifacts.set("Scheduled Tasks", artifacts.path(Constant.TASKS));
+            newArtifacts.set("Event Integrations", artifacts.path(Constant.INBOUNDENDPOINTS));
+            newArtifacts.set("Automations", artifacts.path(Constant.TASKS));
+            newArtifacts.set("Data Services", artifacts.path(Constant.DATA_SERVICES));
 
-            ObjectNode dataIntegration = newArtifacts.putObject("Data Integration");
-            dataIntegration.set("Data Services", artifacts.path(Constant.DATA_SERVICES));
-            dataIntegration.set("Data Sources", artifacts.path(Constant.DATA_SOURCES));
-
-            ObjectNode commonArtifacts = newArtifacts.putObject("Common Artifacts");
-            commonArtifacts.set("Sequences", artifacts.path(Constant.SEQUENCES));
-            commonArtifacts.set("Connections", artifacts.path(Constant.CONNECTIONS));
-
-            JsonNode registryFolders = root.path(Constant.SRC).path(MAIN).path(WSO2MI).path(Constant.RESOURCES)
-                    .path(Constant.REGISTRY).path(Constant.GOV).path(Constant.FOLDERS);
-            boolean hasDataMappers = false;
-
-            for (JsonNode regFolder : registryFolders) {
-                if (regFolder.path(Constant.NAME).asText().equals(Constant.DATA_MAPPER)) {
-                    commonArtifacts.set("Data Mappers", regFolder.path(Constant.FOLDERS));
-                    hasDataMappers = true;
-                    break;
-                }
-            }
-            if (!hasDataMappers) {
-                commonArtifacts.set("Data Mappers", mapper.createArrayNode());
-            }
+            ObjectNode otherArtifacts = newArtifacts.putObject("Other Artifacts");
+            otherArtifacts.set("Sequences", artifacts.path(Constant.SEQUENCES));
+            otherArtifacts.set("Connections", artifacts.path(Constant.CONNECTIONS));
+            otherArtifacts.set("Data Sources", artifacts.path(Constant.DATA_SOURCES));
 
             ArrayNode classMediatorArray = mapper.createArrayNode();
             JsonNode mediatorFolders = root.path(Constant.SRC).path(MAIN).path(JAVA).path(Constant.FOLDERS);
             extractClassMediators(mediatorFolders, classMediatorArray);
-            commonArtifacts.set("Class Mediators", classMediatorArray);
+            otherArtifacts.set("Class Mediators", classMediatorArray);
 
-            ObjectNode advancedArtifacts = newArtifacts.putObject("Advanced Artifacts");
-            advancedArtifacts.set("Endpoints", artifacts.path(Constant.ENDPOINTS));
-            advancedArtifacts.set("Proxy Services", artifacts.path(Constant.PROXYSERVICES));
-            advancedArtifacts.set("Message Stores", artifacts.path(Constant.MESSAGE_STORES));
-            advancedArtifacts.set("Message Processors", artifacts.path(Constant.MESSAGE_PROCESSORS));
-            advancedArtifacts.set("Local Entries", artifacts.path(Constant.LOCALENTRIES));
-            advancedArtifacts.set("Templates", artifacts.path(Constant.TEMPLATES));
+            ArrayNode ballerinaModulesArray = mapper.createArrayNode();
+            JsonNode moduleFolders = root.path(Constant.SRC).path(MAIN).path(Constant.BALLERINA).path(Constant.FOLDERS);
+            extractBallerinaModules(moduleFolders, ballerinaModulesArray);
+            otherArtifacts.set("Ballerina Modules", ballerinaModulesArray);
+
+            otherArtifacts.set("Endpoints", artifacts.path(Constant.ENDPOINTS));
+            otherArtifacts.set("Proxy Services", artifacts.path(Constant.PROXYSERVICES));
+            otherArtifacts.set("Message Stores", artifacts.path(Constant.MESSAGE_STORES));
+            otherArtifacts.set("Message Processors", artifacts.path(Constant.MESSAGE_PROCESSORS));
+            otherArtifacts.set("Local Entries", artifacts.path(Constant.LOCALENTRIES));
+            otherArtifacts.set("Templates", artifacts.path(Constant.TEMPLATES));
+
+            JsonNode registryFolders = root.path(Constant.SRC).path(MAIN).path(WSO2MI).path(Constant.RESOURCES)
+                    .path(Constant.REGISTRY).path(Constant.GOV).path(Constant.FOLDERS);
+            JsonNode newResources = resources.path(Constant.NEW_RESOURCES);
+            JsonNode newResourcesFolders = newResources.path(Constant.FOLDERS);
+            newArtifacts.set("Resources", newResources);
+
+            ArrayNode dataMapperConfigs = getDataMapperConfigs(mapper, registryFolders, newResourcesFolders);
+
+            if (dataMapperConfigs.isEmpty()) {
+                otherArtifacts.set("Data Mappers", mapper.createArrayNode());
+            } else {
+                otherArtifacts.set("Data Mappers", dataMapperConfigs);
+            }
 
             ((ObjectNode) root.path(Constant.SRC).path(MAIN).path(WSO2MI)).set(Constant.ARTIFACTS, newArtifacts);
             ObjectMapper objectMapper = new ObjectMapper();
@@ -175,6 +183,51 @@ public class DirectoryTreeBuilder {
         }
     }
 
+    private static ArrayNode getDataMapperConfigs(ObjectMapper mapper, JsonNode registryFolders, JsonNode newResourcesFolders) {
+
+        ArrayNode dataMappersNode = mapper.createArrayNode();
+        for (JsonNode resourceFolder : newResourcesFolders) {
+            if (Constant.DATA_MAPPER.equals(resourceFolder.path(Constant.NAME).asText())) {
+                dataMappersNode.addAll((ArrayNode) resourceFolder.path(Constant.FOLDERS));
+                break;
+            }
+        }
+        for (JsonNode registryFolder : registryFolders) {
+            if (Constant.DATA_MAPPER.equals(registryFolder.path(Constant.NAME).asText())) {
+                dataMappersNode.addAll((ArrayNode) registryFolder.path(Constant.FOLDERS));
+                break;
+            }
+        }
+        return dataMappersNode;
+    }
+
+    public static List<String> getProjectIdentifiers(WorkspaceFolder projectFolder, List<String> filePaths) {
+
+        List<String> result = new ArrayList<>();
+        DirectoryMapResponse directoryMap = buildDirectoryTree(projectFolder);
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(directoryMap.getDirectoryMap().getAsJsonObject().toString());
+            JsonNode artifacts = root.path(Constant.SRC).path(MAIN).path(WSO2MI).path(Constant.ARTIFACTS);
+            artifacts.fields().forEachRemaining(entry -> {
+                String artifactType = entry.getKey();
+                JsonNode artifactEntries = entry.getValue();
+                if (artifactEntries.isArray()) {
+                    for (JsonNode artifactEntryNode: artifactEntries) {
+                        String path = artifactEntryNode.path(Constant.PATH).asText();
+                        if (filePaths.contains(path)) {
+                            result.add(artifactType + File.separator +
+                                    path.substring(path.lastIndexOf(File.separator) + 1).split("\\.")[0]);
+                        }
+                    }
+                }
+            });
+            return result;
+        } catch (Exception ex) {
+            return Collections.emptyList();
+        }
+    }
+
     private static void updateMainSequence() {
 
         mainSequence = null;
@@ -183,15 +236,21 @@ public class DirectoryTreeBuilder {
         if (pomFile.exists()) {
             try {
                 DOMDocument pom = Utils.getDOMDocument(pomFile);
-                if (pom != null && pom.getDocumentElement() != null) {
-                    DOMNode properties = Utils.getChildNodeByName(pom.getDocumentElement(), Constant.PROPERTIES);
-                    if (properties != null) {
-                        DOMNode mainSequenceElt = Utils.getChildNodeByName(properties, "mainSequence");
-                        if (mainSequenceElt != null) {
-                            mainSequence = Utils.getInlineString(mainSequenceElt.getFirstChild());
+                DOMNode profiles = Utils.getChildNodeByName(pom.getDocumentElement(), Constant.PROFILES);
+                List<DOMNode> profileList = profiles.getChildren();
+                profileList.forEach(profile -> {
+                    DOMNode profileId = Utils.getChildNodeByName(profile, Constant.ID);
+                    if (profileId != null && Constant.DEFAULT.equals(Utils.getInlineString(profileId.getFirstChild()))) {
+                        DOMNode properties = Utils.getChildNodeByName(profile, Constant.PROPERTIES);
+                        if (properties != null) {
+                            DOMNode mainSequenceNode = Utils.getChildNodeByName(properties, Constant.MAIN_SEQUENCE);
+                            if (mainSequenceNode != null) {
+                                mainSequence = Utils.getInlineString(mainSequenceNode.getFirstChild());
+                                return;
+                            }
                         }
                     }
-                }
+                });
             } catch (IOException e) {
                 LOGGER.log(Level.WARNING, "Could not read project pom file");
             }
@@ -203,6 +262,7 @@ public class DirectoryTreeBuilder {
         analyzeArtifacts(directoryTree);
         analyzeResources(directoryTree);
         analyzeJavaProjects(directoryTree);
+        analyzeBallerinaProjects(directoryTree);
         analyzeTestsFolder(directoryTree);
     }
 
@@ -284,6 +344,22 @@ public class DirectoryTreeBuilder {
         analyzeRegistryResources(directoryTree);
         analyzeConnectorResources(directoryTree);
         analyzeMetadataResources(directoryTree);
+        analyzeNewResources(directoryTree);
+    }
+
+    private static void analyzeNewResources(IntegrationDirectoryTree directoryTree) {
+
+        String registryPath = projectPath + File.separator + Constant.SRC + File.separator +
+                MAIN + File.separator + WSO2MI + File.separator + RESOURCES;
+        File folder = new File(registryPath);
+        if (folder != null && folder.exists()) {
+            if (!folder.isHidden()) {
+                String folderName = folder.getName();
+                FolderNode resourceFolderNode = new FolderNode(folderName, registryPath);
+                traverseFolder(resourceFolderNode, directoryTree);
+                directoryTree.getResources().setNewResources(resourceFolderNode);
+            }
+        }
     }
 
     private static void analyzeRegistryResources(IntegrationDirectoryTree directoryTree) {
@@ -365,6 +441,19 @@ public class DirectoryTreeBuilder {
         }
     }
 
+    private static void analyzeBallerinaProjects(IntegrationDirectoryTree directoryTree) {
+
+        String ballerinaPath = projectPath + File.separator + Constant.SRC + File.separator + MAIN +
+                        File.separator + Constant.BALLERINA;
+        File folder = new File(ballerinaPath);
+        if (folder.exists() && !folder.isHidden()) {
+            String folderName = folder.getName();
+            FolderNode ballerinaFolderNode = new FolderNode(folderName, ballerinaPath);
+            traverseFolder(ballerinaFolderNode, null);
+            directoryTree.setBallerina(ballerinaFolderNode);
+        }
+    }
+
     private static void analyzeTestsFolder(IntegrationDirectoryTree directoryTree) {
 
         TestFolder testFolder = new TestFolder();
@@ -390,6 +479,10 @@ public class DirectoryTreeBuilder {
         File[] listOfFiles = folderNode.listFiles();
         for (File file : listOfFiles) {
             if (Utils.isRegistryPropertiesFile(file)) {
+                continue;
+            }
+            if (file.getAbsolutePath().endsWith(Path.of(Constant.RESOURCES, Constant.ARTIFACT_XML).toString()) ||
+                    file.getAbsolutePath().endsWith(Path.of(Constant.RESOURCES, Constant.REGISTRY, Constant.ARTIFACT_XML).toString())) {
                 continue;
             }
             if (file.isFile() && !file.isHidden()) {
@@ -690,6 +783,18 @@ public class DirectoryTreeBuilder {
 
             if (classMediatorFolder.has(Constant.FOLDERS)) {
                 extractClassMediators(classMediatorFolder.path(Constant.FOLDERS), classMediatorArray);
+            }
+        }
+    }
+
+    private static void extractBallerinaModules(JsonNode moduleFolders, ArrayNode ballerinaModuleArray) {
+        for (JsonNode ballerinaModuleFolder : moduleFolders) {
+            if (ballerinaModuleFolder.has(Constant.FILES)) {
+                ballerinaModuleArray.addAll((ArrayNode) ballerinaModuleFolder.path(Constant.FILES));
+            }
+
+            if (ballerinaModuleFolder.has(Constant.FOLDERS)) {
+                extractBallerinaModules(ballerinaModuleFolder.path(Constant.FOLDERS), ballerinaModuleArray);
             }
         }
     }

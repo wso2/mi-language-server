@@ -28,6 +28,19 @@ public class Foreach extends Mediator {
     String sequenceAttribute;
     String id;
     String description;
+    // V2 attributes
+    boolean executeParallel;
+    boolean updateOriginal;
+    String variableName;
+    String resultType;
+    String enclosingElement;
+    String collection;
+    String counterVariableName;
+    boolean continueWithoutAggregation;
+
+    public Foreach() {
+        setDisplayName("Foreach");
+    }
 
     public Sequence getSequence() {
 
@@ -77,5 +90,85 @@ public class Foreach extends Mediator {
     public void setDescription(String description) {
 
         this.description = description;
+    }
+
+    public boolean isExecuteParallel() {
+
+        return executeParallel;
+    }
+
+    public void setExecuteParallel(boolean executeParallel) {
+
+        this.executeParallel = executeParallel;
+    }
+
+    public boolean isUpdateOriginal() {
+
+        return updateOriginal;
+    }
+
+    public void setUpdateOriginal(boolean updateOriginal) {
+
+        this.updateOriginal = updateOriginal;
+    }
+
+    public String getVariableName() {
+
+        return variableName;
+    }
+
+    public void setVariableName(String variableName) {
+
+        this.variableName = variableName;
+    }
+
+    public String getResultType() {
+
+        return resultType;
+    }
+
+    public void setResultType(String resultType) {
+
+        this.resultType = resultType;
+    }
+
+    public String getCollection() {
+
+        return collection;
+    }
+
+    public void setCollection(String collection) {
+
+        this.collection = collection;
+    }
+
+    public String getCounterVariableName() {
+
+        return counterVariableName;
+    }
+
+    public void setCounterVariableName(String counterVariableName) {
+
+        this.counterVariableName = counterVariableName;
+    }
+
+    public boolean isContinueWithoutAggregation() {
+
+        return continueWithoutAggregation;
+    }
+
+    public void setContinueWithoutAggregation(boolean continueWithoutAggregation) {
+
+        this.continueWithoutAggregation = continueWithoutAggregation;
+    }
+
+    public String getEnclosingElement() {
+
+        return enclosingElement;
+    }
+
+    public void setEnclosingElement(String enclosingElement) {
+
+        this.enclosingElement = enclosingElement;
     }
 }

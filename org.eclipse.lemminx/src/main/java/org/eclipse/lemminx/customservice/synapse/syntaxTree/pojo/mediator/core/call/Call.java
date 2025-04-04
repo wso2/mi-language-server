@@ -29,7 +29,11 @@ public class Call extends Mediator {
     boolean blocking;
     String description;
     boolean initAxis2ClientOptions;
+    String inlineEndpointXml;
 
+    public Call() {
+        setDisplayName("Call Endpoint");
+    }
     public CallSource getSource() {
 
         return source;
@@ -88,5 +92,13 @@ public class Call extends Mediator {
     public void setInitAxis2ClientOptions(boolean initAxis2ClientOptions) {
 
         this.initAxis2ClientOptions = initAxis2ClientOptions;
+    }
+
+    public String getInlineEndpointXml() {
+        return inlineEndpointXml;
+    }
+
+    public void setInlineEndpointXml(String inlineEndpointXml) {
+        this.inlineEndpointXml = inlineEndpointXml;
     }
 }

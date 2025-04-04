@@ -30,24 +30,49 @@ public class Node {
     private String displayValue;
 
     public Node() {
+
     }
 
     public Node(String value, Either<Range, List<Range>> range) {
+
         this.range = range;
         this.value = value;
     }
 
     public Node(String key, String value, Either<Range, List<Range>> range) {
+
         this.range = range;
         this.key = key;
         this.value = value;
     }
 
     public String getValue() {
-        return this.value;
+
+        return value;
+    }
+
+    public String getKey() {
+
+        return key;
+    }
+
+    public void setRange(Either<Range, List<Range>> range) {
+        this.range = range;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 
     public void setDisplayValue(String displayValue) {
         this.displayValue = displayValue;
+    }
+
+    public String getDisplayValue() {
+        return this.displayValue;
+    }
+
+    public Either<Range, List<Range>> getRange() {
+        return this.range;
     }
 }

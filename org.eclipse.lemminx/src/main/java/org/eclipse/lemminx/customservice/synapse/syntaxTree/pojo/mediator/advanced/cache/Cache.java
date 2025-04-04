@@ -33,6 +33,10 @@ public class Cache extends Mediator {
     String hashGenerator;
     String description;
 
+    public Cache() {
+        setDisplayName("Cache");
+    }
+
     public String getId() {
 
         return id;

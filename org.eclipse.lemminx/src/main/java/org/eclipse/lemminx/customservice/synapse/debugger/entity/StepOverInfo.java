@@ -44,4 +44,9 @@ public class StepOverInfo {
 
         return this.stepOverBreakpoints.size();
     }
+
+    public List<Breakpoint> getStepOverBreakpoints() {
+
+        return stepOverBreakpoints;
+    }
 }

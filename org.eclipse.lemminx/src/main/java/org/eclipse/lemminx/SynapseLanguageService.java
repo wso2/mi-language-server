@@ -25,16 +25,24 @@ import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateAPIResponse;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerParam;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerResponse;
+import org.eclipse.lemminx.customservice.synapse.connectors.ConnectionHandler;
 import org.eclipse.lemminx.customservice.synapse.connectors.NewProjectConnectorLoader;
 import org.eclipse.lemminx.customservice.synapse.connectors.OldProjectConnectorLoader;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectionUIParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connections;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectionFinder;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorResponse;
+import org.eclipse.lemminx.customservice.synapse.connectors.generate.ConnectorGenerateRequest;
+import org.eclipse.lemminx.customservice.synapse.connectors.generate.ConnectorGeneratorResponse;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.TestConnectionRequest;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.TestConnectionResponse;
 import org.eclipse.lemminx.customservice.synapse.dataService.DynamicClassLoader;
 import org.eclipse.lemminx.customservice.synapse.dataService.QueryGenerator;
 import org.eclipse.lemminx.customservice.synapse.dataService.CheckDBDriverRequestParams;
-import org.eclipse.lemminx.customservice.synapse.dataService.AddDriverRequestParams;
+import org.eclipse.lemminx.customservice.synapse.dataService.CheckDBDriverResponseParams;
+import org.eclipse.lemminx.customservice.synapse.dataService.ModifyDriverRequestParams;
 import org.eclipse.lemminx.customservice.synapse.dataService.QueryGenRequestParams;
 import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTestParams;
 import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTestResponse;
@@ -42,19 +50,30 @@ import org.eclipse.lemminx.customservice.synapse.db.DBConnectionTester;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.StepOverInfo;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.OverviewModelGenerator;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.OverviewModel;
+import org.eclipse.lemminx.customservice.synapse.expression.ExpressionHelperProvider;
+import org.eclipse.lemminx.customservice.synapse.expression.ExpressionSignatureProvider;
+import org.eclipse.lemminx.customservice.synapse.expression.pojo.ExpressionParam;
+import org.eclipse.lemminx.customservice.synapse.expression.ExpressionCompletionsProvider;
+import org.eclipse.lemminx.customservice.synapse.expression.pojo.HelperPanelData;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorResponse;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.DependencyScanner;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.pojo.DependencyTree;
-import org.eclipse.lemminx.customservice.synapse.parser.ConfigDetails;
-import org.eclipse.lemminx.customservice.synapse.parser.DependencyDetails;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.TryOutManager;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutRequest;
+import org.eclipse.lemminx.customservice.synapse.mediatorService.MediatorHandler;
+import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.MediatorRequest;
+import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.SynapseConfigRequest;
+import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.SynapseConfigResponse;
+import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.UISchemaRequest;
 import org.eclipse.lemminx.customservice.synapse.parser.OverviewPage;
 import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
 import org.eclipse.lemminx.customservice.synapse.parser.UpdateConfigRequest;
 import org.eclipse.lemminx.customservice.synapse.parser.UpdateDependencyRequest;
 import org.eclipse.lemminx.customservice.synapse.parser.UpdateResponse;
 import org.eclipse.lemminx.customservice.synapse.parser.config.ConfigParser;
+import org.eclipse.lemminx.customservice.synapse.parser.config.ConfigurableEntry;
 import org.eclipse.lemminx.customservice.synapse.parser.pom.PomParser;
 import org.eclipse.lemminx.customservice.synapse.parser.ConnectorDownloadManager;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.AbstractResourceFinder;
@@ -67,7 +86,10 @@ import org.eclipse.lemminx.customservice.synapse.debugger.DebuggerHelper;
 import org.eclipse.lemminx.customservice.synapse.debugger.entity.ValidationResponse;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateAPIParam;
 import org.eclipse.lemminx.customservice.synapse.api.generator.RestApiAdmin;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceFileScanner;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceFinderFactory;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceUsageFinder;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceUsagesRequest;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceParam;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceResponse;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
@@ -84,20 +106,28 @@ import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGeneratorH
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeGenerator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.SyntaxTreeResponse;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.factory.mediators.MediatorFactoryFinder;
+import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.ArtifactTypeResponse;
+import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.MediatorTryoutInfo;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationSettings;
+import org.eclipse.lemminx.services.extensions.completion.ICompletionResponse;
 import org.eclipse.lemminx.settings.SharedSettings;
 import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
+import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceFolder;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.messages.Either3;
+import org.wso2.mi.tool.connector.tools.generator.openapi.ConnectorGenerator;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -111,19 +141,28 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     private XMLLanguageServer xmlLanguageServer;
     private SynapseLanguageClientAPI languageClient;
     private AbstractConnectorLoader connectorLoader;
-    private static String extensionPath;
+    private String extensionPath;
     private String projectUri;
     private boolean isLegacyProject;
-    private ConnectorHolder connectorHolder;
+    private String projectServerVersion;
+    private MediatorHandler mediatorHandler;
+    private final ConnectorHolder connectorHolder;
     private AbstractResourceFinder resourceFinder;
-    private InboundConnectorHolder inboundConnectorHolder;
+    private final InboundConnectorHolder inboundConnectorHolder;
+    private final ConnectionHandler connectionHandler;
+    private Path synapseXSDPath;
+    private TryOutManager tryOutManager;
+    private String miServerPath;
+    private ExpressionHelperProvider expressionHelperProvider;
 
     public SynapseLanguageService(XMLTextDocumentService xmlTextDocumentService, XMLLanguageServer xmlLanguageServer) {
 
         this.xmlTextDocumentService = xmlTextDocumentService;
         this.xmlLanguageServer = xmlLanguageServer;
-        this.connectorHolder = new ConnectorHolder();
+        this.connectorHolder = ConnectorHolder.getInstance();
         this.inboundConnectorHolder = new InboundConnectorHolder();
+        mediatorHandler = new MediatorHandler();
+        connectionHandler = new ConnectionHandler();
     }
 
     public void init(String projectUri, Object settings, SynapseLanguageClientAPI languageClient) {
@@ -131,32 +170,38 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         this.languageClient = languageClient;
         if (settings != null) {
             extensionPath = ((JsonObject) settings).get("extensionPath").getAsString();
+            miServerPath = ((JsonObject) settings).get("miServerPath").getAsString();
         }
         if (projectUri != null) {
             this.projectUri = projectUri;
             this.isLegacyProject = Utils.isLegacyProject(projectUri);
+            this.projectServerVersion = Utils.getServerVersion(projectUri, Constant.DEFAULT_MI_VERSION);
+            inboundConnectorHolder.init(projectUri, projectServerVersion);
             initializeConnectorLoader();
-            MediatorFactoryFinder.getInstance().setConnectorHolder(connectorHolder);
+            mediatorHandler.init(projectUri, projectServerVersion, connectorHolder);
+            connectionHandler.init(connectorHolder);
+            MediatorFactoryFinder.init(projectServerVersion, projectUri, connectorHolder);
             try {
                 DynamicClassLoader.updateClassLoader(Path.of(projectUri, "deployment", "libs").toFile());
+                this.tryOutManager = new TryOutManager(projectUri, miServerPath, connectorHolder);
             } catch (Exception e) {
                 log.log(Level.SEVERE, "Error while updating class loader for DB drivers.", e);
             }
-        } else{
+            this.expressionHelperProvider = new ExpressionHelperProvider(projectUri);
+        } else {
             log.log(Level.SEVERE, "Project path is null. Language server initialization failed.");
         }
         resourceFinder = ResourceFinderFactory.getResourceFinder(isLegacyProject);
-        inboundConnectorHolder.init(projectUri);
     }
 
-    private void initializeConnectorLoader(){
-        if(isLegacyProject){
-            connectorLoader = new OldProjectConnectorLoader(languageClient,connectorHolder);
-        } else{
-            connectorLoader = new NewProjectConnectorLoader(languageClient,connectorHolder);
+    private void initializeConnectorLoader() {
+        if (isLegacyProject) {
+            connectorLoader = new OldProjectConnectorLoader(languageClient, connectorHolder);
+        } else {
+            connectorLoader = new NewProjectConnectorLoader(languageClient, connectorHolder);
         }
         connectorLoader.init(projectUri);
-        updateConnectors();
+        updateConnectorDependencies();
     }
 
     @Override
@@ -223,7 +268,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     }
 
     @Override
-    public CompletableFuture<Either3<ConnectorHolder, Connector, Boolean>> availableConnectors(ConnectorParam param) {
+    public CompletableFuture<Either3<ConnectorResponse, Connector, Boolean>> availableConnectors(ConnectorParam param) {
 
         return CompletableFuture.supplyAsync(() -> {
             if (param.connectorName != null && !param.connectorName.isEmpty()) {
@@ -233,18 +278,18 @@ public class SynapseLanguageService implements ISynapseLanguageService {
                 }
                 return Either3.forSecond(connector);
             }
-            return Either3.forFirst(connectorHolder);
+            return Either3.forFirst(new ConnectorResponse(connectorHolder.getConnectors()));
         });
     }
 
     public void updateConnectors() {
 
-        connectorLoader.loadConnector();
-
+        connectorLoader.loadConnector(inboundConnectorHolder);
+        if (mediatorHandler.isInitialized()) {
+            mediatorHandler.reloadMediatorList(projectServerVersion);
+        }
         //Generate xsd schema for the available connectors and write it to the schema file.
-        String connectorPath =
-                extensionPath + File.separator + "synapse-schemas" + File.separator +
-                        "mediators" + File.separator + "connectors.xsd";
+        String connectorPath = synapseXSDPath.resolve("mediators").resolve("connectors.xsd").toString();
         SchemaGenerate.generate(connectorHolder, connectorPath);
     }
 
@@ -253,6 +298,34 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
         List<String> registryFiles = RegistryFileScanner.scanRegistryFiles(projectUri);
         return CompletableFuture.supplyAsync(() -> registryFiles);
+    }
+
+    @Override
+    public CompletableFuture<List<String>> getResourceFiles() {
+
+        List<String> resourceFiles = ResourceFileScanner.scanResourceFiles(projectUri);
+        return CompletableFuture.supplyAsync(() -> resourceFiles);
+    }
+
+    @Override
+    public CompletableFuture<List<ConfigurableEntry>> getConfigurableEntries() {
+
+        try {
+            List<ConfigurableEntry> configurableEntries = ConfigParser.scanConfigurableEntries(projectUri);
+            return CompletableFuture.supplyAsync(() -> configurableEntries);
+        } catch (IOException e) {
+            log.log(Level.SEVERE, "Error while scanning configurable entries.", e);
+            return CompletableFuture.supplyAsync(() -> new ArrayList<>());
+        }
+    }
+
+    @Override
+    public CompletableFuture<List<String>> getResourceUsages(ResourceUsagesRequest resourceUsagesRequest) {
+
+        List<String> resourceUsagesProjectIdentifiers =
+                ResourceUsageFinder.findResourceUsagesProjectIdentifiers(projectUri,
+                        resourceUsagesRequest.getResourceFilePath(), connectorHolder, isLegacyProject);
+        return CompletableFuture.supplyAsync(() -> resourceUsagesProjectIdentifiers);
     }
 
     @Override
@@ -343,12 +416,24 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     public CompletableFuture<InboundConnectorResponse> getInboundConnectorSchema(InboundConnectorParam param) {
 
         return CompletableFuture.supplyAsync(() -> {
-            if (param.connectorName != null) {
-                return inboundConnectorHolder.getInboundConnectorSchema(param.connectorName);
+            if (param.connectorId != null) {
+                return inboundConnectorHolder.getInboundConnectorSchemaFromId(param.connectorId);
             } else {
                 return inboundConnectorHolder.getInboundConnectorSchema(new File(param.documentPath));
             }
         });
+    }
+
+    @Override
+    public CompletableFuture<JsonObject> getLocalInboundConnectors() {
+
+        return CompletableFuture.supplyAsync(() -> inboundConnectorHolder.getLocalInboundConnectorList());
+    }
+
+    @Override
+    public CompletableFuture<JsonObject> getConnectionUISchema(ConnectionUIParam param) {
+
+        return CompletableFuture.supplyAsync(() -> connectionHandler.getConnectionUISchema(param));
     }
 
     @Override
@@ -366,15 +451,28 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     }
 
     @Override
-    public CompletableFuture<Boolean> checkDBDriver(CheckDBDriverRequestParams requestParams) {
-        boolean isDriverAvailable = QueryGenerator.isDriverAvailableInClassPath(requestParams.className);
-        return CompletableFuture.supplyAsync(() -> isDriverAvailable);
+    public CompletableFuture<CheckDBDriverResponseParams> checkDBDriver(CheckDBDriverRequestParams requestParams) {
+        CheckDBDriverResponseParams response = QueryGenerator.isDriverAvailableInClassPath(requestParams.className, projectUri);
+        return CompletableFuture.supplyAsync(() -> response);
     }
 
     @Override
-    public CompletableFuture<Boolean> addDBDriver(AddDriverRequestParams requestParams) {
-        boolean isSuccess = QueryGenerator.addDriverToClassPath(requestParams.driverPath, requestParams.className);
+    public CompletableFuture<Boolean> addDBDriver(ModifyDriverRequestParams requestParams) {
+        boolean isSuccess = QueryGenerator.addDriverToClassPath(requestParams.addDriverPath, requestParams.className);
         return CompletableFuture.supplyAsync(() -> isSuccess);
+    }
+
+    @Override
+    public CompletableFuture<Boolean> removeDBDriver(ModifyDriverRequestParams requestParams) {
+        boolean response = QueryGenerator.removeDriverFromClassPath(requestParams.removeDriverPath);
+        return CompletableFuture.supplyAsync(() -> response);
+    }
+
+    @Override
+    public CompletableFuture<Boolean> modifyDBDriver(ModifyDriverRequestParams requestParams) {
+        boolean response = QueryGenerator.modifyDriverInClassPath(requestParams.addDriverPath,
+                requestParams.removeDriverPath, requestParams.className);
+        return CompletableFuture.supplyAsync(() -> response);
     }
 
     @Override
@@ -391,8 +489,69 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
     @Override
     public CompletableFuture<DirectoryMapResponse> getProjectExplorerModel(WorkspaceFolder param) {
+
         DirectoryMapResponse response = DirectoryTreeBuilder.getProjectExplorerModel(param);
         return CompletableFuture.supplyAsync(() -> response);
+    }
+
+    @Override
+    public CompletableFuture<List<String>> getProjectIntegrationType(WorkspaceFolder param) {
+
+        List<String> response = OverviewPage.getProjectIntegrationType(param);
+        return CompletableFuture.supplyAsync(() -> response);
+    }
+
+    @Override
+    public CompletableFuture<JsonObject> getMediators(MediatorRequest mediatorRequest) {
+
+        return CompletableFuture.supplyAsync(() -> mediatorHandler.getSupportedMediators(mediatorRequest.documentIdentifier, mediatorRequest.position));
+    }
+
+    @Override
+    public CompletableFuture<JsonObject> getMediatorUISchema(UISchemaRequest uiSchemaRequest) {
+
+        return CompletableFuture.supplyAsync(() -> mediatorHandler.getUiSchema(uiSchemaRequest.mediatorType, uiSchemaRequest.documentIdentifier, uiSchemaRequest.position));
+    }
+
+    @Override
+    public CompletableFuture<SynapseConfigResponse> generateSynapseConfig(SynapseConfigRequest synapseConfigRequest) {
+
+        return CompletableFuture.supplyAsync(
+                () -> mediatorHandler.generateSynapseConfig(synapseConfigRequest.documentUri,
+                        synapseConfigRequest.range, synapseConfigRequest.mediatorType, synapseConfigRequest.values,
+                        synapseConfigRequest.dirtyFields));
+    }
+
+    @Override
+    public CompletableFuture<JsonObject> getMediatorUISchemaWithValues(MediatorRequest mediatorRequest) {
+
+        return CompletableFuture.supplyAsync(
+                () -> mediatorHandler.getUISchemaWithValues(mediatorRequest.documentIdentifier,
+                        mediatorRequest.position));
+    }
+
+    @Override
+    public CompletableFuture<MediatorTryoutInfo> tryOutMediator(MediatorTryoutRequest request) {
+
+        return CompletableFuture.supplyAsync(() -> tryOutManager.tryout(request));
+    }
+
+    @Override
+    public CompletableFuture<Boolean> shutDownTryoutServer() {
+
+        return CompletableFuture.supplyAsync(() -> Boolean.valueOf(tryOutManager.shutdown()));
+    }
+
+    @Override
+    public CompletableFuture<MediatorTryoutInfo> mediatorInputOutputSchema(MediatorTryoutRequest request) {
+
+        return CompletableFuture.supplyAsync(() -> tryOutManager.getInputOutputSchema(request));
+    }
+
+    @Override
+    public CompletableFuture<TestConnectionResponse> testConnectorConnection(TestConnectionRequest request) {
+
+        return CompletableFuture.supplyAsync(() -> tryOutManager.testConnectorConnection(request));
     }
 
     @Override
@@ -402,9 +561,27 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     }
 
     @Override
+    public CompletableFuture<ICompletionResponse> expressionCompletion(ExpressionParam param) {
+
+        return CompletableFuture.supplyAsync(() -> ExpressionCompletionsProvider.getCompletions(param));
+    }
+
+    @Override
+    public CompletableFuture<SignatureHelp> signatureHelp(ExpressionParam params) {
+
+        return CompletableFuture.supplyAsync(() -> ExpressionSignatureProvider.getFunctionSignatures(params));
+    }
+
+    @Override
     public CompletableFuture<UpdateResponse> updateDependency(UpdateDependencyRequest request) {
         UpdateResponse response = PomParser.updateDependency(projectUri, request);
         return CompletableFuture.supplyAsync(() -> response);
+    }
+
+    @Override
+    public CompletableFuture<HelperPanelData> expressionHelperData(ExpressionParam param) {
+
+        return CompletableFuture.supplyAsync(() -> expressionHelperProvider.getExpressionHelperData(param));
     }
 
     @Override
@@ -415,8 +592,28 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
     @Override
     public CompletableFuture<String> updateConnectorDependencies() {
-        String statusMessage = ConnectorDownloadManager.updateConnectors(projectUri, connectorLoader);
+        String statusMessage = ConnectorDownloadManager.downloadConnectors(projectUri);
+        updateConnectors();
         return CompletableFuture.supplyAsync(() -> statusMessage);
+    }
+
+    @Override
+    public CompletableFuture<ConnectorGeneratorResponse> generateConnector(ConnectorGenerateRequest connectorGenReq) {
+        String filePath = null;
+        try {
+            filePath = ConnectorGenerator.generateConnector(connectorGenReq.openAPIPath,
+                    connectorGenReq.connectorProjectPath, projectServerVersion, projectUri);
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "Error occurred while generating the connector", e);
+        }
+        ConnectorGeneratorResponse response = new ConnectorGeneratorResponse(filePath != null, filePath);
+        return CompletableFuture.supplyAsync(() -> response);
+    }
+
+    @Override
+    public CompletableFuture<ArtifactTypeResponse> getArtifactType(TextDocumentIdentifier artifactIdentifier) {
+
+        return CompletableFuture.supplyAsync(() -> SyntaxTreeGenerator.getArtifactType(artifactIdentifier.getUri()));
     }
 
     public String getProjectUri() {
@@ -428,8 +625,23 @@ public class SynapseLanguageService implements ISynapseLanguageService {
         return connectorHolder;
     }
 
-    public static String getExtensionPath() {
+    public String getExtensionPath() {
 
         return extensionPath;
+    }
+
+    public Path getSynapseXSDPath() {
+
+        return synapseXSDPath;
+    }
+
+    public void setSynapseXSDPath(Path synapseXSDPath) {
+
+        this.synapseXSDPath = synapseXSDPath;
+    }
+
+    public void dispose() {
+
+        tryOutManager.shutdown();
     }
 }

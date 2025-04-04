@@ -31,6 +31,10 @@ public class Throttle extends Mediator {
     String onRejectAttribute;
     String description;
 
+    public Throttle() {
+        setDisplayName("Throttle");
+    }
+
     public ThrottlePolicy getPolicy() {
 
         return policy;

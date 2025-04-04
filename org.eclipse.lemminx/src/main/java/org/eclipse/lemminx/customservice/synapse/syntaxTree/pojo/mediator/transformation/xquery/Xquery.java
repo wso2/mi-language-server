@@ -27,6 +27,10 @@ public class Xquery extends Mediator {
     String target;
     String description;
 
+    public Xquery(){
+        setDisplayName("XQuery");
+    }
+
     public XqueryVariable[] getVariable() {
 
         return variable;

@@ -53,7 +53,39 @@ public class UnitTestDetails {
         this.serverVersion = serverVersion;
     }
 
+    public void setServerVersionDisplayValue(String displayValue) {
+        this.serverVersion.setDisplayValue(displayValue);
+    }
+
+    public Node getServerVersion() {
+        return this.serverVersion;
+    }
+
     public void setServerDownloadLink(Node serverDownloadLink) {
         this.serverDownloadLink = serverDownloadLink;
+    }
+
+    public Node getServerDownloadLink() {
+        return this.serverDownloadLink;
+    }
+
+    public Node getServerPath() {
+        return this.serverPath;
+    }
+
+    public Node getServerPort() {
+        return this.serverPort;
+    }
+
+    public Node getServerHost() {
+        return this.serverHost;
+    }
+
+    public Node getServerType() {
+        return this.serverType;
+    }
+
+    public Node getSkipTest() {
+        return this.skipTest;
     }
 }

@@ -21,12 +21,9 @@ package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.api;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.misc.common.Sequence;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 public class APIResource extends STNode {
 
+    String api;
     Sequence inSequence;
     Sequence outSequence;
     Sequence faultSequence;
@@ -37,6 +34,16 @@ public class APIResource extends STNode {
     String faultSequenceAttribute;
     String uriTemplate;
     String urlMapping;
+
+    public String getApi() {
+
+        return api;
+    }
+
+    public void setApi(String api) {
+
+        this.api = api;
+    }
 
     public Sequence getInSequence() {
 

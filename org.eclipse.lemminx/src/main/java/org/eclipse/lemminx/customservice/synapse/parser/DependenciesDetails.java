@@ -41,4 +41,8 @@ public class DependenciesDetails {
     public void addOtherDependencies(DependencyDetails dependencyDetails) {
         otherDependencies.add(dependencyDetails);
     }
+
+    public List<DependencyDetails> getOtherDependencies() {
+        return otherDependencies;
+    }
 }

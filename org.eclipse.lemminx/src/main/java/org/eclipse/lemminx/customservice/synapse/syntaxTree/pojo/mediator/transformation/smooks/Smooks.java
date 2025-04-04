@@ -27,6 +27,10 @@ public class Smooks extends Mediator {
     String configKey;
     String description;
 
+    public Smooks() {
+        setDisplayName("Smooks");
+    }
+
     public SmooksInput getInput() {
 
         return input;

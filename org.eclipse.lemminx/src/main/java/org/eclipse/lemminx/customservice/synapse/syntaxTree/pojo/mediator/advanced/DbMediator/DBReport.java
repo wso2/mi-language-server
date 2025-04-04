@@ -20,4 +20,8 @@ package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator.advan
 
 public class DBReport extends DbMediator {
 
+    public DBReport() {
+        setDisplayName("DB Report");
+    }
+
 }

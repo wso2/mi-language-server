@@ -24,6 +24,7 @@ import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.endpoint.NamedE
 
 public class Template extends STNode {
 
+    STNode description;
     TemplateParameter[] parameter;
     NamedEndpoint endpoint;
     NamedSequence sequence;
@@ -31,9 +32,43 @@ public class Template extends STNode {
     String onError;
     TemplateArtifactType type;
 
+    public STNode getDescription() {
+
+        return description;
+    }
+
+    public void setDescription(STNode description) {
+
+        this.description = description;
+    }
+
     public TemplateParameter[] getParameter() {
 
         return parameter;
+    }
+
+    public boolean hasParameter(String key) {
+
+        if (parameter != null) {
+            for (TemplateParameter param : parameter) {
+                if (param.getName().equals(key)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public TemplateParameter getParameter(String key) {
+
+        if (parameter != null) {
+            for (TemplateParameter param : parameter) {
+                if (param.getName().equals(key)) {
+                    return param;
+                }
+            }
+        }
+        return null;
     }
 
     public void setParameter(TemplateParameter[] parameter) {

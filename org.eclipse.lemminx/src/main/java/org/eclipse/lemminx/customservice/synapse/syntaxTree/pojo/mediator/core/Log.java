@@ -27,6 +27,13 @@ public class Log extends Mediator {
     String separator;
     LogCategory category;
     String description;
+    String message;
+    boolean logFullPayload;
+    boolean logMessageID;
+
+    public Log() {
+        setDisplayName("Log");
+    }
 
     public MediatorProperty[] getProperty() {
 
@@ -76,5 +83,35 @@ public class Log extends Mediator {
     public void setDescription(String description) {
 
         this.description = description;
+    }
+
+    public String getMessage() {
+
+        return message;
+    }
+
+    public void setMessage(String message) {
+
+        this.message = message;
+    }
+
+    public boolean isLogFullPayload() {
+
+        return logFullPayload;
+    }
+
+    public void setLogFullPayload(boolean logFullPayload) {
+
+        this.logFullPayload = logFullPayload;
+    }
+
+    public boolean isLogMessageID() {
+
+        return logMessageID;
+    }
+
+    public void setLogMessageID(boolean logMessageID) {
+
+        this.logMessageID = logMessageID;
     }
 }

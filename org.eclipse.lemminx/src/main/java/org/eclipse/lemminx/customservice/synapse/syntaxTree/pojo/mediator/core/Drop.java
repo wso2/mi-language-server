@@ -24,6 +24,10 @@ public class Drop extends Mediator {
 
     String description;
 
+    public Drop() {
+        setDisplayName("Drop");
+    }
+
     public String getDescription() {
 
         return description;

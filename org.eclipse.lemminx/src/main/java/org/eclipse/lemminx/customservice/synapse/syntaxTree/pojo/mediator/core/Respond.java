@@ -24,6 +24,11 @@ public class Respond extends Mediator {
 
     String description;
 
+    public Respond() {
+
+        setDisplayName("Respond");
+    }
+
     public String getDescription() {
 
         return description;

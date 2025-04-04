@@ -15,6 +15,9 @@ package org.eclipse.lemminx;
 
 import static org.eclipse.lsp4j.jsonrpc.CompletableFutures.computeAsync;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -24,9 +27,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import com.google.gson.JsonObject;
 import org.eclipse.lemminx.client.ExtendedClientCapabilities;
 import org.eclipse.lemminx.commons.ModelTextDocument;
 import org.eclipse.lemminx.commons.ParentProcessWatcher.ProcessLanguageServer;
@@ -38,6 +43,7 @@ import org.eclipse.lemminx.customservice.ISynapseLanguageService;
 import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
 import org.eclipse.lemminx.customservice.XMLLanguageClientAPI;
 import org.eclipse.lemminx.customservice.XMLLanguageServerAPI;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.extensions.contentmodel.settings.ContentModelSettings;
 import org.eclipse.lemminx.extensions.contentmodel.settings.XMLValidationRootSettings;
@@ -96,7 +102,7 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 	private Integer parentProcessId;
 	private XMLCapabilityManager capabilityManager;
 	private TelemetryManager telemetryManager;
-	public final SynapseLanguageService synapseLanguageService;
+	private final SynapseLanguageService synapseLanguageService;
 
 	public XMLLanguageServer() {
 		xmlTextDocumentService = new XMLTextDocumentService(this);
@@ -114,6 +120,12 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 
 	@Override
 	public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
+		try {
+			Path synapseSchemaPath = Utils.updateSynapseCatalogSettings(params);
+			synapseLanguageService.setSynapseXSDPath(synapseSchemaPath);
+		} catch (IOException | URISyntaxException e) {
+			LOGGER.log(Level.SEVERE, "Error while updating synapse catalog settings", e);
+		}
 		Object initOptions = InitializationOptionsSettings.getSettings(params);
 		Object xmlSettings = AllXMLSettings.getAllXMLSettings(initOptions);
 		XMLGeneralClientSettings settings = XMLGeneralClientSettings.getGeneralXMLSettings(xmlSettings);
@@ -177,6 +189,12 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 	private synchronized void updateSettings(Object initOptions, boolean initLogs) {
 		if (initOptions == null) {
 			return;
+		}
+		try {
+			initOptions = Utils.updateSynapseCatalogSettings((JsonObject) initOptions,
+					synapseLanguageService.getSynapseXSDPath());
+		} catch (IOException | URISyntaxException e) {
+			LOGGER.log(Level.SEVERE, "Error while updating synapse catalog settings", e);
 		}
 		// Update client settings
 		Object initSettings = AllXMLSettings.getAllXMLSettings(initOptions);
@@ -243,6 +261,7 @@ public class XMLLanguageServer implements ProcessLanguageServer, XMLLanguageServ
 	@Override
 	public CompletableFuture<Object> shutdown() {
 		xmlLanguageService.dispose();
+		synapseLanguageService.dispose();
 		if (capabilityManager.getClientCapabilities().shouldLanguageServerExitOnShutdown()) {
 			delayer.schedule(() -> exit(0), 1, TimeUnit.SECONDS);
 		}

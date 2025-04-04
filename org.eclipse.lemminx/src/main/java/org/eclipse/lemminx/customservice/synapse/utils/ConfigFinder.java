@@ -27,6 +27,19 @@ import java.nio.file.Path;
 
 public class ConfigFinder {
 
+    /**
+     * Finds the path of the template file that is defined by the key
+     *
+     * @param key         template key
+     * @param projectPath project path
+     * @return template file path
+     * @throws IOException
+     */
+    public static String getTemplatePath(String key, String projectPath) throws IOException {
+
+        return findEsbComponentPath(key, "templates", projectPath);
+    }
+
     public static String findEsbComponentPath(String key, String type, String projectPath) throws IOException {
 
         String foundPath = null;
@@ -37,6 +50,12 @@ public class ConfigFinder {
                 resourceFrom = "resources" + File.separator + "registry" + File.separator + key.split(":")[0];
                 key = key.substring(key.indexOf(':') + 1);
                 Path possiblePath = Path.of(projectPath, "src", "main", "wso2mi", resourceFrom, key);
+                if (Utils.isFileExists(possiblePath.toString())) {
+                    foundPath = possiblePath.toString();
+                }
+            } else if (key.contains(Constant.RESOURCES)) {
+                key = key.substring(key.indexOf(':') + 1);
+                Path possiblePath = Path.of(projectPath, "src", "main", "wso2mi", "resources", key);
                 if (Utils.isFileExists(possiblePath.toString())) {
                     foundPath = possiblePath.toString();
                 }

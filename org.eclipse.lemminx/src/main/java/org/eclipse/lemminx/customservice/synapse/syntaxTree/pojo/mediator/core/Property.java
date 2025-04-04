@@ -33,6 +33,9 @@ public class Property extends Mediator {
     String value;
     String expression;
 
+    public Property() {
+        setDisplayName("Property");
+    }
     public Object getAny() {
 
         return any;

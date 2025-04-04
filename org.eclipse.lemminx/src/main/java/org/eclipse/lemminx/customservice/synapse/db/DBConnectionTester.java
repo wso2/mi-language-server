@@ -68,7 +68,7 @@ public class DBConnectionTester {
         return connection != null;
     }
 
-    public Connection getConnection(String connectionUrl, String username, String password, String className) {
+    public static Connection getConnection(String connectionUrl, String username, String password, String className) {
 
         Connection connection = null;
 

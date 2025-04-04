@@ -21,5 +21,13 @@ package org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.mediator;
 import org.eclipse.lemminx.customservice.synapse.syntaxTree.pojo.STNode;
 
 public class Mediator extends STNode {
+    String displayName;
 
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
 }

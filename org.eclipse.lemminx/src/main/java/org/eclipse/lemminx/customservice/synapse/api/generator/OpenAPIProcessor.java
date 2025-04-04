@@ -34,6 +34,7 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.v3.oas.models.media.XML;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.PathParameter;
 import io.swagger.v3.oas.models.parameters.QueryParameter;
@@ -134,18 +135,26 @@ public class OpenAPIProcessor {
                 requestBody.description("Sample Payload");
                 requestBody.setRequired(false);
 
-                MediaType mediaType = new MediaType();
+                // Add json media type for the request body
+                MediaType jsonMediaType = new MediaType();
                 Schema bodySchema = new Schema();
                 bodySchema.setType("object");
-
                 Map<String, Schema> inputProperties = new HashMap<>();
                 ObjectSchema objectSchema = new ObjectSchema();
-
                 bodySchema.setProperties(inputProperties);
                 inputProperties.put("payload", objectSchema);
-                mediaType.setSchema(bodySchema);
+                jsonMediaType.setSchema(bodySchema);
                 Content content = new Content();
-                content.addMediaType("application/json", mediaType);
+                content.addMediaType("application/json", jsonMediaType);
+
+                // Add xml media type for the request body
+                MediaType xmlMediaType = new MediaType();
+                Schema xmlBodySchema = new Schema();
+                xmlBodySchema.setType("object");
+                xmlBodySchema.setXml(new XML());
+                xmlBodySchema.getXml().setName("payload");
+                xmlMediaType.setSchema(xmlBodySchema);
+                content.addMediaType("application/xml", xmlMediaType);
                 requestBody.setContent(content);
                 operation.setRequestBody(requestBody);
                 break;

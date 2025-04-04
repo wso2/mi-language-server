@@ -26,4 +26,28 @@ public class QueryGenRequestParams {
     String url;
     String tableData;
     String datasourceName;
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public void setTableData(String tableData) {
+        this.tableData = tableData;
+    }
+
+    public void setDatasourceName(String datasourceName) {
+        this.datasourceName = datasourceName;
+    }
 }

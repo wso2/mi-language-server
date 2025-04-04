@@ -24,6 +24,10 @@ public class Loopback extends Mediator {
 
     String description;
 
+    public Loopback() {
+        setDisplayName("Loopback");
+    }
+
     public String getDescription() {
 
         return description;

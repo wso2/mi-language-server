@@ -23,6 +23,7 @@ import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.RegistryRes
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.RequestedResource;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.Resource;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceResponse;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.registryHander.DatamapperHandler;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.registryHander.NonXMLRegistryHandler;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.registryHander.SchemaResourceHandler;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.registryHander.SimpleResourceHandler;
@@ -176,8 +177,15 @@ public abstract class AbstractResourceFinder {
                 handler.setNextHandler(new SchemaResourceHandler(resources));
             }
         }
+        if (hasRequestedResourceOfType(requestedResources, "dataMapper")) {
+            if (handler == null) {
+                handler = new DatamapperHandler(resources);
+            } else {
+                handler.setNextHandler(new DatamapperHandler(resources));
+            }
+        }
         for (RequestedResource requestedResource : requestedResources) {
-            if (requestedResource.type.equals("schema") || requestedResource.type.equals("swagger")) {
+            if (requestedResource.type.equals("schema") || requestedResource.type.equals("swagger") || requestedResource.type.equals("dataMapper")) {
                 continue;
             }
             if (handler == null) {
@@ -219,8 +227,12 @@ public abstract class AbstractResourceFinder {
                     if (!".meta".equals(file.getName())) {
                         traverseFolder(file, requestedTypeToXmlTagMap, handler, resources);
                     }
-                } else if (file.isFile() && isFileInRegistry(file)) {
+                } else if (file.isFile()) {
                     if (Utils.isRegistryPropertiesFile(file)) {
+                        continue;
+                    }
+                    if (file.getAbsolutePath().endsWith(Path.of(Constant.RESOURCES, Constant.ARTIFACT_XML).toString()) ||
+                            file.getAbsolutePath().endsWith(Path.of(Constant.RESOURCES, Constant.REGISTRY, Constant.ARTIFACT_XML).toString())) {
                         continue;
                     }
                     if (handler == null && requestedTypeToXmlTagMap == null) {
@@ -238,6 +250,8 @@ public abstract class AbstractResourceFinder {
                             Resource resource = createResource(file, requestedTypeToXmlTagMap, REGISTRY);
                             if (resource != null) {
                                 resources.add(resource);
+                            } else {
+                                handler.handleFile(file);
                             }
                         } else {
                             handler.handleFile(file);
@@ -326,7 +340,13 @@ public abstract class AbstractResourceFinder {
         resource.setType(type.toUpperCase());
         resource.setFrom(registry);
         ((RegistryResource) resource).setRegistryPath(file.getAbsolutePath());
-        ((RegistryResource) resource).setRegistryKey(getRegistryKey(file));
+        if (Utils.isFileInRegistry(file)) {
+            resource.setFrom(Constant.REGISTRY);
+            ((RegistryResource) resource).setRegistryKey(Utils.getRegistryKey(file));
+        } else {
+            resource.setFrom(Constant.RESOURCES);
+            ((RegistryResource) resource).setRegistryKey(Utils.getResourceKey(file));
+        }
         return resource;
     }
 
@@ -386,7 +406,7 @@ public abstract class AbstractResourceFinder {
         registry.setType(Utils.addUnderscoreBetweenWords(type).toUpperCase());
         registry.setFrom(REGISTRY);
         ((RegistryResource) registry).setRegistryPath(file.getAbsolutePath());
-        ((RegistryResource) registry).setRegistryKey(getRegistryKey(file));
+        ((RegistryResource) registry).setRegistryKey(Utils.getRegistryKey(file));
         return registry;
     }
 
@@ -425,22 +445,6 @@ public abstract class AbstractResourceFinder {
             if (nameNode != null) {
                 return Utils.getInlineString(nameNode.getFirstChild());
             }
-            return null;
-        }
-    }
-
-    private String getRegistryKey(File file) {
-
-        String pattern = "(.*)(\\b(gov|conf)\\b)(.*)";
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(file.getAbsolutePath());
-
-        if (m.find()) {
-            String type = m.group(3);
-            String path = m.group(4).replaceAll("\\\\", "/");
-            path = path.replaceAll("^/+", "");
-            return type + ":" + path;
-        } else {
             return null;
         }
     }

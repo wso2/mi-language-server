@@ -50,11 +50,13 @@ public class LocalEntryVisitor extends AbstractDependencyVisitor {
             DOMDocument document = getDomDocument(localEntry);
             if (document != null && document.getDocumentElement() != null) {
                 STNode childNode = SyntaxTreeGenerator.buildTree(document.getDocumentElement());
-                DependencyVisitorFactory dependencyVisitorFactory = new DependencyVisitorFactory(projectPath);
-                AbstractDependencyVisitor visitor =
-                        dependencyVisitorFactory.createVisitor(childNode.getTag(), getDependencyTree());
-                if (visitor != null) {
-                    visitor.visit(childNode);
+                if (childNode != null) {
+                    DependencyVisitorFactory dependencyVisitorFactory = new DependencyVisitorFactory(projectPath);
+                    AbstractDependencyVisitor visitor =
+                            dependencyVisitorFactory.createVisitor(childNode.getTag(), getDependencyTree());
+                    if (visitor != null) {
+                        visitor.visit(childNode);
+                    }
                 }
             }
         } catch (IOException e) {

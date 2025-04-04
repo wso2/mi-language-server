@@ -27,6 +27,12 @@ public class Send extends Mediator {
     String receive;
     boolean buildmessage;
     String description;
+    String inlineEndpointXml;
+
+    public Send() {
+        setDisplayName("Send");
+    }
+
 
     public NamedEndpoint getEndpoint() {
 
@@ -66,5 +72,13 @@ public class Send extends Mediator {
     public void setDescription(String description) {
 
         this.description = description;
+    }
+
+    public String getInlineEndpointXml() {
+        return inlineEndpointXml;
+    }
+
+    public void setInlineEndpointXml(String inlineEndpointXml) {
+        this.inlineEndpointXml = inlineEndpointXml;
     }
 }

@@ -31,11 +31,19 @@ import java.util.Objects;
 
 public class ResourceFactory extends AbstractFactory {
 
+    private String apiName;
+
+    public ResourceFactory(String apiName) {
+
+        this.apiName = apiName;
+    }
+
     @Override
     public STNode create(DOMElement element) {
 
         APIResource apiResource = new APIResource();
         apiResource.elementNode(element);
+        apiResource.setApi(apiName);
         populateAttributes(apiResource, element);
         List<DOMNode> children = element.getChildren();
 

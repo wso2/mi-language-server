@@ -45,7 +45,11 @@ public class TemplateFactory extends AbstractFactory {
         if (children != null && !children.isEmpty()) {
             for (DOMNode child : children) {
                 String name = child.getNodeName();
-                if (name.contains(Constant.PARAMETER)) {
+                if (Constant.DESCRIPTION.equalsIgnoreCase(name)) {
+                    STNode description = new STNode();
+                    description.elementNode((DOMElement) child);
+                    template.setDescription(description);
+                } else if (name.contains(Constant.PARAMETER)) {
                     TemplateParameter parameter = createTemplateParameter(child);
                     parameters.add(parameter);
                 } else if (name.equalsIgnoreCase(Constant.ENDPOINT)) {
@@ -97,6 +101,10 @@ public class TemplateFactory extends AbstractFactory {
         String paramNamespacePrefix = element.getPrefix();
         if (paramNamespacePrefix != null) {
             parameter.setParamNamespacePrefix(paramNamespacePrefix);
+        }
+        String description = element.getAttribute(Constant.DESCRIPTION);
+        if (description != null) {
+            parameter.setDescription(description);
         }
 
         //TODO: handle xs:anytype (skipped as not used in Integration Studio)

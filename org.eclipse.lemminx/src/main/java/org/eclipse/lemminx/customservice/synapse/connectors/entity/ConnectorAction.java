@@ -18,22 +18,41 @@
 
 package org.eclipse.lemminx.customservice.synapse.connectors.entity;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.lemminx.customservice.synapse.mediator.tryout.pojo.Property;
+import org.eclipse.lemminx.customservice.synapse.utils.Constant;
+import org.eclipse.lemminx.customservice.synapse.utils.Utils;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class ConnectorAction {
 
     private String name;
     private String tag;
-    List<String> parameters;
-    List<String> allowedConnectionTypes;
+    private String displayName;
+    private List<OperationParameter> parameters;
+    private List<String> allowedConnectionTypes;
     private String description;
     private Boolean isHidden;
+    private String uiSchemaPath;
+    private String outputSchemaPath;
+    private Property outputSchema;
+    private String groupName;
+    private boolean supportsResponseModel; // Represents whether the operation supports response model or not
+    private boolean canActAsAgentTool;
 
     public ConnectorAction() {
 
         parameters = new ArrayList<>();
         allowedConnectionTypes = new ArrayList<>();
+        canActAsAgentTool = true;
     }
 
     public String getName() {
@@ -66,17 +85,17 @@ public class ConnectorAction {
         this.tag = tag;
     }
 
-    public void addParameter(String parameter) {
+    public void addParameter(OperationParameter parameter) {
 
         parameters.add(parameter);
     }
 
-    public List<String> getParameters() {
+    public List<OperationParameter> getParameters() {
 
-        return parameters;
+        return Collections.unmodifiableList(parameters);
     }
 
-    public void setParameters(List<String> parameters) {
+    public void setParameters(List<OperationParameter> parameters) {
 
         this.parameters = parameters;
     }
@@ -93,11 +112,124 @@ public class ConnectorAction {
 
     public List<String> getAllowedConnectionTypes() {
 
-        return allowedConnectionTypes;
+        return Collections.unmodifiableList(allowedConnectionTypes);
     }
 
     public void setAllowedConnectionTypes(List<String> allowedConnectionTypes) {
 
         this.allowedConnectionTypes = allowedConnectionTypes;
+    }
+
+    public String getUiSchemaPath() {
+
+        return uiSchemaPath;
+    }
+
+    public void setUiSchemaPath(String uiSchemaPath) {
+
+        this.uiSchemaPath = uiSchemaPath;
+    }
+
+    public String getDisplayName() {
+
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+
+        this.displayName = displayName;
+    }
+
+    public void setOutputSchemaPath(String outputSchemaPath) {
+
+        this.outputSchemaPath = outputSchemaPath;
+    }
+
+    private void loadOutputSchema() throws IOException {
+
+        if (outputSchemaPath == null) {
+            return;
+        }
+        String outputSchemaString = Utils.readFile(new File(outputSchemaPath));
+        JsonObject outputSchemaJson = Utils.getJsonObject(outputSchemaString);
+        if (outputSchemaJson != null) {
+            outputSchema = createSchemaObject(outputSchemaJson);
+        }
+    }
+
+    private Property createSchemaObject(JsonObject outputSchemaJson) {
+
+        JsonObject properties = outputSchemaJson.getAsJsonObject(Constant.PROPERTIES);
+        if (properties == null) {
+            return null;
+        }
+        Property outputSchemaObject = new Property("root", StringUtils.EMPTY);
+        List<Property> propertiesList = extractProperties(properties);
+        outputSchemaObject.setProperties(propertiesList);
+        return outputSchemaObject;
+    }
+
+    private List<Property> extractProperties(JsonObject propertiesObject) {
+
+        List<Property> propertiesList = new ArrayList<>();
+        for (Map.Entry<String, JsonElement> entry : propertiesObject.entrySet()) {
+            String key = entry.getKey();
+            JsonElement value = entry.getValue();
+            if (value.isJsonObject()) {
+                JsonObject propertyObject = value.getAsJsonObject();
+                JsonElement propDescriptionObj = propertyObject.get(Constant.DESCRIPTION);
+                String propDescription = propDescriptionObj != null ?
+                        propDescriptionObj.getAsString() : StringUtils.EMPTY;
+                Property property = new Property(key, StringUtils.EMPTY, propDescription);
+                if (propertyObject.has(Constant.PROPERTIES)) {
+                    List<Property> properties = extractProperties(propertyObject.getAsJsonObject(Constant.PROPERTIES));
+                    property.setProperties(properties);
+                }
+                propertiesList.add(property);
+            }
+        }
+        return propertiesList;
+    }
+
+    public Property getOutputSchema() {
+
+        if (outputSchema == null) {
+            try {
+                loadOutputSchema();
+            } catch (IOException e) {
+                //Do nothing
+            }
+        }
+        return outputSchema != null ? outputSchema.deepCopy() : null;
+    }
+
+    public String getGroupName() {
+
+        return groupName;
+    }
+
+    public void setGroupName(String groupName) {
+
+        this.groupName = groupName;
+    }
+
+    public boolean isSupportsResponseModel() {
+
+        return supportsResponseModel;
+    }
+
+    public void setSupportsResponseModel(boolean supportsResponseModel) {
+
+        this.supportsResponseModel = supportsResponseModel;
+    }
+
+    public boolean isCanActAsAgentTool() {
+
+        return canActAsAgentTool;
+    }
+
+    public void setCanActAsAgentTool(boolean canActAsAgentTool) {
+
+        this.canActAsAgentTool = canActAsAgentTool;
     }
 }

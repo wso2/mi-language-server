@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.lemminx.commons.BadLocationException;
+import org.eclipse.lemminx.customservice.synapse.expression.ExpressionCompletionsProvider;
+import org.eclipse.lemminx.customservice.synapse.expression.ExpressionConstants;
 import org.eclipse.lemminx.dom.DOMAttr;
 import org.eclipse.lemminx.dom.DOMDocument;
 import org.eclipse.lemminx.dom.DOMElement;
@@ -350,6 +352,9 @@ public class ContentModelCompletionParticipant extends CompletionParticipantAdap
 				if (cmElement != null) {
 					fillAttributeValuesWithCMAttributeDeclarations(cmElement, request, response);
 				}
+			}
+			if (valuePrefix.startsWith(ExpressionConstants.EXPRESSION_PREFIX)) {
+				ExpressionCompletionsProvider.doComplete(valuePrefix, request, response, false);
 			}
 		} catch (CacheResourceDownloadingException e) {
 			// XML Schema, DTD is loading, ignore this error
