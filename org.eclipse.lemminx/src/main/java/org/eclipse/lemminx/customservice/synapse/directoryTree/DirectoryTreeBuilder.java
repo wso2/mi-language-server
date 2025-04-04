@@ -224,6 +224,7 @@ public class DirectoryTreeBuilder {
             });
             return result;
         } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "Error occurred while building the project explorer directory tree.", ex);
             return Collections.emptyList();
         }
     }
@@ -352,7 +353,7 @@ public class DirectoryTreeBuilder {
         String registryPath = projectPath + File.separator + Constant.SRC + File.separator +
                 MAIN + File.separator + WSO2MI + File.separator + RESOURCES;
         File folder = new File(registryPath);
-        if (folder != null && folder.exists()) {
+        if (folder.exists()) {
             if (!folder.isHidden()) {
                 String folderName = folder.getName();
                 FolderNode resourceFolderNode = new FolderNode(folderName, registryPath);
