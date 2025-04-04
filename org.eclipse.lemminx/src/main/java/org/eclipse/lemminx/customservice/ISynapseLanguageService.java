@@ -19,6 +19,7 @@
 package org.eclipse.lemminx.customservice;
 
 import com.google.gson.JsonObject;
+import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.IsEqualSwaggersParam;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateAPIResponse;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerParam;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateSwaggerResponse;
@@ -55,8 +56,6 @@ import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.MediatorRe
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.SynapseConfigRequest;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.SynapseConfigResponse;
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.UISchemaRequest;
-import org.eclipse.lemminx.customservice.synapse.parser.ConfigDetails;
-import org.eclipse.lemminx.customservice.synapse.parser.DependencyDetails;
 import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
 import org.eclipse.lemminx.customservice.synapse.parser.UpdateConfigRequest;
 import org.eclipse.lemminx.customservice.synapse.parser.UpdateDependencyRequest;
@@ -80,7 +79,6 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceFolder;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.messages.Either3;
-import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
@@ -147,6 +145,9 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<GenerateSwaggerResponse> swaggerFromAPI(GenerateSwaggerParam param);
+
+    @JsonRequest
+    CompletableFuture<Boolean> isEqualSwaggers(IsEqualSwaggersParam param);
 
     @JsonRequest
     CompletableFuture<DBConnectionTestResponse> testDBConnection(DBConnectionTestParams dbConnectionTestParams);
