@@ -49,7 +49,7 @@ jobs:
       run: |
         echo "Creating release..."
     
-        createResponse=$(curl -s -w "\nHTTP_STATUS:%{http_code}\n" \
+        response=$(curl -s -w "\n%{http_code}" \
           -X POST \
           -H "Accept: application/vnd.github.v3+json" \
           -H "Authorization: Bearer ${{ secrets.GIT_BOT_TOKEN }}" \
@@ -62,9 +62,13 @@ jobs:
             \"prerelease\": true
           }")
     
-        echo "$createResponse"
+        body=$(echo "$response" | head -n -1)
+        status=$(echo "$response" | tail -n 1)
     
-        id=$(echo "$createResponse" | jq -r '.id')
+        echo "$body"
+        echo "HTTP Status: $status"
+    
+        id=$(echo "$body" | jq -r '.id')
     
         if [ "$id" = "null" ] || [ -z "$id" ]; then
           echo "❌ Failed to create release"
@@ -75,7 +79,7 @@ jobs:
     
         echo "Uploading asset..."
     
-        curl -X POST \
+        curl -s -X POST \
           -H "Authorization: Bearer ${{ secrets.GIT_BOT_TOKEN }}" \
           -H "Content-Type: application/octet-stream" \
           --data-binary @${{ steps.ls.outputs.fileName }}.zip \
