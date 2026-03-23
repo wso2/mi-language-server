@@ -47,11 +47,36 @@ jobs:
         name: ${{ steps.ls.outputs.fileName }}.zip
     - name: Create a release in repo
       run: |
-        createResponse=`curl -X POST  -H "Accept: application/vnd.github.v3+json" \
-        -H "Authorization:token ${{ secrets.GIT_BOT_TOKEN }}" -d '{"tag_name":"v${{ steps.ls.outputs.version }}", \
-        "draft":false, "name": "Release v${{ steps.ls.outputs.version }}", "prerelease":true}' \
-        https://api.github.com/repos/${{ github.repository }}/releases` \
-          && id=`echo "$createResponse" | sed -n -e 's/"id":\ \([0-9]\+\),/\1/p' | head -n 1 | sed 's/[[:blank:]]//g'` && \
-          uploadResponse=`curl -X POST -H "Authorization:token ${{ secrets.GIT_BOT_TOKEN }}" -H "Content-Type:application/octet-stream" \
+        echo "Creating release..."
+    
+        createResponse=$(curl -s -w "\nHTTP_STATUS:%{http_code}\n" \
+          -X POST \
+          -H "Accept: application/vnd.github.v3+json" \
+          -H "Authorization: Bearer ${{ secrets.GIT_BOT_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          https://api.github.com/repos/${{ github.repository }}/releases \
+          -d "{
+            \"tag_name\": \"v${{ steps.ls.outputs.version }}\",
+            \"name\": \"Release v${{ steps.ls.outputs.version }}\",
+            \"draft\": false,
+            \"prerelease\": true
+          }")
+    
+        echo "$createResponse"
+    
+        id=$(echo "$createResponse" | jq -r '.id')
+    
+        if [ "$id" = "null" ] || [ -z "$id" ]; then
+          echo "❌ Failed to create release"
+          exit 1
+        fi
+    
+        echo "✅ Release ID: $id"
+    
+        echo "Uploading asset..."
+    
+        curl -X POST \
+          -H "Authorization: Bearer ${{ secrets.GIT_BOT_TOKEN }}" \
+          -H "Content-Type: application/octet-stream" \
           --data-binary @${{ steps.ls.outputs.fileName }}.zip \
-          https://uploads.github.com/repos/${{ github.repository }}/releases/$id/assets?name=${{ steps.ls.outputs.fileName }}.zip`
+          "https://uploads.github.com/repos/${{ github.repository }}/releases/$id/assets?name=${{ steps.ls.outputs.fileName }}.zip"
