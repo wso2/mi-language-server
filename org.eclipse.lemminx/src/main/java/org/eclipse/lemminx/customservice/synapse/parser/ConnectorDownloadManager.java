@@ -20,6 +20,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants;
+import org.eclipse.lemminx.customservice.synapse.parser.connectorConfig.ConnectorConfigService;
+import org.eclipse.lemminx.customservice.synapse.parser.connectorConfig.DependencyOverride;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 
@@ -178,7 +180,7 @@ public class ConnectorDownloadManager {
                  return null;
              }
  
-             // Extract driver coordinates
+             // Extract driver coordinates from descriptor.yml
              String groupId = (String) driverInfo.get(Constant.GROUP_ID_KEY);
              String artifactId = (String) driverInfo.get(Constant.ARTIFACT_ID_KEY);
              String version = (String) driverInfo.get(Constant.VERSION_KEY);
@@ -186,7 +188,31 @@ public class ConnectorDownloadManager {
                  LOGGER.log(Level.SEVERE, "Invalid driver coordinates in descriptor");
                  return null;
              }
- 
+
+             // Apply any override from connector-config.json so the IDE uses the same
+             // driver version that the build will pack into the CAR.
+             DependencyOverride override = ConnectorConfigService.findOverrideByConnectorNameAndConnectionType(
+                     projectPath, connectorName, connectionType);
+             if (override != null) {
+                 if (Boolean.TRUE.equals(override.omit)) {
+                     LOGGER.log(Level.INFO, "Driver for " + connectorName + "/" + connectionType
+                             + " is omitted via connector-config.json; skipping download.");
+                     return null;
+                 }
+                 if (!StringUtils.isBlank(override.groupId)) {
+                     groupId = override.groupId;
+                 }
+                 if (!StringUtils.isBlank(override.artifactId)) {
+                     artifactId = override.artifactId;
+                 }
+                 if (!StringUtils.isBlank(override.version)) {
+                     LOGGER.log(Level.INFO, "Overriding driver version for " + connectorName + "/"
+                             + connectionType + " from " + version + " to " + override.version
+                             + " as per connector-config.json.");
+                     version = override.version;
+                 }
+             }
+
              // Create temp drivers directory if it doesn't exist
              File driversDirectory = Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI,
                      Constant.CONNECTORS, projectId, Constant.DRIVERS).toFile();

@@ -60,6 +60,12 @@ import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.SynapseCon
 import org.eclipse.lemminx.customservice.synapse.mediatorService.pojo.UISchemaRequest;
 import org.eclipse.lemminx.customservice.synapse.parser.ConfigDetails;
 import org.eclipse.lemminx.customservice.synapse.parser.DependencyStatusResponse;
+import org.eclipse.lemminx.customservice.synapse.parser.connectorConfig.ConnectorDependencyRequest;
+import org.eclipse.lemminx.customservice.synapse.parser.connectorConfig.ConnectorDependencyResponse;
+import org.eclipse.lemminx.customservice.synapse.parser.connectorConfig.ResetConnectorDependencyRequest;
+import org.eclipse.lemminx.customservice.synapse.parser.connectorConfig.UpdateConnectorDependencyRequest;
+import org.eclipse.lemminx.customservice.synapse.parser.connectorConfig.UpdateConnectorFlagsRequest;
+import org.eclipse.lemminx.customservice.synapse.parser.connectorConfig.UpdateRootConfigRequest;
 import org.eclipse.lemminx.customservice.synapse.parser.DeployPluginDetails;
 import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
 import org.eclipse.lemminx.customservice.synapse.parser.UpdateConfigRequest;
@@ -87,6 +93,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceFolder;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.messages.Either3;
+import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
@@ -294,4 +301,22 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<DependencyStatusResponse> getDependencyStatusList();
+
+    @JsonRequest
+    CompletableFuture<ConnectorDependencyResponse> getConnectorDependencies(ConnectorDependencyRequest request);
+
+    @JsonRequest
+    CompletableFuture<Boolean> updateConnectorDependencyOverride(UpdateConnectorDependencyRequest request);
+
+    @JsonRequest
+    CompletableFuture<Boolean> resetConnectorDependencyOverrides(ResetConnectorDependencyRequest request);
+
+    @JsonRequest
+    CompletableFuture<Boolean> updateConnectorFlags(UpdateConnectorFlagsRequest request);
+
+    @JsonRequest
+    CompletableFuture<Boolean> updateRootConfig(UpdateRootConfigRequest request);
+
+    @JsonNotification
+    void initConnectorConfig(ConnectorDependencyRequest request);
 }

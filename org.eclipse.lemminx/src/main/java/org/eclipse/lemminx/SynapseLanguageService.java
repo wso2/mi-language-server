@@ -84,6 +84,14 @@ import org.eclipse.lemminx.customservice.synapse.parser.config.ConfigParser;
 import org.eclipse.lemminx.customservice.synapse.parser.config.ConfigurableEntry;
 import org.eclipse.lemminx.customservice.synapse.parser.pom.PomParser;
 import org.eclipse.lemminx.customservice.synapse.parser.ConnectorDownloadManager;
+import org.eclipse.lemminx.customservice.synapse.parser.connectorConfig.ConnectorConfig;
+import org.eclipse.lemminx.customservice.synapse.parser.connectorConfig.ConnectorConfigService;
+import org.eclipse.lemminx.customservice.synapse.parser.connectorConfig.ConnectorDependencyRequest;
+import org.eclipse.lemminx.customservice.synapse.parser.connectorConfig.ConnectorDependencyResponse;
+import org.eclipse.lemminx.customservice.synapse.parser.connectorConfig.ResetConnectorDependencyRequest;
+import org.eclipse.lemminx.customservice.synapse.parser.connectorConfig.UpdateConnectorDependencyRequest;
+import org.eclipse.lemminx.customservice.synapse.parser.connectorConfig.UpdateConnectorFlagsRequest;
+import org.eclipse.lemminx.customservice.synapse.parser.connectorConfig.UpdateRootConfigRequest;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.AbstractResourceFinder;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ArtifactFileScanner;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.RegistryFileScanner;
@@ -688,6 +696,91 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     public CompletableFuture<DependencyStatusResponse> getDependencyStatusList() {
 
         return CompletableFuture.supplyAsync(() -> DependencyDownloadManager.getDependencyStatusList(projectUri));
+    }
+
+    @Override
+    public CompletableFuture<ConnectorDependencyResponse> getConnectorDependencies(
+            ConnectorDependencyRequest request) {
+
+        return CompletableFuture.supplyAsync(() -> {
+            ConnectorDependencyResponse response = new ConnectorDependencyResponse();
+            ConnectorConfig rootConfig = ConnectorConfigService.readConfig(projectUri);
+            response.omitAllDrivers = Boolean.TRUE.equals(rootConfig.omitAllDrivers);
+            response.omitAllConnectors = Boolean.TRUE.equals(rootConfig.omitAllConnectors);
+            if (request.connectorArtifactId != null) {
+                response.dependencies =
+                        ConnectorConfigService.getEffectiveDependencies(projectUri, request.connectorArtifactId);
+            } else {
+                response.allConnectors = ConnectorConfigService.getAllEffectiveDependencies(projectUri);
+            }
+            return response;
+        });
+    }
+
+    @Override
+    public CompletableFuture<Boolean> updateConnectorDependencyOverride(
+            UpdateConnectorDependencyRequest request) {
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                ConnectorConfigService.updateDependencyOverride(projectUri, request);
+                return true;
+            } catch (Exception e) {
+                log.log(Level.SEVERE, "Failed to update connector dependency override: " + e.getMessage(), e);
+                return false;
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<Boolean> resetConnectorDependencyOverrides(
+            ResetConnectorDependencyRequest request) {
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                ConnectorConfigService.resetDependencyOverrides(projectUri, request);
+                return true;
+            } catch (Exception e) {
+                log.log(Level.SEVERE, "Failed to reset connector dependency overrides: " + e.getMessage(), e);
+                return false;
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<Boolean> updateConnectorFlags(UpdateConnectorFlagsRequest request) {
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                request.projectPath = projectUri;
+                ConnectorConfigService.updateConnectorFlags(projectUri, request);
+                return true;
+            } catch (Exception e) {
+                log.log(Level.SEVERE, "Failed to update connector flags: " + e.getMessage(), e);
+                return false;
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<Boolean> updateRootConfig(UpdateRootConfigRequest request) {
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                request.projectPath = projectUri;
+                ConnectorConfigService.updateRootConfig(projectUri, request);
+                return true;
+            } catch (Exception e) {
+                log.log(Level.SEVERE, "Failed to update root connector config: " + e.getMessage(), e);
+                return false;
+            }
+        });
+    }
+
+    @Override
+    public void initConnectorConfig(ConnectorDependencyRequest request) {
+
+        ConnectorConfigService.initIfAbsent(projectUri);
     }
 
     @Override
