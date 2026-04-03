@@ -816,6 +816,216 @@ public class IntegrationProjectDownloadManagerTest {
         }
     }
 
+    // =========================================================================
+    // refetchDependencies
+    // =========================================================================
+
+    /**
+     * When no prior state exists, refetchDependencies should behave identically to
+     * downloadDependencies — the dep is fetched from the local repo and placed in Downloaded.
+     */
+    @Test
+    public void testRefetch_noPriorState_fetchesFromLocalRepo() throws IOException {
+
+        DependencyDetails dep = makeDep("com.example", "dep-a", "1.0.0", "car");
+        plantInLocalRepo(dep, false, Collections.emptyList());
+
+        Path downloadDir = resolveProjectBaseDir().resolve(Constant.DOWNLOADED);
+        assertFalse(downloadDir.toFile().exists(), "downloadDir must not exist before the call");
+
+        DependencyDownloadResult result = IntegrationProjectDownloadManager.refetchDependencies(
+                projectRoot.toString(), List.of(dep), false);
+
+        assertTrue(result.getFailedDependencies().isEmpty());
+        assertTrue(result.getNoDescriptorDependencies().isEmpty());
+        assertTrue(result.getVersioningTypeMismatchDependencies().isEmpty());
+        assertTrue(downloadDir.resolve(carFileName(dep)).toFile().exists(),
+                "dep .car should be present in Downloaded after refetch");
+    }
+
+    /**
+     * Downloaded and Extracted directories are fully cleared before re-fetching.
+     * All pre-existing files in both dirs must be gone before the new fetch runs.
+     */
+    @Test
+    public void testRefetch_clearsDownloadedAndExtractedBeforeFetching() throws IOException {
+
+        DependencyDetails dep = makeDep("com.example", "dep-a", "1.0.0", "car");
+
+        Path baseDir = resolveProjectBaseDir();
+        Path downloadDir = baseDir.resolve(Constant.DOWNLOADED);
+        Path extractedRoot = baseDir.resolve(Constant.EXTRACTED);
+
+        // Simulate prior state: stale files from a previous run
+        Files.createDirectories(downloadDir);
+        Files.createDirectories(extractedRoot);
+        createZipWithDescriptor(downloadDir, carBaseName(dep) + ".zip", false, Collections.emptyList());
+        Files.createDirectories(extractedRoot.resolve(carBaseName(dep)));
+        // An extra stale dep that is no longer in the dep list
+        DependencyDetails staleDep = makeDep("com.example", "stale-dep", "1.0.0", "car");
+        createZipWithDescriptor(downloadDir, carBaseName(staleDep) + ".zip", false, Collections.emptyList());
+        Files.createDirectories(extractedRoot.resolve(carBaseName(staleDep)));
+
+        plantInLocalRepo(dep, false, Collections.emptyList());
+
+        IntegrationProjectDownloadManager.refetchDependencies(
+                projectRoot.toString(), List.of(dep), false);
+
+        // Stale dep must be gone from both dirs
+        assertFalse(downloadDir.resolve(carBaseName(staleDep) + ".zip").toFile().exists(),
+                "Stale .zip should have been cleared from Downloaded");
+        assertFalse(extractedRoot.resolve(carBaseName(staleDep)).toFile().exists(),
+                "Stale Extracted dir should have been cleared");
+
+        // dep was re-fetched as a fresh .car (old .zip was cleared, new .car copied in)
+        assertFalse(downloadDir.resolve(carBaseName(dep) + ".zip").toFile().exists(),
+                "Old .zip for dep should have been cleared");
+        assertTrue(downloadDir.resolve(carFileName(dep)).toFile().exists(),
+                "Fresh .car for dep should be present in Downloaded after refetch");
+    }
+
+    /**
+     * A stale .car in Downloaded that was never extracted is also removed during the clear.
+     */
+    @Test
+    public void testRefetch_clearsStaleCarFromDownloaded() throws IOException {
+
+        DependencyDetails dep = makeDep("com.example", "dep-a", "1.0.0", "car");
+        DependencyDetails staleDep = makeDep("com.example", "stale-dep", "1.0.0", "car");
+
+        Path downloadDir = resolveProjectBaseDir().resolve(Constant.DOWNLOADED);
+        Files.createDirectories(downloadDir);
+        // Stale .car that was never extracted
+        createZipWithDescriptor(downloadDir, carFileName(staleDep), false, Collections.emptyList());
+
+        plantInLocalRepo(dep, false, Collections.emptyList());
+
+        IntegrationProjectDownloadManager.refetchDependencies(
+                projectRoot.toString(), List.of(dep), false);
+
+        assertFalse(downloadDir.resolve(carFileName(staleDep)).toFile().exists(),
+                "Stale .car should have been cleared from Downloaded");
+        assertTrue(downloadDir.resolve(carFileName(dep)).toFile().exists(),
+                "Fresh .car for dep should be present in Downloaded after refetch");
+    }
+
+    /**
+     * Even if a .car for the dep is already present in Downloaded, refetchDependencies
+     * must clear it and re-fetch a fresh copy from the local repo.
+     * Verified by capturing the last-modified timestamp before and after — the file
+     * must be a new copy, not the original.
+     */
+    @Test
+    public void testRefetch_existingCarInDownloaded_replacedByFreshCopy() throws IOException, InterruptedException {
+
+        DependencyDetails dep = makeDep("com.example", "dep-a", "1.0.0", "car");
+
+        Path downloadDir = resolveProjectBaseDir().resolve(Constant.DOWNLOADED);
+        Files.createDirectories(downloadDir);
+
+        // Pre-place a .car in Downloaded (simulates a prior fetch)
+        createZipWithDescriptor(downloadDir, carFileName(dep), false, Collections.emptyList());
+        long originalLastModified = downloadDir.resolve(carFileName(dep)).toFile().lastModified();
+
+        // Plant a fresh .car in the local repo
+        plantInLocalRepo(dep, false, Collections.emptyList());
+
+        // Small sleep to ensure a different timestamp on the re-fetched file
+        Thread.sleep(10);
+
+        IntegrationProjectDownloadManager.refetchDependencies(
+                projectRoot.toString(), List.of(dep), false);
+
+        assertTrue(downloadDir.resolve(carFileName(dep)).toFile().exists(),
+                "dep .car should be present in Downloaded after refetch");
+        assertTrue(downloadDir.resolve(carFileName(dep)).toFile().lastModified() > originalLastModified,
+                "Re-fetched .car must be a new copy — last-modified must be newer than the original");
+    }
+
+    /**
+     * Even if a post-extraction .zip for the dep is already present in Downloaded,
+     * refetchDependencies must clear it and re-fetch a fresh .car from the local repo.
+     */
+    @Test
+    public void testRefetch_existingZipInDownloaded_replacedByFreshCar() throws IOException {
+
+        DependencyDetails dep = makeDep("com.example", "dep-a", "1.0.0", "car");
+
+        Path baseDir = resolveProjectBaseDir();
+        Path downloadDir = baseDir.resolve(Constant.DOWNLOADED);
+        Path extractedRoot = baseDir.resolve(Constant.EXTRACTED);
+
+        // Simulate post-extraction state: .zip in Downloaded + Extracted dir
+        Files.createDirectories(downloadDir);
+        Files.createDirectories(extractedRoot);
+        createZipWithDescriptor(downloadDir, carBaseName(dep) + ".zip", false, Collections.emptyList());
+        Files.createDirectories(extractedRoot.resolve(carBaseName(dep)));
+
+        // Plant a fresh .car in the local repo
+        plantInLocalRepo(dep, false, Collections.emptyList());
+
+        IntegrationProjectDownloadManager.refetchDependencies(
+                projectRoot.toString(), List.of(dep), false);
+
+        // Old .zip must be gone, replaced by a freshly fetched .car
+        assertFalse(downloadDir.resolve(carBaseName(dep) + ".zip").toFile().exists(),
+                "Post-extraction .zip should have been cleared");
+        assertTrue(downloadDir.resolve(carFileName(dep)).toFile().exists(),
+                "Fresh .car must be present in Downloaded after refetch");
+    }
+
+    /**
+     * After a refetch, the Extracted directory must be empty — all previously extracted
+     * directories are cleared as part of the hard-refresh, regardless of whether they
+     * correspond to deps still in the current list.
+     */
+    @Test
+    public void testRefetch_extractedDirIsEmptiedAfterRefetch() throws IOException {
+
+        DependencyDetails depA = makeDep("com.example", "dep-a", "1.0.0", "car");
+        DependencyDetails depB = makeDep("com.example", "dep-b", "1.0.0", "car");
+
+        Path baseDir = resolveProjectBaseDir();
+        Path extractedRoot = baseDir.resolve(Constant.EXTRACTED);
+        Path downloadDir = baseDir.resolve(Constant.DOWNLOADED);
+
+        // Simulate post-extraction state for both deps
+        Files.createDirectories(extractedRoot.resolve(carBaseName(depA)));
+        Files.createDirectories(extractedRoot.resolve(carBaseName(depB)));
+        Files.createDirectories(downloadDir);
+        createZipWithDescriptor(downloadDir, carBaseName(depA) + ".zip", false, Collections.emptyList());
+        createZipWithDescriptor(downloadDir, carBaseName(depB) + ".zip", false, Collections.emptyList());
+
+        // Only depA is still in the dep list; depA is re-fetched as a fresh .car
+        plantInLocalRepo(depA, false, Collections.emptyList());
+
+        IntegrationProjectDownloadManager.refetchDependencies(
+                projectRoot.toString(), List.of(depA), false);
+
+        // Extracted dir must be completely empty — no directories from the prior run remain
+        File[] extractedDirs = extractedRoot.toFile().listFiles(File::isDirectory);
+        assertEquals(0, extractedDirs != null ? extractedDirs.length : 0,
+                "Extracted directory must be empty after refetch — prior extracted dirs are cleared");
+    }
+
+    /**
+     * After a refetch the result reflects only the current dep list — failures from
+     * stale deps that are no longer in the list are not reported.
+     */
+    @Test
+    public void testRefetch_resultReflectsOnlyCurrentDeps() throws IOException {
+
+        DependencyDetails dep = makeDep("com.example", "dep-a", "1.0.0", "car");
+        plantInLocalRepo(dep, false, Collections.emptyList());
+
+        DependencyDownloadResult result = IntegrationProjectDownloadManager.refetchDependencies(
+                projectRoot.toString(), List.of(dep), false);
+
+        assertTrue(result.getFailedDependencies().isEmpty());
+        assertTrue(result.getNoDescriptorDependencies().isEmpty());
+        assertTrue(result.getVersioningTypeMismatchDependencies().isEmpty());
+    }
+
     private static void deleteRecursively(Path path) throws IOException {
 
         if (path == null || !Files.exists(path)) {
