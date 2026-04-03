@@ -42,8 +42,6 @@ public class DependencyDownloadManager {
      */
     public static String downloadDependencies(String projectPath) {
 
-        StringBuilder errorMessage = new StringBuilder();
-        boolean hasErrors = false;
         OverviewPageDetailsResponse pomDetailsResponse = new OverviewPageDetailsResponse();
         getPomDetails(projectPath, pomDetailsResponse);
         List<DependencyDetails> connectorDependencies =
@@ -55,51 +53,26 @@ public class DependencyDownloadManager {
         Node isVersionedDeployment = pomDetailsResponse.getBuildDetails().getVersionedDeployment();
         boolean isVersionedDeploymentEnabled = isVersionedDeployment != null ?
                 Boolean.parseBoolean(isVersionedDeployment.getValue()) : false;
-        DependencyDownloadResult failedIntegrationProjectDependencies =
+        DependencyDownloadResult integrationProjectResult =
                 IntegrationProjectDownloadManager.downloadDependencies(projectPath, integrationProjectDependencies,
                         isVersionedDeploymentEnabled);
 
+        StringBuilder errorMessage = new StringBuilder();
         if (!failedConnectorDependencies.isEmpty()) {
             String connectorError = "Some connectors were not downloaded: " + String.join(", ", failedConnectorDependencies);
             LOGGER.log(Level.SEVERE, connectorError);
             errorMessage.append(connectorError);
-            hasErrors = true;
         }
 
-        if (!failedIntegrationProjectDependencies.getFailedDependencies().isEmpty()) {
-            String projectError = "Following integration project dependencies were unavailable: " +
-                    String.join(", ", failedIntegrationProjectDependencies.getFailedDependencies());
-            LOGGER.log(Level.SEVERE, projectError);
-            if (hasErrors) {
+        String integrationProjectsErrorMessage = buildIntegrationProjectsErrorMessage(integrationProjectResult);
+        if (!integrationProjectsErrorMessage.isEmpty()) {
+            if (errorMessage.length() > 0) {
                 errorMessage.append(". ");
             }
-            errorMessage.append(projectError);
-            hasErrors = true;
+            errorMessage.append(integrationProjectsErrorMessage);
         }
 
-        if (!failedIntegrationProjectDependencies.getNoDescriptorDependencies().isEmpty()) {
-            String descriptorError = "Following dependencies do not contain the descriptor file: " +
-                    String.join(", ", failedIntegrationProjectDependencies.getNoDescriptorDependencies());
-            LOGGER.log(Level.SEVERE, descriptorError);
-            if (hasErrors) {
-                errorMessage.append(". ");
-            }
-            errorMessage.append(descriptorError);
-            hasErrors = true;
-        }
-
-        if (!failedIntegrationProjectDependencies.getVersioningTypeMismatchDependencies().isEmpty()) {
-            String versioningTypeError = "Versioned deployment status is different from the dependent project: " +
-                    String.join(", ", failedIntegrationProjectDependencies.getVersioningTypeMismatchDependencies());
-            LOGGER.log(Level.SEVERE, versioningTypeError);
-            if (hasErrors) {
-                errorMessage.append(". ");
-            }
-            errorMessage.append(versioningTypeError);
-            hasErrors = true;
-        }
-
-        if (hasErrors) {
+        if (errorMessage.length() > 0) {
             return errorMessage.toString();
         }
         LOGGER.log(Level.INFO, "All dependencies downloaded successfully for project: " + projectPath);
@@ -126,54 +99,51 @@ public class DependencyDownloadManager {
                 IntegrationProjectDownloadManager.refetchDependencies(projectPath, integrationProjectDependencies,
                         isVersionedDeploymentEnabled);
 
-        return buildResultMessage(result, projectPath);
+        String errorMessage = buildIntegrationProjectsErrorMessage(result);
+        if (errorMessage.isEmpty()) {
+            LOGGER.log(Level.INFO, "Integration project dependencies downloaded successfully for project: " + projectPath);
+            return "Success";
+        }
+        return errorMessage;
     }
 
     /**
-     * Builds a human-readable result message from a {@link DependencyDownloadResult},
-     * logging and concatenating each category of failure. Returns {@code "Success"} if
+     * Builds a human-readable error string from a {@link DependencyDownloadResult},
+     * logging and concatenating each category of failure. Returns an empty string if
      * there were no failures.
      */
-    private static String buildResultMessage(DependencyDownloadResult result, String projectPath) {
+    private static String buildIntegrationProjectsErrorMessage(DependencyDownloadResult result) {
 
         StringBuilder errorMessage = new StringBuilder();
-        boolean hasErrors = false;
 
         if (!result.getFailedDependencies().isEmpty()) {
             String projectError = "Following integration project dependencies were unavailable: " +
                     String.join(", ", result.getFailedDependencies());
             LOGGER.log(Level.SEVERE, projectError);
             errorMessage.append(projectError);
-            hasErrors = true;
         }
 
         if (!result.getNoDescriptorDependencies().isEmpty()) {
             String descriptorError = "Following dependencies do not contain the descriptor file: " +
                     String.join(", ", result.getNoDescriptorDependencies());
             LOGGER.log(Level.SEVERE, descriptorError);
-            if (hasErrors) {
+            if (errorMessage.length() > 0) {
                 errorMessage.append(". ");
             }
             errorMessage.append(descriptorError);
-            hasErrors = true;
         }
 
         if (!result.getVersioningTypeMismatchDependencies().isEmpty()) {
             String versioningTypeError = "Versioned deployment status is different from the dependent project: " +
                     String.join(", ", result.getVersioningTypeMismatchDependencies());
             LOGGER.log(Level.SEVERE, versioningTypeError);
-            if (hasErrors) {
+            if (errorMessage.length() > 0) {
                 errorMessage.append(". ");
             }
             errorMessage.append(versioningTypeError);
-            hasErrors = true;
         }
 
-        if (hasErrors) {
-            return errorMessage.toString();
-        }
-        LOGGER.log(Level.INFO, "Integration project dependencies downloaded successfully for project: " + projectPath);
-        return "Success";
+        return errorMessage.toString();
     }
 
     public static DependencyStatusResponse getDependencyStatusList(String projectPath) {
