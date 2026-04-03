@@ -60,6 +60,45 @@ public class IntegrationProjectDownloadManager {
     private static final Logger LOGGER = Logger.getLogger(ConnectorDownloadManager.class.getName());
 
     /**
+     * Clears the Downloaded and Extracted directories for the given project and re-fetches
+     * all integration project dependencies from scratch.
+     * <p>
+     * This is a hard-refresh: all previously cached files are discarded before downloading,
+     * so every dependency is fetched fresh regardless of what was present before.
+     * </p>
+     *
+     * @param projectPath  the file system path of the integration project
+     * @param dependencies the list of dependencies to fetch
+     * @param isVersionedDeploymentEnabled indicates if versioned deployment is enabled in the parent project
+     * @return a result object containing any dependencies that failed to download or process
+     */
+    public static DependencyDownloadResult refetchDependencies(String projectPath, List<DependencyDetails> dependencies,
+                                                               boolean isVersionedDeploymentEnabled) {
+
+        String projectId = new File(projectPath).getName() + UNDERSCORE + Utils.getHash(projectPath);
+        File directory = Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI,
+                Constant.INTEGRATION_PROJECT_DEPENDENCIES, projectId).toFile();
+        File downloadDirectory = Path.of(directory.getAbsolutePath(), Constant.DOWNLOADED).toFile();
+        File extractDirectory = Path.of(directory.getAbsolutePath(), Constant.EXTRACTED).toFile();
+
+        try {
+            if (downloadDirectory.exists()) {
+                Utils.deleteDirectory(downloadDirectory.toPath());
+                LOGGER.log(Level.INFO, "Cleared Downloaded directory for project: " + projectId);
+            }
+            if (extractDirectory.exists()) {
+                Utils.deleteDirectory(extractDirectory.toPath());
+                LOGGER.log(Level.INFO, "Cleared Extracted directory for project: " + projectId);
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Failed to clear dependency directories for project " + projectId
+                    + ": " + e.getMessage());
+        }
+
+        return downloadDependencies(projectPath, dependencies, isVersionedDeploymentEnabled);
+    }
+
+    /**
      * Handles the downloading and extraction of integration project dependencies.
      * <p>
      * For each provided dependency, this method attempts to fetch the corresponding

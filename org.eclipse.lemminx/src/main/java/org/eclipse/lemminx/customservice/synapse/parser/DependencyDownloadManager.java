@@ -106,6 +106,76 @@ public class DependencyDownloadManager {
         return "Success";
     }
 
+    /**
+     * Clears the Downloaded and Extracted directories and re-fetches all integration project
+     * dependencies from scratch for the given project.
+     *
+     * @param projectPath The path to the project directory containing the pom.xml file.
+     * @return A message indicating the success or failure of the re-fetch operation.
+     */
+    public static String refetchIntegrationProjectDependencies(String projectPath) {
+
+        OverviewPageDetailsResponse pomDetailsResponse = new OverviewPageDetailsResponse();
+        getPomDetails(projectPath, pomDetailsResponse);
+        List<DependencyDetails> integrationProjectDependencies =
+                pomDetailsResponse.getDependenciesDetails().getIntegrationProjectDependencies();
+        Node isVersionedDeployment = pomDetailsResponse.getBuildDetails().getVersionedDeployment();
+        boolean isVersionedDeploymentEnabled = isVersionedDeployment != null ?
+                Boolean.parseBoolean(isVersionedDeployment.getValue()) : false;
+        DependencyDownloadResult result =
+                IntegrationProjectDownloadManager.refetchDependencies(projectPath, integrationProjectDependencies,
+                        isVersionedDeploymentEnabled);
+
+        return buildResultMessage(result, projectPath);
+    }
+
+    /**
+     * Builds a human-readable result message from a {@link DependencyDownloadResult},
+     * logging and concatenating each category of failure. Returns {@code "Success"} if
+     * there were no failures.
+     */
+    private static String buildResultMessage(DependencyDownloadResult result, String projectPath) {
+
+        StringBuilder errorMessage = new StringBuilder();
+        boolean hasErrors = false;
+
+        if (!result.getFailedDependencies().isEmpty()) {
+            String projectError = "Following integration project dependencies were unavailable: " +
+                    String.join(", ", result.getFailedDependencies());
+            LOGGER.log(Level.SEVERE, projectError);
+            errorMessage.append(projectError);
+            hasErrors = true;
+        }
+
+        if (!result.getNoDescriptorDependencies().isEmpty()) {
+            String descriptorError = "Following dependencies do not contain the descriptor file: " +
+                    String.join(", ", result.getNoDescriptorDependencies());
+            LOGGER.log(Level.SEVERE, descriptorError);
+            if (hasErrors) {
+                errorMessage.append(". ");
+            }
+            errorMessage.append(descriptorError);
+            hasErrors = true;
+        }
+
+        if (!result.getVersioningTypeMismatchDependencies().isEmpty()) {
+            String versioningTypeError = "Versioned deployment status is different from the dependent project: " +
+                    String.join(", ", result.getVersioningTypeMismatchDependencies());
+            LOGGER.log(Level.SEVERE, versioningTypeError);
+            if (hasErrors) {
+                errorMessage.append(". ");
+            }
+            errorMessage.append(versioningTypeError);
+            hasErrors = true;
+        }
+
+        if (hasErrors) {
+            return errorMessage.toString();
+        }
+        LOGGER.log(Level.INFO, "Integration project dependencies downloaded successfully for project: " + projectPath);
+        return "Success";
+    }
+
     public static DependencyStatusResponse getDependencyStatusList(String projectPath) {
         OverviewPageDetailsResponse pomDetailsResponse = new OverviewPageDetailsResponse();
         getPomDetails(projectPath, pomDetailsResponse);

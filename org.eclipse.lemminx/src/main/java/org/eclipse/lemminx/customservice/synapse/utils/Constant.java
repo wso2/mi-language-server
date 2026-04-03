@@ -414,6 +414,7 @@ public class Constant {
     public static final String PROJECT = "project";
     public static final String CONNECTOR = "connector";
     public static final String DOT = ".";
+    public static final String COLON = ":";
     public static final String HYPHEN = "-";
     public static final String UNDERSCORE = "_";
     public static final String XML = "xml";

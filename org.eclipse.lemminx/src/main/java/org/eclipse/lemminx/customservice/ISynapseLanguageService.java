@@ -245,6 +245,9 @@ public interface ISynapseLanguageService {
     CompletableFuture<String> updateConnectorDependencies();
 
     @JsonRequest
+    CompletableFuture<String> refetchIntegrationProjectDependencies();
+
+    @JsonRequest
     CompletableFuture<String> loadDependentResources();
 
     @JsonRequest
