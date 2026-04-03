@@ -53,5 +53,6 @@ public class MockConnectorLoader extends NewProjectConnectorLoader {
 
         String connectorZipPath = tempPath.resolve("connectors").toString();
         connectorsZipFolderPath.add(connectorZipPath);
+        baseConnectorsZipFolderPaths.add(connectorZipPath);
     }
 }
