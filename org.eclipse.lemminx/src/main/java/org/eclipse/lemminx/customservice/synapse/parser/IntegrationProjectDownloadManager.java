@@ -75,9 +75,17 @@ public class IntegrationProjectDownloadManager {
     public static DependencyDownloadResult refetchDependencies(String projectPath, List<DependencyDetails> dependencies,
                                                                boolean isVersionedDeploymentEnabled) {
 
+        return refetchDependencies(projectPath, dependencies, isVersionedDeploymentEnabled,
+                Path.of(System.getProperty(Constant.USER_HOME)));
+    }
+
+    public static DependencyDownloadResult refetchDependencies(String projectPath, List<DependencyDetails> dependencies,
+                                                        boolean isVersionedDeploymentEnabled, Path userHome) {
+
         String projectId = new File(projectPath).getName() + UNDERSCORE + Utils.getHash(projectPath);
-        File directory = Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI,
-                Constant.INTEGRATION_PROJECT_DEPENDENCIES, projectId).toFile();
+        File directory = userHome.resolve(Constant.WSO2_MI)
+                .resolve(Constant.INTEGRATION_PROJECT_DEPENDENCIES)
+                .resolve(projectId).toFile();
         File downloadDirectory = Path.of(directory.getAbsolutePath(), Constant.DOWNLOADED).toFile();
         File extractDirectory = Path.of(directory.getAbsolutePath(), Constant.EXTRACTED).toFile();
 
@@ -95,7 +103,7 @@ public class IntegrationProjectDownloadManager {
                     + ": " + e.getMessage());
         }
 
-        return downloadDependencies(projectPath, dependencies, isVersionedDeploymentEnabled);
+        return downloadDependencies(projectPath, dependencies, isVersionedDeploymentEnabled, userHome);
     }
 
     /**
@@ -114,9 +122,17 @@ public class IntegrationProjectDownloadManager {
     public static DependencyDownloadResult downloadDependencies(String projectPath, List<DependencyDetails> dependencies,
                                                                 boolean isVersionedDeploymentEnabled) {
 
+        return downloadDependencies(projectPath, dependencies, isVersionedDeploymentEnabled,
+                Path.of(System.getProperty(Constant.USER_HOME)));
+    }
+
+    public static DependencyDownloadResult downloadDependencies(String projectPath, List<DependencyDetails> dependencies,
+                                                         boolean isVersionedDeploymentEnabled, Path userHome) {
+
         String projectId = new File(projectPath).getName() + UNDERSCORE + Utils.getHash(projectPath);
-        File directory = Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI,
-                Constant.INTEGRATION_PROJECT_DEPENDENCIES, projectId).toFile();
+        File directory = userHome.resolve(Constant.WSO2_MI)
+                .resolve(Constant.INTEGRATION_PROJECT_DEPENDENCIES)
+                .resolve(projectId).toFile();
         File downloadDirectory = Path.of(directory.getAbsolutePath(), Constant.DOWNLOADED).toFile();
         File extractDirectory = Path.of(directory.getAbsolutePath(), Constant.EXTRACTED).toFile();
 
@@ -138,7 +154,7 @@ public class IntegrationProjectDownloadManager {
         for (DependencyDetails dependency : dependencies) {
             try {
                 fetchDependencyRecursively(dependency, downloadDirectory, fetchedDependencies,
-                        isVersionedDeploymentEnabled);
+                        isVersionedDeploymentEnabled, userHome);
             } catch (NoDescriptorException e) {
                 String failedDependency =
                         dependency.getGroupId() + HYPHEN + dependency.getArtifact() + HYPHEN + dependency.getVersion();
@@ -255,7 +271,8 @@ public class IntegrationProjectDownloadManager {
      * @throws Exception if fetching or parsing fails
      */
     static void fetchDependencyRecursively(DependencyDetails dependency, File downloadDirectory,
-                                           Set<String> fetchedDependencies, boolean isVersionedDeploymentEnabled)
+                                           Set<String> fetchedDependencies, boolean isVersionedDeploymentEnabled,
+                                           Path userHome)
             throws Exception {
 
         // Colon separator avoids key collisions as colons are invalid in Maven coordinates.
@@ -276,7 +293,7 @@ public class IntegrationProjectDownloadManager {
             LOGGER.log(Level.INFO, "Dependency already in Downloaded directory: " + existingFile.getName());
             carFile = existingFile;
         } else {
-            carFile = fetchDependencyFile(dependency, downloadDirectory);
+            carFile = fetchDependencyFile(dependency, downloadDirectory, userHome);
             if (!carFile.exists()) {
                 throw new Exception("Failed to fetch .car file for dependency: " + dependencyKey);
             }
@@ -294,7 +311,7 @@ public class IntegrationProjectDownloadManager {
         // Recursively fetch transitive dependencies
         for (DependencyDetails transitiveDependency : transitiveDependencies) {
             fetchDependencyRecursively(transitiveDependency, downloadDirectory,
-                    fetchedDependencies, isVersionedDeploymentEnabled);
+                    fetchedDependencies, isVersionedDeploymentEnabled, userHome);
         }
     }
 
@@ -331,7 +348,7 @@ public class IntegrationProjectDownloadManager {
      * @param downloadDirectory the directory to store or locate the downloaded .car file
      * @return the File object representing the dependency .car file
      */
-    private static File fetchDependencyFile(DependencyDetails dependency, File downloadDirectory) {
+    private static File fetchDependencyFile(DependencyDetails dependency, File downloadDirectory, Path userHome) {
 
         File dependencyFile = new File(downloadDirectory,
                 dependency.getGroupId() + HYPHEN + dependency.getArtifact() + HYPHEN + dependency.getVersion() + DOT +
@@ -340,7 +357,7 @@ public class IntegrationProjectDownloadManager {
             LOGGER.log(Level.INFO, "Dependency already downloaded: " + dependencyFile.getName());
         } else {
             File existingArtifact = getDependencyFromLocalRepo(dependency.getGroupId(),
-                    dependency.getArtifact(), dependency.getVersion(), dependency.getType());
+                    dependency.getArtifact(), dependency.getVersion(), dependency.getType(), userHome);
             if (existingArtifact != null) {
                 LOGGER.log(Level.INFO, "Copying dependency from local repository: " + dependencyFile.getName());
                 try {

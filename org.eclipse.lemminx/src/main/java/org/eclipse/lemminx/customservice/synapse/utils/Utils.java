@@ -1492,8 +1492,14 @@ public class Utils {
      */
     public static File getDependencyFromLocalRepo(String groupId, String artifactId, String version, String type) {
 
-        String localMavenRepo = Path.of(System.getProperty(Constant.USER_HOME),  Constant.M2,
-                Constant.REPOSITORY).toString();
+        return getDependencyFromLocalRepo(groupId, artifactId, version, type,
+                Path.of(System.getProperty(Constant.USER_HOME)));
+    }
+
+    public static File getDependencyFromLocalRepo(String groupId, String artifactId, String version, String type,
+                                           Path userHome) {
+
+        String localMavenRepo = userHome.resolve(Constant.M2).resolve(Constant.REPOSITORY).toString();
         String artifactPath = Path.of(localMavenRepo, groupId.replace(Constant.DOT, File.separator), artifactId,
                 version, artifactId + Constant.HYPHEN + version + Constant.DOT + type).toString();
         File artifactFile = new File(artifactPath);
