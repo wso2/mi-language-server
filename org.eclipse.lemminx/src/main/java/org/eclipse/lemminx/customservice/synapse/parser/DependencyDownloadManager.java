@@ -42,6 +42,7 @@ public class DependencyDownloadManager {
      */
     public static String downloadDependencies(String projectPath) {
 
+        LOGGER.log(Level.INFO, "Starting dependency download for project: " + projectPath);
         OverviewPageDetailsResponse pomDetailsResponse = new OverviewPageDetailsResponse();
         getPomDetails(projectPath, pomDetailsResponse);
         List<DependencyDetails> connectorDependencies =
@@ -88,6 +89,7 @@ public class DependencyDownloadManager {
      */
     public static String refetchIntegrationProjectDependencies(String projectPath) {
 
+        LOGGER.log(Level.INFO, "Starting integration project dependencies re-fetch for project: " + projectPath);
         OverviewPageDetailsResponse pomDetailsResponse = new OverviewPageDetailsResponse();
         getPomDetails(projectPath, pomDetailsResponse);
         List<DependencyDetails> integrationProjectDependencies =

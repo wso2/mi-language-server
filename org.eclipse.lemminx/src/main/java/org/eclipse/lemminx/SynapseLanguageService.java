@@ -686,6 +686,7 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
     @Override
     public CompletableFuture<String> refetchIntegrationProjectDependencies() {
+        log.info("Refetching integration project dependencies for project: " + projectUri);
         String statusMessage = DependencyDownloadManager.refetchIntegrationProjectDependencies(projectUri);
         return CompletableFuture.supplyAsync(() -> statusMessage);
     }

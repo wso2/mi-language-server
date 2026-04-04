@@ -75,6 +75,7 @@ public class IntegrationProjectDownloadManager {
     public static DependencyDownloadResult refetchDependencies(String projectPath, List<DependencyDetails> dependencies,
                                                                boolean isVersionedDeploymentEnabled) {
 
+        LOGGER.log(Level.INFO, "Starting hard refresh of dependencies for project: " + new File(projectPath).getName());
         return refetchDependencies(projectPath, dependencies, isVersionedDeploymentEnabled,
                 Path.of(System.getProperty(Constant.USER_HOME)));
     }
@@ -153,6 +154,8 @@ public class IntegrationProjectDownloadManager {
 
         for (DependencyDetails dependency : dependencies) {
             try {
+                LOGGER.log(Level.INFO, "Processing dependency: " + dependency.getGroupId() + HYPHEN
+                        + dependency.getArtifact() + HYPHEN + dependency.getVersion());
                 fetchDependencyRecursively(dependency, downloadDirectory, fetchedDependencies,
                         isVersionedDeploymentEnabled, userHome);
             } catch (NoDescriptorException e) {
