@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2026, WSO2 LLC. (http://www.wso2.com).
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
@@ -19,7 +19,6 @@ import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.connectors.NewProjectConnectorLoader;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorHolder;
-import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static org.eclipse.lemminx.synapse.TestUtils.getResourceFilePath;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,15 +42,25 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class NewDependentProjectConnectorLoaderTest {
 
+    private static final Logger LOGGER = Logger.getLogger(NewDependentProjectConnectorLoaderTest.class.getName());
+
     /**
      * Minimal subclass that exposes {@code connectorsZipFolderPath} for assertions
      * and skips the copy-to-project step which is irrelevant for dependency loading.
      */
     static class TestableLoader extends NewProjectConnectorLoader {
 
+        private final String userHome;
+
         TestableLoader(SynapseLanguageClientAPI client, ConnectorHolder holder,
-                       InboundConnectorHolder inboundHolder) {
+                       InboundConnectorHolder inboundHolder, String userHome) {
             super(client, holder, inboundHolder);
+            this.userHome = userHome;
+        }
+
+        @Override
+        protected String getUserHome() {
+            return userHome;
         }
 
         List<String> getConnectorsZipFolderPaths() {
@@ -67,7 +77,6 @@ public class NewDependentProjectConnectorLoaderTest {
             Constant.SRC + File.separator + Constant.MAIN + File.separator +
             Constant.WSO2MI + File.separator + Constant.RESOURCES + File.separator + Constant.CONNECTORS;
 
-    private String originalUserHome;
     private Path tempHome;
     private Path projectRoot;
     private TestableLoader loader;
@@ -75,10 +84,8 @@ public class NewDependentProjectConnectorLoaderTest {
     @BeforeEach
     public void setUp() throws IOException {
 
-        originalUserHome = System.getProperty(Constant.USER_HOME);
-
+        LOGGER.info("Setting up test environment for NewDependentProjectConnectorLoaderTest");
         tempHome = Files.createTempDirectory("mi-test-home-");
-        System.setProperty(Constant.USER_HOME, tempHome.toString());
 
         // Create a minimal valid project root (requires pom.xml and src/)
         projectRoot = Files.createTempDirectory("mi-test-project-");
@@ -90,13 +97,13 @@ public class NewDependentProjectConnectorLoaderTest {
         InboundConnectorHolder inboundConnectorHolder = new InboundConnectorHolder();
         SynapseLanguageClientAPI languageClient = new MockXMLLanguageClient();
 
-        loader = new TestableLoader(languageClient, connectorHolder, inboundConnectorHolder);
+        loader = new TestableLoader(languageClient, connectorHolder, inboundConnectorHolder, tempHome.toString());
     }
 
     @AfterEach
     public void tearDown() throws IOException {
 
-        System.setProperty(Constant.USER_HOME, originalUserHome);
+        LOGGER.info("Tearing down test environment for NewDependentProjectConnectorLoaderTest");
         deleteRecursively(tempHome);
         deleteRecursively(projectRoot);
     }

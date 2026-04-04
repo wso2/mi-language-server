@@ -46,10 +46,15 @@ public class NewProjectConnectorLoader extends AbstractConnectorLoader {
         super(languageClient, connectorHolder, inboundConnectorHolder);
     }
 
+    protected String getUserHome() {
+
+        return System.getProperty(Constant.USER_HOME);
+    }
+
     @Override
     protected File getConnectorExtractFolder() {
 
-        String tempFolderPath = Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI,
+        String tempFolderPath = Path.of(getUserHome(), Constant.WSO2_MI,
                 Constant.CONNECTORS, projectId, Constant.EXTRACTED).toString();
         File tempFolder = new File(tempFolderPath);
         return tempFolder;
@@ -111,7 +116,7 @@ public class NewProjectConnectorLoader extends AbstractConnectorLoader {
                                 .resolve(Constant.UI_SCHEMA_JSON).toFile());
                         String fileName = Utils.getJsonObject(schema).get(Constant.NAME).getAsString() + Constant.JSON_FILE_EXT;
                         String projectFolderName = connectorExtractFolder.getParentFile().getName();
-                        File schemaToRemove = Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI,
+                        File schemaToRemove = Path.of(getUserHome(), Constant.WSO2_MI,
                                 Constant.INBOUND_CONNECTORS).resolve(projectFolderName).resolve(fileName).toFile();
                         FileUtils.delete(schemaToRemove);
                     }
@@ -126,16 +131,17 @@ public class NewProjectConnectorLoader extends AbstractConnectorLoader {
 
     private Path getConnnectorDownloadPath() {
 
-        return Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI,
+        return Path.of(getUserHome(), Constant.WSO2_MI,
                 Constant.CONNECTORS, projectId, Constant.DOWNLOADED);
     }
 
     @Override
     public void loadConnector() {
 
-        connectorsZipFolderPath.clear();
+		connectorsZipFolderPath.clear();
         connectorsZipFolderPath.addAll(baseConnectorsZipFolderPaths);
         addDependencyProjectConnectorPaths();
+		log.info("Loading connectors from " + connectorsZipFolderPath.size() + " paths for project: " + projectId);
         super.loadConnector();
     }
 
@@ -169,6 +175,7 @@ public class NewProjectConnectorLoader extends AbstractConnectorLoader {
                     .resolve(Constant.RESOURCES).resolve(Constant.CONNECTORS);
             if (connectorPath.toFile().isDirectory()) {
                 connectorsZipFolderPath.add(connectorPath.toString());
+                log.info("Added connector path from dependency project: " + connectorPath);
             }
         }
     }
@@ -182,7 +189,7 @@ public class NewProjectConnectorLoader extends AbstractConnectorLoader {
         if (projectId == null) {
             return null;
         }
-        Path expectedDir = Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI,
+        Path expectedDir = Path.of(getUserHome(), Constant.WSO2_MI,
                 Constant.INTEGRATION_PROJECT_DEPENDENCIES, projectId, Constant.EXTRACTED);
         if (expectedDir.toFile().isDirectory()) {
             return expectedDir;
