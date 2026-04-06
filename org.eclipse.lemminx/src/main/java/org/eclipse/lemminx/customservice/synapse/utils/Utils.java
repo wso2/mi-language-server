@@ -1024,7 +1024,7 @@ public class Utils {
 
     public static Path copyXSDFiles(String projectUri) throws IOException, URISyntaxException {
 
-        String version = getServerVersion(projectUri, Constant.DEFAULT_MI_VERSION);
+        String version = getServerVersion(getAbsolutePath(projectUri), Constant.DEFAULT_MI_VERSION);
         String versionFolder = version.replace(".", "");
         String schemasPath = "org/eclipse/lemminx/schemas/" + versionFolder;
         File tempFolder = Files.createTempDirectory("synapse").toFile();
