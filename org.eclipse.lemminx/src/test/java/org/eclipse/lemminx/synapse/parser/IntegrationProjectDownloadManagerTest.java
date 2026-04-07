@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -912,7 +913,7 @@ public class IntegrationProjectDownloadManagerTest {
      * must be a new copy, not the original.
      */
     @Test
-    public void testRefetch_existingCarInDownloaded_replacedByFreshCopy() throws IOException, InterruptedException {
+    public void testRefetch_existingCarInDownloaded_replacedByFreshCopy() throws IOException {
 
         DependencyDetails dep = makeDep("com.example", "dep-a", "1.0.0", "car");
 
@@ -921,20 +922,18 @@ public class IntegrationProjectDownloadManagerTest {
 
         // Pre-place a .car in Downloaded (simulates a prior fetch)
         createZipWithDescriptor(downloadDir, carFileName(dep), false, Collections.emptyList());
-        long originalLastModified = downloadDir.resolve(carFileName(dep)).toFile().lastModified();
-
+        // Explicitly set an old timestamp to avoid relying on OS clock resolution
+        long pastTime = System.currentTimeMillis() - 10_000;
+        Files.setLastModifiedTime(downloadDir.resolve(carFileName(dep)), FileTime.fromMillis(pastTime));
         // Plant a fresh .car in the local repo
         plantInLocalRepo(dep, false, Collections.emptyList());
-
-        // Small sleep to ensure a different timestamp on the re-fetched file
-        Thread.sleep(10);
 
         IntegrationProjectDownloadManager.refetchDependencies(
                 projectRoot.toString(), List.of(dep), false, tempHome);
 
         assertTrue(downloadDir.resolve(carFileName(dep)).toFile().exists(),
                 "dep .car should be present in Downloaded after refetch");
-        assertTrue(downloadDir.resolve(carFileName(dep)).toFile().lastModified() > originalLastModified,
+        assertTrue(downloadDir.resolve(carFileName(dep)).toFile().lastModified() > pastTime,
                 "Re-fetched .car must be a new copy — last-modified must be newer than the original");
     }
 
