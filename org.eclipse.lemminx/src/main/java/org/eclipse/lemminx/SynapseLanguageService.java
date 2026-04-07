@@ -686,9 +686,11 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
     @Override
     public CompletableFuture<String> refetchIntegrationProjectDependencies() {
-        log.info("Refetching integration project dependencies for project: " + projectUri);
-        String statusMessage = DependencyDownloadManager.refetchIntegrationProjectDependencies(projectUri);
-        return CompletableFuture.supplyAsync(() -> statusMessage);
+        
+		log.info("Refetching integration project dependencies for project: " + projectUri);
+        return CompletableFuture.supplyAsync(() -> {
+			return DependencyDownloadManager.refetchIntegrationProjectDependencies(projectUri);
+		});
     }
 
     @Override
@@ -700,9 +702,11 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     @Override
     public CompletableFuture<String> loadDependentResources() {
 
-        String result = resourceFinder.loadDependentResources(projectUri);
-        updateConnectors();
-        return CompletableFuture.supplyAsync(() -> result);
+        return CompletableFuture.supplyAsync(() -> {
+			String result = resourceFinder.loadDependentResources(projectUri);
+        	updateConnectors();
+			return result;
+		});
     }
 
     @Override
