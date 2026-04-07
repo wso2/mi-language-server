@@ -19,6 +19,7 @@ import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.connectors.NewProjectConnectorLoader;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorHolder;
+import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -171,6 +172,7 @@ public class NewDependentProjectConnectorLoaderTest {
         Files.createDirectories(extractedDir.resolve("dep-project-B").resolve("src").resolve("main"));
 
         loader.init(projectRoot.toString());
+        loader.loadConnector();
 
         List<String> paths = loader.getConnectorsZipFolderPaths();
         assertEquals(2, paths.size(),
