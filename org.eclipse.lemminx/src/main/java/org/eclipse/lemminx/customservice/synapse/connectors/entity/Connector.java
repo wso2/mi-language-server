@@ -34,6 +34,7 @@ public class Connector {
     private String uiSchemaPath;
     private String outputSchemaPath;
     private String ballerinaModulePath;
+    private boolean fromProject;
 
     public Connector() {
 
@@ -211,5 +212,13 @@ public class Connector {
 
     public void setBallerinaModulePath(String ballerinaModulePath) {
         this.ballerinaModulePath = ballerinaModulePath;
+    }
+
+    public boolean isFromProject() {
+        return fromProject;
+    }
+
+    public void setFromProject(boolean fromProject) {
+        this.fromProject = fromProject;
     }
 }
