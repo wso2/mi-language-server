@@ -15,6 +15,7 @@
 package org.eclipse.lemminx.customservice.synapse.connectors;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants;
@@ -186,7 +187,7 @@ public class NewProjectConnectorLoader extends AbstractConnectorLoader {
      */
     private Path findProjectDependencyExtractedDir() {
 
-        if (projectId == null) {
+        if (StringUtils.isEmpty(projectId)) {
             return null;
         }
         Path expectedDir = Path.of(getUserHome(), Constant.WSO2_MI,
