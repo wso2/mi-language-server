@@ -14,10 +14,12 @@
 
 package org.eclipse.lemminx.synapse.connector.loader;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.lemminx.MockXMLLanguageClient;
 import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.connectors.NewProjectConnectorLoader;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
@@ -35,6 +37,8 @@ import java.util.logging.Logger;
 
 import static org.eclipse.lemminx.synapse.TestUtils.getResourceFilePath;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -256,9 +260,221 @@ public class NewDependentProjectConnectorLoaderTest {
         assertTrue(paths.contains(connectorDir.toString()));
     }
 
+    /**
+     * A connector zip placed in the USER_HOME downloaded connector directory should be marked
+     * as {@code fromProject = true}, since it is a base path of the project.
+     */
+    @Test
+    public void testDownloadedConnector_isMarkedFromProject() throws Exception {
+
+        Path downloadedDir = createDownloadedConnectorDir();
+        FileUtils.copyFileToDirectory(
+                new File(getResourceFilePath("/synapse/connector/zips/mi-connector-http-0.1.8.zip")),
+                downloadedDir.toFile());
+
+        loader.init(projectRoot.toString());
+        loader.loadConnector();
+
+        Connector connector = ConnectorHolder.getInstance().getConnector("http");
+        assertNotNull(connector, "http connector should be loaded");
+        assertTrue(connector.isFromProject(), "Downloaded connector should be marked as fromProject");
+    }
+
+    /**
+     * Connectors from both the project source directory and the USER_HOME downloaded directory
+     * should both be marked as {@code fromProject = true}.
+     */
+    @Test
+    public void testProjectAndDownloadedConnectors_bothMarkedFromProject() throws Exception {
+
+        Path projectConnectorDir = projectRoot.resolve(CONNECTOR_RELATIVE_PATH);
+        Files.createDirectories(projectConnectorDir);
+        FileUtils.copyFileToDirectory(
+                new File(getResourceFilePath("/synapse/connector/zips/mi-connector-http-0.1.8.zip")),
+                projectConnectorDir.toFile());
+
+        Path downloadedDir = createDownloadedConnectorDir();
+        FileUtils.copyFileToDirectory(
+                new File(getResourceFilePath("/synapse/connector/zips/mi-connector-file-4.0.36.zip")),
+                downloadedDir.toFile());
+
+        loader.init(projectRoot.toString());
+        loader.loadConnector();
+
+        ConnectorHolder holder = ConnectorHolder.getInstance();
+        Connector httpConnector = holder.getConnector("http");
+        Connector fileConnector = holder.getConnector("file");
+
+        assertNotNull(httpConnector, "http connector should be loaded");
+        assertNotNull(fileConnector, "file connector should be loaded");
+        assertTrue(httpConnector.isFromProject(), "http connector from project dir should be marked as fromProject");
+        assertTrue(fileConnector.isFromProject(), "file connector from downloaded dir should be marked as fromProject");
+    }
+
+    /**
+     * A connector from the USER_HOME downloaded directory and a connector from a dependency project
+     * should be marked as {@code fromProject = true} and {@code false} respectively.
+     */
+    @Test
+    public void testDownloadedAndDependencyConnectors_markedCorrectly() throws Exception {
+
+        Path downloadedDir = createDownloadedConnectorDir();
+        FileUtils.copyFileToDirectory(
+                new File(getResourceFilePath("/synapse/connector/zips/mi-connector-http-0.1.8.zip")),
+                downloadedDir.toFile());
+
+        Path extractedDir = createDependencyExtractedDir();
+        Path depConnectorDir = extractedDir.resolve("dep-project").resolve(CONNECTOR_RELATIVE_PATH);
+        Files.createDirectories(depConnectorDir);
+        FileUtils.copyFileToDirectory(
+                new File(getResourceFilePath("/synapse/connector/zips/mi-connector-file-4.0.36.zip")),
+                depConnectorDir.toFile());
+
+        loader.init(projectRoot.toString());
+        loader.loadConnector();
+
+        ConnectorHolder holder = ConnectorHolder.getInstance();
+        Connector httpConnector = holder.getConnector("http");
+        Connector fileConnector = holder.getConnector("file");
+
+        assertNotNull(httpConnector, "http connector should be loaded");
+        assertNotNull(fileConnector, "file connector should be loaded");
+        assertTrue(httpConnector.isFromProject(), "Downloaded connector should be marked as fromProject");
+        assertFalse(fileConnector.isFromProject(), "Dependency connector should not be marked as fromProject");
+    }
+
+    /**
+     * When the same connector zip exists in both the project's own connector directory and a
+     * dependency project, the connector is loaded only once (from the project's base path, which
+     * is scanned first) and should be marked as {@code fromProject = true}.
+     */
+    @Test
+    public void testSameConnectorInProjectAndDependency_isMarkedFromProject() throws Exception {
+
+        File httpZip = new File(getResourceFilePath("/synapse/connector/zips/mi-connector-http-0.1.8.zip"));
+
+        Path projectConnectorDir = projectRoot.resolve(CONNECTOR_RELATIVE_PATH);
+        Files.createDirectories(projectConnectorDir);
+        FileUtils.copyFileToDirectory(httpZip, projectConnectorDir.toFile());
+
+        Path extractedDir = createDependencyExtractedDir();
+        Path depConnectorDir = extractedDir.resolve("dep-project").resolve(CONNECTOR_RELATIVE_PATH);
+        Files.createDirectories(depConnectorDir);
+        FileUtils.copyFileToDirectory(httpZip, depConnectorDir.toFile());
+
+        loader.init(projectRoot.toString());
+        loader.loadConnector();
+
+        Connector connector = ConnectorHolder.getInstance().getConnector("http");
+        assertNotNull(connector, "http connector should be loaded");
+        assertTrue(connector.isFromProject(),
+                "Connector present in both project and dependency should be marked as fromProject");
+    }
+
+    /**
+     * A connector zip placed in the project's own connector directory should be marked
+     * as {@code fromProject = true}.
+     */
+    @Test
+    public void testProjectConnector_isMarkedFromProject() throws Exception {
+
+        Path projectConnectorDir = projectRoot.resolve(CONNECTOR_RELATIVE_PATH);
+        Files.createDirectories(projectConnectorDir);
+        FileUtils.copyFileToDirectory(
+                new File(getResourceFilePath("/synapse/connector/zips/mi-connector-http-0.1.8.zip")),
+                projectConnectorDir.toFile());
+
+        loader.init(projectRoot.toString());
+        loader.loadConnector();
+
+        Connector connector = ConnectorHolder.getInstance().getConnector("http");
+        assertNotNull(connector, "http connector should be loaded");
+        assertTrue(connector.isFromProject(), "Connector from project dir should be marked as fromProject");
+    }
+
+    /**
+     * A connector zip placed in a dependency project's connector directory should be marked
+     * as {@code fromProject = false}.
+     */
+    @Test
+    public void testDependencyConnector_isNotMarkedFromProject() throws Exception {
+
+        Path extractedDir = createDependencyExtractedDir();
+        Path depConnectorDir = extractedDir.resolve("dep-project").resolve(CONNECTOR_RELATIVE_PATH);
+        Files.createDirectories(depConnectorDir);
+        FileUtils.copyFileToDirectory(
+                new File(getResourceFilePath("/synapse/connector/zips/mi-connector-http-0.1.8.zip")),
+                depConnectorDir.toFile());
+
+        loader.init(projectRoot.toString());
+        loader.loadConnector();
+
+        Connector connector = ConnectorHolder.getInstance().getConnector("http");
+        assertNotNull(connector, "http connector should be loaded");
+        assertFalse(connector.isFromProject(), "Connector from dependency dir should not be marked as fromProject");
+    }
+
+    /**
+     * Covers both ways a project can own a connector (project source directory and USER_HOME
+     * downloaded directory) alongside a dependency connector. Project-owned connectors from either
+     * base path should be marked as {@code fromProject = true}; the dependency connector as
+     * {@code false}.
+     */
+    @Test
+    public void testMixedConnectors_markedCorrectly() throws Exception {
+
+        Path projectConnectorDir = projectRoot.resolve(CONNECTOR_RELATIVE_PATH);
+        Files.createDirectories(projectConnectorDir);
+        FileUtils.copyFileToDirectory(
+                new File(getResourceFilePath("/synapse/connector/zips/mi-connector-http-0.1.8.zip")),
+                projectConnectorDir.toFile());
+
+        Path downloadedDir = createDownloadedConnectorDir();
+        FileUtils.copyFileToDirectory(
+                new File(getResourceFilePath("/synapse/connector/zips/mi-connector-csv-3.0.0.zip")),
+                downloadedDir.toFile());
+
+        Path extractedDir = createDependencyExtractedDir();
+        Path depConnectorDir = extractedDir.resolve("dep-project").resolve(CONNECTOR_RELATIVE_PATH);
+        Files.createDirectories(depConnectorDir);
+        FileUtils.copyFileToDirectory(
+                new File(getResourceFilePath("/synapse/connector/zips/mi-connector-file-4.0.36.zip")),
+                depConnectorDir.toFile());
+
+        loader.init(projectRoot.toString());
+        loader.loadConnector();
+
+        ConnectorHolder holder = ConnectorHolder.getInstance();
+        Connector httpConnector = holder.getConnector("http");
+        Connector csvConnector = holder.getConnector("csv");
+        Connector fileConnector = holder.getConnector("file");
+
+        assertNotNull(httpConnector, "http connector should be loaded");
+        assertNotNull(csvConnector, "csv connector should be loaded");
+        assertNotNull(fileConnector, "file connector should be loaded");
+        assertTrue(httpConnector.isFromProject(), "http connector from project source dir should be marked as fromProject");
+        assertTrue(csvConnector.isFromProject(), "csv connector from downloaded dir should be marked as fromProject");
+        assertFalse(fileConnector.isFromProject(), "file connector from dependency dir should not be marked as fromProject");
+    }
+
     // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
+
+    /**
+     * Creates the USER_HOME downloaded connector directory for the current project,
+     * mirroring the path that {@link NewProjectConnectorLoader} expects.
+     */
+    private Path createDownloadedConnectorDir() throws IOException {
+
+        String projectId = projectRoot.toFile().getName() + "_" + Utils.getHash(projectRoot.toString());
+        Path downloadedDir = tempHome.resolve(Constant.WSO2_MI)
+                .resolve(Constant.CONNECTORS)
+                .resolve(projectId)
+                .resolve(Constant.DOWNLOADED);
+        Files.createDirectories(downloadedDir);
+        return downloadedDir;
+    }
 
     /**
      * Creates the dependency extracted directory for the current project under the temp home,
