@@ -15,6 +15,7 @@
 package org.eclipse.lemminx.customservice.synapse.connectors;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
@@ -166,19 +167,21 @@ public class NewProjectConnectorLoader extends AbstractConnectorLoader {
         for (File zip : connectorHolder.getConnectorZips()) {
             if (baseConnectorsZipFolderPaths.contains(zip.getParent())) {
                 String name = zip.getName();
-                projectConnectorZipNames.add(name.substring(0, name.lastIndexOf('.')));
+                projectConnectorZipNames.add(name.substring(0, name.lastIndexOf(Constant.DOT)));
             }
         }
+        int markedCount = 0;
         for (Connector connector : connectorHolder.getConnectors()) {
             String extractedPath = connector.getExtractedConnectorPath();
-            if (extractedPath != null) {
-                boolean isFromProject = projectConnectorZipNames.contains(new File(extractedPath).getName());
+            if (StringUtils.isNotBlank(extractedPath)) {
+                boolean isFromProject = projectConnectorZipNames.contains(FilenameUtils.getName(extractedPath));
                 connector.setFromProject(isFromProject);
                 if (isFromProject) {
-                    log.info("Connector " + connector.getName() + " is marked as a project connector");
+                    markedCount++;
                 }
             }
         }
+        log.info("Marked " + markedCount + " project connector(s) for project: " + projectId);
     }
 
     @Override
