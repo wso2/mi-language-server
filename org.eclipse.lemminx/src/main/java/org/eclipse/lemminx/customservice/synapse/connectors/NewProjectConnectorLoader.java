@@ -161,6 +161,7 @@ public class NewProjectConnectorLoader extends AbstractConnectorLoader {
      */
     private void markProjectConnectors() {
 
+        log.info("Marking project connectors for project: " + projectId);
         Set<String> projectConnectorZipNames = new HashSet<>();
         for (File zip : connectorHolder.getConnectorZips()) {
             if (baseConnectorsZipFolderPaths.contains(zip.getParent())) {
@@ -171,7 +172,11 @@ public class NewProjectConnectorLoader extends AbstractConnectorLoader {
         for (Connector connector : connectorHolder.getConnectors()) {
             String extractedPath = connector.getExtractedConnectorPath();
             if (extractedPath != null) {
-                connector.setFromProject(projectConnectorZipNames.contains(new File(extractedPath).getName()));
+                boolean isFromProject = projectConnectorZipNames.contains(new File(extractedPath).getName());
+                connector.setFromProject(isFromProject);
+                if (isFromProject) {
+                    log.info("Connector " + connector.getName() + " is marked as a project connector");
+                }
             }
         }
     }
