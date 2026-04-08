@@ -52,6 +52,9 @@ public class ConnectorDownloadManagerTest {
     @AfterEach
     void tearDown() {
         ConnectorHolder.getInstance().clearConnectors();
+        if (utilsMock != null) {
+            utilsMock.close();
+        }
     }
 
     @Test
@@ -64,7 +67,6 @@ public class ConnectorDownloadManagerTest {
         List<DependencyDetails>
                 connectorDependencies = pomDetailsResponse.getDependenciesDetails().getConnectorDependencies();
         ConnectorDependencyDownloadResult result = ConnectorDownloadManager.downloadDependencies(projectPath, connectorDependencies);
-        utilsMock.close();
 
         assertEquals(0, result.getFailedDependencies().size());
         assertEquals(0, result.getFromIntegrationProjectDependencies().size());
@@ -87,7 +89,6 @@ public class ConnectorDownloadManagerTest {
                 pomDetailsResponse.getDependenciesDetails().getConnectorDependencies();
 
         ConnectorDependencyDownloadResult result = ConnectorDownloadManager.downloadDependencies(projectPath, connectorDependencies);
-        utilsMock.close();
 
         assertTrue(result.getFromIntegrationProjectDependencies().stream().anyMatch(dep -> dep.contains("mi-connector-http")),
                 "Connector from integration project dependency should be marked as failed");
@@ -103,7 +104,6 @@ public class ConnectorDownloadManagerTest {
         List<DependencyDetails>
                 connectorDependencies = pomDetailsResponse.getDependenciesDetails().getConnectorDependencies();
         ConnectorDependencyDownloadResult result = ConnectorDownloadManager.downloadDependencies(projectPath, connectorDependencies);
-        utilsMock.close();
 
         assertFalse(result.getFailedDependencies().isEmpty());
     }

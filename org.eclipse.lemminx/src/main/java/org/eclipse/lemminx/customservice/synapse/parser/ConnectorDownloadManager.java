@@ -45,6 +45,8 @@ public class ConnectorDownloadManager {
 
     public static ConnectorDependencyDownloadResult downloadDependencies(String projectPath, List<DependencyDetails> dependencies) {
 
+        LOGGER.log(Level.INFO, "Starting connector dependency download for project: " + new File(projectPath).getName()
+                + " with " + dependencies.size() + " dependencies");
         String projectId = new File(projectPath).getName() + "_" + Utils.getHash(projectPath);
         File directory = Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI, Constant.CONNECTORS,
                 projectId).toFile();
@@ -95,6 +97,9 @@ public class ConnectorDownloadManager {
                 failedDependencies.add(dependencyId);
             }
         }
+        LOGGER.log(Level.INFO, "Connector dependency download completed for project: " + new File(projectPath).getName()
+                + ". Failed: " + failedDependencies.size() + ", From integration project dependencies: "
+                + fromIntegrationProjectDependencies.size());
         return new ConnectorDependencyDownloadResult(failedDependencies, fromIntegrationProjectDependencies);
     }
 

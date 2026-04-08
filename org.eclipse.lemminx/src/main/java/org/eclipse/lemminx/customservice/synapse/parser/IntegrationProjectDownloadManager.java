@@ -75,7 +75,8 @@ public class IntegrationProjectDownloadManager {
     public static IntegrationProjectDependencyDownloadResult refetchDependencies(String projectPath, List<DependencyDetails> dependencies,
                                                                boolean isVersionedDeploymentEnabled) {
 
-        LOGGER.log(Level.INFO, "Starting hard refresh of dependencies for project: " + new File(projectPath).getName());
+        LOGGER.log(Level.INFO, "Starting hard refresh of dependencies for project: " + new File(projectPath).getName()
+                + " with " + dependencies.size() + " dependencies");
         return refetchDependencies(projectPath, dependencies, isVersionedDeploymentEnabled,
                 Path.of(System.getProperty(Constant.USER_HOME)));
     }
@@ -184,6 +185,10 @@ public class IntegrationProjectDownloadManager {
         deleteObsoleteDownloadedFiles(downloadDirectory, expectedBaseNames);
         deleteObsoleteExtractedDirs(extractDirectory, expectedBaseNames);
 
+        LOGGER.log(Level.INFO, "Integration project dependency download completed for project: "
+                + new File(projectPath).getName() + ". Failed: " + failedDependencies.size()
+                + ", No descriptor: " + noDescriptorDependencies.size()
+                + ", Version mismatch: " + versioningMismatchDependencies.size());
         return new IntegrationProjectDependencyDownloadResult(failedDependencies, noDescriptorDependencies, versioningMismatchDependencies);
     }
 
