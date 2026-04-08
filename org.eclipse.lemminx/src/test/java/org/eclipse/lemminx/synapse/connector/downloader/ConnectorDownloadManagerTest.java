@@ -18,6 +18,7 @@ import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.parser.ConnectorDownloadManager;
 import org.eclipse.lemminx.customservice.synapse.parser.DependencyDetails;
+import org.eclipse.lemminx.customservice.synapse.parser.ConnectorDependencyDownloadResult;
 import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import org.junit.jupiter.api.AfterEach;
@@ -62,10 +63,11 @@ public class ConnectorDownloadManagerTest {
         getPomDetails(projectPath, pomDetailsResponse);
         List<DependencyDetails>
                 connectorDependencies = pomDetailsResponse.getDependenciesDetails().getConnectorDependencies();
-        List<String> failedDependencies = connectorDownloadManager.downloadDependencies(projectPath, connectorDependencies);
+        ConnectorDependencyDownloadResult result = ConnectorDownloadManager.downloadDependencies(projectPath, connectorDependencies);
         utilsMock.close();
 
-        assertEquals(0, failedDependencies.size());
+        assertEquals(0, result.getFailedDependencies().size());
+        assertEquals(0, result.getFromIntegrationProjectDependencies().size());
     }
 
     @Test
@@ -84,10 +86,10 @@ public class ConnectorDownloadManagerTest {
         List<DependencyDetails> connectorDependencies =
                 pomDetailsResponse.getDependenciesDetails().getConnectorDependencies();
 
-        List<String> failedDependencies = connectorDownloadManager.downloadDependencies(projectPath, connectorDependencies);
+        ConnectorDependencyDownloadResult result = ConnectorDownloadManager.downloadDependencies(projectPath, connectorDependencies);
         utilsMock.close();
 
-        assertTrue(failedDependencies.stream().anyMatch(dep -> dep.contains("mi-connector-http")),
+        assertTrue(result.getFromIntegrationProjectDependencies().stream().anyMatch(dep -> dep.contains("mi-connector-http")),
                 "Connector from integration project dependency should be marked as failed");
     }
 
@@ -100,9 +102,9 @@ public class ConnectorDownloadManagerTest {
         getPomDetails(projectPath, pomDetailsResponse);
         List<DependencyDetails>
                 connectorDependencies = pomDetailsResponse.getDependenciesDetails().getConnectorDependencies();
-        List<String> failedDependencies = connectorDownloadManager.downloadDependencies(projectPath, connectorDependencies);
+        ConnectorDependencyDownloadResult result = ConnectorDownloadManager.downloadDependencies(projectPath, connectorDependencies);
         utilsMock.close();
 
-        assertFalse(failedDependencies.isEmpty());
+        assertFalse(result.getFailedDependencies().isEmpty());
     }
 }

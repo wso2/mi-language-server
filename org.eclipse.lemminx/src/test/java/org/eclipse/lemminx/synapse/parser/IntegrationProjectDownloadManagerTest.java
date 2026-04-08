@@ -15,7 +15,7 @@
 package org.eclipse.lemminx.synapse.parser;
 
 import org.eclipse.lemminx.customservice.synapse.parser.DependencyDetails;
-import org.eclipse.lemminx.customservice.synapse.parser.DependencyDownloadResult;
+import org.eclipse.lemminx.customservice.synapse.parser.IntegrationProjectDependencyDownloadResult;
 import org.eclipse.lemminx.customservice.synapse.parser.IntegrationProjectDownloadManager;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
@@ -84,7 +84,7 @@ public class IntegrationProjectDownloadManagerTest {
     @Test
     public void testEmptyDependencies_allResultListsEmptyAndDirectoriesCreated() {
 
-        DependencyDownloadResult result = IntegrationProjectDownloadManager.downloadDependencies(
+        IntegrationProjectDependencyDownloadResult result = IntegrationProjectDownloadManager.downloadDependencies(
                 projectRoot.toString(), Collections.emptyList(), false, tempHome);
 
         assertTrue(result.getFailedDependencies().isEmpty());
@@ -117,7 +117,7 @@ public class IntegrationProjectDownloadManagerTest {
             utilsMock.when(() -> Utils.getHash(any())).thenCallRealMethod();
             utilsMock.when(() -> Utils.deleteDirectory(any())).thenCallRealMethod();
 
-            DependencyDownloadResult result = IntegrationProjectDownloadManager.downloadDependencies(
+            IntegrationProjectDependencyDownloadResult result = IntegrationProjectDownloadManager.downloadDependencies(
                     projectRoot.toString(), List.of(dep), false, tempHome);
 
             assertEquals(1, result.getFailedDependencies().size());
@@ -147,7 +147,7 @@ public class IntegrationProjectDownloadManagerTest {
         Files.createDirectories(repoDir);
         createZipWithoutDescriptor(repoDir, dep.getArtifact() + "-" + dep.getVersion() + ".car");
 
-        DependencyDownloadResult result = IntegrationProjectDownloadManager.downloadDependencies(
+        IntegrationProjectDependencyDownloadResult result = IntegrationProjectDownloadManager.downloadDependencies(
                 projectRoot.toString(), List.of(dep), false, tempHome);
 
         assertEquals(1, result.getNoDescriptorDependencies().size());
@@ -169,7 +169,7 @@ public class IntegrationProjectDownloadManagerTest {
         // Plant a .car with versionedDeployment=true in the local repo; parent has false
         plantInLocalRepo(dep, true, Collections.emptyList());
 
-        DependencyDownloadResult result = IntegrationProjectDownloadManager.downloadDependencies(
+        IntegrationProjectDependencyDownloadResult result = IntegrationProjectDownloadManager.downloadDependencies(
                 projectRoot.toString(), List.of(dep), false, tempHome);
 
         assertEquals(1, result.getVersioningTypeMismatchDependencies().size());
@@ -196,7 +196,7 @@ public class IntegrationProjectDownloadManagerTest {
         Path downloadDir = resolveProjectBaseDir().resolve(Constant.DOWNLOADED);
         assertFalse(downloadDir.toFile().exists(), "downloadDir must not exist before the call");
 
-        DependencyDownloadResult result = IntegrationProjectDownloadManager.downloadDependencies(
+        IntegrationProjectDependencyDownloadResult result = IntegrationProjectDownloadManager.downloadDependencies(
                 projectRoot.toString(), List.of(dep), false, tempHome);
 
         assertTrue(result.getFailedDependencies().isEmpty());
@@ -222,7 +222,7 @@ public class IntegrationProjectDownloadManagerTest {
         Path downloadDir = resolveProjectBaseDir().resolve(Constant.DOWNLOADED);
         assertFalse(downloadDir.toFile().exists(), "downloadDir must not exist before the call");
 
-        DependencyDownloadResult result = IntegrationProjectDownloadManager.downloadDependencies(
+        IntegrationProjectDependencyDownloadResult result = IntegrationProjectDownloadManager.downloadDependencies(
                 projectRoot.toString(), List.of(rootDep), false, tempHome);
 
         assertTrue(result.getFailedDependencies().isEmpty());
@@ -255,7 +255,7 @@ public class IntegrationProjectDownloadManagerTest {
         long lastModifiedBefore = existingCar.toFile().lastModified();
 
         // Nothing planted in local repo — if the code tries to fetch it would find nothing
-        DependencyDownloadResult result = IntegrationProjectDownloadManager.downloadDependencies(
+        IntegrationProjectDependencyDownloadResult result = IntegrationProjectDownloadManager.downloadDependencies(
                 projectRoot.toString(), List.of(dep), false, tempHome);
 
         assertTrue(result.getFailedDependencies().isEmpty());
@@ -287,7 +287,7 @@ public class IntegrationProjectDownloadManagerTest {
         long lastModifiedBefore = existingZip.toFile().lastModified();
 
         // Nothing planted in local repo — if the code tries to fetch it would find nothing
-        DependencyDownloadResult result = IntegrationProjectDownloadManager.downloadDependencies(
+        IntegrationProjectDependencyDownloadResult result = IntegrationProjectDownloadManager.downloadDependencies(
                 projectRoot.toString(), List.of(dep), false, tempHome);
 
         assertTrue(result.getFailedDependencies().isEmpty());
@@ -574,7 +574,7 @@ public class IntegrationProjectDownloadManagerTest {
         // newDep: fetched fresh from local repo (pre-extraction .car)
         plantInLocalRepo(newDep, false, Collections.emptyList());
 
-        DependencyDownloadResult result = IntegrationProjectDownloadManager.downloadDependencies(
+        IntegrationProjectDependencyDownloadResult result = IntegrationProjectDownloadManager.downloadDependencies(
                 projectRoot.toString(), List.of(existingDep, newDep), false, tempHome);
 
         // Extracted: existingDep's dir must be preserved
@@ -662,7 +662,7 @@ public class IntegrationProjectDownloadManagerTest {
         Path downloadDir = resolveProjectBaseDir().resolve(Constant.DOWNLOADED);
         assertFalse(downloadDir.toFile().exists(), "downloadDir must not exist before the call");
 
-        DependencyDownloadResult result = IntegrationProjectDownloadManager.downloadDependencies(
+        IntegrationProjectDependencyDownloadResult result = IntegrationProjectDownloadManager.downloadDependencies(
                 projectRoot.toString(), List.of(dep, dep), false, tempHome);
 
         assertTrue(result.getFailedDependencies().isEmpty());
@@ -691,7 +691,7 @@ public class IntegrationProjectDownloadManagerTest {
         Path downloadDir = resolveProjectBaseDir().resolve(Constant.DOWNLOADED);
         assertFalse(downloadDir.toFile().exists(), "downloadDir must not exist before the call");
 
-        DependencyDownloadResult result = IntegrationProjectDownloadManager.downloadDependencies(
+        IntegrationProjectDependencyDownloadResult result = IntegrationProjectDownloadManager.downloadDependencies(
                 projectRoot.toString(), List.of(goodDep, badDep), false, tempHome);
 
         assertEquals(1, result.getFailedDependencies().size());
@@ -830,7 +830,7 @@ public class IntegrationProjectDownloadManagerTest {
         Path downloadDir = resolveProjectBaseDir().resolve(Constant.DOWNLOADED);
         assertFalse(downloadDir.toFile().exists(), "downloadDir must not exist before the call");
 
-        DependencyDownloadResult result = IntegrationProjectDownloadManager.refetchDependencies(
+        IntegrationProjectDependencyDownloadResult result = IntegrationProjectDownloadManager.refetchDependencies(
                 projectRoot.toString(), List.of(dep), false, tempHome);
 
         assertTrue(result.getFailedDependencies().isEmpty());
@@ -1013,7 +1013,7 @@ public class IntegrationProjectDownloadManagerTest {
         DependencyDetails dep = makeDep("com.example", "dep-a", "1.0.0", "car");
         plantInLocalRepo(dep, false, Collections.emptyList());
 
-        DependencyDownloadResult result = IntegrationProjectDownloadManager.refetchDependencies(
+        IntegrationProjectDependencyDownloadResult result = IntegrationProjectDownloadManager.refetchDependencies(
                 projectRoot.toString(), List.of(dep), false, tempHome);
 
         assertTrue(result.getFailedDependencies().isEmpty());

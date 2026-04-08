@@ -72,7 +72,7 @@ public class IntegrationProjectDownloadManager {
      * @param isVersionedDeploymentEnabled indicates if versioned deployment is enabled in the parent project
      * @return a result object containing any dependencies that failed to download or process
      */
-    public static DependencyDownloadResult refetchDependencies(String projectPath, List<DependencyDetails> dependencies,
+    public static IntegrationProjectDependencyDownloadResult refetchDependencies(String projectPath, List<DependencyDetails> dependencies,
                                                                boolean isVersionedDeploymentEnabled) {
 
         LOGGER.log(Level.INFO, "Starting hard refresh of dependencies for project: " + new File(projectPath).getName());
@@ -80,7 +80,7 @@ public class IntegrationProjectDownloadManager {
                 Path.of(System.getProperty(Constant.USER_HOME)));
     }
 
-    public static DependencyDownloadResult refetchDependencies(String projectPath, List<DependencyDetails> dependencies,
+    public static IntegrationProjectDependencyDownloadResult refetchDependencies(String projectPath, List<DependencyDetails> dependencies,
                                                         boolean isVersionedDeploymentEnabled, Path userHome) {
 
         String projectId = new File(projectPath).getName() + UNDERSCORE + Utils.getHash(projectPath);
@@ -120,14 +120,14 @@ public class IntegrationProjectDownloadManager {
      * @param isVersionedDeploymentEnabled indicates if versioned deployment is enabled in the parent project
      * @return a list of dependency identifiers that failed to download or process
      */
-    public static DependencyDownloadResult downloadDependencies(String projectPath, List<DependencyDetails> dependencies,
+    public static IntegrationProjectDependencyDownloadResult downloadDependencies(String projectPath, List<DependencyDetails> dependencies,
                                                                 boolean isVersionedDeploymentEnabled) {
 
         return downloadDependencies(projectPath, dependencies, isVersionedDeploymentEnabled,
                 Path.of(System.getProperty(Constant.USER_HOME)));
     }
 
-    public static DependencyDownloadResult downloadDependencies(String projectPath, List<DependencyDetails> dependencies,
+    public static IntegrationProjectDependencyDownloadResult downloadDependencies(String projectPath, List<DependencyDetails> dependencies,
                                                          boolean isVersionedDeploymentEnabled, Path userHome) {
 
         String projectId = new File(projectPath).getName() + UNDERSCORE + Utils.getHash(projectPath);
@@ -184,7 +184,7 @@ public class IntegrationProjectDownloadManager {
         deleteObsoleteDownloadedFiles(downloadDirectory, expectedBaseNames);
         deleteObsoleteExtractedDirs(extractDirectory, expectedBaseNames);
 
-        return new DependencyDownloadResult(failedDependencies, noDescriptorDependencies, versioningMismatchDependencies);
+        return new IntegrationProjectDependencyDownloadResult(failedDependencies, noDescriptorDependencies, versioningMismatchDependencies);
     }
 
     /**

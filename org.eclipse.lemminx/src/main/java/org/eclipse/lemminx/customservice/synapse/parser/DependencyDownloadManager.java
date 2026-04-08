@@ -49,20 +49,19 @@ public class DependencyDownloadManager {
                 pomDetailsResponse.getDependenciesDetails().getConnectorDependencies();
         List<DependencyDetails> integrationProjectDependencies =
                 pomDetailsResponse.getDependenciesDetails().getIntegrationProjectDependencies();
-        List<String> failedConnectorDependencies =
+        ConnectorDependencyDownloadResult connectorResult =
                 ConnectorDownloadManager.downloadDependencies(projectPath, connectorDependencies);
         Node isVersionedDeployment = pomDetailsResponse.getBuildDetails().getVersionedDeployment();
         boolean isVersionedDeploymentEnabled = isVersionedDeployment != null ?
                 Boolean.parseBoolean(isVersionedDeployment.getValue()) : false;
-        DependencyDownloadResult integrationProjectResult =
+        IntegrationProjectDependencyDownloadResult integrationProjectResult =
                 IntegrationProjectDownloadManager.downloadDependencies(projectPath, integrationProjectDependencies,
                         isVersionedDeploymentEnabled);
 
         StringBuilder errorMessage = new StringBuilder();
-        if (!failedConnectorDependencies.isEmpty()) {
-            String connectorError = "Some connectors were not downloaded: " + String.join(", ", failedConnectorDependencies);
-            LOGGER.log(Level.SEVERE, connectorError);
-            errorMessage.append(connectorError);
+        String connectorErrorMessage = buildConnectorErrorMessage(connectorResult);
+        if (!connectorErrorMessage.isEmpty()) {
+            errorMessage.append(connectorErrorMessage);
         }
 
         String integrationProjectsErrorMessage = buildIntegrationProjectsErrorMessage(integrationProjectResult);
@@ -97,7 +96,7 @@ public class DependencyDownloadManager {
         Node isVersionedDeployment = pomDetailsResponse.getBuildDetails().getVersionedDeployment();
         boolean isVersionedDeploymentEnabled = isVersionedDeployment != null ?
                 Boolean.parseBoolean(isVersionedDeployment.getValue()) : false;
-        DependencyDownloadResult result =
+        IntegrationProjectDependencyDownloadResult result =
                 IntegrationProjectDownloadManager.refetchDependencies(projectPath, integrationProjectDependencies,
                         isVersionedDeploymentEnabled);
 
@@ -110,11 +109,41 @@ public class DependencyDownloadManager {
     }
 
     /**
-     * Builds a human-readable error string from a {@link DependencyDownloadResult},
+     * Builds a human-readable error string from a {@link ConnectorDependencyDownloadResult},
      * logging and concatenating each category of failure. Returns an empty string if
      * there were no failures.
      */
-    private static String buildIntegrationProjectsErrorMessage(DependencyDownloadResult result) {
+    private static String buildConnectorErrorMessage(ConnectorDependencyDownloadResult result) {
+
+        StringBuilder errorMessage = new StringBuilder();
+
+        if (!result.getFailedDependencies().isEmpty()) {
+            String connectorError = "Some connectors were not downloaded: " +
+                    String.join(", ", result.getFailedDependencies());
+            LOGGER.log(Level.SEVERE, connectorError);
+            errorMessage.append(connectorError);
+        }
+
+        if (!result.getFromIntegrationProjectDependencies().isEmpty()) {
+            String integrationProjectError = "Following connectors are provided by integration project dependencies" +
+                    " and cannot be downloaded: " +
+                    String.join(", ", result.getFromIntegrationProjectDependencies());
+            LOGGER.log(Level.SEVERE, integrationProjectError);
+            if (errorMessage.length() > 0) {
+                errorMessage.append(". ");
+            }
+            errorMessage.append(integrationProjectError);
+        }
+
+        return errorMessage.toString();
+    }
+
+    /**
+     * Builds a human-readable error string from a {@link IntegrationProjectDependencyDownloadResult},
+     * logging and concatenating each category of failure. Returns an empty string if
+     * there were no failures.
+     */
+    private static String buildIntegrationProjectsErrorMessage(IntegrationProjectDependencyDownloadResult result) {
 
         StringBuilder errorMessage = new StringBuilder();
 
