@@ -65,6 +65,15 @@ public class ConnectorDownloadManager {
         List<String> failedDependencies = new ArrayList<>();
 
         for (DependencyDetails dependency : dependencies) {
+            String failedDependencyId =
+                    dependency.getGroupId() + Constant.HYPHEN + dependency.getArtifact() + Constant.HYPHEN + dependency.getVersion();
+            boolean isFromIntegrationProjectDependency = isConnectorFromIntegrationProjectDependency(dependency.getArtifact());
+            if (isFromIntegrationProjectDependency) {
+                LOGGER.log(Level.WARNING, "Connector " + failedDependencyId +
+                        " is provided by an integration project dependency. Download not allowed.");
+                failedDependencies.add(failedDependencyId);
+                continue;
+            }
             try {
                 File connector = Path.of(downloadDirectory.getAbsolutePath(),
                         dependency.getArtifact() + "-" + dependency.getVersion() + Constant.ZIP_EXTENSION).toFile();
@@ -87,6 +96,16 @@ public class ConnectorDownloadManager {
             }
         }
         return failedDependencies;
+    }
+
+    /**
+     * Returns true if the connector with the given artifact ID is already loaded from an integration
+     * project dependency (i.e. not owned by the current project). 
+     */
+    private static boolean isConnectorFromIntegrationProjectDependency(String artifactId) {
+
+        return ConnectorHolder.getInstance().getConnectors().stream()
+                .anyMatch(c -> artifactId.equalsIgnoreCase(c.getArtifactId()) && !c.isFromProject());
     }
 
     private static void deleteRemovedConnectors(File downloadDirectory, List<DependencyDetails> dependencies,
