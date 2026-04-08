@@ -14,10 +14,13 @@
 
 package org.eclipse.lemminx.synapse.connector.downloader;
 
+import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.parser.ConnectorDownloadManager;
 import org.eclipse.lemminx.customservice.synapse.parser.DependencyDetails;
 import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
 import org.eclipse.lemminx.customservice.synapse.utils.Utils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
@@ -29,6 +32,7 @@ import java.util.List;
 import static org.eclipse.lemminx.customservice.synapse.parser.pom.PomParser.getPomDetails;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mockStatic;
 
@@ -41,6 +45,12 @@ public class ConnectorDownloadManagerTest {
     void setUp() {
         connectorDownloadManager = new ConnectorDownloadManager();
         utilsMock = mockStatic(Utils.class);
+        ConnectorHolder.getInstance().clearConnectors();
+    }
+
+    @AfterEach
+    void tearDown() {
+        ConnectorHolder.getInstance().clearConnectors();
     }
 
     @Test
@@ -56,6 +66,29 @@ public class ConnectorDownloadManagerTest {
         utilsMock.close();
 
         assertEquals(0, failedDependencies.size());
+    }
+
+    @Test
+    void downloadConnectorsFromIntegrationProjectDependency() {
+        String path = ConnectorDownloadManagerTest.class.getResource("/synapse/pom.parser/test_pom_parser").getPath();
+        String projectPath = new File(path).getAbsolutePath();
+
+        // Simulate a connector already loaded from an integration project dependency (fromProject = false)
+        Connector dependencyConnector = new Connector();
+        dependencyConnector.setArtifactId("mi-connector-http");
+        dependencyConnector.setFromProject(false);
+        ConnectorHolder.getInstance().addConnector(dependencyConnector);
+
+        OverviewPageDetailsResponse pomDetailsResponse = new OverviewPageDetailsResponse();
+        getPomDetails(projectPath, pomDetailsResponse);
+        List<DependencyDetails> connectorDependencies =
+                pomDetailsResponse.getDependenciesDetails().getConnectorDependencies();
+
+        List<String> failedDependencies = connectorDownloadManager.downloadDependencies(projectPath, connectorDependencies);
+        utilsMock.close();
+
+        assertTrue(failedDependencies.stream().anyMatch(dep -> dep.contains("mi-connector-http")),
+                "Connector from integration project dependency should be marked as failed");
     }
 
     @Test
