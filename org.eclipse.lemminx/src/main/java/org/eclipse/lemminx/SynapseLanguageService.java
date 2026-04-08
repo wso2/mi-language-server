@@ -84,7 +84,6 @@ import org.eclipse.lemminx.customservice.synapse.parser.config.ConfigParser;
 import org.eclipse.lemminx.customservice.synapse.parser.config.ConfigurableEntry;
 import org.eclipse.lemminx.customservice.synapse.parser.pom.PomParser;
 import org.eclipse.lemminx.customservice.synapse.parser.ConnectorDownloadManager;
-import org.eclipse.lemminx.customservice.synapse.parser.connectorConfig.ConnectorConfig;
 import org.eclipse.lemminx.customservice.synapse.parser.connectorConfig.ConnectorConfigService;
 import org.eclipse.lemminx.customservice.synapse.parser.connectorConfig.ConnectorDependencyRequest;
 import org.eclipse.lemminx.customservice.synapse.parser.connectorConfig.ConnectorDependencyResponse;
@@ -702,19 +701,8 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     public CompletableFuture<ConnectorDependencyResponse> getConnectorDependencies(
             ConnectorDependencyRequest request) {
 
-        return CompletableFuture.supplyAsync(() -> {
-            ConnectorDependencyResponse response = new ConnectorDependencyResponse();
-            ConnectorConfig rootConfig = ConnectorConfigService.readConfig(projectUri);
-            response.omitAllDrivers = Boolean.TRUE.equals(rootConfig.omitAllDrivers);
-            response.omitAllConnectors = Boolean.TRUE.equals(rootConfig.omitAllConnectors);
-            if (request.connectorArtifactId != null) {
-                response.dependencies =
-                        ConnectorConfigService.getEffectiveDependencies(projectUri, request.connectorArtifactId);
-            } else {
-                response.allConnectors = ConnectorConfigService.getAllEffectiveDependencies(projectUri);
-            }
-            return response;
-        });
+        return CompletableFuture.supplyAsync(() ->
+                ConnectorConfigService.buildDependencyResponse(projectUri, request.connectorArtifactId));
     }
 
     @Override
@@ -752,7 +740,6 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
         return CompletableFuture.supplyAsync(() -> {
             try {
-                request.projectPath = projectUri;
                 ConnectorConfigService.updateConnectorFlags(projectUri, request);
                 return true;
             } catch (Exception e) {
@@ -767,7 +754,6 @@ public class SynapseLanguageService implements ISynapseLanguageService {
 
         return CompletableFuture.supplyAsync(() -> {
             try {
-                request.projectPath = projectUri;
                 ConnectorConfigService.updateRootConfig(projectUri, request);
                 return true;
             } catch (Exception e) {

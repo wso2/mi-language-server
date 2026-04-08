@@ -180,14 +180,17 @@ public class ConnectorDownloadManager {
                  return null;
              }
  
+             // Check global/connector-level omitAllDrivers before reading coordinates
+             if (ConnectorConfigService.isOmitAllDrivers(projectPath, connectorName)) {
+                 LOGGER.log(Level.INFO, "All drivers for " + connectorName
+                         + " are omitted via connector-config.json (omitAllDrivers); skipping download.");
+                 return null;
+             }
+
              // Extract driver coordinates from descriptor.yml
              String groupId = (String) driverInfo.get(Constant.GROUP_ID_KEY);
              String artifactId = (String) driverInfo.get(Constant.ARTIFACT_ID_KEY);
              String version = (String) driverInfo.get(Constant.VERSION_KEY);
-             if (StringUtils.isAnyBlank(groupId, artifactId, version)) {
-                 LOGGER.log(Level.SEVERE, "Invalid driver coordinates in descriptor");
-                 return null;
-             }
 
              // Apply any override from connector-config.json so the IDE uses the same
              // driver version that the build will pack into the CAR.
@@ -211,6 +214,12 @@ public class ConnectorDownloadManager {
                              + " as per connector-config.json.");
                      version = override.version;
                  }
+             }
+
+             // Validate coordinates after overrides have been applied
+             if (StringUtils.isAnyBlank(groupId, artifactId, version)) {
+                 LOGGER.log(Level.SEVERE, "Invalid driver coordinates in descriptor");
+                 return null;
              }
 
              // Create temp drivers directory if it doesn't exist
