@@ -51,7 +51,7 @@ import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.WorkspaceFolder;
 import org.w3c.dom.Node;
-
+import com.google.gson.JsonPrimitive;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -1024,7 +1024,7 @@ public class Utils {
 
     public static Path copyXSDFiles(String projectUri) throws IOException, URISyntaxException {
 
-        String version = getServerVersion(getAbsolutePath(projectUri), Constant.DEFAULT_MI_VERSION);
+        String version = getServerVersion(projectUri, Constant.DEFAULT_MI_VERSION);
         String versionFolder = version.replace(".", "");
         String schemasPath = "org/eclipse/lemminx/schemas/" + versionFolder;
         File tempFolder = Files.createTempDirectory("synapse").toFile();
@@ -1086,7 +1086,8 @@ public class Utils {
 
         Map<String, Path> workspaceSchemas = new HashMap<>();
         for (String folderUri : folderUris) {
-            Path schemaDir = copyXSDFiles(folderUri);
+            String projectUri = getAbsolutePath(folderUri);
+            Path schemaDir = copyXSDFiles(projectUri);
             workspaceSchemas.put(folderUri, schemaDir);
         }
 
@@ -1139,6 +1140,39 @@ public class Utils {
             }
         }
 
+        return settings;
+    }
+
+    public static Path updateSynapseCatalogSettings(InitializeParams params) throws IOException, URISyntaxException {
+
+        String projectUri = params.getRootPath();
+        Object initParams = params.getInitializationOptions();
+        Gson gson = new Gson();
+        JsonElement jsonElement = gson.toJsonTree(initParams);
+        if (jsonElement != null && jsonElement.isJsonObject() && jsonElement.getAsJsonObject().has(Constant.SETTINGS)) {
+            JsonObject settings = jsonElement.getAsJsonObject().getAsJsonObject(Constant.SETTINGS);
+            Path schemaPath = copyXSDFiles(projectUri);
+            JsonElement updatedParams = updateSynapseCatalogSettings(settings, schemaPath);
+            JsonObject updatedSettings = new JsonObject();
+            updatedSettings.add(Constant.SETTINGS, updatedParams);
+            params.setInitializationOptions(updatedSettings);
+            return schemaPath;
+
+        }
+        return null;
+    }
+
+    public static JsonElement updateSynapseCatalogSettings(JsonObject settings, Path schemaPath)
+            throws IOException, URISyntaxException {
+
+        if (schemaPath != null) {
+            Path catalogPath = schemaPath.resolve("catalog.xml");
+            JsonArray catalogsArray = new JsonArray();
+            catalogsArray.add(new JsonPrimitive(catalogPath.toString()));
+            if (settings != null && settings.isJsonObject() && settings.has(Constant.XML)) {
+                settings.getAsJsonObject(Constant.XML).add(Constant.CATALOGS, catalogsArray);
+            }
+        }
         return settings;
     }
 
