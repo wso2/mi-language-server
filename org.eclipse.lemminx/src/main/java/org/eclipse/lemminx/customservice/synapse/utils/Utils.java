@@ -1076,6 +1076,8 @@ public class Utils {
     public static Map<String, Path> updateSynapseFileAssociationSettings(InitializeParams params)
             throws IOException, URISyntaxException {
 
+        logger.info("Updating Synapse file association settings");
+
         List<String> folderUris = new ArrayList<>();
         List<WorkspaceFolder> workspaceFolders = params.getWorkspaceFolders();
         if (workspaceFolders != null && !workspaceFolders.isEmpty()) {
@@ -1123,6 +1125,7 @@ public class Utils {
             try {
                 patternBase = Paths.get(new URI(folderUri)).toString().replace("\\", "/");
             } catch (Exception e) {
+                logger.warning("Failed to convert folder URI to filesystem path: " + folderUri);
                 patternBase = folderUri.replace("\\", "/");
             }
 
