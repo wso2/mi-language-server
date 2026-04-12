@@ -203,7 +203,7 @@ public abstract class AbstractResourceFinder {
                             new ArrayList<>(conflictingArtifacts), new ArrayList<>(conflictingConnectors)));
                     cleanupConflictingDependency(dependentProject, downloadDirectory, groupId, artifactId, version);
                 } else {
-                    LOGGER.info("Merging " + depResources.size() + " resource type(s) from dependent project: "
+                    LOGGER.info("No conflicts detected. Merging " + depResources.size() + " resource type(s) from dependent project: "
                             + dependentProject);
                     mergeDepResources(depResources);
                     existingResourceNames.addAll(depResourceNames);
