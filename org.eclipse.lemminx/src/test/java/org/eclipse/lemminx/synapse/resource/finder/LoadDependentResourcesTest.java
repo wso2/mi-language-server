@@ -1047,6 +1047,67 @@ public class LoadDependentResourcesTest {
     }
 
     /**
+     * A user-created registry resource whose key happens to end with {@code artifact.xml}
+     * (e.g. {@code gov:/config/artifact.xml}) is a legitimate user resource and must NOT be
+     * silently excluded from conflict detection. Only the two exact project-skeleton keys
+     * ({@code resources:artifact.xml} and {@code resources:registry/artifact.xml}) are excluded.
+     * <p>
+     * This verifies the fix for the overly-broad {@code endsWith("artifact.xml")} check that was
+     * replaced with exact-key matching via {@code ARTIFACT_XML_REGISTRY_KEYS}.
+     */
+    @Test
+    void testUserRegistryResourceEndingWithArtifactXmlIsDetectedAsConflict() throws IOException {
+
+        Path depBaseDir = createDependencyBaseDir();
+        Path dep1 = createDependentProject(depBaseDir, "dep1", "com.example", "dep1", "1.0.0");
+
+        // Main project already has a user-created registry resource whose key ends with artifact.xml
+        resourceFinder.setProjectResources(mainProjectPath,
+                buildRegistryResources("registry", "gov:/config/artifact.xml"));
+        // dep1 also has the same user-created key → should be detected as a conflict
+        resourceFinder.setProjectResources(dep1.toString(),
+                buildRegistryResources("registry", "gov:/config/artifact.xml"));
+
+        String result = resourceFinder.loadDependentResources(mainProjectPath);
+
+        assertTrue(result.contains("CONFLICTING ARTIFACTS"),
+                "A user registry resource ending with artifact.xml must trigger a conflict, but got: " + result);
+        assertTrue(result.contains("\"gov:/config/artifact.xml\""));
+    }
+
+    /**
+     * The conflict message must list conflicting artifact names in alphabetical order regardless
+     * of the iteration order of the underlying {@link java.util.HashSet}. Stable ordering makes
+     * the output reproducible across runs and easier to reason about in logs and error messages.
+     */
+    @Test
+    void testConflictMessageListsArtifactsInSortedOrder() throws IOException {
+
+        Path depBaseDir = createDependencyBaseDir();
+        Path dep1 = createDependentProject(depBaseDir, "dep1", "com.example", "dep1", "1.0.0");
+
+        // Main project has several resources whose names sort as: alphaSeq < betaSeq < gammaSeq
+        resourceFinder.setProjectResources(mainProjectPath,
+                buildResources("sequence", "gammaSeq", "alphaSeq", "betaSeq"));
+        // dep1 conflicts with all three
+        resourceFinder.setProjectResources(dep1.toString(),
+                buildResources("sequence", "betaSeq", "gammaSeq", "alphaSeq"));
+
+        String result = resourceFinder.loadDependentResources(mainProjectPath);
+
+        assertTrue(result.contains("CONFLICTING ARTIFACTS"));
+        // All three must appear in the message
+        assertTrue(result.contains("\"alphaSeq\""));
+        assertTrue(result.contains("\"betaSeq\""));
+        assertTrue(result.contains("\"gammaSeq\""));
+        // Alphabetical order: alphaSeq before betaSeq before gammaSeq
+        assertTrue(result.indexOf("\"alphaSeq\"") < result.indexOf("\"betaSeq\""),
+                "alphaSeq must appear before betaSeq in the conflict message");
+        assertTrue(result.indexOf("\"betaSeq\"") < result.indexOf("\"gammaSeq\""),
+                "betaSeq must appear before gammaSeq in the conflict message");
+    }
+
+    /**
      * Connector zip registry keys ({@code resources:connectors/*.zip}) are extracted for
      * connector-specific conflict checking and then removed from the artifact namespace.
      * Two deps carrying the same connector zip key (for the http connector which is always
