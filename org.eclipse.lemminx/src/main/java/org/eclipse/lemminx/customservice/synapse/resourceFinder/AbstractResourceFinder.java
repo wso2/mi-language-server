@@ -426,10 +426,20 @@ public abstract class AbstractResourceFinder {
      * @param projectPath the absolute path to the project
      * @return the dependency directory as a Path if it exists, or null if not found
      */
+    /**
+     * Returns the user home directory used to locate the integration-project-dependencies folder.
+     * Overridable so that tests can redirect to a temporary directory without mutating the global
+     * {@code user.home} system property.
+     */
+    protected String getUserHome() {
+
+        return System.getProperty(Constant.USER_HOME);
+    }
+
     private Path findProjectDependencyDir(String projectPath) {
 
         Path dependenciesDir = Path.of(
-                System.getProperty(Constant.USER_HOME),
+                getUserHome(),
                 Constant.WSO2_MI,
                 Constant.INTEGRATION_PROJECT_DEPENDENCIES
         );

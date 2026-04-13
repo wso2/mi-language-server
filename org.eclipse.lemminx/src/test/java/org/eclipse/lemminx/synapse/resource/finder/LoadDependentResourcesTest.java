@@ -57,20 +57,17 @@ public class LoadDependentResourcesTest {
     Path tempUserHome;
 
     private String mainProjectPath;
-    private String originalUserHome;
     private TestResourceFinder resourceFinder;
 
     @BeforeEach
     void setUp() throws IOException {
-
-        originalUserHome = System.getProperty(Constant.USER_HOME);
-        System.setProperty(Constant.USER_HOME, tempUserHome.toString());
 
         mainProjectPath = tempUserHome.resolve("main_project").toString();
         Files.createDirectories(Path.of(mainProjectPath));
         createPomXml(Path.of(mainProjectPath), "com.example", "main-project", "1.0.0");
 
         resourceFinder = new TestResourceFinder();
+        resourceFinder.setUserHome(tempUserHome.toString());
         ConnectorHolder.getInstance().clearConnectors();
         LOGGER.info("Test setup completed with main project path: " + mainProjectPath);
     }
@@ -78,7 +75,6 @@ public class LoadDependentResourcesTest {
     @AfterEach
     void tearDown() {
 
-        System.setProperty(Constant.USER_HOME, originalUserHome);
         ConnectorHolder.getInstance().clearConnectors();
     }
 
@@ -1663,10 +1659,24 @@ public class LoadDependentResourcesTest {
     /**
      * Minimal concrete subclass of {@link AbstractResourceFinder} that returns pre-configured
      * resource maps per project path, avoiding the need for real XML artifact files on disk.
+     * The user home directory is injected via {@link #setUserHome} so tests never need to
+     * mutate the global {@code user.home} system property.
      */
     private static class TestResourceFinder extends AbstractResourceFinder {
 
+        private String userHome;
         private final Map<String, Map<String, ResourceResponse>> projectResources = new HashMap<>();
+
+        void setUserHome(String userHome) {
+
+            this.userHome = userHome;
+        }
+
+        @Override
+        protected String getUserHome() {
+
+            return userHome;
+        }
 
         void setProjectResources(String projectPath, Map<String, ResourceResponse> resources) {
 
