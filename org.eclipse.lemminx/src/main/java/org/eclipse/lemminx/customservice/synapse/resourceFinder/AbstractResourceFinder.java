@@ -17,7 +17,6 @@ package org.eclipse.lemminx.customservice.synapse.resourceFinder;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.ArtifactType;
-import org.eclipse.lemminx.customservice.synapse.parser.Node;
 import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
 import org.eclipse.lemminx.customservice.synapse.parser.pom.PomParser;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ArtifactResource;
@@ -193,9 +192,9 @@ public abstract class AbstractResourceFinder {
                         existingConnectorArtifactIds, loadedDepConnectorCoreNames);
 
                 if (!conflictingArtifacts.isEmpty() || !conflictingConnectors.isEmpty()) {
-                    String groupId = getNodeValue(pomDetails.getBuildDetails().getAdvanceDetails().getProjectGroupId());
-                    String artifactId = getNodeValue(pomDetails.getBuildDetails().getAdvanceDetails().getProjectArtifactId());
-                    String version = getNodeValue(pomDetails.getPrimaryDetails().getProjectVersion());
+                    String groupId = Utils.getNodeValue(pomDetails.getBuildDetails().getAdvanceDetails().getProjectGroupId());
+                    String artifactId = Utils.getNodeValue(pomDetails.getBuildDetails().getAdvanceDetails().getProjectArtifactId());
+                    String version = Utils.getNodeValue(pomDetails.getPrimaryDetails().getProjectVersion());
                     LOGGER.warning("Conflict detected in dependent project: " + dependentProject
                             + " — conflicting artifacts: " + conflictingArtifacts
                             + ", conflicting connectors: " + conflictingConnectors);
@@ -209,7 +208,7 @@ public abstract class AbstractResourceFinder {
                     existingResourceNames.addAll(depResourceNames);
                     depConnectorZipBaseNames.stream()
                             .filter(n -> !n.startsWith(HTTP_CONNECTOR_PREFIX))
-                            .map(this::stripConnectorVersion)
+                            .map(Utils::stripConnectorVersion)
                             .forEach(loadedDepConnectorCoreNames::add);
                 }
             }
@@ -362,7 +361,7 @@ public abstract class AbstractResourceFinder {
             if (zipBaseName.startsWith(HTTP_CONNECTOR_PREFIX)) {
                 continue;
             }
-            String coreName = stripConnectorVersion(zipBaseName);
+            String coreName = Utils.stripConnectorVersion(zipBaseName);
             boolean conflictsWithHolder = existingConnectorArtifactIds.contains(coreName);
             boolean conflictsWithCurrentRun = loadedDepConnectorCoreNames.contains(coreName);
             if (conflictsWithHolder || conflictsWithCurrentRun) {
@@ -508,34 +507,6 @@ public abstract class AbstractResourceFinder {
                 }
             }
         }
-    }
-
-    /**
-     * Strips the trailing version segment from a connector zip base name so that connectors with
-     * different versions are treated as the same connector.
-     * <p>
-     * For example, {@code "mi-connector-salesforce-1.0.0"} and {@code "mi-connector-salesforce-2.0.0"}
-     * both return {@code "mi-connector-salesforce"}.
-     * If the base name contains no hyphen the original value is returned unchanged.
-     *
-     * @param zipBaseName connector zip base name without the {@code .zip} extension
-     * @return the connector name with the last {@code -version} segment removed
-     */
-    private String stripConnectorVersion(String zipBaseName) {
-
-        int lastHyphen = zipBaseName.lastIndexOf(Constant.HYPHEN);
-        return lastHyphen > 0 ? zipBaseName.substring(0, lastHyphen) : zipBaseName;
-    }
-
-    /**
-     * Returns the value of the given Node, or an empty string if the node or its value is null.
-     *
-     * @param node the Node to read
-     * @return the node's value, or {@code ""}
-     */
-    private String getNodeValue(Node node) {
-
-        return (node != null && node.getValue() != null) ? node.getValue() : "";
     }
 
     /**

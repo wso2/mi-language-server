@@ -496,6 +496,35 @@ public class Utils {
         return name;
     }
 
+    /**
+     * Returns the value of the given synapse parser Node, or an empty string if the node or its
+     * value is null.
+     *
+     * @param node the Node to read
+     * @return the node's value, or {@code ""}
+     */
+    public static String getNodeValue(org.eclipse.lemminx.customservice.synapse.parser.Node node) {
+
+        return (node != null && node.getValue() != null) ? node.getValue() : "";
+    }
+
+    /**
+     * Strips the trailing version segment from a connector zip base name so that connectors with
+     * different versions are treated as the same connector.
+     * <p>
+     * For example, {@code "mi-connector-salesforce-1.0.0"} and {@code "mi-connector-salesforce-2.0.0"}
+     * both return {@code "mi-connector-salesforce"}.
+     * If the base name contains no hyphen the original value is returned unchanged.
+     *
+     * @param zipBaseName connector zip base name without the {@code .zip} extension
+     * @return the connector name with the last {@code -version} segment removed
+     */
+    public static String stripConnectorVersion(String zipBaseName) {
+
+        int lastHyphen = zipBaseName.lastIndexOf(Constant.HYPHEN);
+        return lastHyphen > 0 ? zipBaseName.substring(0, lastHyphen) : zipBaseName;
+    }
+
     public static DOMNode getChildNodeByName(DOMNode node, String name) {
 
         DOMNode foundNode = null;
