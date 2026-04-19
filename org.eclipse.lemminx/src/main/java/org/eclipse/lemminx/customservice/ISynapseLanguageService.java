@@ -69,6 +69,7 @@ import org.eclipse.lemminx.customservice.synapse.parser.UpdateResponse;
 import org.eclipse.lemminx.customservice.synapse.parser.config.ConfigurableEntry;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceUsagesRequest;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceParam;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.LoadDependentResourcesResponse;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceResponse;
 import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGenFromContentRequest;
 import org.eclipse.lemminx.customservice.synapse.schemagen.util.SchemaGenRequest;
@@ -248,7 +249,7 @@ public interface ISynapseLanguageService {
     CompletableFuture<String> refetchIntegrationProjectDependencies();
 
     @JsonRequest
-    CompletableFuture<String> loadDependentResources();
+    CompletableFuture<LoadDependentResourcesResponse> loadDependentResources();
 
     @JsonRequest
     CompletableFuture<TestConnectionResponse> testConnectorConnection(TestConnectionRequest request);

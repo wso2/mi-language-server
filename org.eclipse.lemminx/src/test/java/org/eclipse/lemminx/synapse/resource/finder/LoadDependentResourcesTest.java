@@ -18,6 +18,7 @@ import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.AbstractResourceFinder;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ArtifactResource;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.LoadDependentResourcesResponse;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.RegistryResource;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.RequestedResource;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.Resource;
@@ -254,8 +255,8 @@ public class LoadDependentResourcesTest {
     @Test
     void testNoDependencyDirectoryReturnsNoProjectsFound() {
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
-        assertEquals("No dependent integration projects found", result);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
+        assertEquals(LoadDependentResourcesResponse.STATUS_NO_DEPS_FOUND, result.getStatus());
     }
 
     /**
@@ -268,8 +269,8 @@ public class LoadDependentResourcesTest {
         Path depBaseDir = createDependencyBaseDir();
         Files.delete(depBaseDir.resolve(Constant.EXTRACTED));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
-        assertEquals("No dependent integration projects found", result);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
+        assertEquals(LoadDependentResourcesResponse.STATUS_NO_DEPS_FOUND, result.getStatus());
     }
 
     // -------------------------------------------------------------------------
@@ -289,9 +290,9 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(mainProjectPath, buildResources("sequence", "mainSequence"));
         resourceFinder.setProjectResources(dep1.toString(), buildResources("sequence", "depSequence"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.startsWith("Success"), "Expected success message but got: " + result);
+        assertEquals(LoadDependentResourcesResponse.STATUS_SUCCESS, result.getStatus());
     }
 
     /**
@@ -331,9 +332,9 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(dep1.toString(), buildResources("sequence", "sequence1"));
         resourceFinder.setProjectResources(dep2.toString(), buildResources("sequence", "sequence2"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.startsWith("Success"));
+        assertEquals(LoadDependentResourcesResponse.STATUS_SUCCESS, result.getStatus());
         Map<String, ResourceResponse> loaded = resourceFinder.getDependentResourcesMap();
         List<Resource> sequences = loaded.get("sequence").getResources();
         assertEquals(2, sequences.size());
@@ -354,9 +355,9 @@ public class LoadDependentResourcesTest {
 
         resourceFinder.setProjectResources(mainProjectPath, new HashMap<>());
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.startsWith("Success"));
+        assertEquals(LoadDependentResourcesResponse.STATUS_SUCCESS, result.getStatus());
         assertTrue(resourceFinder.getDependentResourcesMap().isEmpty());
     }
 
@@ -377,9 +378,9 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(mainProjectPath, buildResources("sequence", "sharedSequence"));
         resourceFinder.setProjectResources(dep1.toString(), buildResources("sequence", "sharedSequence"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.contains("CONFLICTING ARTIFACTS"), "Expected conflict message");
+        assertEquals(LoadDependentResourcesResponse.STATUS_CONFLICT, result.getStatus());
     }
 
     /**
@@ -395,11 +396,11 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(mainProjectPath, buildResources("sequence", "sharedSequence"));
         resourceFinder.setProjectResources(dep1.toString(), buildResources("sequence", "sharedSequence"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.contains("\"groupId\": \"com.example\""));
-        assertTrue(result.contains("\"artifactId\": \"dep1\""));
-        assertTrue(result.contains("\"version\": \"1.0.0\""));
+        assertTrue(hasConflictGroupId(result, "com.example"));
+        assertTrue(hasConflict(result, "dep1"));
+        assertTrue(hasConflictVersion(result, "1.0.0"));
     }
 
     /**
@@ -421,10 +422,10 @@ public class LoadDependentResourcesTest {
                                   buildResources("endpoint", "sharedEndpoint")));
         resourceFinder.setProjectResources(dep1.toString(), depResources);
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.contains("\"sharedSeq\""));
-        assertTrue(result.contains("\"sharedEndpoint\""));
+        assertTrue(hasConflictingArtifact(result, "sharedSeq"));
+        assertTrue(hasConflictingArtifact(result, "sharedEndpoint"));
     }
 
     /**
@@ -469,11 +470,11 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(dep1.toString(), buildResources("sequence", "sharedSequence"));
         resourceFinder.setProjectResources(dep2.toString(), buildResources("sequence", "sharedSequence"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.contains("CONFLICTING ARTIFACTS"));
+        assertEquals(LoadDependentResourcesResponse.STATUS_CONFLICT, result.getStatus());
         // dep2 (bdep2) conflicts with dep1 which was loaded first
-        assertTrue(result.contains("\"artifactId\": \"dep2\""));
+        assertTrue(hasConflict(result, "dep2"));
     }
 
     /**
@@ -519,13 +520,13 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(dep1.toString(), buildResources("sequence", "sharedSequence"));
         resourceFinder.setProjectResources(dep2.toString(), buildResources("sequence", "sharedSequence"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.contains("CONFLICTING ARTIFACTS"));
-        assertTrue(result.contains("\"artifactId\": \"dep1\""));
-        assertTrue(result.contains("\"artifactId\": \"dep2\""));
-        assertTrue(result.contains("\"version\": \"1.0.0\""));
-        assertTrue(result.contains("\"version\": \"2.0.0\""));
+        assertEquals(LoadDependentResourcesResponse.STATUS_CONFLICT, result.getStatus());
+        assertTrue(hasConflict(result, "dep1"));
+        assertTrue(hasConflict(result, "dep2"));
+        assertTrue(hasConflictVersion(result, "1.0.0"));
+        assertTrue(hasConflictVersion(result, "2.0.0"));
     }
 
     // -------------------------------------------------------------------------
@@ -653,9 +654,9 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(dep1.toString(),
                 buildConnectorZipResources("mi-connector-salesforce-1.0.0"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.startsWith("Success"));
+        assertEquals(LoadDependentResourcesResponse.STATUS_SUCCESS, result.getStatus());
     }
 
     /**
@@ -676,10 +677,10 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(dep1.toString(),
                 buildConnectorZipResources("mi-connector-salesforce-1.0.0"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.contains("CONFLICTING ARTIFACTS"));
-        assertTrue(result.contains("\"artifactId\": \"dep1\""));
+        assertEquals(LoadDependentResourcesResponse.STATUS_CONFLICT, result.getStatus());
+        assertTrue(hasConflict(result, "dep1"));
     }
 
     /**
@@ -699,10 +700,10 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(dep1.toString(),
                 buildConnectorZipResources("mi-connector-salesforce-1.0.0"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.contains("\"conflictingConnectors\""));
-        assertTrue(result.contains("\"mi-connector-salesforce-1.0.0\""));
+        assertFalse(result.getConflictingDependencies().isEmpty());
+        assertTrue(hasConflictingConnector(result, "mi-connector-salesforce-1.0.0"));
     }
 
     /**
@@ -724,12 +725,12 @@ public class LoadDependentResourcesTest {
                 mergeResourceMaps(buildResources("sequence", "depSequence"),
                         buildConnectorZipResources("mi-connector-salesforce-1.0.0")));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.contains("CONFLICTING ARTIFACTS"));
-        assertTrue(result.contains("\"mi-connector-salesforce-1.0.0\""));
+        assertEquals(LoadDependentResourcesResponse.STATUS_CONFLICT, result.getStatus());
+        assertTrue(hasConflictingConnector(result, "mi-connector-salesforce-1.0.0"));
         // No artifact conflict — the artifact list must be empty
-        assertTrue(result.contains("\"conflictingArtifacts\": []"));
+        assertTrue(result.getConflictingDependencies().get(0).getConflictingArtifacts().isEmpty());
     }
 
     /**
@@ -750,11 +751,11 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(dep2.toString(),
                 buildConnectorZipResources("mi-connector-salesforce-1.0.0"));  // same connector → conflict
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.contains("CONFLICTING ARTIFACTS"));
+        assertEquals(LoadDependentResourcesResponse.STATUS_CONFLICT, result.getStatus());
         // dep2 (bdep2) conflicts with dep1 processed first
-        assertTrue(result.contains("\"artifactId\": \"dep2\""));
+        assertTrue(hasConflict(result, "dep2"));
     }
 
     /**
@@ -803,9 +804,9 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(dep1.toString(),
                 buildConnectorZipResources("mi-connector-googlepubsub-1.0.0"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.startsWith("Success"));
+        assertEquals(LoadDependentResourcesResponse.STATUS_SUCCESS, result.getStatus());
         assertTrue(Files.exists(dep1), "Non-conflicting dep extracted dir should not be deleted");
         assertTrue(Files.exists(carFile), "Non-conflicting dep downloaded file should not be deleted");
     }
@@ -828,10 +829,10 @@ public class LoadDependentResourcesTest {
                 mergeResourceMaps(buildResources("sequence", "sharedSequence"),
                         buildConnectorZipResources("mi-connector-salesforce-1.0.0")));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.contains("\"sharedSequence\""));
-        assertTrue(result.contains("\"mi-connector-salesforce-1.0.0\""));
+        assertTrue(hasConflictingArtifact(result, "sharedSequence"));
+        assertTrue(hasConflictingConnector(result, "mi-connector-salesforce-1.0.0"));
     }
 
     /**
@@ -852,10 +853,10 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(dep1.toString(),
                 buildConnectorZipResources("mi-connector-http-0.1.14"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.startsWith("Success"),
-                "mi-connector-http must never trigger a conflict, but got: " + result);
+        assertEquals(LoadDependentResourcesResponse.STATUS_SUCCESS, result.getStatus(),
+                "mi-connector-http must never trigger a conflict");
     }
 
     /**
@@ -882,11 +883,11 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(dep1.toString(),
                 buildConnectorZipResources("mi-module-csv-1.0.0"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.contains("CONFLICTING ARTIFACTS"),
-                "Connector conflict must be detected regardless of component name casing, but got: " + result);
-        assertTrue(result.contains("\"mi-module-csv-1.0.0\""));
+        assertEquals(LoadDependentResourcesResponse.STATUS_CONFLICT, result.getStatus(),
+                "Connector conflict must be detected regardless of component name casing");
+        assertTrue(hasConflictingConnector(result, "mi-module-csv-1.0.0"));
     }
 
     /**
@@ -905,9 +906,9 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(dep1.toString(),
                 buildConnectorZipResources("mi-connector-http-0.1.14", "mi-connector-salesforce-1.0.0"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.startsWith("Success"));
+        assertEquals(LoadDependentResourcesResponse.STATUS_SUCCESS, result.getStatus());
     }
 
     /**
@@ -927,10 +928,10 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(dep1.toString(),
                 buildRegistryResources("registry", "resources:conf/config.properties"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.startsWith("Success"),
-                "resources:conf/config.properties must never trigger a conflict, but got: " + result);
+        assertEquals(LoadDependentResourcesResponse.STATUS_SUCCESS, result.getStatus(),
+                "resources:conf/config.properties must never trigger a conflict");
     }
 
     /**
@@ -955,11 +956,11 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(mainProjectPath, mainResources);
         resourceFinder.setProjectResources(dep1.toString(), depResources);
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.contains("CONFLICTING ARTIFACTS"));
-        assertTrue(result.contains("\"gov:/xslt/sample.xslt\""));
-        assertFalse(result.contains("\"resources:conf/config.properties\""),
+        assertEquals(LoadDependentResourcesResponse.STATUS_CONFLICT, result.getStatus());
+        assertTrue(hasConflictingArtifact(result, "gov:/xslt/sample.xslt"));
+        assertFalse(hasConflictingArtifact(result, "resources:conf/config.properties"),
                 "config.properties must not appear in the conflict report");
     }
 
@@ -982,10 +983,10 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(dep2.toString(),
                 buildRegistryResources("registry", "resources:artifact.xml"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.startsWith("Success"),
-                "resources:artifact.xml must never trigger a conflict, but got: " + result);
+        assertEquals(LoadDependentResourcesResponse.STATUS_SUCCESS, result.getStatus(),
+                "resources:artifact.xml must never trigger a conflict");
     }
 
     /**
@@ -1007,10 +1008,10 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(dep2.toString(),
                 buildRegistryResources("registry", "resources:registry/artifact.xml"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.startsWith("Success"),
-                "resources:registry/artifact.xml must never trigger a conflict, but got: " + result);
+        assertEquals(LoadDependentResourcesResponse.STATUS_SUCCESS, result.getStatus(),
+                "resources:registry/artifact.xml must never trigger a conflict");
     }
 
     /**
@@ -1035,9 +1036,9 @@ public class LoadDependentResourcesTest {
                 mergeResourceMaps(buildRegistryResources("registry", "resources:artifact.xml"),
                         buildResources("sequence", "dep2Sequence")));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.startsWith("Success"));
+        assertEquals(LoadDependentResourcesResponse.STATUS_SUCCESS, result.getStatus());
         Map<String, ResourceResponse> loaded = resourceFinder.getDependentResourcesMap();
         assertEquals(2, loaded.get("sequence").getResources().size());
     }
@@ -1064,11 +1065,11 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(dep1.toString(),
                 buildRegistryResources("registry", "gov:/config/artifact.xml"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.contains("CONFLICTING ARTIFACTS"),
-                "A user registry resource ending with artifact.xml must trigger a conflict, but got: " + result);
-        assertTrue(result.contains("\"gov:/config/artifact.xml\""));
+        assertEquals(LoadDependentResourcesResponse.STATUS_CONFLICT, result.getStatus(),
+                "A user registry resource ending with artifact.xml must trigger a conflict");
+        assertTrue(hasConflictingArtifact(result, "gov:/config/artifact.xml"));
     }
 
     /**
@@ -1089,18 +1090,19 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(dep1.toString(),
                 buildResources("sequence", "betaSeq", "gammaSeq", "alphaSeq"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.contains("CONFLICTING ARTIFACTS"));
-        // All three must appear in the message
-        assertTrue(result.contains("\"alphaSeq\""));
-        assertTrue(result.contains("\"betaSeq\""));
-        assertTrue(result.contains("\"gammaSeq\""));
+        assertEquals(LoadDependentResourcesResponse.STATUS_CONFLICT, result.getStatus());
+        List<String> artifacts = result.getConflictingDependencies().get(0).getConflictingArtifacts();
+        // All three must appear in the list
+        assertTrue(artifacts.contains("alphaSeq"));
+        assertTrue(artifacts.contains("betaSeq"));
+        assertTrue(artifacts.contains("gammaSeq"));
         // Alphabetical order: alphaSeq before betaSeq before gammaSeq
-        assertTrue(result.indexOf("\"alphaSeq\"") < result.indexOf("\"betaSeq\""),
-                "alphaSeq must appear before betaSeq in the conflict message");
-        assertTrue(result.indexOf("\"betaSeq\"") < result.indexOf("\"gammaSeq\""),
-                "betaSeq must appear before gammaSeq in the conflict message");
+        assertTrue(artifacts.indexOf("alphaSeq") < artifacts.indexOf("betaSeq"),
+                "alphaSeq must appear before betaSeq in the conflict list");
+        assertTrue(artifacts.indexOf("betaSeq") < artifacts.indexOf("gammaSeq"),
+                "betaSeq must appear before gammaSeq in the conflict list");
     }
 
     /**
@@ -1123,10 +1125,10 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(dep2.toString(),
                 buildRegistryResources("registry", "resources:connectors/mi-connector-http-0.1.14.zip"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.startsWith("Success"),
-                "resources:connectors/* must never trigger a conflict, but got: " + result);
+        assertEquals(LoadDependentResourcesResponse.STATUS_SUCCESS, result.getStatus(),
+                "resources:connectors/* must never trigger a conflict");
     }
 
     /**
@@ -1149,12 +1151,12 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(dep2.toString(),
                 buildConnectorZipResources("mi-connector-salesforce-2.0.0"));  // different version, same connector
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.contains("CONFLICTING ARTIFACTS"),
+        assertEquals(LoadDependentResourcesResponse.STATUS_CONFLICT, result.getStatus(),
                 "Different versions of the same connector must still be flagged as a conflict");
-        assertTrue(result.contains("\"artifactId\": \"dep2\""));
-        assertTrue(result.contains("\"mi-connector-salesforce-2.0.0\""));
+        assertTrue(hasConflict(result, "dep2"));
+        assertTrue(hasConflictingConnector(result, "mi-connector-salesforce-2.0.0"));
     }
 
     /**
@@ -1188,10 +1190,10 @@ public class LoadDependentResourcesTest {
                 mergeResourceMaps(buildResources("sequence", "dep2Sequence"),
                         buildConnectorZipResources("mi-connector-googlepubsub-1.0.0"))); // dep2 has a different connector
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.startsWith("Success"),
-                "dep1 must not conflict against its own connector already in ConnectorHolder: " + result);
+        assertEquals(LoadDependentResourcesResponse.STATUS_SUCCESS, result.getStatus(),
+                "dep1 must not conflict against its own connector already in ConnectorHolder");
         Map<String, ResourceResponse> loaded = resourceFinder.getDependentResourcesMap();
         assertNotNull(loaded.get("sequence"));
         assertEquals(2, loaded.get("sequence").getResources().size());
@@ -1230,14 +1232,14 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(lowEmail.toString(),
                 buildConnectorZipResources("mi-connector-email-1.0.14"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.contains("CONFLICTING ARTIFACTS"),
+        assertEquals(LoadDependentResourcesResponse.STATUS_CONFLICT, result.getStatus(),
                 "A connector conflict must be reported");
         // "LowEmailConnector" (added second) must be the one that is rejected
-        assertTrue(result.contains("\"artifactId\": \"LowEmailConnector\""),
-                "LowEmailConnector (added later) must be the conflicting dep, but got: " + result);
-        assertFalse(result.contains("\"artifactId\": \"NoIssue\""),
+        assertTrue(hasConflict(result, "LowEmailConnector"),
+                "LowEmailConnector (added later) must be the conflicting dep");
+        assertFalse(hasConflict(result, "NoIssue"),
                 "NoIssue (added first) must not be flagged as conflicting");
         // NoIssue's connector must be accessible in the loaded resources
         assertTrue(Files.exists(noIssue), "NoIssue dep directory must not be deleted");
@@ -1263,9 +1265,9 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(dep1.toString(),
                 buildRegistryResources("xslt", "gov:/xslt/sample.xslt"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.startsWith("Success"));
+        assertEquals(LoadDependentResourcesResponse.STATUS_SUCCESS, result.getStatus());
         Map<String, ResourceResponse> loaded = resourceFinder.getDependentResourcesMap();
         assertNotNull(loaded.get("xslt"));
         List<Resource> registryResources = loaded.get("xslt").getRegistryResources();
@@ -1289,11 +1291,11 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(dep1.toString(),
                 buildRegistryResources("xslt", "gov:/xslt/sample.xslt"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.contains("CONFLICTING ARTIFACTS"));
-        assertTrue(result.contains("\"gov:/xslt/sample.xslt\""));
-        assertTrue(result.contains("\"artifactId\": \"dep1\""));
+        assertEquals(LoadDependentResourcesResponse.STATUS_CONFLICT, result.getStatus());
+        assertTrue(hasConflictingArtifact(result, "gov:/xslt/sample.xslt"));
+        assertTrue(hasConflict(result, "dep1"));
     }
 
     /**
@@ -1314,11 +1316,11 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(dep2.toString(),
                 buildRegistryResources("xslt", "gov:/xslt/sample.xslt"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.contains("CONFLICTING ARTIFACTS"));
+        assertEquals(LoadDependentResourcesResponse.STATUS_CONFLICT, result.getStatus());
         // dep2 (bdep2) conflicts with dep1 which was loaded first
-        assertTrue(result.contains("\"artifactId\": \"dep2\""));
+        assertTrue(hasConflict(result, "dep2"));
         // dep1 (adep1) should still be loaded
         Map<String, ResourceResponse> loaded = resourceFinder.getDependentResourcesMap();
         assertNotNull(loaded.get("xslt"));
@@ -1346,11 +1348,11 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(mainProjectPath, mainResources);
         resourceFinder.setProjectResources(dep1.toString(), depResources);
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.contains("CONFLICTING ARTIFACTS"));
-        assertTrue(result.contains("\"sharedSequence\""));
-        assertTrue(result.contains("\"gov:/xslt/sample.xslt\""));
+        assertEquals(LoadDependentResourcesResponse.STATUS_CONFLICT, result.getStatus());
+        assertTrue(hasConflictingArtifact(result, "sharedSequence"));
+        assertTrue(hasConflictingArtifact(result, "gov:/xslt/sample.xslt"));
     }
 
     /**
@@ -1370,9 +1372,9 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(dep1.toString(),
                 buildRegistryResources("xslt", "gov:/xslt/sample.xslt"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.startsWith("Success"));
+        assertEquals(LoadDependentResourcesResponse.STATUS_SUCCESS, result.getStatus());
         assertTrue(Files.exists(dep1), "Non-conflicting dep's extracted dir should not be deleted");
         assertTrue(Files.exists(carFile), "Non-conflicting dep's downloaded file should not be deleted");
     }
@@ -1401,10 +1403,10 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(dep1.toString(), buildResources("sequence", "sharedSeq"));
         resourceFinder.setProjectResources(dep2.toString(), buildResources("sequence", "sharedSeq"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.startsWith("Success"),
-                "Same base name in two deps must not conflict under versioned deployment, but got: " + result);
+        assertEquals(LoadDependentResourcesResponse.STATUS_SUCCESS, result.getStatus(),
+                "Same base name in two deps must not conflict under versioned deployment");
         Map<String, ResourceResponse> loaded = resourceFinder.getDependentResourcesMap();
         // Both sequences must be present (under their FQNs)
         assertNotNull(loaded.get("sequence"));
@@ -1456,11 +1458,11 @@ public class LoadDependentResourcesTest {
         // dep1's "sharedSeq" transforms to "com.example__dep1__sharedSeq" → conflicts
         resourceFinder.setProjectResources(dep1.toString(), buildResources("sequence", "sharedSeq"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.contains("CONFLICTING ARTIFACTS"),
-                "FQN match must trigger a conflict under versioned deployment, but got: " + result);
-        assertTrue(result.contains("\"com.example__dep1__sharedSeq\""));
+        assertEquals(LoadDependentResourcesResponse.STATUS_CONFLICT, result.getStatus(),
+                "FQN match must trigger a conflict under versioned deployment");
+        assertTrue(hasConflictingArtifact(result, "com.example__dep1__sharedSeq"));
     }
 
     /**
@@ -1485,10 +1487,10 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(dep2.toString(),
                 buildRegistryResources("xslt", "gov:/xslt/sample.xslt"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.startsWith("Success"),
-                "Same registry key in two deps must not conflict under versioned deployment, but got: " + result);
+        assertEquals(LoadDependentResourcesResponse.STATUS_SUCCESS, result.getStatus(),
+                "Same registry key in two deps must not conflict under versioned deployment");
         Map<String, ResourceResponse> loaded = resourceFinder.getDependentResourcesMap();
         // Both registry resources must be present (under their FQNs)
         assertNotNull(loaded.get("xslt"));
@@ -1518,16 +1520,16 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(dep1.toString(), buildResources("sequence", "sharedSeq"));
         resourceFinder.setProjectResources(dep2.toString(), buildResources("sequence", "sharedSeq"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.contains("CONFLICTING ARTIFACTS"),
-                "Two deps with same groupId+artifactId+name must conflict under versioned deployment, but got: " + result);
+        assertEquals(LoadDependentResourcesResponse.STATUS_CONFLICT, result.getStatus(),
+                "Two deps with same groupId+artifactId+name must conflict under versioned deployment");
         // dep2 (added later) is the conflicting one
-        assertTrue(result.contains("\"artifactId\": \"shared-lib\""),
-                "Conflict message should name the shared-lib artifactId");
-        assertTrue(result.contains("\"version\": \"2.0.0\""),
+        assertTrue(hasConflict(result, "shared-lib"),
+                "Conflict should name the shared-lib artifactId");
+        assertTrue(hasConflictVersion(result, "2.0.0"),
                 "dep2 (version 2.0.0, added later) should be flagged as conflicting");
-        assertFalse(result.contains("\"version\": \"1.0.0\""),
+        assertFalse(hasConflictVersion(result, "1.0.0"),
                 "dep1 (version 1.0.0, added first) should NOT be flagged");
         // dep1 directory must survive; dep2 must be cleaned up
         assertTrue(Files.exists(dep1), "dep1 (added first) must not be deleted");
@@ -1595,11 +1597,11 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(dep1.toString(),
                 buildConnectorZipResources("mi-connector-email-1.0.0"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.contains("CONFLICTING ARTIFACTS"),
-                "Connector conflict must be detected under versioned deployment, but got: " + result);
-        assertTrue(result.contains("\"mi-connector-email-1.0.0\""));
+        assertEquals(LoadDependentResourcesResponse.STATUS_CONFLICT, result.getStatus(),
+                "Connector conflict must be detected under versioned deployment");
+        assertTrue(hasConflictingConnector(result, "mi-connector-email-1.0.0"));
         assertFalse(Files.exists(dep1), "Conflicting dep directory must be cleaned up");
     }
 
@@ -1626,13 +1628,13 @@ public class LoadDependentResourcesTest {
         resourceFinder.setProjectResources(dep2.toString(),
                 buildConnectorZipResources("mi-connector-email-1.0.14"));
 
-        String result = resourceFinder.loadDependentResources(mainProjectPath);
+        LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(mainProjectPath);
 
-        assertTrue(result.contains("CONFLICTING ARTIFACTS"),
-                "Same connector in two deps must conflict under versioned deployment, but got: " + result);
-        assertTrue(result.contains("\"artifactId\": \"dep2\""),
+        assertEquals(LoadDependentResourcesResponse.STATUS_CONFLICT, result.getStatus(),
+                "Same connector in two deps must conflict under versioned deployment");
+        assertTrue(hasConflict(result, "dep2"),
                 "dep2 (added later) must be flagged as the conflicting dependency");
-        assertFalse(result.contains("\"artifactId\": \"dep1\""),
+        assertFalse(hasConflict(result, "dep1"),
                 "dep1 (added first) must not be flagged");
         assertTrue(Files.exists(dep1), "dep1 (added first) must not be deleted");
         assertFalse(Files.exists(dep2), "dep2 (conflicting) must be cleaned up");
@@ -1650,6 +1652,37 @@ public class LoadDependentResourcesTest {
             merged.putAll(map);
         }
         return merged;
+    }
+
+    // -------------------------------------------------------------------------
+    // Assertion helpers for LoadDependentResourcesResponse
+    // -------------------------------------------------------------------------
+
+    private boolean hasConflict(LoadDependentResourcesResponse result, String artifactId) {
+
+        return result.getConflictingDependencies().stream().anyMatch(c -> artifactId.equals(c.getArtifactId()));
+    }
+
+    private boolean hasConflictVersion(LoadDependentResourcesResponse result, String version) {
+
+        return result.getConflictingDependencies().stream().anyMatch(c -> version.equals(c.getVersion()));
+    }
+
+    private boolean hasConflictGroupId(LoadDependentResourcesResponse result, String groupId) {
+
+        return result.getConflictingDependencies().stream().anyMatch(c -> groupId.equals(c.getGroupId()));
+    }
+
+    private boolean hasConflictingArtifact(LoadDependentResourcesResponse result, String name) {
+
+        return result.getConflictingDependencies().stream()
+                .anyMatch(c -> c.getConflictingArtifacts() != null && c.getConflictingArtifacts().contains(name));
+    }
+
+    private boolean hasConflictingConnector(LoadDependentResourcesResponse result, String name) {
+
+        return result.getConflictingDependencies().stream()
+                .anyMatch(c -> c.getConflictingConnectors() != null && c.getConflictingConnectors().contains(name));
     }
 
     // -------------------------------------------------------------------------

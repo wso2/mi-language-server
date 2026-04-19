@@ -20,6 +20,8 @@ import org.eclipse.lemminx.customservice.synapse.dependency.tree.ArtifactType;
 import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
 import org.eclipse.lemminx.customservice.synapse.parser.pom.PomParser;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ArtifactResource;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ConflictingDependency;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.LoadDependentResourcesResponse;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.RegistryResource;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.RequestedResource;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.Resource;
@@ -48,8 +50,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -137,19 +139,21 @@ public abstract class AbstractResourceFinder {
      * @param projectPath the absolute path to the project whose dependencies are to be loaded
      * @return a status message; either a success message or a structured conflict report
      */
-    public String loadDependentResources(String projectPath) {
+    public LoadDependentResourcesResponse loadDependentResources(String projectPath) {
 
         dependentResourcesMap = new HashMap<>();
         Path projectDependencyDir = findProjectDependencyDir(projectPath);
         if (projectDependencyDir == null) {
             LOGGER.warning("No project dependency directory found for project: " + projectPath);
-            return "No dependent integration projects found";
+            return new LoadDependentResourcesResponse(LoadDependentResourcesResponse.STATUS_NO_DEPS_FOUND,
+                    "No dependent integration projects found");
         }
 
         Path extractedDir = projectDependencyDir.resolve(Constant.EXTRACTED);
         if (!exists(extractedDir) || !isDirectory(extractedDir)) {
             LOGGER.warning("No project dependency extracted directory found for project: " + projectPath);
-            return "No dependent integration projects found";
+            return new LoadDependentResourcesResponse(LoadDependentResourcesResponse.STATUS_NO_DEPS_FOUND,
+                    "No dependent integration projects found");
         }
 
         Set<String> existingResourceNames = new HashSet<>();
@@ -157,7 +161,7 @@ public abstract class AbstractResourceFinder {
         Set<String> existingConnectorArtifactIds = collectMainProjectConnectorArtifactIds();
         Set<String> loadedDepConnectorCoreNames = new HashSet<>();
 
-        List<DependencyConflict> dependencyConflicts = new ArrayList<>();
+        List<ConflictingDependency> dependencyConflicts = new ArrayList<>();
         Path downloadDirectory = projectDependencyDir.resolve(Constant.DOWNLOADED);
 
         try (var dependentProjects = list(extractedDir)) {
@@ -198,7 +202,7 @@ public abstract class AbstractResourceFinder {
                     LOGGER.warning("Conflict detected in dependent project: " + dependentProject
                             + " — conflicting artifacts: " + conflictingArtifacts
                             + ", conflicting connectors: " + conflictingConnectors);
-                    dependencyConflicts.add(new DependencyConflict(groupId, artifactId, version,
+                    dependencyConflicts.add(new ConflictingDependency(groupId, artifactId, version,
                             new ArrayList<>(conflictingArtifacts), new ArrayList<>(conflictingConnectors)));
                     cleanupConflictingDependency(dependentProject, downloadDirectory, groupId, artifactId, version);
                 } else {
@@ -213,15 +217,31 @@ public abstract class AbstractResourceFinder {
                 }
             }
         } catch (IOException e) {
-            return "Error loading dependent resources: " + e.getMessage();
+            return new LoadDependentResourcesResponse(LoadDependentResourcesResponse.STATUS_ERROR,
+                    "Error loading dependent resources: " + e.getMessage());
         }
 
         if (!dependencyConflicts.isEmpty()) {
-            String conflictMsg = generateConflictMessage(dependencyConflicts);
-            LOGGER.warning(conflictMsg);
-            return conflictMsg;
+            sortConflictingArtifacts(dependencyConflicts);
+            LOGGER.warning("Conflicting dependencies detected: " + dependencyConflicts.size());
+            return new LoadDependentResourcesResponse(LoadDependentResourcesResponse.STATUS_CONFLICT,
+                    "The above dependencies have conflicting artifacts with the current project or other dependent " +
+                            "projects. Please remove them from pom.xml and retry.", dependencyConflicts);
         }
-        return "Success: Dependent resources loaded successfully for project: " + projectPath;
+        return new LoadDependentResourcesResponse(LoadDependentResourcesResponse.STATUS_SUCCESS,
+                "Dependent resources loaded successfully for project: " + projectPath);
+    }
+
+    private void sortConflictingArtifacts(List<ConflictingDependency> conflicts) {
+
+        for (ConflictingDependency conflict : conflicts) {
+            if (conflict.getConflictingArtifacts() != null) {
+                conflict.getConflictingArtifacts().sort(String::compareTo);
+            }
+            if (conflict.getConflictingConnectors() != null) {
+                conflict.getConflictingConnectors().sort(String::compareTo);
+            }
+        }
     }
 
     /**
@@ -536,81 +556,6 @@ public abstract class AbstractResourceFinder {
             } catch (IOException e) {
                 LOGGER.warning("Failed to delete downloaded file for dependency: " + baseName + " - " + e.getMessage());
             }
-        }
-    }
-
-    /**
-     * Generates a structured JSON conflict report listing each conflicting dependency with its Maven
-     * coordinates and the specific artifact names that caused the conflict.
-     *
-     * @param conflicts list of {@link DependencyConflict} entries to report
-     * @return formatted conflict message string
-     */
-    private String generateConflictMessage(List<DependencyConflict> conflicts) {
-
-        StringBuilder msg = new StringBuilder();
-        msg.append("CONFLICTING ARTIFACTS\n\n");
-        msg.append("{\n");
-        msg.append("  \"conflictingDependencies\": [\n");
-        for (int i = 0; i < conflicts.size(); i++) {
-            DependencyConflict conflict = conflicts.get(i);
-            msg.append("    {\n");
-            msg.append("      \"dependency\": {");
-            msg.append("\"groupId\": \"").append(conflict.groupId).append("\", ");
-            msg.append("\"artifactId\": \"").append(conflict.artifactId).append("\", ");
-            msg.append("\"version\": \"").append(conflict.version).append("\"");
-            msg.append("},\n");
-            msg.append("      \"conflictingArtifacts\": [");
-            List<String> artifacts = conflict.conflictingArtifacts.stream().sorted().collect(Collectors.toList());
-            for (int j = 0; j < artifacts.size(); j++) {
-                msg.append("\"").append(artifacts.get(j)).append("\"");
-                if (j < artifacts.size() - 1) {
-                    msg.append(", ");
-                }
-            }
-            msg.append("],\n");
-            msg.append("      \"conflictingConnectors\": [");
-            List<String> connectors = conflict.conflictingConnectors.stream().sorted().collect(Collectors.toList());
-            for (int j = 0; j < connectors.size(); j++) {
-                msg.append("\"").append(connectors.get(j)).append("\"");
-                if (j < connectors.size() - 1) {
-                    msg.append(", ");
-                }
-            }
-            msg.append("]\n");
-            msg.append("    }");
-            if (i < conflicts.size() - 1) {
-                msg.append(",");
-            }
-            msg.append("\n");
-        }
-        msg.append("  ]\n");
-        msg.append("}\n\n");
-        msg.append("The above dependencies have conflicting artifacts with the current project or other dependent projects.\n");
-        msg.append("Please remove them from pom.xml and retry.");
-        return msg.toString();
-    }
-
-    /**
-     * Holds the Maven coordinates of a conflicting dependency and the list of artifact names
-     * that caused the conflict.
-     */
-    private static class DependencyConflict {
-
-        final String groupId;
-        final String artifactId;
-        final String version;
-        final List<String> conflictingArtifacts;
-        final List<String> conflictingConnectors;
-
-        DependencyConflict(String groupId, String artifactId, String version,
-                           List<String> conflictingArtifacts, List<String> conflictingConnectors) {
-
-            this.groupId = groupId;
-            this.artifactId = artifactId;
-            this.version = version;
-            this.conflictingArtifacts = conflictingArtifacts;
-            this.conflictingConnectors = conflictingConnectors;
         }
     }
 

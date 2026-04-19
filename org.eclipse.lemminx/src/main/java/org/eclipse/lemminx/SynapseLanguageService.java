@@ -99,6 +99,7 @@ import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceFinderFa
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceUsageFinder;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceUsagesRequest;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceParam;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.LoadDependentResourcesResponse;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceResponse;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.connectors.AbstractConnectorLoader;
@@ -700,10 +701,10 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     }
 
     @Override
-    public CompletableFuture<String> loadDependentResources() {
+    public CompletableFuture<LoadDependentResourcesResponse> loadDependentResources() {
 
         return CompletableFuture.supplyAsync(() -> {
-			String result = resourceFinder.loadDependentResources(projectUri);
+			LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(projectUri);
         	updateConnectors();
 			return result;
 		});
