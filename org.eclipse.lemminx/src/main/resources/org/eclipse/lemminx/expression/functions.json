@@ -205,6 +205,25 @@
         },
         "category": 2
       },
+	  {
+        "label": "round(value:number)",
+        "insertText": "round($1)",
+        "details": "Rounds a number to the nearest integer",
+        "signature": {
+          "value": "number"
+        },
+        "category": 2
+      },
+      {
+        "label": "round(value:number, decimalPlaces:integer)",
+        "insertText": "round($1, $2)",
+        "details": "Rounds a number to specified decimal places",
+        "signature": {
+          "value": "number",
+          "decimalPlaces": "integer"
+        },
+        "category": 2
+      },
       {
         "label": "pow(base:integer, exponent:integer)",
         "insertText": "pow($1, $2)",
