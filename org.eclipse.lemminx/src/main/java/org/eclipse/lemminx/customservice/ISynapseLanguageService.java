@@ -25,6 +25,7 @@ import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectionUIP
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connections;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorDetails;
 import org.eclipse.lemminx.customservice.synapse.api.generator.pojo.GenerateAPIParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorResponse;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.TestConnectionRequest;
@@ -294,4 +295,7 @@ public interface ISynapseLanguageService {
 
     @JsonRequest
     CompletableFuture<DependencyStatusResponse> getDependencyStatusList();
+
+	@JsonRequest
+    CompletableFuture<ConnectorDetails> isDuplicateConnector(ConnectorDetails request);
 }

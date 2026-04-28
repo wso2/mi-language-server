@@ -31,6 +31,7 @@ import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connections;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorParam;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectionFinder;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorDetails;
 import org.eclipse.lemminx.customservice.synapse.connectors.entity.ConnectorResponse;
 import org.eclipse.lemminx.customservice.synapse.connectors.generate.ConnectorGenerateRequest;
 import org.eclipse.lemminx.customservice.synapse.connectors.generate.ConnectorGeneratorResponse;
@@ -784,6 +785,11 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     public CompletableFuture<List<String>> pdfToImagesBase64(PdfToImagesRequest param) {
 
     	return CompletableFuture.supplyAsync(() -> Utils.pdfToImage(param.getBase64()));
+    }
+
+    public CompletableFuture<ConnectorDetails> isDuplicateConnector(ConnectorDetails connectorDetails) {
+
+        return CompletableFuture.supplyAsync(() -> connectorLoader.isDuplicateConnector(connectorDetails.connectorPath));
     }
 
     public String getProjectUri() {
