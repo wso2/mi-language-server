@@ -248,9 +248,6 @@ public class MediatorHandler {
                     }
                     dataValueStr.append(String.format("{\"%s\":\"%s\"}",
                             dataValueItem.get(Constant.PROPERTY_NAME), propertyValue));
-                    if (i < dataValueList.size() - 1) {
-                        dataValueStr.append(", ");
-                    }
                 } else if (dataValueList.size() > 0) {
                     // get all the values in the list and append to the dataValueStr in the format
                     // ["value1","value2","value3"...]
