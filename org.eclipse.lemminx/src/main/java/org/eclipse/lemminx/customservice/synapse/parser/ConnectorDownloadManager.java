@@ -43,8 +43,10 @@ public class ConnectorDownloadManager {
 
     private static final Logger LOGGER = Logger.getLogger(ConnectorDownloadManager.class.getName());
 
-    public static List<String> downloadDependencies(String projectPath, List<DependencyDetails> dependencies) {
+    public static ConnectorDependencyDownloadResult downloadDependencies(String projectPath, List<DependencyDetails> dependencies) {
 
+        LOGGER.log(Level.INFO, "Starting connector dependency download for project: " + new File(projectPath).getName()
+                + " with " + dependencies.size() + " dependencies");
         String projectId = new File(projectPath).getName() + "_" + Utils.getHash(projectPath);
         File directory = Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI, Constant.CONNECTORS,
                 projectId).toFile();
@@ -63,8 +65,17 @@ public class ConnectorDownloadManager {
 
         deleteRemovedConnectors(downloadDirectory, dependencies, projectPath);
         List<String> failedDependencies = new ArrayList<>();
+        List<String> fromIntegrationProjectDependencies = new ArrayList<>();
 
         for (DependencyDetails dependency : dependencies) {
+            String dependencyId =
+                    dependency.getGroupId() + Constant.HYPHEN + dependency.getArtifact() + Constant.HYPHEN + dependency.getVersion();
+            if (isConnectorFromIntegrationProjectDependency(dependency.getArtifact())) {
+                LOGGER.log(Level.WARNING, "Connector " + dependencyId +
+                        " is provided by an integration project dependency. Download not allowed.");
+                fromIntegrationProjectDependencies.add(dependencyId);
+                continue;
+            }
             try {
                 File connector = Path.of(downloadDirectory.getAbsolutePath(),
                         dependency.getArtifact() + "-" + dependency.getVersion() + Constant.ZIP_EXTENSION).toFile();
@@ -81,12 +92,25 @@ public class ConnectorDownloadManager {
                             dependency.getVersion(), downloadDirectory, Constant.ZIP_EXTENSION_NO_DOT, projectPath);
                 }
             } catch (Exception e) {
-                String failedDependency = dependency.getGroupId() + "-" + dependency.getArtifact() + "-" + dependency.getVersion();
-                LOGGER.log(Level.WARNING, "Error occurred while downloading dependency " + failedDependency + ": " + e.getMessage());
-                failedDependencies.add(failedDependency);
+                LOGGER.log(Level.WARNING,
+                        "Error occurred while downloading dependency " + dependencyId + ": " + e.getMessage());
+                failedDependencies.add(dependencyId);
             }
         }
-        return failedDependencies;
+        LOGGER.log(Level.INFO, "Connector dependency download completed for project: " + new File(projectPath).getName()
+                + ". Failed: " + failedDependencies.size() + ", From integration project dependencies: "
+                + fromIntegrationProjectDependencies.size());
+        return new ConnectorDependencyDownloadResult(failedDependencies, fromIntegrationProjectDependencies);
+    }
+
+    /**
+     * Returns true if the connector with the given artifact ID is already loaded from an integration
+     * project dependency (i.e. not owned by the current project). 
+     */
+    private static boolean isConnectorFromIntegrationProjectDependency(String artifactId) {
+
+        return ConnectorHolder.getInstance().getConnectors().stream()
+                .anyMatch(c -> artifactId.equalsIgnoreCase(c.getArtifactId()) && !c.isFromProject());
     }
 
     private static void deleteRemovedConnectors(File downloadDirectory, List<DependencyDetails> dependencies,

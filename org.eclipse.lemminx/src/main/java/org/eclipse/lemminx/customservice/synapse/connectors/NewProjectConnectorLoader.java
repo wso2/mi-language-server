@@ -15,7 +15,10 @@
 package org.eclipse.lemminx.customservice.synapse.connectors;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.SynapseLanguageClientAPI;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.inbound.conector.InboundConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.mediator.TryOutConstants;
 import org.eclipse.lemminx.customservice.synapse.utils.Constant;
@@ -24,8 +27,11 @@ import org.eclipse.lemminx.customservice.synapse.utils.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -37,6 +43,7 @@ public class NewProjectConnectorLoader extends AbstractConnectorLoader {
 
     private static final Logger log = Logger.getLogger(NewProjectConnectorLoader.class.getName());
     private String projectId;
+    protected final List<String> baseConnectorsZipFolderPaths = new ArrayList<>();
 
     public NewProjectConnectorLoader(SynapseLanguageClientAPI languageClient, ConnectorHolder connectorHolder,
                                      InboundConnectorHolder inboundConnectorHolder) {
@@ -44,10 +51,15 @@ public class NewProjectConnectorLoader extends AbstractConnectorLoader {
         super(languageClient, connectorHolder, inboundConnectorHolder);
     }
 
+    protected String getUserHome() {
+
+        return System.getProperty(Constant.USER_HOME);
+    }
+
     @Override
     protected File getConnectorExtractFolder() {
 
-        String tempFolderPath = Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI,
+        String tempFolderPath = Path.of(getUserHome(), Constant.WSO2_MI,
                 Constant.CONNECTORS, projectId, Constant.EXTRACTED).toString();
         File tempFolder = new File(tempFolderPath);
         return tempFolder;
@@ -109,7 +121,7 @@ public class NewProjectConnectorLoader extends AbstractConnectorLoader {
                                 .resolve(Constant.UI_SCHEMA_JSON).toFile());
                         String fileName = Utils.getJsonObject(schema).get(Constant.NAME).getAsString() + Constant.JSON_FILE_EXT;
                         String projectFolderName = connectorExtractFolder.getParentFile().getName();
-                        File schemaToRemove = Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI,
+                        File schemaToRemove = Path.of(getUserHome(), Constant.WSO2_MI,
                                 Constant.INBOUND_CONNECTORS).resolve(projectFolderName).resolve(fileName).toFile();
                         FileUtils.delete(schemaToRemove);
                     }
@@ -124,16 +136,104 @@ public class NewProjectConnectorLoader extends AbstractConnectorLoader {
 
     private Path getConnnectorDownloadPath() {
 
-        return Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI,
+        return Path.of(getUserHome(), Constant.WSO2_MI,
                 Constant.CONNECTORS, projectId, Constant.DOWNLOADED);
+    }
+
+    @Override
+    public void loadConnector() {
+
+		connectorsZipFolderPath.clear();
+        connectorsZipFolderPath.addAll(baseConnectorsZipFolderPaths);
+        addDependencyProjectConnectorPaths();
+		log.info("Loading connectors from " + connectorsZipFolderPath.size() + " paths for project: " + projectId);
+        super.loadConnector();
+        markProjectConnectors();
+    }
+
+    /**
+     * Marks each loaded connector with whether it originates from the project itself.
+     * A connector is considered to be from the project if its zip was sourced from one of the
+     * base connector paths (the project's own connector directory or the USER_HOME downloaded
+     * directory). Connectors sourced from dependency integration project directories are marked
+     * as not from the project.
+     * If the same connector exists in both a base path and a dependency path, the base path takes
+     * precedence since it is loaded first.
+     */
+    private void markProjectConnectors() {
+
+        log.info("Marking project connectors for project: " + projectId);
+        Set<String> projectConnectorZipNames = new HashSet<>();
+        for (File zip : connectorHolder.getConnectorZips()) {
+            if (baseConnectorsZipFolderPaths.contains(zip.getParent())) {
+                String name = zip.getName();
+                projectConnectorZipNames.add(name.substring(0, name.lastIndexOf(Constant.DOT)));
+            }
+        }
+        int markedCount = 0;
+        for (Connector connector : connectorHolder.getConnectors()) {
+            String extractedPath = connector.getExtractedConnectorPath();
+            if (StringUtils.isNotBlank(extractedPath)) {
+                boolean isFromProject = projectConnectorZipNames.contains(FilenameUtils.getName(extractedPath));
+                connector.setFromProject(isFromProject);
+                if (isFromProject) {
+                    markedCount++;
+                }
+            }
+        }
+        log.info("Marked " + markedCount + " project connector(s) for project: " + projectId);
     }
 
     @Override
     protected void setConnectorsZipFolderPath(String projectRoot) {
 
-        connectorsZipFolderPath.add(Path.of(projectRoot, Constant.SRC, Constant.MAIN, Constant.WSO2MI,
-                Constant.RESOURCES, Constant.CONNECTORS).toString());
         projectId = new File(projectRoot).getName() + "_" + Utils.getHash(projectRoot);
-        connectorsZipFolderPath.add(getConnnectorDownloadPath().toString());
+        baseConnectorsZipFolderPaths.add(Path.of(projectRoot, Constant.SRC, Constant.MAIN, Constant.WSO2MI,
+                Constant.RESOURCES, Constant.CONNECTORS).toString());
+        baseConnectorsZipFolderPaths.add(getConnnectorDownloadPath().toString());
+        connectorsZipFolderPath.addAll(baseConnectorsZipFolderPaths);
+    }
+
+    /**
+     * Scans the extracted dependency project directories and adds their connector paths
+     * to the connector zip folder paths list.
+     */
+    private void addDependencyProjectConnectorPaths() {
+
+        Path extractedDir = findProjectDependencyExtractedDir();
+        if (extractedDir == null) {
+            log.info("No dependency project extracted directory found for project: " + projectId);
+            return;
+        }
+        File[] dependentProjects = extractedDir.toFile().listFiles(File::isDirectory);
+        if (dependentProjects == null) {
+            return;
+        }
+        for (File dependentProject : dependentProjects) {
+            Path connectorPath = dependentProject.toPath()
+                    .resolve(Constant.SRC).resolve(Constant.MAIN).resolve(Constant.WSO2MI)
+                    .resolve(Constant.RESOURCES).resolve(Constant.CONNECTORS);
+            if (connectorPath.toFile().isDirectory()) {
+                connectorsZipFolderPath.add(connectorPath.toString());
+                log.info("Added connector path from dependency project: " + connectorPath);
+            }
+        }
+    }
+
+    /**
+     * Returns the extracted directory for the current project's integration project dependencies,
+     * or null if it does not exist.
+     */
+    private Path findProjectDependencyExtractedDir() {
+
+        if (StringUtils.isEmpty(projectId)) {
+            return null;
+        }
+        Path expectedDir = Path.of(getUserHome(), Constant.WSO2_MI,
+                Constant.INTEGRATION_PROJECT_DEPENDENCIES, projectId, Constant.EXTRACTED);
+        if (expectedDir.toFile().isDirectory()) {
+            return expectedDir;
+        }
+        return null;
     }
 }

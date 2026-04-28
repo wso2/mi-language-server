@@ -14,11 +14,14 @@
 
 package org.eclipse.lemminx.customservice.synapse.resourceFinder;
 
+import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
+import org.eclipse.lemminx.customservice.synapse.connectors.entity.Connector;
 import org.eclipse.lemminx.customservice.synapse.dependency.tree.ArtifactType;
-import org.eclipse.lemminx.customservice.synapse.parser.Node;
 import org.eclipse.lemminx.customservice.synapse.parser.OverviewPageDetailsResponse;
 import org.eclipse.lemminx.customservice.synapse.parser.pom.PomParser;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ArtifactResource;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ConflictingDependency;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.LoadDependentResourcesResponse;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.RegistryResource;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.RequestedResource;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.Resource;
@@ -37,11 +40,17 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,6 +65,33 @@ public abstract class AbstractResourceFinder {
     protected static final String ARTIFACTS = "ARTIFACTS";
     protected static final String REGISTRY = "REGISTRY";
     protected static final String LOCAL_ENTRY = "LOCAL_ENTRY";
+
+    /**
+     * Registry key for the auto-generated {@code config.properties} file. This entry is present
+     * in every project and is excluded from dependency conflict detection.
+     */
+    private static final String CONFIG_PROPERTIES_REGISTRY_KEY = "resources:conf/config.properties";
+
+    /**
+     * Registry keys for the auto-generated {@code artifact.xml} skeleton files. These are Maven
+     * artifact descriptor files generated in every project and are excluded from conflict detection.
+     */
+    private static final Set<String> ARTIFACT_XML_REGISTRY_KEYS = Set.of(
+            "resources:artifact.xml",
+            "resources:registry/artifact.xml"
+    );
+
+    /**
+     * Registry key prefix for connector zip files stored under the {@code resources/connectors}
+     * directory of a project.
+     */
+    private static final String CONNECTOR_REGISTRY_KEY_PREFIX = "resources:connectors/";
+
+    /**
+     * Core name (version-stripped) of the built-in HTTP connector. The HTTP connector is bundled
+     * with every project and is excluded from dependency conflict detection.
+     */
+    private static final String HTTP_CONNECTOR_CORE_NAME = "mi-connector-http";
     protected static final List<String> resourceFromRegistryOnly = List.of("dataMapper", "js", "json", "smooksConfig",
             "wsdl", "ws_policy", "xsd", "xsl", "xslt", "yaml", "registry", "unitTestRegistry", "schema", "swagger");
 
@@ -92,92 +128,278 @@ public abstract class AbstractResourceFinder {
      * <p>
      * This method initializes the dependent resources map and attempts to locate
      * the dependencies directory for the specified project. If found, it iterates
-     * through each dependent project, finds resources of each type, and merges them
-     * into the dependent resources map.
+     * through each dependent project, checks for resource conflicts against already-loaded
+     * resources, and merges non-conflicting resources into the dependent resources map.
+     * <p>
+     * If a dependent project has conflicting artifacts, it is skipped, its directories are
+     * cleaned up, and a structured error message is returned listing the conflicting
+     * dependencies and artifacts.
      *
      * @param projectPath the absolute path to the project whose dependencies are to be loaded
-     * @throws RuntimeException if an I/O error occurs while accessing the dependencies
+     * @return a status message; either a success message or a structured conflict report
      */
-    public String loadDependentResources(String projectPath) {
+    public LoadDependentResourcesResponse loadDependentResources(String projectPath) {
 
         dependentResourcesMap = new HashMap<>();
-        String projectName = new File(projectPath).getName();
         Path projectDependencyDir = findProjectDependencyDir(projectPath);
         if (projectDependencyDir == null) {
             LOGGER.warning("No project dependency directory found for project: " + projectPath);
-            return "No dependent integration projects found";
+            return new LoadDependentResourcesResponse(LoadDependentResourcesResponse.STATUS_NO_DEPS_FOUND,
+                    "No dependent integration projects found");
         }
 
         Path extractedDir = projectDependencyDir.resolve(Constant.EXTRACTED);
         if (!exists(extractedDir) || !isDirectory(extractedDir)) {
             LOGGER.warning("No project dependency extracted directory found for project: " + projectPath);
-            return "No dependent integration projects found";
+            return new LoadDependentResourcesResponse(LoadDependentResourcesResponse.STATUS_NO_DEPS_FOUND,
+                    "No dependent integration projects found");
         }
 
-        Map<String, List<String>> duplicates = new HashMap<>();
-        // Used to identify any duplicate artifacts across projects
-        Map<String, List<String>> artifactNameToProjects = new HashMap<>();
+        Set<String> existingResourceNames = new HashSet<>();
+        collectResourceNames(findAllResources(projectPath), existingResourceNames);
+        Set<String> existingConnectorArtifactIds = collectMainProjectConnectorArtifactIds();
+        Set<String> loadedDepConnectorCoreNames = new HashSet<>();
 
-        // Collect main project artifacts
-        Map<String, ResourceResponse> allResources = findAllResources(projectPath);
-        for (String type : allResources.keySet()) {
-            ResourceResponse mainResources = allResources.get(type);
-            addArtifactNamesToProjects(mainResources, projectName, artifactNameToProjects);
-        }
+        List<ConflictingDependency> dependencyConflicts = new ArrayList<>();
+        Path downloadDirectory = projectDependencyDir.resolve(Constant.DOWNLOADED);
 
         try (var dependentProjects = list(extractedDir)) {
-            // Iterate over each dependent project directory
+            LOGGER.info("Loading dependent resources from directory: " + extractedDir);
             OverviewPageDetailsResponse parentProjectDetails = new OverviewPageDetailsResponse();
             PomParser.getPomDetails(projectPath, parentProjectDetails);
-            for (Path dependentProject : dependentProjects.toArray(Path[]::new)) {
-                if (isDirectory(dependentProject)) {
-                    String projectNameDep = dependentProject.getFileName().toString();
-                    OverviewPageDetailsResponse pomDetailsResponse = new OverviewPageDetailsResponse();
-                    PomParser.getPomDetails(dependentProject.toString(), pomDetailsResponse);
-                    // For each resource type, find resources from the dependent project
-                    Map<String, ResourceResponse> dependentProjectAllResources = findAllResources(dependentProject.toString());
-                    for (String type : dependentProjectAllResources.keySet()) {
-                        ResourceResponse resources = dependentProjectAllResources.get(type);
-                        Node isVersionedDeployment = parentProjectDetails.getBuildDetails().getVersionedDeployment();
-                        if (isVersionedDeployment != null && Boolean.parseBoolean(isVersionedDeployment.getValue())
-                                && resources != null) {
-                            // Append project details(group ID and artifact ID) to synapse artifacts
-                            if (resources.getResources() != null) {
-                                resources.getResources().forEach(resource -> {
-                                    resource.setName(getFullyQualifiedName(pomDetailsResponse, resource));
-                                });
-                            }
-                            // Append project details(group ID and artifact ID) to registry artifacts
-                            if (resources.getRegistryResources() != null) {
-                                resources.getRegistryResources().forEach(resource -> {
-                                    ((RegistryResource) resource)
-                                            .setRegistryKey(getFullyQualifiedNameForRegistryArtifact(pomDetailsResponse, (RegistryResource) resource));
-                                });
-                            }
-                        }
-                        dependentResourcesMap.computeIfAbsent(type, k -> new ResourceResponse());
-                        mergeResourceResponses(dependentResourcesMap.get(type), resources);
-                        addArtifactNamesToProjects(resources, projectNameDep, artifactNameToProjects);
-                    }
+            boolean isVersionedDeployment = isVersionedDeploymentEnabled(parentProjectDetails);
+            LOGGER.info("Loading dependent resources for project: " + projectPath
+                    + " (versionedDeployment=" + isVersionedDeployment + ")");
+
+            for (Path dependentProject : sortedByAddedTime(dependentProjects)) {
+                LOGGER.info("Processing dependent project: " + dependentProject);
+                OverviewPageDetailsResponse pomDetails = new OverviewPageDetailsResponse();
+                PomParser.getPomDetails(dependentProject.toString(), pomDetails);
+                Map<String, ResourceResponse> depResources = findAllResources(dependentProject.toString());
+
+                // Extract connector zip base names before versioned deployment renames registry keys.
+                // Versioned deployment prefixes connector zip keys with groupId__artifactId__, which
+                // would corrupt the base name and prevent conflict detection.
+                Set<String> depResourceNamesRaw = collectDepResourceNames(depResources);
+                Set<String> depConnectorZipBaseNames = extractConnectorZipBaseNames(depResourceNamesRaw);
+
+                if (isVersionedDeployment) {
+                    applyVersionedDeploymentToResources(depResources, pomDetails);
+                }
+
+                Set<String> depResourceNames = collectDepResourceNames(depResources);
+                excludeNonConflictableEntries(depResourceNames);
+
+                Set<String> conflictingArtifacts = detectArtifactConflicts(depResourceNames, existingResourceNames);
+                Set<String> conflictingConnectors = detectConnectorConflicts(depConnectorZipBaseNames,
+                        existingConnectorArtifactIds, loadedDepConnectorCoreNames);
+
+                if (!conflictingArtifacts.isEmpty() || !conflictingConnectors.isEmpty()) {
+                    String groupId = Utils.getNodeValue(pomDetails.getBuildDetails().getAdvanceDetails().getProjectGroupId());
+                    String artifactId = Utils.getNodeValue(pomDetails.getBuildDetails().getAdvanceDetails().getProjectArtifactId());
+                    String version = Utils.getNodeValue(pomDetails.getPrimaryDetails().getProjectVersion());
+                    LOGGER.warning("Conflict detected in dependent project: " + dependentProject
+                            + " — conflicting artifacts: " + conflictingArtifacts
+                            + ", conflicting connectors: " + conflictingConnectors);
+                    dependencyConflicts.add(new ConflictingDependency(groupId, artifactId, version,
+                            new ArrayList<>(conflictingArtifacts), new ArrayList<>(conflictingConnectors)));
+                    cleanupConflictingDependency(dependentProject, downloadDirectory, groupId, artifactId, version);
+                } else {
+                    LOGGER.info("No conflicts detected. Merging " + depResources.size() + " resource type(s) from dependent project: "
+                            + dependentProject);
+                    mergeDepResources(depResources);
+                    existingResourceNames.addAll(depResourceNames);
+                    depConnectorZipBaseNames.stream()
+                            .map(Utils::stripConnectorVersion)
+                            .filter(n -> !HTTP_CONNECTOR_CORE_NAME.equals(n))
+                            .forEach(loadedDepConnectorCoreNames::add);
                 }
             }
         } catch (IOException e) {
-            return "Error loading dependent resources: " + e.getMessage();
+            return new LoadDependentResourcesResponse(LoadDependentResourcesResponse.STATUS_ERROR,
+                    "Error loading dependent resources: " + e.getMessage());
         }
 
-        // Find duplicated artifacts
-        for (Map.Entry<String, List<String>> entry : artifactNameToProjects.entrySet()) {
-            if (entry.getValue().size() > 1) {
-                duplicates.put(entry.getKey(), entry.getValue());
+        if (!dependencyConflicts.isEmpty()) {
+            sortConflictingArtifacts(dependencyConflicts);
+            LOGGER.warning("Conflicting dependencies detected: " + dependencyConflicts.size());
+            return new LoadDependentResourcesResponse(LoadDependentResourcesResponse.STATUS_CONFLICT,
+                    "The above dependencies have conflicting artifacts with the current project or other dependent " +
+                            "projects. Please remove them from pom.xml and retry.", dependencyConflicts);
+        }
+        return new LoadDependentResourcesResponse(LoadDependentResourcesResponse.STATUS_SUCCESS,
+                "Dependent resources loaded successfully for project: " + projectPath);
+    }
+
+    private void sortConflictingArtifacts(List<ConflictingDependency> conflicts) {
+
+        for (ConflictingDependency conflict : conflicts) {
+            if (conflict.getConflictingArtifacts() != null) {
+                conflict.getConflictingArtifacts().sort(String::compareTo);
+            }
+            if (conflict.getConflictingConnectors() != null) {
+                conflict.getConflictingConnectors().sort(String::compareTo);
             }
         }
+    }
 
-        if (!duplicates.isEmpty()) {
-            String duplicateMsg = generateDuplicateArtifactMessage(duplicates);
-            LOGGER.warning(duplicateMsg);
-            return duplicateMsg;
+    /**
+     * Returns the artifact IDs of connectors that belong to the main project (i.e., loaded from
+     * the project's own connector directory or the downloaded directory). Using artifact ID
+     * (derived from the folder/zip name) rather than the display name avoids false negatives
+     * caused by differing casing between the component name in {@code connector.xml} and the
+     * zip file name. Connectors without a resolvable artifact ID are excluded. Connectors from
+     * a dependency project loaded in a previous run are also excluded so they do not seed false
+     * conflicts when {@code loadDependentResources} is called again.
+     */
+    private Set<String> collectMainProjectConnectorArtifactIds() {
+
+        return ConnectorHolder.getInstance().getConnectors().stream()
+                .filter(Connector::isFromProject)
+                .map(Connector::getArtifactId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * Returns {@code true} when the main project's pom.xml has {@code versionedDeployment=true},
+     * which causes dep resource names to be prefixed with {@code groupId__artifactId__} before
+     * conflict checking.
+     */
+    private boolean isVersionedDeploymentEnabled(OverviewPageDetailsResponse pomDetails) {
+
+        return pomDetails.getBuildDetails().getVersionedDeployment() != null
+                && Boolean.parseBoolean(pomDetails.getBuildDetails().getVersionedDeployment().getValue());
+    }
+
+    /**
+     * Sorts dep directories from the given stream oldest-first by last-modified time so that the
+     * dependency the user added first always takes priority in conflict detection. A name-based
+     * secondary sort makes the order deterministic when two directories have the same timestamp
+     * (common in fast test environments).
+     */
+    private Path[] sortedByAddedTime(java.util.stream.Stream<Path> stream) {
+
+        return stream
+                .filter(Files::isDirectory)
+                .sorted(Comparator.comparingLong((Path p) -> {
+                    try {
+                        return Files.getLastModifiedTime(p).toMillis();
+                    } catch (IOException e) {
+                        return Long.MAX_VALUE;
+                    }
+                }).thenComparing(p -> p.getFileName().toString()))
+                .toArray(Path[]::new);
+    }
+
+    /**
+     * Collects all artifact names and registry resource keys from the dep's resource map into a
+     * mutable set, then removes the {@code resources:conf/config.properties} key which is
+     * auto-generated in every project and must never trigger a conflict.
+     */
+    private Set<String> collectDepResourceNames(Map<String, ResourceResponse> depResources) {
+
+        Set<String> names = new HashSet<>();
+        collectResourceNames(depResources, names);
+        names.remove(CONFIG_PROPERTIES_REGISTRY_KEY);
+        return names;
+    }
+
+    /**
+     * Scans {@code resourceNames} for {@code resources:connectors/*.zip} registry keys and
+     * returns their base names (filename without the {@code .zip} extension). These entries are
+     * kept in {@code resourceNames} by this method; call {@link #excludeNonConflictableEntries} afterwards
+     * to strip them from the artifact namespace.
+     */
+    private Set<String> extractConnectorZipBaseNames(Set<String> resourceNames) {
+
+        Set<String> baseNames = new HashSet<>();
+        for (String name : resourceNames) {
+            if (name.startsWith(CONNECTOR_REGISTRY_KEY_PREFIX) && name.endsWith(Constant.ZIP_EXTENSION)) {
+                String fileName = name.substring(CONNECTOR_REGISTRY_KEY_PREFIX.length());
+                baseNames.add(fileName.substring(0, fileName.lastIndexOf(Constant.DOT)));
+            }
         }
-        return "Success: Dependent resources loaded successfully for project: " + projectPath;
+        return baseNames;
+    }
+
+    /**
+     * Removes entries from {@code resourceNames} that should never participate in conflict
+     * detection — either because they are auto-generated per project or because they are
+     * handled separately through connector conflict detection:
+     * <ul>
+     *   <li>{@code resources:artifact.xml} and {@code resources:registry/artifact.xml} — Maven
+     *       artifact descriptor files auto-generated in every project</li>
+     *   <li>{@code resources:connectors/*} — connector zip registry keys (already extracted by
+     *       {@link #extractConnectorZipBaseNames} before this call)</li>
+     * </ul>
+     */
+    private void excludeNonConflictableEntries(Set<String> resourceNames) {
+
+        resourceNames.removeIf(n -> ARTIFACT_XML_REGISTRY_KEYS.contains(n) || n.startsWith(CONNECTOR_REGISTRY_KEY_PREFIX));
+    }
+
+    /**
+     * Returns the intersection of {@code depResourceNames} and {@code existingResourceNames} —
+     * i.e., the artifact/registry names that conflict with already-loaded resources.
+     */
+    private Set<String> detectArtifactConflicts(Set<String> depResourceNames, Set<String> existingResourceNames) {
+
+        Set<String> conflicting = new HashSet<>(depResourceNames);
+        conflicting.retainAll(existingResourceNames);
+        return conflicting;
+    }
+
+    /**
+     * Identifies connectors in the given dependency that conflict with connectors already present
+     * in the main project or in a previously accepted dependency in this run.
+     * <p>
+     * A conflict is raised when the same connector (ignoring version) is found in more than one
+     * place. Version comparison is intentionally skipped: {@code mi-connector-email-1.0.14} and
+     * {@code mi-connector-email-2.0.1} are treated as the same connector because loading two
+     * different versions of a connector simultaneously is not supported.
+     * <p>
+     * The built-in HTTP connector ({@value #HTTP_CONNECTOR_CORE_NAME}) is always excluded from
+     * conflict detection because it is bundled with every project.
+     *
+     * @param depConnectorZipBaseNames        zip base names (without {@code .zip}) from the dependency
+     *                                        being evaluated
+     * @param existingConnectorArtifactIds    artifact IDs of connectors loaded by the main project
+     *                                        (from {@link ConnectorHolder}), derived from the zip
+     *                                        folder name with version stripped
+     * @param loadedDepConnectorCoreNames     version-stripped connector artifact IDs already accepted
+     *                                        from earlier dependencies in this run
+     * @return the subset of {@code depConnectorZipBaseNames} that conflict
+     */
+    private Set<String> detectConnectorConflicts(Set<String> depConnectorZipBaseNames,
+                                                  Set<String> existingConnectorArtifactIds,
+                                                  Set<String> loadedDepConnectorCoreNames) {
+
+        Set<String> conflicting = new HashSet<>();
+        for (String zipBaseName : depConnectorZipBaseNames) {
+            String coreName = Utils.stripConnectorVersion(zipBaseName);
+            if (HTTP_CONNECTOR_CORE_NAME.equals(coreName)) {
+                continue;
+            }
+            boolean conflictsWithHolder = existingConnectorArtifactIds.contains(coreName);
+            boolean conflictsWithCurrentRun = loadedDepConnectorCoreNames.contains(coreName);
+            if (conflictsWithHolder || conflictsWithCurrentRun) {
+                conflicting.add(zipBaseName);
+            }
+        }
+        return conflicting;
+    }
+
+    /**
+     * Merges all resource responses from {@code depResources} into {@link #dependentResourcesMap},
+     * creating an entry for each resource type if one does not already exist.
+     */
+    private void mergeDepResources(Map<String, ResourceResponse> depResources) {
+
+        for (String type : depResources.keySet()) {
+            dependentResourcesMap.computeIfAbsent(type, k -> new ResourceResponse());
+            mergeResourceResponses(dependentResourcesMap.get(type), depResources.get(type));
+        }
     }
 
     public Map<String, ResourceResponse> getDependentResourcesMap() {
@@ -222,10 +444,20 @@ public abstract class AbstractResourceFinder {
      * @param projectPath the absolute path to the project
      * @return the dependency directory as a Path if it exists, or null if not found
      */
+    /**
+     * Returns the user home directory used to locate the integration-project-dependencies folder.
+     * Overridable so that tests can redirect to a temporary directory without mutating the global
+     * {@code user.home} system property.
+     */
+    protected String getUserHome() {
+
+        return System.getProperty(Constant.USER_HOME);
+    }
+
     private Path findProjectDependencyDir(String projectPath) {
 
         Path dependenciesDir = Path.of(
-                System.getProperty(Constant.USER_HOME),
+                getUserHome(),
                 Constant.WSO2_MI,
                 Constant.INTEGRATION_PROJECT_DEPENDENCIES
         );
@@ -239,43 +471,91 @@ public abstract class AbstractResourceFinder {
     }
 
     /**
-     * Adds artifact names from the given ResourceResponse to the artifactNameToProjects map,
-     * associating each artifact name with the dependent project name.
+     * Applies versioned deployment naming (groupId__artifactId__name) to all resources in the map.
      *
-     * @param resources              the ResourceResponse containing resources to process
-     * @param projectNameDep         the name of the dependent project
-     * @param artifactNameToProjects the map to update with artifact names and their associated projects
+     * @param allResources     the resource map to update in place
+     * @param pomDetailsResponse POM details of the dependent project supplying the prefix
      */
-    private void addArtifactNamesToProjects(ResourceResponse resources, String projectNameDep,
-                                            Map<String, List<String>> artifactNameToProjects) {
+    private void applyVersionedDeploymentToResources(Map<String, ResourceResponse> allResources,
+                                                      OverviewPageDetailsResponse pomDetailsResponse) {
 
-        if (resources != null && resources.getResources() != null) {
-            for (Resource resource : resources.getResources()) {
-                String name = resource.getName();
-                if (name != null) {
-                    artifactNameToProjects.computeIfAbsent(name, k -> new ArrayList<>()).add(projectNameDep);
+        for (ResourceResponse resources : allResources.values()) {
+            if (resources == null) {
+                continue;
+            }
+            if (resources.getResources() != null) {
+                resources.getResources().forEach(resource ->
+                        resource.setName(getFullyQualifiedName(pomDetailsResponse, resource)));
+            }
+            if (resources.getRegistryResources() != null) {
+                resources.getRegistryResources().forEach(resource ->
+                        ((RegistryResource) resource).setRegistryKey(
+                                getFullyQualifiedNameForRegistryArtifact(pomDetailsResponse, (RegistryResource) resource)));
+            }
+        }
+    }
+
+    /**
+     * Collects all synapse artifact names and registry resource keys from the given resource map
+     * into the provided set.
+     *
+     * @param allResources the resource map to collect names from
+     * @param names        the set to populate with artifact names and registry keys
+     */
+    private void collectResourceNames(Map<String, ResourceResponse> allResources, Set<String> names) {
+
+        for (ResourceResponse resources : allResources.values()) {
+            if (resources == null) {
+                continue;
+            }
+            if (resources.getResources() != null) {
+                for (Resource resource : resources.getResources()) {
+                    if (resource.getName() != null) {
+                        names.add(resource.getName());
+                    }
+                }
+            }
+            if (resources.getRegistryResources() != null) {
+                for (Resource resource : resources.getRegistryResources()) {
+                    if (resource instanceof RegistryResource) {
+                        String key = ((RegistryResource) resource).getRegistryKey();
+                        if (key != null) {
+                            names.add(key);
+                        }
+                    }
                 }
             }
         }
     }
 
     /**
-     * Generates a detailed message describing artifacts that were found among multiple dependent projects.
+     * Deletes the extracted dependent project directory and its corresponding downloaded archive
+     * ({@code .car} or {@code .zip}) from the Downloaded directory.
      *
-     * @param duplicates a map where the key is the artifact name and the value is a list of project names containing the artifact
-     * @return a formatted string message listing duplicate artifacts and their locations
+     * @param dependentProjectPath path to the extracted dependency directory to remove
+     * @param downloadDirectory    path to the Downloaded directory
+     * @param groupId              Maven groupId of the dependency
+     * @param artifactId           Maven artifactId of the dependency
+     * @param version              Maven version of the dependency
      */
-    private String generateDuplicateArtifactMessage(Map<String, List<String>> duplicates) {
+    private void cleanupConflictingDependency(Path dependentProjectPath, Path downloadDirectory,
+                                               String groupId, String artifactId, String version) {
 
-        StringBuilder duplicateMsg = new StringBuilder();
-        duplicateMsg.append("DUPLICATE ARTIFACTS\n\n");
-        for (Map.Entry<String, List<String>> entry : duplicates.entrySet()) {
-            duplicateMsg.append("Artifact: '").append(entry.getKey())
-                    .append("' found in: ").append(entry.getValue()).append("\n");
+        try {
+            Utils.deleteDirectory(dependentProjectPath);
+        } catch (IOException e) {
+            LOGGER.warning("Failed to delete dependency directory: " + dependentProjectPath + " - " + e.getMessage());
         }
-        duplicateMsg.append("\n");
-        duplicateMsg.append("Please avoid having artifacts with the same name and continue.\n");
-        return duplicateMsg.toString();
+
+        if (exists(downloadDirectory) && isDirectory(downloadDirectory)) {
+            String baseName = groupId + Constant.HYPHEN + artifactId + Constant.HYPHEN + version;
+            try {
+                Files.deleteIfExists(downloadDirectory.resolve(baseName + Constant.CAR_EXTENSION));
+                Files.deleteIfExists(downloadDirectory.resolve(baseName + Constant.ZIP_EXTENSION));
+            } catch (IOException e) {
+                LOGGER.warning("Failed to delete downloaded file for dependency: " + baseName + " - " + e.getMessage());
+            }
+        }
     }
 
     /**

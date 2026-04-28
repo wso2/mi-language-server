@@ -100,6 +100,7 @@ import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceFinderFa
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceUsageFinder;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceUsagesRequest;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceParam;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.LoadDependentResourcesResponse;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceResponse;
 import org.eclipse.lemminx.customservice.synapse.connectors.ConnectorHolder;
 import org.eclipse.lemminx.customservice.synapse.connectors.AbstractConnectorLoader;
@@ -686,15 +687,30 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     }
 
     @Override
+    public CompletableFuture<String> refetchIntegrationProjectDependencies() {
+        
+		log.info("Refetching integration project dependencies for project: " + projectUri);
+        return CompletableFuture.supplyAsync(() -> {
+			return DependencyDownloadManager.refetchIntegrationProjectDependencies(projectUri);
+		});
+    }
+
+    @Override
     public CompletableFuture<DependencyStatusResponse> getDependencyStatusList() {
 
         return CompletableFuture.supplyAsync(() -> DependencyDownloadManager.getDependencyStatusList(projectUri));
     }
 
     @Override
-    public CompletableFuture<String> loadDependentResources() {
+    public CompletableFuture<LoadDependentResourcesResponse> loadDependentResources() {
 
-        return CompletableFuture.supplyAsync(() -> resourceFinder.loadDependentResources(projectUri));
+        return CompletableFuture.supplyAsync(() -> {
+			log.info("Loading dependent resources for project: " + projectUri);
+			LoadDependentResourcesResponse result = resourceFinder.loadDependentResources(projectUri);
+        	updateConnectors();
+			log.fine("Dependent resources loaded successfully for project: " + projectUri);
+			return result;
+		});
     }
 
     @Override

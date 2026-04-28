@@ -38,8 +38,12 @@ import java.util.zip.ZipFile;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import static org.eclipse.lemminx.customservice.synapse.utils.Constant.CAR_EXTENSION;
+import static org.eclipse.lemminx.customservice.synapse.utils.Constant.COLON;
 import static org.eclipse.lemminx.customservice.synapse.utils.Constant.DOT;
 import static org.eclipse.lemminx.customservice.synapse.utils.Constant.HYPHEN;
+import static org.eclipse.lemminx.customservice.synapse.utils.Constant.UNDERSCORE;
+import static org.eclipse.lemminx.customservice.synapse.utils.Constant.ZIP_EXTENSION;
 import static org.eclipse.lemminx.customservice.synapse.utils.Utils.copyFile;
 import static org.eclipse.lemminx.customservice.synapse.utils.Utils.getDependencyFromLocalRepo;
 
@@ -56,6 +60,56 @@ public class IntegrationProjectDownloadManager {
     private static final Logger LOGGER = Logger.getLogger(ConnectorDownloadManager.class.getName());
 
     /**
+     * Clears the Downloaded and Extracted directories for the given project and re-fetches
+     * all integration project dependencies from scratch.
+     * <p>
+     * This is a hard-refresh: all previously cached files are discarded before downloading,
+     * so every dependency is fetched fresh regardless of what was present before.
+     * </p>
+     *
+     * @param projectPath  the file system path of the integration project
+     * @param dependencies the list of dependencies to fetch
+     * @param isVersionedDeploymentEnabled indicates if versioned deployment is enabled in the parent project
+     * @return a result object containing any dependencies that failed to download or process
+     */
+    public static IntegrationProjectDependencyDownloadResult refetchDependencies(String projectPath, List<DependencyDetails> dependencies,
+                                                               boolean isVersionedDeploymentEnabled) throws IOException {
+
+        LOGGER.log(Level.INFO, "Starting hard refresh of dependencies for project: " + new File(projectPath).getName()
+                + " with " + dependencies.size() + " dependencies");
+        return refetchDependencies(projectPath, dependencies, isVersionedDeploymentEnabled,
+                Path.of(System.getProperty(Constant.USER_HOME)));
+    }
+
+    public static IntegrationProjectDependencyDownloadResult refetchDependencies(String projectPath, List<DependencyDetails> dependencies,
+                                                        boolean isVersionedDeploymentEnabled, Path userHome) throws IOException {
+
+        String projectId = new File(projectPath).getName() + UNDERSCORE + Utils.getHash(projectPath);
+        File directory = userHome.resolve(Constant.WSO2_MI)
+                .resolve(Constant.INTEGRATION_PROJECT_DEPENDENCIES)
+                .resolve(projectId).toFile();
+        File downloadDirectory = Path.of(directory.getAbsolutePath(), Constant.DOWNLOADED).toFile();
+        File extractDirectory = Path.of(directory.getAbsolutePath(), Constant.EXTRACTED).toFile();
+
+        try {
+            if (downloadDirectory.exists()) {
+                Utils.deleteDirectory(downloadDirectory.toPath());
+                LOGGER.log(Level.INFO, "Cleared Downloaded directory for project: " + projectId);
+            }
+            if (extractDirectory.exists()) {
+                Utils.deleteDirectory(extractDirectory.toPath());
+                LOGGER.log(Level.INFO, "Cleared Extracted directory for project: " + projectId);
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to clear dependency directories for project " + projectId
+                    + ": " + e.getMessage());
+            throw e;
+        }
+
+        return downloadDependencies(projectPath, dependencies, isVersionedDeploymentEnabled, userHome);
+    }
+
+    /**
      * Handles the downloading and extraction of integration project dependencies.
      * <p>
      * For each provided dependency, this method attempts to fetch the corresponding
@@ -68,12 +122,20 @@ public class IntegrationProjectDownloadManager {
      * @param isVersionedDeploymentEnabled indicates if versioned deployment is enabled in the parent project
      * @return a list of dependency identifiers that failed to download or process
      */
-    public static DependencyDownloadResult downloadDependencies(String projectPath, List<DependencyDetails> dependencies,
+    public static IntegrationProjectDependencyDownloadResult downloadDependencies(String projectPath, List<DependencyDetails> dependencies,
                                                                 boolean isVersionedDeploymentEnabled) {
 
-        String projectId = new File(projectPath).getName() + "_" + Utils.getHash(projectPath);
-        File directory = Path.of(System.getProperty(Constant.USER_HOME), Constant.WSO2_MI,
-                Constant.INTEGRATION_PROJECT_DEPENDENCIES, projectId).toFile();
+        return downloadDependencies(projectPath, dependencies, isVersionedDeploymentEnabled,
+                Path.of(System.getProperty(Constant.USER_HOME)));
+    }
+
+    public static IntegrationProjectDependencyDownloadResult downloadDependencies(String projectPath, List<DependencyDetails> dependencies,
+                                                         boolean isVersionedDeploymentEnabled, Path userHome) {
+
+        String projectId = new File(projectPath).getName() + UNDERSCORE + Utils.getHash(projectPath);
+        File directory = userHome.resolve(Constant.WSO2_MI)
+                .resolve(Constant.INTEGRATION_PROJECT_DEPENDENCIES)
+                .resolve(projectId).toFile();
         File downloadDirectory = Path.of(directory.getAbsolutePath(), Constant.DOWNLOADED).toFile();
         File extractDirectory = Path.of(directory.getAbsolutePath(), Constant.EXTRACTED).toFile();
 
@@ -90,11 +152,15 @@ public class IntegrationProjectDownloadManager {
         List<String> failedDependencies = new ArrayList<>();
         List<String> noDescriptorDependencies = new ArrayList<>();
         List<String> versioningMismatchDependencies = new ArrayList<>();
-        Set<String> fetchedDependencies = new HashSet<>();
+        Set<String> visitedDependencies = new HashSet<>();
+        Set<String> resolvedDependencies = new HashSet<>();
 
         for (DependencyDetails dependency : dependencies) {
             try {
-                fetchDependencyRecursively(dependency, downloadDirectory, fetchedDependencies, isVersionedDeploymentEnabled);
+                LOGGER.log(Level.INFO, "Processing dependency: " + dependency.getGroupId() + HYPHEN
+                        + dependency.getArtifact() + HYPHEN + dependency.getVersion());
+                fetchDependencyRecursively(dependency, downloadDirectory, visitedDependencies, resolvedDependencies,
+                        isVersionedDeploymentEnabled, userHome);
             } catch (NoDescriptorException e) {
                 String failedDependency =
                         dependency.getGroupId() + HYPHEN + dependency.getArtifact() + HYPHEN + dependency.getVersion();
@@ -116,37 +182,132 @@ public class IntegrationProjectDownloadManager {
                 failedDependencies.add(failedDependency);
             }
         }
-        return new DependencyDownloadResult(failedDependencies, noDescriptorDependencies, versioningMismatchDependencies);
+
+        Set<String> expectedBaseNames = buildExpectedBaseNames(resolvedDependencies);
+        deleteObsoleteDownloadedFiles(downloadDirectory, expectedBaseNames);
+        deleteObsoleteExtractedDirs(extractDirectory, expectedBaseNames);
+
+        LOGGER.log(Level.INFO, "Integration project dependency download completed for project: "
+                + new File(projectPath).getName() + ". Failed: " + failedDependencies.size()
+                + ", No descriptor: " + noDescriptorDependencies.size()
+                + ", Version mismatch: " + versioningMismatchDependencies.size());
+        return new IntegrationProjectDependencyDownloadResult(failedDependencies, noDescriptorDependencies, versioningMismatchDependencies);
+    }
+
+    /**
+     * Converts a set of dependency keys ({@code groupId:artifactId:version}) into the
+     * set of base names ({@code groupId-artifactId-version}) used as file/directory names
+     * in the Downloaded and Extracted directories.
+     */
+    private static Set<String> buildExpectedBaseNames(Set<String> fetchedDependencies) {
+
+        Set<String> expectedBaseNames = new HashSet<>();
+        for (String key : fetchedDependencies) {
+            String[] parts = key.split(COLON);
+            if (parts.length >= 3) {
+                expectedBaseNames.add(parts[0] + HYPHEN + parts[1] + HYPHEN + parts[2]);
+            }
+        }
+        return expectedBaseNames;
+    }
+
+    /**
+     * Deletes files from the Downloaded directory whose base name (filename without
+     * the {@code .car} or {@code .zip} extension) is not present in {@code expectedBaseNames}.
+     */
+    private static void deleteObsoleteDownloadedFiles(File downloadDirectory, Set<String> expectedBaseNames) {
+
+        File[] downloadedFiles = downloadDirectory.listFiles(File::isFile);
+        if (downloadedFiles == null) {
+            return;
+        }
+        for (File file : downloadedFiles) {
+            String name = file.getName();
+            String baseName;
+            if (name.endsWith(CAR_EXTENSION)) {
+                baseName = name.substring(0, name.length() - 4);
+            } else if (name.endsWith(ZIP_EXTENSION)) {
+                baseName = name.substring(0, name.length() - 4);
+            } else {
+                continue;
+            }
+            if (!expectedBaseNames.contains(baseName)) {
+                LOGGER.log(Level.INFO, "Deleting obsolete downloaded file: " + name);
+                if (!file.delete()) {
+                    LOGGER.log(Level.WARNING, "Failed to delete obsolete downloaded file: " + name);
+                }
+            }
+        }
+    }
+
+    /**
+     * Deletes directories from the Extracted directory whose name is not present
+     * in {@code expectedBaseNames}.
+     */
+    private static void deleteObsoleteExtractedDirs(File extractDirectory, Set<String> expectedBaseNames) {
+
+        File[] extractedDirs = extractDirectory.listFiles(File::isDirectory);
+        if (extractedDirs == null) {
+            return;
+        }
+        for (File dir : extractedDirs) {
+            if (!expectedBaseNames.contains(dir.getName())) {
+                LOGGER.log(Level.INFO, "Deleting obsolete extracted dependency directory: " + dir.getName());
+                try {
+                    Utils.deleteDirectory(dir.toPath());
+                } catch (IOException e) {
+                    LOGGER.log(Level.WARNING,
+                            "Failed to delete obsolete extracted directory " + dir.getName() + ": " + e.getMessage());
+                }
+            }
+        }
     }
 
     /**
      * Recursively fetches the specified dependency and its transitive dependencies.
      * <p>
-     * Downloads the .car file for the given dependency, parses its descriptor.xml for additional
-     * dependencies, and recursively fetches those as well. Ensures that each dependency is only
-     * fetched once per invocation to avoid redundant downloads and infinite loops.
+     * If the dependency is already present in the Downloaded directory (as a {@code .car} or
+     * {@code .zip}), the download is skipped and the existing file is used directly for descriptor
+     * parsing. Otherwise the file is fetched from the local Maven repository. After obtaining the
+     * file, its {@code descriptor.xml} is parsed for transitive dependencies which are then fetched
+     * recursively. Each dependency is processed at most once per invocation to prevent duplicate
+     * downloads and infinite loops.
      * </p>
      *
-     * @param dependency          the dependency to fetch
-     * @param downloadDirectory   the directory to store downloaded .car files
-     * @param fetchedDependencies a set of dependency keys already fetched to prevent duplication
+     * @param dependency           the dependency to fetch
+     * @param downloadDirectory    the directory to store downloaded .car files
+     * @param visitedDependencies  a set of dependency keys already visited to prevent duplicate processing and infinite loops
+     * @param resolvedDependencies a set of dependency keys successfully fetched and parsed, used to determine which cached files to keep
      * @param isVersionedDeploymentEnabled indicates if versioned deployment is enabled in the parent project
      * @throws Exception if fetching or parsing fails
      */
     static void fetchDependencyRecursively(DependencyDetails dependency, File downloadDirectory,
-                                           Set<String> fetchedDependencies, boolean isVersionedDeploymentEnabled)
+                                           Set<String> visitedDependencies, Set<String> resolvedDependencies,
+                                           boolean isVersionedDeploymentEnabled, Path userHome)
             throws Exception {
 
-        String dependencyKey = dependency.getGroupId() + ":" + dependency.getArtifact() + ":" + dependency.getVersion();
-        if (fetchedDependencies.contains(dependencyKey)) {
-            return; // Skip already fetched dependencies
+        // Colon separator avoids key collisions as colons are invalid in Maven coordinates.
+        String dependencyKey = dependency.getGroupId() + COLON + dependency.getArtifact() + COLON + dependency.getVersion();
+        if (visitedDependencies.contains(dependencyKey)) {
+            return; // Skip already visited dependencies
         }
 
-        fetchedDependencies.add(dependencyKey);
+        visitedDependencies.add(dependencyKey);
 
-        File carFile = fetchDependencyFile(dependency, downloadDirectory);
-        if (!carFile.exists()) {
-            throw new Exception("Failed to fetch .car file for dependency: " + dependencyKey);
+        String carBaseName = dependency.getGroupId() + HYPHEN + dependency.getArtifact() + HYPHEN + dependency.getVersion();
+
+        // If the dependency is already present in the Downloaded directory (as .car or .zip),
+        // skip fetching and use the existing file directly for descriptor parsing.
+        File existingFile = findInDownloadDirectory(carBaseName, downloadDirectory);
+        File carFile;
+        if (existingFile != null) {
+            LOGGER.log(Level.INFO, "Dependency already in Downloaded directory: " + existingFile.getName());
+            carFile = existingFile;
+        } else {
+            carFile = fetchDependencyFile(dependency, downloadDirectory, userHome);
+            if (!carFile.exists()) {
+                throw new Exception("Failed to fetch .car file for dependency: " + dependencyKey);
+            }
         }
 
         // Parse the descriptor.xml to find transitive dependencies
@@ -158,10 +319,34 @@ public class IntegrationProjectDownloadManager {
             throw e;
         }
 
+        resolvedDependencies.add(dependencyKey);
+
         // Recursively fetch transitive dependencies
         for (DependencyDetails transitiveDependency : transitiveDependencies) {
-            fetchDependencyRecursively(transitiveDependency, downloadDirectory, fetchedDependencies, isVersionedDeploymentEnabled);
+            fetchDependencyRecursively(transitiveDependency, downloadDirectory,
+                    visitedDependencies, resolvedDependencies, isVersionedDeploymentEnabled, userHome);
         }
+    }
+
+    /**
+     * Looks for an existing file for the given dependency base name in the Downloaded directory.
+     * Checks for both the pre-extraction ({@code .car}) and post-extraction ({@code .zip}) variants.
+     *
+     * @param carBaseName       the base name ({@code groupId-artifactId-version}) to look up
+     * @param downloadDirectory the directory to search in
+     * @return the existing file, or {@code null} if neither variant is present
+     */
+    private static File findInDownloadDirectory(String carBaseName, File downloadDirectory) {
+
+        File carFile = new File(downloadDirectory, carBaseName + CAR_EXTENSION);
+        if (carFile.exists() && carFile.isFile()) {
+            return carFile;
+        }
+        File zipFile = new File(downloadDirectory, carBaseName + ZIP_EXTENSION);
+        if (zipFile.exists() && zipFile.isFile()) {
+            return zipFile;
+        }
+        return null;
     }
 
     /**
@@ -176,7 +361,7 @@ public class IntegrationProjectDownloadManager {
      * @param downloadDirectory the directory to store or locate the downloaded .car file
      * @return the File object representing the dependency .car file
      */
-    private static File fetchDependencyFile(DependencyDetails dependency, File downloadDirectory) {
+    private static File fetchDependencyFile(DependencyDetails dependency, File downloadDirectory, Path userHome) {
 
         File dependencyFile = new File(downloadDirectory,
                 dependency.getGroupId() + HYPHEN + dependency.getArtifact() + HYPHEN + dependency.getVersion() + DOT +
@@ -185,7 +370,7 @@ public class IntegrationProjectDownloadManager {
             LOGGER.log(Level.INFO, "Dependency already downloaded: " + dependencyFile.getName());
         } else {
             File existingArtifact = getDependencyFromLocalRepo(dependency.getGroupId(),
-                    dependency.getArtifact(), dependency.getVersion(), dependency.getType());
+                    dependency.getArtifact(), dependency.getVersion(), dependency.getType(), userHome);
             if (existingArtifact != null) {
                 LOGGER.log(Level.INFO, "Copying dependency from local repository: " + dependencyFile.getName());
                 try {
