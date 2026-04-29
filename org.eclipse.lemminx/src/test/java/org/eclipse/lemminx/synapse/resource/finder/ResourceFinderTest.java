@@ -15,7 +15,10 @@
 package org.eclipse.lemminx.synapse.resource.finder;
 
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.AbstractResourceFinder;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.NewProjectResourceFinder;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.ResourceFinderFactory;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ArtifactResource;
+import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.RegistryResource;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.RequestedResource;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.Resource;
 import org.eclipse.lemminx.customservice.synapse.resourceFinder.pojo.ResourceResponse;
@@ -448,6 +451,51 @@ public class ResourceFinderTest {
         assertEqualResourceNames(expectedResourceNames, multipleResources.getRegistryResources());
     }
 
+    @Test
+    public void testGetAllResources() {
+
+        TestNewProjectResourceFinder finder = new TestNewProjectResourceFinder();
+
+        // Simulate a dependent project that contributes a sequence artifact and a sequence registry resource
+        ArtifactResource depSequence = new ArtifactResource();
+        depSequence.setName("depSequence1");
+        ResourceResponse depSequenceResponse = new ResourceResponse();
+        depSequenceResponse.setResources(new ArrayList<>(List.of(depSequence)));
+
+        RegistryResource depSequenceRegistry = new RegistryResource();
+        depSequenceRegistry.setName("depSequenceRegistry1");
+        depSequenceResponse.setRegistryResources(new ArrayList<>(List.of(depSequenceRegistry)));
+        finder.addDependentResources("sequence", depSequenceResponse);
+
+        // Simulate a dependent project that contributes an api artifact
+        ArtifactResource depApi = new ArtifactResource();
+        depApi.setName("depApi1");
+        ResourceResponse depApiResponse = new ResourceResponse();
+        depApiResponse.setResources(new ArrayList<>(List.of(depApi)));
+        finder.addDependentResources("api", depApiResponse);
+
+        Map<String, ResourceResponse> allResources = finder.getAllResources(projectPath);
+
+        // api: 1 from main project + 1 from dependent project
+        ResourceResponse apiResources = allResources.get("api");
+        assertEquals(2, apiResources.getResources().size());
+        assertEqualResourceNames(new String[]{"testApi", "depApi1"}, apiResources.getResources());
+
+        // sequence: 1 artifact from main + 1 from dep; 2 registry from main + 1 from dep
+        ResourceResponse sequenceResources = allResources.get("sequence");
+        assertEquals(2, sequenceResources.getResources().size());
+        assertEquals(3, sequenceResources.getRegistryResources().size());
+        assertEqualResourceNames(new String[]{"testSequence1", "depSequence1"}, sequenceResources.getResources());
+        assertEqualResourceNames(new String[]{"testSequence1", "testSequence2", "depSequenceRegistry1"},
+                sequenceResources.getRegistryResources());
+
+        // endpoint: main project resources unaffected by dependent resources
+        ResourceResponse endpointResources = allResources.get("endpoint");
+        assertEquals(2, endpointResources.getResources().size());
+        assertEquals(4, endpointResources.getRegistryResources().size());
+        assertEqualResourceNames(new String[]{"testEndpoint1", "testEndpoint2"}, endpointResources.getResources());
+    }
+
     private void assertEqualResourceNames(String[] expectedResourceNames, List<Resource> resources) {
 
         List<String> actualResourceNames =
@@ -463,5 +511,12 @@ public class ResourceFinderTest {
         Collections.sort(list1);
         Collections.sort(list2);
         return list1.equals(list2);
+    }
+
+    private static class TestNewProjectResourceFinder extends NewProjectResourceFinder {
+
+        void addDependentResources(String type, ResourceResponse response) {
+            dependentResourcesMap.put(type, response);
+        }
     }
 }

@@ -140,6 +140,25 @@ public class NewProjectResourceFinder extends AbstractResourceFinder {
         }
     }
 
+    /**
+     * Returns all resources in the project, including artifacts, local entries, and registry
+     * resources from both the main project and resolved dependent projects.
+     *
+     * @param projectPath the root directory of the project
+     * @return a map where the key is the resource type and the value is the corresponding ResourceResponse
+     */
+    @Override
+    public Map<String, ResourceResponse> getAllResources(String projectPath) {
+
+        Map<String, ResourceResponse> allResources = findAllResources(projectPath);
+        Map<String, ResourceResponse> dependentResources = getDependentResourcesMap();
+        for (Map.Entry<String, ResourceResponse> entry : dependentResources.entrySet()) {
+            allResources.computeIfAbsent(entry.getKey(), k -> new ResourceResponse());
+            mergeResourceResponses(allResources.get(entry.getKey()), entry.getValue());
+        }
+        return allResources;
+    }
+
     @Override
     protected String getArtifactFolder(String type) {
 

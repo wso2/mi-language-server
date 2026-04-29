@@ -407,6 +407,11 @@ public abstract class AbstractResourceFinder {
         return dependentResourcesMap;
     }
 
+    public Map<String, ResourceResponse> getAllResources(String projectPath) {
+
+        return new HashMap<>();
+    }
+
     private String getFullyQualifiedName(OverviewPageDetailsResponse pomDetailsResponse, Resource resource) {
 
         // For DataServices and proxy services, the name remains unchanged as by default MI server won't expose versioned services

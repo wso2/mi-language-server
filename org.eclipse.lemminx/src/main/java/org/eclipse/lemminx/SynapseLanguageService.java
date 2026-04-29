@@ -339,6 +339,13 @@ public class SynapseLanguageService implements ISynapseLanguageService {
     }
 
     @Override
+    public CompletableFuture<Map<String, ResourceResponse>> getAllResources() {
+
+        Map<String, ResourceResponse> allResources = resourceFinder.getAllResources(projectUri);
+        return CompletableFuture.supplyAsync(() -> allResources);
+    }
+
+    @Override
     public CompletableFuture<Either3<ConnectorResponse, Connector, Boolean>> availableConnectors(ConnectorParam param) {
 
         return CompletableFuture.supplyAsync(() -> {

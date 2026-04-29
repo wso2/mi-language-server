@@ -121,6 +121,9 @@ public interface ISynapseLanguageService {
     CompletableFuture<ResourceResponse> availableResources(ResourceParam param);
 
     @JsonRequest
+    CompletableFuture<Map<String, ResourceResponse>> getAllResources();
+
+    @JsonRequest
     CompletableFuture<Either3<ConnectorResponse, Connector, Boolean>> availableConnectors(ConnectorParam param);
 
     @JsonRequest
