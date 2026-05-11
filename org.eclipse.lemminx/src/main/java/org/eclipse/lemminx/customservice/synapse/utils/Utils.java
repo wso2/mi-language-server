@@ -22,7 +22,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
+
 import com.google.gson.JsonSyntaxException;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -49,8 +49,9 @@ import org.eclipse.lemminx.dom.DOMParser;
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.WorkspaceFolder;
 import org.w3c.dom.Node;
-
+import com.google.gson.JsonPrimitive;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -1136,6 +1137,81 @@ public class Utils {
 
         URI uri = new URI(resourceURL.getPath().substring(0, resourceURL.getPath().indexOf("!")));
         return new File(uri).getAbsolutePath();
+    }
+
+
+
+    public static Map<String, Path> updateSynapseFileAssociationSettings(InitializeParams params)
+            throws IOException, URISyntaxException {
+
+        logger.info("Updating Synapse file association settings");
+
+        List<String> folderUris = new ArrayList<>();
+        List<WorkspaceFolder> workspaceFolders = params.getWorkspaceFolders();
+        if (workspaceFolders != null && !workspaceFolders.isEmpty()) {
+            for (WorkspaceFolder folder : workspaceFolders) {
+                folderUris.add(folder.getUri());
+            }
+        }
+
+        Map<String, Path> workspaceSchemas = new HashMap<>();
+        for (String folderUri : folderUris) {
+            String projectUri = getAbsolutePath(folderUri);
+            Path schemaDir = copyXSDFiles(projectUri);
+            workspaceSchemas.put(folderUri, schemaDir);
+        }
+
+        Object initOptions = params.getInitializationOptions();
+        Gson gson = new Gson();
+        JsonElement jsonElement = gson.toJsonTree(initOptions);
+        if (jsonElement != null && jsonElement.isJsonObject() && jsonElement.getAsJsonObject().has(Constant.SETTINGS)) {
+            JsonObject settings = jsonElement.getAsJsonObject().getAsJsonObject(Constant.SETTINGS);
+            JsonElement updatedParams = updateSynapseFileAssociationSettings(settings, workspaceSchemas);
+            JsonObject updatedRoot = new JsonObject();
+            updatedRoot.add(Constant.SETTINGS, updatedParams);
+            params.setInitializationOptions(updatedRoot);
+        }
+
+        return workspaceSchemas;
+    }
+
+    public static JsonElement updateSynapseFileAssociationSettings(JsonObject settings,
+            Map<String, Path> workspaceSchemas) {
+
+        if (workspaceSchemas == null || workspaceSchemas.isEmpty()) {
+            return settings;
+        }
+
+        JsonArray fileAssociationsArray = new JsonArray();
+        for (Map.Entry<String, Path> entry : workspaceSchemas.entrySet()) {
+            String folderUri = entry.getKey();
+            Path schemaDir = entry.getValue();
+            Path xsdPath = schemaDir.resolve("synapse_config.xsd");
+
+            // Convert the folder URI to a filesystem path for the glob pattern,
+            String patternBase = folderUri;
+            try {
+                patternBase = Paths.get(new URI(folderUri)).toString().replace("\\", "/");
+            } catch (Exception e) {
+                logger.warning("Failed to convert folder URI to filesystem path: " + folderUri);
+                patternBase = folderUri.replace("\\", "/");
+            }
+
+            JsonObject association = new JsonObject();
+            association.addProperty("pattern", patternBase + "/**/*.xml");
+            association.addProperty("systemId", xsdPath.toUri().toString());
+            fileAssociationsArray.add(association);
+        }
+
+        if (settings != null && settings.isJsonObject() && settings.has(Constant.XML)) {
+            JsonObject xmlObj = settings.getAsJsonObject(Constant.XML);
+            xmlObj.add("fileAssociations", fileAssociationsArray);
+            if (xmlObj.has(Constant.CATALOGS)) {
+                xmlObj.remove(Constant.CATALOGS);
+            }
+        }
+
+        return settings;
     }
 
     public static Path updateSynapseCatalogSettings(InitializeParams params) throws IOException, URISyntaxException {
