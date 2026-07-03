@@ -154,22 +154,23 @@ public class InboundConnectorHolder {
                 Utils.extractZip(zip, extractToFolder);
                 String schema = Utils.readFile(extractToFolder.toPath().resolve(Constant.RESOURCES)
                         .resolve(Constant.UI_SCHEMA_JSON).toFile());
-                saveInboundConnector(Utils.getJsonObject(schema).get(Constant.NAME).getAsString(), schema);
-                JsonObject connectorSchema = Utils.getJsonObject(schema);
-                JsonArray connectorArray = this.inboundConnectorListJson.getAsJsonArray(Constant.INBOUND_CONNECTOR_DATA);
-                String connectorId = connectorSchema.get(Constant.ID) != null ?
-                        connectorSchema.get(Constant.ID).getAsString() : StringUtils.EMPTY;
-                if (!isConnectorAlreadyListed(connectorArray, connectorId)) {
-                    JsonObject newConnector = new JsonObject();
-                    newConnector.addProperty(Constant.NAME, connectorSchema.get(Constant.TITLE) != null ?
-                            connectorSchema.get(Constant.TITLE).getAsString() : StringUtils.EMPTY);
-                    newConnector.addProperty(Constant.ID, connectorId);
-                    newConnector.addProperty(Constant.DESCRIPTION, connectorSchema.get(Constant.DESCRIPTION) != null ?
-                            connectorSchema.get(Constant.DESCRIPTION).getAsString() : StringUtils.EMPTY);
-                    newConnector.addProperty(Constant.TYPE, Constant.INBOUND_DASH_ENDPOINT);
-                    connectorArray.add(newConnector);
-                    isInboundConnectorAdded = true;
-                }
+                if (saveInboundConnector(Utils.getJsonObject(schema).get(Constant.NAME).getAsString(), schema)) {
+					JsonObject connectorSchema = Utils.getJsonObject(schema);
+					JsonArray connectorArray = this.inboundConnectorListJson.getAsJsonArray(Constant.INBOUND_CONNECTOR_DATA);
+					String connectorId = connectorSchema.get(Constant.ID) != null ?
+							connectorSchema.get(Constant.ID).getAsString() : StringUtils.EMPTY;
+					if (!isConnectorAlreadyListed(connectorArray, connectorId)) {
+						JsonObject newConnector = new JsonObject();
+						newConnector.addProperty(Constant.NAME, connectorSchema.get(Constant.TITLE) != null ?
+								connectorSchema.get(Constant.TITLE).getAsString() : StringUtils.EMPTY);
+						newConnector.addProperty(Constant.ID, connectorId);
+						newConnector.addProperty(Constant.DESCRIPTION, connectorSchema.get(Constant.DESCRIPTION) != null ?
+								connectorSchema.get(Constant.DESCRIPTION).getAsString() : StringUtils.EMPTY);
+						newConnector.addProperty(Constant.TYPE, Constant.INBOUND_DASH_ENDPOINT);
+						connectorArray.add(newConnector);
+					}
+					isInboundConnectorAdded = true;
+				}
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, "Failed to import custom inbound-connector:" + zipName, e);
             }
