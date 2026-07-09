@@ -35,6 +35,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -51,12 +52,44 @@ public class APIGenerator {
 
     private JsonObject swaggerJson;
     private String publishSwaggerPath;
+    private String context;
     private static final Logger log = Logger.getLogger(APIGenerator.class.getName());
 
     public APIGenerator(JsonObject swaggerJson, String publishSwaggerPath) {
 
+        this(swaggerJson, publishSwaggerPath, null);
+    }
+
+    public APIGenerator(JsonObject swaggerJson, String publishSwaggerPath, String context) {
+
         this.swaggerJson = swaggerJson;
         this.publishSwaggerPath = publishSwaggerPath;
+        this.context = context;
+    }
+
+    /**
+     * Normalize the optionally provided context so that it starts with '/' and has no trailing '/'.
+     *
+     * @return the normalized context, or null when no usable context was provided
+     */
+    private String getNormalizedProvidedContext() {
+
+        if (context == null || context.trim().isEmpty()) {
+            return null;
+        }
+        String resolved = context.trim();
+        // remove trailing '/'
+        if (resolved.length() > 1 && resolved.endsWith("/")) {
+            resolved = resolved.substring(0, resolved.length() - 1);
+        }
+        // add leading '/' if not present
+        if (!resolved.startsWith("/")) {
+            resolved = "/" + resolved;
+        }
+        if (resolved.isEmpty() || "/".equals(resolved)) {
+            return null;
+        }
+        return resolved;
     }
 
     public String generateSynapseAPIXml() {
@@ -81,40 +114,43 @@ public class APIGenerator {
      */
     public API generateSynapseAPI() throws APIGenException {
 
-        String apiContext;
-        if (swaggerJson.get(SwaggerConstants.SERVERS) == null ||
-                swaggerJson.get(SwaggerConstants.SERVERS).getAsJsonArray().size() == 0) {
-            apiContext = SwaggerConstants.DEFAULT_CONTEXT;
-        } else {
-            JsonObject firstServer = swaggerJson.getAsJsonArray(SwaggerConstants.SERVERS).get(0).getAsJsonObject();
-            // get the first path in the servers section
-            String serversString = firstServer.get(SwaggerConstants.URL).getAsString();
-            if (serversString.contains("{") && serversString.contains("}")) {
-                // url is templated, need to resolve
-                if (firstServer.has(SwaggerConstants.VARIABLES)) {
-                    JsonObject variables = firstServer.get(SwaggerConstants.VARIABLES).getAsJsonObject();
-                    serversString = replaceTemplates(serversString, variables);
-                } else {
-                    throw new APIGenException("Server url is templated, but variables cannot be found");
-                }
-            }
-            try {
-                URL url = new URL(serversString);
-                apiContext = url.getPath();
-            } catch (MalformedURLException e) {
-                // url can be relative the place where the swagger is hosted.
-                apiContext = serversString;
-            }
-            if (apiContext.isEmpty() || "/".equals(apiContext)) {
+        // A provided context always takes priority over the one derived from the swagger servers section
+        String apiContext = getNormalizedProvidedContext();
+        if (apiContext == null) {
+            if (swaggerJson.get(SwaggerConstants.SERVERS) == null ||
+                    swaggerJson.get(SwaggerConstants.SERVERS).getAsJsonArray().size() == 0) {
                 apiContext = SwaggerConstants.DEFAULT_CONTEXT;
-            }
-            //cleanup context : remove ending '/'
-            if (apiContext.lastIndexOf('/') == (apiContext.length() - 1)) {
-                apiContext = apiContext.substring(0, apiContext.length() - 1);
-            }
-            // add leading / if not exists
-            if (!apiContext.startsWith("/")) {
-                apiContext = "/" + apiContext;
+            } else {
+                JsonObject firstServer = swaggerJson.getAsJsonArray(SwaggerConstants.SERVERS).get(0).getAsJsonObject();
+                // get the first path in the servers section
+                String serversString = firstServer.get(SwaggerConstants.URL).getAsString();
+                if (serversString.contains("{") && serversString.contains("}")) {
+                    // url is templated, need to resolve
+                    if (firstServer.has(SwaggerConstants.VARIABLES)) {
+                        JsonObject variables = firstServer.get(SwaggerConstants.VARIABLES).getAsJsonObject();
+                        serversString = replaceTemplates(serversString, variables);
+                    } else {
+                        throw new APIGenException("Server url is templated, but variables cannot be found");
+                    }
+                }
+                try {
+                    URL url = new URL(serversString);
+                    apiContext = url.getPath();
+                } catch (MalformedURLException e) {
+                    // url can be relative the place where the swagger is hosted.
+                    apiContext = serversString;
+                }
+                if (apiContext.isEmpty() || "/".equals(apiContext)) {
+                    apiContext = SwaggerConstants.DEFAULT_CONTEXT;
+                }
+                //cleanup context : remove ending '/'
+                if (apiContext.lastIndexOf('/') == (apiContext.length() - 1)) {
+                    apiContext = apiContext.substring(0, apiContext.length() - 1);
+                }
+                // add leading / if not exists
+                if (!apiContext.startsWith("/")) {
+                    apiContext = "/" + apiContext;
+                }
             }
         }
 
@@ -354,7 +390,9 @@ public class APIGenerator {
             while (matcher.find()) {
                 pathParamList.add(matcher.group(1));
             }
-            if (pathParamList.isEmpty()) {
+            // Collect query parameters from the shared path-level and the operation-level definitions
+            List<String> queryParamList = getQueryParameters(resourceObj, methodEntry.getValue());
+            if (pathParamList.isEmpty() && queryParamList.isEmpty()) {
                 // if the path is '/' then it should have none URL style
                 if (!"/".equals(path) || noneURLStyleAdded) {
                     resource.setUrlMapping(path);
@@ -363,7 +401,7 @@ public class APIGenerator {
                     noneURLStyleAdded = true;
                 }
             } else {
-                resource.setUriTemplate(path);
+                resource.setUriTemplate(buildUriTemplate(path, queryParamList));
             }
 
             resource.setInSequence(APIGenerator.getDefaultInSequence(pathParamList));
@@ -375,6 +413,74 @@ public class APIGenerator {
         }
         genAPI.setResource(generatedResources.toArray(new APIResource[generatedResources.size()]));
 
+    }
+
+    /**
+     * Collect the names of query parameters defined for an operation, considering both the
+     * shared path-level parameters and the operation-level parameters of the OpenAPI definition.
+     *
+     * @param resourceObj      json representation of the path item (holds shared path-level parameters)
+     * @param operationElement json representation of the operation (holds operation-level parameters)
+     * @return ordered list of unique query parameter names
+     */
+    private static List<String> getQueryParameters(JsonObject resourceObj, JsonElement operationElement) {
+
+        LinkedHashSet<String> queryParams = new LinkedHashSet<>();
+        // Path-level parameters shared across all operations of the resource
+        collectQueryParameters(resourceObj.get(SwaggerConstants.PARAMETERS), queryParams);
+        // Operation-level parameters
+        if (operationElement != null && operationElement.isJsonObject()) {
+            collectQueryParameters(operationElement.getAsJsonObject().get(SwaggerConstants.PARAMETERS), queryParams);
+        }
+        return new ArrayList<>(queryParams);
+    }
+
+    /**
+     * Add the names of all {@code in: query} parameters in the given parameters array to the collector.
+     *
+     * @param parametersElement json element expected to be the OpenAPI parameters array
+     * @param queryParams       collector preserving insertion order and uniqueness of parameter names
+     */
+    private static void collectQueryParameters(JsonElement parametersElement, LinkedHashSet<String> queryParams) {
+
+        if (parametersElement == null || !parametersElement.isJsonArray()) {
+            return;
+        }
+        for (JsonElement parameterElement : parametersElement.getAsJsonArray()) {
+            if (!parameterElement.isJsonObject()) {
+                continue;
+            }
+            JsonObject parameter = parameterElement.getAsJsonObject();
+            JsonElement in = parameter.get(SwaggerConstants.PARAMETER_IN);
+            JsonElement name = parameter.get(SwaggerConstants.PARAMETER_NAME);
+            if (in != null && name != null && SwaggerConstants.PARAMETER_IN_QUERY.equals(in.getAsString())) {
+                queryParams.add(name.getAsString());
+            }
+        }
+    }
+
+    /**
+     * Build a uri-template from the given path by appending the query parameters as
+     * {@code ?name={name}&...} expressions so they are preserved in the synapse resource.
+     *
+     * @param path           resource path (may contain {@code {pathParam}} placeholders)
+     * @param queryParamList ordered list of query parameter names to append
+     * @return the path itself when there are no query parameters, otherwise the path with the query string
+     */
+    private static String buildUriTemplate(String path, List<String> queryParamList) {
+
+        if (queryParamList.isEmpty()) {
+            return path;
+        }
+        StringBuilder uriTemplate = new StringBuilder(path).append("?");
+        for (int i = 0; i < queryParamList.size(); i++) {
+            String paramName = queryParamList.get(i);
+            if (i > 0) {
+                uriTemplate.append("&");
+            }
+            uriTemplate.append(paramName).append("={").append(paramName).append("}");
+        }
+        return uriTemplate.toString();
     }
 
     /**

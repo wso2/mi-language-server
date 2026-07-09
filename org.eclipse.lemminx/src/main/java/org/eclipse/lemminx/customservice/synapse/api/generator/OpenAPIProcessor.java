@@ -465,7 +465,7 @@ public class OpenAPIProcessor {
                     }
                     // remove deleted parameters from swagger
                     if (newParameter.size() > 0) {
-                        parameters.removeIf(c -> !newParameter.contains(c) && (c instanceof PathParameter));
+                        parameters.removeIf(c -> !newParameter.contains(c) && (c instanceof PathParameter || c instanceof QueryParameter));
                     }
                 } else {
                     populateParameters(pathItem, methodMap);
