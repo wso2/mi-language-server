@@ -69,8 +69,11 @@ public class InboundEndpointVisitor implements SchemaVisitor {
         if (StringUtils.isEmpty(inboundVariableName)) {
             return;
         }
-        InboundConnectorHolder holder = InboundConnectorHolder.getInstance();
-        if (holder == null) {
+        InboundConnectorHolder holder;
+        try {
+            holder = InboundConnectorHolder.getInstance();
+        } catch (IllegalStateException e) {
+            LOGGER.severe("Inbound connector holder is not initialized");
             return;
         }
         String id = inboundEndpoint.getProtocol() != null ? inboundEndpoint.getProtocol()
@@ -83,8 +86,6 @@ public class InboundEndpointVisitor implements SchemaVisitor {
             return;
         }
         inputSchema.setKey(inboundVariableName);
-        // Added to the output; Utils.visitMediators calls replaceInputWithOutput() before
-        // visiting the sequence, so this becomes the sequence's input state.
         info.addOutputVariable(inputSchema);
     }
 

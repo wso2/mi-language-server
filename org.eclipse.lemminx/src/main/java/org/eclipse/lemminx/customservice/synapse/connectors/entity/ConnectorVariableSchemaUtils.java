@@ -74,10 +74,9 @@ public class ConnectorVariableSchemaUtils {
                     if (ref.startsWith(Constant.SCHEMA_DEFINITION) && definitions != null) {
                         String definitionKey = ref.substring(Constant.SCHEMA_DEFINITION.length());
 
-                        // Prevent circular references
+                        // Prevent circular references. Keep processedRefs path-scoped: do not mutate the
+                        // shared set, so sibling properties can reuse the same definition.
                         if (!processedRefs.contains(definitionKey)) {
-                            processedRefs.add(definitionKey);
-
                             JsonObject definitionObj = definitions.getAsJsonObject(definitionKey);
                             if (definitionObj != null) {
                                 // Create property with the key from the property name
@@ -90,10 +89,12 @@ public class ConnectorVariableSchemaUtils {
 
                                 // Extract nested properties from the definition
                                 if (definitionObj.has(Constant.PROPERTIES)) {
+                                    Set<String> nestedRefs = new HashSet<>(processedRefs);
+                                    nestedRefs.add(definitionKey);
                                     List<Property> nestedProps = extractProperties(
                                             definitionObj.getAsJsonObject(Constant.PROPERTIES),
                                             definitions,
-                                            new HashSet<>(processedRefs)
+                                            nestedRefs
                                     );
                                     property.setProperties(nestedProps);
                                 }
