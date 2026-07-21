@@ -309,7 +309,7 @@ public class InboundConnectorHolder {
     public Property getInboundConnectorInputSchema(String id) {
 
         String inputSchemaPath = inboundConnectorInputSchemas.get(id);
-        if (inputSchemaPath == null) {
+        if (StringUtils.isEmpty(inputSchemaPath)) {
             return null;
         }
         try {

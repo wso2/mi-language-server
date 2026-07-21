@@ -15,6 +15,7 @@
 package org.eclipse.lemminx.customservice.synapse.mediator.schema.generate;
 
 import com.google.gson.JsonPrimitive;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.lemminx.customservice.synapse.InvalidConfigurationException;
 import org.eclipse.lemminx.customservice.synapse.mediator.TryOutUtils;
 import org.eclipse.lemminx.customservice.synapse.mediator.schema.generate.visitor.SchemaVisitor;
@@ -55,9 +56,9 @@ public class ServerLessTryoutHandler {
                 String editFilePath = TEMP_FOLDER.resolve(TEMP_FILE_NAME).toString();
                 if (node instanceof InboundEndpoint) {
                     String sequence = ((InboundEndpoint) node).getSequence();
-                    if (sequence != null) {
+                    if (StringUtils.isNotEmpty(sequence)) {
                         String seqPath = ConfigFinder.findEsbComponentPath(sequence, Constant.SEQUENCES, projectUri);
-                        if (seqPath != null) {
+                        if (StringUtils.isNotEmpty(seqPath)) {
                             documentUri = seqPath;
                         }
                     }
@@ -83,7 +84,7 @@ public class ServerLessTryoutHandler {
 
     private STNode getSTNode(String filePath) throws IOException, InvalidConfigurationException {
 
-        if (filePath == null) {
+        if (StringUtils.isEmpty(filePath)) {
             throw new IllegalArgumentException("FilePath is null");
         }
         DOMDocument domDocument = Utils.getDOMDocument(new File(filePath));

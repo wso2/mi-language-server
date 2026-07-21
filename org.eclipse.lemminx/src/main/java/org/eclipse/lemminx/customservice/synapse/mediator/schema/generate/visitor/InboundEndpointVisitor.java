@@ -78,7 +78,7 @@ public class InboundEndpointVisitor implements SchemaVisitor {
         }
         String id = inboundEndpoint.getProtocol() != null ? inboundEndpoint.getProtocol()
                 : inboundEndpoint.getClazz();
-        if (id == null) {
+        if (StringUtils.isEmpty(id)) {
             return;
         }
         Property inputSchema = holder.getInboundConnectorInputSchema(id);
